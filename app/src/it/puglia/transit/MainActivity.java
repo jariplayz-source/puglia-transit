@@ -272,7 +272,10 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                 try {
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
-                    if (url.contains("viaggiatreno.it")) {
+                    if (url.contains("transitous.org")) {
+                        c.setRequestProperty("User-Agent", "PugliaTransit/6.0 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("Accept", "application/json");
+                    } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
@@ -353,6 +356,20 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     }
 
     /** Travel group: encryption, relay, live location sharing, album files, sharing with other apps. */
+    /** Dutch road situation near points (NDW open data). */
+    public class Road {
+        @JavascriptInterface
+        public void near(final String ptsJson, final double radiusKm, final String key) {
+            new Thread(new Runnable() { public void run() {
+                JSONObject res = new JSONObject();
+                try { res = RoadInfo.near(new JSONArray(ptsJson), radiusKm, 40); }
+                catch (Exception e) { try { res.put("ok", false); res.put("error", e.getMessage() == null ? "no answer" : e.getMessage()); } catch (Exception ignored) {} }
+                final String js = "window.onRoadResult&&window.onRoadResult(" + JSONObject.quote(key) + "," + res.toString() + ")";
+                web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } });
+            }}).start();
+        }
+    }
+
     public class Group {
         @JavascriptInterface public String newKey() { return GroupCore.newKey(); }
         @JavascriptInterface public String newTopic() { return GroupCore.newTopic(); }
@@ -585,6 +602,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         web.addJavascriptInterface(new Bg(), "AndroidBg");
         web.addJavascriptInterface(new Notify(), "AndroidNotify");
         web.addJavascriptInterface(new Group(), "AndroidGroup");
+        web.addJavascriptInterface(new Road(), "AndroidRoad");
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback cb) {

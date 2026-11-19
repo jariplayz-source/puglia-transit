@@ -440,6 +440,33 @@ details.alert p{margin-top:6px}
 .base-msg{position:absolute;left:12px;right:12px;top:112px;z-index:7;background:var(--card);color:var(--ink);border-radius:14px;padding:10px 12px;box-shadow:var(--float);font-size:14px}
 .base-msg button{border:0;background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:5px 10px;font:inherit;font-weight:700;margin-left:6px}
 .dep.tap{cursor:pointer}.dep .legs{margin-top:6px;font-size:13px;line-height:1.5}.dep .legs div{padding:2px 0}
+
+/* ---------- country designs ---------- */
+html[data-country="it"]{--bg:#f2eee7;--card:#fffdf9;--card2:#f7f2ea;--ink:#241e18;--muted:#6c6155;--line:#e5dccf;--accent:#0a6b4b;--accent-ink:#fff;--accent-soft:#dcede4;--train:#0a6b4b;--chip:#ece5da;--tip:#f5efe5;--flag:linear-gradient(90deg,#009246 0 33.3%,#e9e3d8 33.3% 66.6%,#ce2b37 66.6%)}
+html[data-country="it"][data-theme="dark"]{--bg:#14110e;--card:#1f1a16;--card2:#27211b;--ink:#efe7dc;--muted:#a99c8c;--line:#352d25;--accent:#4cc38a;--accent-ink:#062519;--accent-soft:#1c3a2c;--train:#4cc38a;--chip:#2b241e;--tip:#27211b;--flag:linear-gradient(90deg,#1f9d5c 0 33.3%,#e9e3d8 33.3% 66.6%,#e0454f 66.6%)}
+html[data-country="it"] h1,html[data-country="it"] h2,html[data-country="it"] .dest{font-family:"Noto Serif","Source Serif Pro",Georgia,serif;letter-spacing:-.005em}
+html[data-country="it"] .card{border-radius:14px}
+html[data-country="nl"]{--bg:#edf1f6;--card:#fff;--card2:#f3f6fa;--ink:#13203a;--muted:#56637a;--line:#dbe2ec;--accent:#1f4fa3;--accent-ink:#fff;--accent-soft:#e0e8f6;--train:#1f4fa3;--bus:#e8600f;--chip:#e6ecf4;--tip:#f1f4f9;--flag:linear-gradient(90deg,#ae1c28 0 33.3%,#dfe5ee 33.3% 66.6%,#21468b 66.6%)}
+html[data-country="nl"][data-theme="dark"]{--bg:#0b111d;--card:#131b2b;--card2:#192336;--ink:#e6ecf6;--muted:#97a5bd;--line:#232f46;--accent:#79a6ff;--accent-ink:#0a1530;--accent-soft:#1a2947;--train:#79a6ff;--bus:#ff8a3d;--chip:#1d273b;--tip:#192336;--flag:linear-gradient(90deg,#d9414c 0 33.3%,#dfe5ee 33.3% 66.6%,#4b74c9 66.6%)}
+html[data-country="nl"] h1,html[data-country="nl"] h2,html[data-country="nl"] .dest{font-weight:800;letter-spacing:-.02em}
+html[data-country="nl"] .card{border-radius:10px}
+html[data-country="nl"] .badge{background:#ff7a1a;color:#fff}
+.appbar h1::after{content:"";display:block;width:44px;height:4px;border-radius:2px;margin-top:6px;background:var(--flag,transparent)}
+html[data-country="xx"] .appbar h1::after{display:none}
+/* ---------- home mode ---------- */
+body.mode-home #alertTop,body.mode-home #hereBox,body.mode-home #backBox,body.mode-home #depBox,body.mode-home #v-dest .home-h,body.mode-home #q,body.mode-home #chips,
+body.mode-home #v-dest .sortbar,body.mode-home #dest,body.mode-home #v-dest>p.small,body.mode-home #lastBanner,body.mode-home nav [data-v="trips"]{display:none!important}
+body:not(.mode-home) #nlHome{display:none}
+.rain{margin-top:8px;font-size:14px}.rbars{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:6px}.rbars span{flex:1;background:var(--accent);border-radius:3px 3px 0 0}
+.rlab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.rd{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px}.rd .ri{font-size:18px}
+.ln{display:inline-block;min-width:22px;text-align:center;padding:0 6px;border-radius:6px;background:var(--chip);font-weight:800;font-size:13px}
+.dep.gone .t,.dep.gone .to{text-decoration:line-through;opacity:.6}
+.sugg{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:12px;margin:4px 0 0 52px;overflow:hidden}
+.sugg button{border:0;background:none;text-align:left;padding:9px 12px;font:inherit;color:var(--ink);border-bottom:1px solid var(--line);cursor:pointer}.sugg button span{display:block;font-size:12.5px;color:var(--muted)}
+.rt{padding:10px 0;border-bottom:1px solid var(--line)}.rt-h{display:flex;align-items:baseline;gap:8px}.rt-h b{font-size:16px}.rt-h .tr{flex:1}
+.rt-warn{margin:4px 0;font-size:13.5px;color:var(--warn);font-weight:600}
+b.late{color:var(--warn)}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -455,6 +482,7 @@ details.alert p{margin-top:6px}
 <main>
   <!-- DESTINATIONS -->
   <section class="view on" id="v-dest">
+    <div id="nlHome"></div>
     <div id="alertTop"></div>
     <div class="card" id="hereBox" style="display:none"></div>
     <div class="card back" id="backBox"></div>
@@ -1062,7 +1090,7 @@ function renderHere(){
   const b=document.getElementById("hereBox");if(!b)return;
   if(!hereTown){b.style.display="none";return;}
   b.style.display="block";
-  {const ht=document.getElementById("hdrTitle");if(ht)ht.textContent="📍 "+hereTown;}
+  {const ht=document.getElementById("hdrTitle");if(ht&&appMode()!=="home")ht.textContent="📍 "+hereTown;}
   b.innerHTML=`<div class="trip-h"><div class="dest">Now in ${hereTown}</div></div>${wxLine(hereTown)}${todo(hereTown,true,6,hereTodoOpen)}`;
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-hereall]");if(b){hereAll=!hereAll;renderHere();}});
@@ -1138,9 +1166,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="5.2.3";            // bump on every release
+const APP_VERSION="6.0";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.0","Country designs (Italian here, Dutch at home) and Home mode for the Netherlands: weather with rain in the next 2 hours, roads near you (jams, accidents, closures), departures near you, trip planner and saved routes"],
  ["5.2","Tidier app: 5 tabs (Home, Map, Trips, Nearby, Group), settings behind the ⚙️ button, strike alerts fold up, Getting back and Next trains at the top. Street map repairs itself when it comes up blank"],
  ["5.1","Group is now like Polarsteps + Life360: record your journey (route, photo steps, stats, day by day), battery and walking/on-the-move status, arrive/leave alerts, I'm OK check-in, SOS"],
  ["5.0","Travel group (encrypted live location, photo album with notes, voice notes that play by themselves), weather, live departure board, ticket help, notifications, shared costs"],
@@ -1398,7 +1427,7 @@ function updatePanel(){
   el("npRoute").textContent=routeText();
   el("npInfo").textContent=(route&&route.ok?`Next: head ${cardinal(b)} · `:`${cardinal(b)} (${Math.round(b)}°) of you · `)+(heading==null?"arrow: top of screen = north":"arrow points the way, hold the phone flat")+(out?" · you're outside the map area":"")+(me.acc>200?` · GPS accuracy ±${Math.round(me.acc)} m`:"");
 }
-function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};updateHere();followTick();
+function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTimeout(()=>{applyCountry();if(first&&appMode()==="home")renderNL();nlMoved();},0);updateHere();followTick();
   if(!onLocation._s||Date.now()-onLocation._s>30000){onLocation._s=Date.now();try{localStorage.setItem("pt-lastme",JSON.stringify([+lat.toFixed(5),+lon.toFixed(5)]));}catch(e){}}
   if(first&&!mapMoved&&activeTrip==null&&!walking){
     if(lat>MB.s&&lat<MB.n&&lon>MB.w&&lon<MB.e){const [x,y]=proj(lat,lon);vb=[x-40,y-36,80,72];}
@@ -1781,7 +1810,7 @@ function decodePois(b,z,x,y){
   while(i<b.length){const t=vr(),f=Math.floor(t/8),w=t&7;if(f===3&&w===2){const l=vr(),end=i+l;layer(end);i=end;}else skip(w);}
   return out;
 }
-async function shopsFromMap(town){
+async function shopsFromMap(town){if(!PT[town])return null;
   if(!HAS_MAPS())return null;const bb=townBox(town);if(!bb)return null;const z=15,n=1<<z;
   const tx=lon=>Math.floor((lon+180)/360*n),ty=lat=>{const r=lat*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n);};
   const x0=tx(bb[0]),x1=tx(bb[2]),y0=ty(bb[3]),y1=ty(bb[1]);if((x1-x0+1)*(y1-y0+1)>600)return null;
@@ -2145,7 +2174,7 @@ function shopInfo(t){const x=[];
   if(t.organic==="yes"||t.organic==="only")x.push("organic");if(t.wheelchair==="yes")x.push("step-free");if(t.self_checkout==="yes")x.push("self-checkout");
   return x.join(" · ");}
 async function nominatimShops(town){
-  const c=PT[town],d=0.03,box=`${c[1]-d*1.3},${c[0]+d},${c[1]+d*1.3},${c[0]-d}`,els=[];
+  const c=shopC(town),d=0.03,box=`${c[1]-d*1.3},${c[0]+d},${c[1]+d*1.3},${c[0]-d}`,els=[];
   for(const q of ["supermarket","convenience","bakery","bar","cafe","pub","ice cream"]){
     try{const txt=await netGet(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent("["+q+"]")}&format=jsonv2&limit=50&extratags=1&addressdetails=1&bounded=1&viewbox=${box}`,20000);
       for(const r of JSON.parse(txt)){const t=Object.assign({},r.extratags||{});t.name=r.name||t.name;const ad=r.address||{};
@@ -2161,7 +2190,7 @@ async function overpassGet(ql){let why="";
     catch(e){why=e.message;if(/internet|offline/i.test(why))throw e;if(how==="post"&&/post not available/.test(why))continue;}}}
   throw new Error(why||"no answer");}
 async function fetchShops(town){
-  const c=PT[town];if(!c)return false;const big=/^(Bari|Lecce|Taranto|Brindisi|Matera)$/.test(town),A=`(around:${big?2500:1600},${c[0]},${c[1]})`;
+  const c=shopC(town);if(!c)return false;const big=town==="Near me"||/^(Bari|Lecce|Taranto|Brindisi|Matera)$/.test(town),A=`(around:${big?2500:1600},${c[0]},${c[1]})`;
   const ql=`[out:json][timeout:30];(nwr["shop"~"^(supermarket|convenience|general|greengrocer|bakery|pastry|confectionery|deli|butcher|wine|alcohol)$"]["name"]${A};nwr["amenity"~"^(bar|cafe|pub|biergarten|ice_cream)$"]["name"]${A};);out center tags 500;`;
   let j;try{j=await overpassGet(ql);}catch(e){j=await nominatimShops(town).catch(()=>{throw e;});}
   const items=[],seen=new Set();
@@ -2173,7 +2202,7 @@ async function fetchShops(town){
   items.sort((a,b)=>(a.c==="super"?0:1)-(b.c==="super"?0:1)||(a.oh?0:1)-(b.oh?0:1));
   const old=SHOPS[town];if(old&&old.src==="map")for(const m of old.items){if(!items.some(x=>hav([x.lat,x.lon],[m.lat,m.lon])<0.08&&(nameScore(x.n,m.n)>=0.5||nameScore(m.n,x.n)>=0.5)))items.push(m);}
   if(!items.length)throw new Error("no shops found");
-  SHOPS[town]={ts:Date.now(),at:new Date().toISOString().slice(0,10),items:items.slice(0,260)};saveShops();renderShops();return true;
+  SHOPS[town]={ts:Date.now(),at:new Date().toISOString().slice(0,10),items:items.slice(0,260),c};saveShops();renderShops();return true;
 }
 const CHAINS=[
  [/^conad/i,"Conad: Italy's biggest supermarket co-op, good fresh counter","Mo-Sa 08:00-21:00; Su 09:00-13:00"],
@@ -2270,9 +2299,11 @@ function ohStatus(s,now=new Date()){
 function ohTable(s){const o=ohParse(s);if(!o)return "";if(o.all)return `<div style="margin:4px 0 8px">Open 24 hours, every day</div>`;const d=(new Date().getDay()+6)%7;const N=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   return `<table>${o.week.map((sp,i)=>`<tr class="${i===d?"today":""}"><td>${N[i]}</td><td>${sp.length?sp.map(([a,b])=>fmt(a)+"–"+fmt(b%1440)).join(", "):"Closed"}</td></tr>`).join("")}</table>`;}
 let shTown=null,shCat="super",shOpen=false,shOpenRow=null,shSort="near";try{shSort=localStorage.getItem("pt-shsort")||"near";}catch(e){}const shTried=new Set();
-function shopTowns(){return cityTowns().filter(t=>OFFL.has(t)||SHOPS[t]||mapAreaOf(t));}
+function shopTowns(){if(appMode()==="home")return me||SHOPS["Near me"]?["Near me"]:[];return cityTowns().filter(t=>OFFL.has(t)||SHOPS[t]||mapAreaOf(t));}
+const shopC=t=>t==="Near me"?(me?[me.lat,me.lon]:(SHOPS["Near me"]&&SHOPS["Near me"].c)):PT[t];
 function renderShops(){
   const b=document.getElementById("shopsBox");if(!b)return;const towns=shopTowns();
+  if(!towns.length&&appMode()==="home"){b.innerHTML=`<div class="card sh-empty">📍 Waiting for your location… then supermarkets around you show up here with opening hours.</div>`;return;}
   if(!towns.length){b.innerHTML=`<div class="card sh-empty">Save a city first, then its supermarkets and bars show up here with their opening hours, also offline.
     ${window.AndroidNet&&hereTown?`<div class="btns" style="justify-content:center"><button class="btn primary" data-cdl2="${hereTown}">⬇ Save ${hereTown}</button></div>`:`<div class="small" style="margin-top:8px">Info → Offline cities</div>`}</div>`;return;}
   if(!shTown||!towns.includes(shTown))shTown=towns.includes(hereTown)?hereTown:towns[0];
@@ -3010,10 +3041,201 @@ function applyTheme(){
 }
 function renderSet(){const b=document.getElementById("setBox");if(!b)return;
   b.innerHTML=`<div class="dest">Appearance</div><div class="seg">${[["auto","Auto"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button data-theme-set="${k}" class="${THEME===k?"on":""}">${l}</button>`).join("")}</div>
-    <div class="small" style="margin-top:6px">Auto follows your phone's dark mode.</div>`;}
+    <div class="small" style="margin-top:6px">Auto follows your phone's dark mode.</div>${countrySet()}`;}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-theme-set]");if(!b)return;THEME=b.dataset.themeSet;try{localStorage.setItem("pt-theme",THEME);}catch(e){}applyTheme();});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&THEME==="auto")applyTheme();});
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>THEME==="auto"&&applyTheme());}catch(e){}
+
+/* =====================================================================
+   COUNTRIES & MODES
+   Design follows the country you're in (Italy / Netherlands / neutral).
+   Mode: Travel (Puglia: day trips, last train back) or Home (Netherlands: daily tools).
+   ===================================================================== */
+var COUNTRY_BOX={it:[35.3,6.6,47.1,18.6],nl:[50.72,3.2,53.6,7.25]};
+var COUNTRY_NAME={it:"Italy",nl:"Netherlands",xx:"Neutral"};
+var SET_COUNTRY="auto",SET_MODE="auto",LAST_C="it";
+try{SET_COUNTRY=localStorage.getItem("pt-country")||"auto";SET_MODE=localStorage.getItem("pt-appmode")||"auto";LAST_C=localStorage.getItem("pt-lastc")||"it";}catch(e){}
+function countryAt(lat,lon){for(const k in COUNTRY_BOX){const b=COUNTRY_BOX[k];if(lat>=b[0]&&lat<=b[2]&&lon>=b[1]&&lon<=b[3])return k;}return "xx";}
+function curCountry(){if(SET_COUNTRY!=="auto")return SET_COUNTRY;return me?countryAt(me.lat,me.lon):LAST_C;}
+function appMode(){if(SET_MODE!=="auto")return SET_MODE;return curCountry()==="nl"?"home":"travel";}
+var appliedKey="";
+function applyCountry(){
+  const c=curCountry(),m=appMode(),key=c+"|"+m;
+  if(me&&SET_COUNTRY==="auto"&&c!==LAST_C){LAST_C=c;try{localStorage.setItem("pt-lastc",c);}catch(e){}}
+  document.documentElement.dataset.country=c;
+  document.body.classList.toggle("mode-home",m==="home");document.body.classList.toggle("mode-travel",m!=="home");
+  if(key===appliedKey)return;appliedKey=key;
+  if(m==="home"){renderNL();if(document.body.classList.contains("tab-trips"))showTab("dest");}
+  try{planNotifs();}catch(e){}
+  try{renderShops();}catch(e){}
+  try{renderSet();}catch(e){}
+}
+function countrySet(){return `<div class="dest" style="margin-top:14px">Country design</div>
+  <div class="seg">${[["auto","Auto"],["it","🇮🇹 Italy"],["nl","🇳🇱 NL"],["xx","Neutral"]].map(([k,l])=>`<button data-cset="${k}" class="${SET_COUNTRY===k?"on":""}">${l}</button>`).join("")}</div>
+  <div class="dest" style="margin-top:14px">Mode</div>
+  <div class="seg">${[["auto","Auto"],["travel","🧳 Travel"],["home","🏠 Home"]].map(([k,l])=>`<button data-mset="${k}" class="${SET_MODE===k?"on":""}">${l}</button>`).join("")}</div>
+  <div class="small" style="margin-top:6px">Auto: the look follows the country you're in (now ${COUNTRY_NAME[curCountry()]}). Home mode switches on in the Netherlands: departures near you, trip planner, saved routes and traffic. Travel mode is for Puglia: day trips and the last train back.</div>`;}
+document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest("[data-cset],[data-mset]");if(!c)return;
+  if(c.dataset.cset){SET_COUNTRY=c.dataset.cset;try{localStorage.setItem("pt-country",SET_COUNTRY);}catch(x){}}
+  if(c.dataset.mset){SET_MODE=c.dataset.mset;try{localStorage.setItem("pt-appmode",SET_MODE);}catch(x){}}
+  appliedKey="";applyCountry();renderSet();});
+
+/* ---------- small helpers ---------- */
+const hmI=iso=>{const d=new Date(iso);return isNaN(d)?"":String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
+const minsTxt=s=>{const m=Math.round(s/60);return m<60?m+" min":Math.floor(m/60)+" h "+(m%60?m%60+" min":"");};
+const escH=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const MODE_IC=m=>/RAIL|SUBURBAN|HIGHSPEED|LONG_DISTANCE|NIGHT_RAIL/.test(m)?"🚆":/BUS|COACH/.test(m)?"🚌":/TRAM/.test(m)?"🚊":/SUBWAY|METRO/.test(m)?"🚇":/FERRY/.test(m)?"⛴":/WALK/.test(m)?"🚶":/BIKE|RENTAL/.test(m)?"🚲":/CAR/.test(m)?"🚗":"🚍";
+const TR="https://api.transitous.org/api";
+async function trGet(path){if(!window.AndroidNet)throw new Error("Works in the Android app");if(navigator.onLine===false)throw new Error("No internet");
+  const t=await netGet(TR+path,20000);try{return JSON.parse(t);}catch(e){throw new Error("Transitous sent something unreadable");}}
+
+/* ---------- NLHOME (NL) state ---------- */
+var NLHOME=null,SAVED=[],HWX=null,PLACE_NM={};
+try{NLHOME=JSON.parse(localStorage.getItem("pt-home"))||null;SAVED=JSON.parse(localStorage.getItem("pt-routes"))||[];HWX=JSON.parse(localStorage.getItem("pt-hwx"))||null;PLACE_NM=JSON.parse(localStorage.getItem("pt-placenm"))||{};}catch(e){}
+const saveRoutes=()=>{try{localStorage.setItem("pt-routes",JSON.stringify(SAVED));}catch(e){}};
+var nlDep={busy:false,err:"",list:null,at:0},nlRoad={busy:false,err:"",list:null,at:0},nlPlan={to:null,busy:false,err:"",its:null,open:-1,sugg:[],q:""},nlRouteRes={};
+
+function renderNL(){
+  const b=document.getElementById("nlHome");if(!b)return;
+  if(!b.dataset.built){b.dataset.built=1;
+    b.innerHTML=`<div class="card" id="nlNow"></div><div class="card" id="nlRoad"></div><div class="card" id="nlDep"></div><div class="card" id="nlPlan"></div><div class="card" id="nlSaved"></div>
+      <p class="small">Public transport by <a href="https://transitous.org/sources/">Transitous</a> (open data). Road info: NDW open data. Weather: Open-Meteo.</p>`;}
+  renderNlNow();renderNlRoad();renderNlDep();renderNlPlan();renderNlSaved();
+  if(me){if(!nlDep.list&&!nlDep.busy&&!nlDep.err)loadNlDep();if(!nlRoad.list&&!nlRoad.busy&&!nlRoad.err)loadNlRoad();fetchHereWx(false);placeName(me.lat,me.lon);}
+}
+
+/* ---------- Now: place, weather, rain in the next 2 hours ---------- */
+async function placeName(lat,lon){const k=lat.toFixed(2)+","+lon.toFixed(2);if(PLACE_NM[k])return PLACE_NM[k];if(!window.AndroidNet||navigator.onLine===false)return "";
+  try{const j=JSON.parse(await netGet(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat=${lat}&lon=${lon}`,15000));const a=j.address||{};
+    const n=a.city||a.town||a.village||a.municipality||a.suburb||"";if(n){PLACE_NM[k]=n;try{localStorage.setItem("pt-placenm",JSON.stringify(PLACE_NM));}catch(e){}renderNlNow();}return n;}catch(e){return "";}}
+function hereName(){if(!me)return "";const k=me.lat.toFixed(2)+","+me.lon.toFixed(2);return PLACE_NM[k]||"";}
+var hwxBusy=false;
+async function fetchHereWx(force){if(!me||hwxBusy||!window.AndroidNet||navigator.onLine===false)return;
+  if(!force&&HWX&&Date.now()-HWX.ts<20*60e3&&hav([HWX.lat,HWX.lon],[me.lat,me.lon])<5)return;hwxBusy=true;
+  try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${me.lat.toFixed(3)}&longitude=${me.lon.toFixed(3)}&current=temperature_2m,weather_code,is_day,precipitation,wind_speed_10m&minutely_15=precipitation&forecast_minutely_15=12&hourly=precipitation_probability,precipitation&forecast_hours=24&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&forecast_days=2&timezone=auto`;
+    const j=JSON.parse(await netGet(u,20000));HWX={ts:Date.now(),lat:me.lat,lon:me.lon,j};try{localStorage.setItem("pt-hwx",JSON.stringify(HWX));}catch(e){}renderNlNow();}catch(e){}finally{hwxBusy=false;}}
+function rainSoon(j){const m=j&&j.minutely_15;if(!m||!m.time)return null;const now=Date.now();const pts=[];
+  for(let i=0;i<m.time.length;i++){const t=new Date(m.time[i]).getTime();if(t+15*60e3<now)continue;pts.push([t,m.precipitation[i]||0]);if(pts.length>=8)break;}
+  if(!pts.length)return null;const wet=v=>v>=0.1;let txt;
+  if(wet(pts[0][1])){const dry=pts.find(p=>!wet(p[1]));txt=dry?`☔ Raining now, dry from about ${hmI(dry[0])}`:"☔ Raining now, for the next 2 hours";}
+  else{const w=pts.find(p=>wet(p[1]));txt=w?`🌂 Rain from about ${hmI(w[0])}`:"No rain in the next 2 hours";}
+  const max=Math.max(1,...pts.map(p=>p[1]));
+  return {txt,bars:`<div class="rbars">${pts.map(p=>`<span title="${hmI(p[0])}" style="height:${Math.max(2,Math.round(p[1]/max*26))}px;${wet(p[1])?"":"opacity:.35"}"></span>`).join("")}</div><div class="rlab"><span>now</span><span>+1 h</span><span>+2 h</span></div>`};}
+function renderNlNow(){const b=document.getElementById("nlNow");if(!b)return;
+  const nm=hereName(),j=HWX&&HWX.j,cur=j&&j.current,d=j&&j.daily;let wx="";
+  {const ht=document.getElementById("hdrTitle");if(ht)ht.textContent="📍 "+(nm||"Here");}
+  if(cur){let [ic,tx]=WMO(cur.weather_code);if(cur.is_day===0&&cur.weather_code<=2){ic="🌙";tx=cur.weather_code===0?"Clear":"Partly cloudy";}
+    const r=rainSoon(j);
+    wx=`<div class="wx"><span class="wi">${ic}</span><span><b>${Math.round(cur.temperature_2m)}°</b> now · ${tx}${d?`, ${Math.round(d.temperature_2m_min[0])}–${Math.round(d.temperature_2m_max[0])}°`:""}${cur.wind_speed_10m>=40?" · 💨 windy":""}</span>
+      ${d&&d.time[1]?`<span>Tomorrow ${WMO(d.weather_code[1])[0]} ${Math.round(d.temperature_2m_min[1])}–${Math.round(d.temperature_2m_max[1])}°${d.precipitation_sum[1]>=1?` · 🌂 ${Math.round(d.precipitation_sum[1])} mm`:" · dry"}</span>`:""}</div>
+      ${r?`<div class="rain"><b>${r.txt}</b>${r.bars}</div>`:""}`;}
+  const away=NLHOME&&me?hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon]):null;
+  b.innerHTML=`<div class="trip-h"><div class="dest">${nm?"Now in "+escH(nm):me?"Here":"Waiting for your location…"}</div>${NLHOME?(away!=null&&away>1?`<span class="badge">${kmTxt(away)} from home</span>`:`<span class="badge">🏠 home</span>`):""}</div>${wx||(me?`<div class="small">Getting the weather…</div>`:"")}
+    ${!NLHOME&&me?`<div class="btns"><button class="btn ghost" id="nlSetHome">🏠 This is my home</button></div><div class="small">Set it once, then you get "Home" routes and traffic on the way home.</div>`:""}`;
+  const s=b.querySelector("#nlSetHome");if(s)s.onclick=()=>{NLHOME={lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),name:nm||"Home"};try{localStorage.setItem("pt-home",JSON.stringify(NLHOME));}catch(e){}toast("🏠 Home saved");renderNL();};
+}
+
+/* ---------- Road info (NDW): jams, accidents, closures near you and on your routes ---------- */
+const ROAD_KIND=r=>{const t=r.type||"",a=r.abnormalTrafficType||"",m=r.roadOrCarriagewayOrLaneManagementType||"";
+  if(t==="AbnormalTraffic")return a==="stationaryTraffic"?["🟥","Standstill",0]:a==="queuingTraffic"?["🟧","Queue",0]:a==="slowTraffic"?["🟨","Slow traffic",1]:["🟨","Heavy traffic",1];
+  if(t==="Accident")return ["💥","Accident",0];
+  if(/VehicleObstruction|AnimalPresenceObstruction|GeneralObstruction|EnvironmentalObstruction/.test(t))return ["⚠️","Obstruction"+(r.vehicleObstructionType?" (broken-down vehicle)":""),0];
+  if(t==="RoadOrCarriagewayOrLaneManagement"){if(/hardShoulderRunning/.test(m))return null;return /roadClosed|carriagewayClosures/.test(m)?["⛔","Road closed",0]:/laneClosures|narrowLanes|singleAlternateLineTraffic/.test(m)?["🚧","Lane closed",1]:["🚧","Lane restriction",2];}
+  if(/MaintenanceWorks|ConstructionWorks|RoadworksManagement/.test(t))return ["🚧","Roadworks",2];
+  if(/WeatherRelated|PoorEnvironment/.test(t))return ["🌫","Bad road conditions",1];
+  if(/ReroutingManagement/.test(t))return ["↪️","Diversion",2];
+  if(/GeneralNetworkManagement|SpeedManagement/.test(t))return ["🚦","Traffic measure",2];
+  return ["ℹ️",t.replace(/([a-z])([A-Z])/g,"$1 $2"),2];};
+function routeCorridor(a,b2){const pts=[],n=Math.max(1,Math.ceil(hav([a.lat,a.lon],[b2.lat,b2.lon])/8));for(let i=0;i<=n;i++)pts.push([a.lat+(b2.lat-a.lat)*i/n,a.lon+(b2.lon-a.lon)*i/n,4]);return pts;}
+var roadKey=0;
+function loadNlRoad(){if(!me)return;if(!window.AndroidRoad){nlRoad.err="Road info works in the Android app.";return renderNlRoad();}
+  if(navigator.onLine===false){nlRoad.err="No internet: road info needs a connection.";return renderNlRoad();}
+  nlRoad.busy=true;nlRoad.err="";renderNlRoad();const key="r"+(++roadKey);
+  const pts=[[me.lat,me.lon,25]];if(NLHOME&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>2)pts.push(...routeCorridor(me,NLHOME));
+  for(const r of SAVED)pts.push(...routeCorridor(r.a,r.b));
+  window.onRoadResult=(k,res)=>{if(k!==key)return;nlRoad.busy=false;if(!res.ok){nlRoad.err=res.error||"Road info didn't load";return renderNlRoad();}
+    const now=Date.now();nlRoad.list=(res.list||[]).filter(r=>{const s=r.overallStartTime?Date.parse(r.overallStartTime):0,e=r.overallEndTime?Date.parse(r.overallEndTime):0;return (!s||s<=now+5*60e3)&&(!e||e>=now)&&ROAD_KIND(r);});
+    nlRoad.at=now;renderNlRoad();renderNlSaved();};
+  try{window.AndroidRoad.near(JSON.stringify(pts),25,key);}catch(e){nlRoad.busy=false;nlRoad.err="Road info isn't available";renderNlRoad();}}
+var roadAll=false;
+function roadRow(r){const k=ROAD_KIND(r);const len=r.queueLength?` · ${(r.queueLength/1000).toFixed(r.queueLength<10000?1:0)} km`:"";const since=r.overallStartTime?` · since ${hmI(r.overallStartTime)}`:"";
+  return `<div class="rd"><span class="ri">${k[0]}</span><span><b>${r.roadNumber?escH(r.roadNumber)+" · ":""}${k[1]}</b>${len}<br><span class="tr">${r.comment?escH(r.comment):escH(r.roadName||"")}${since} · ${kmTxt(hav([me.lat,me.lon],[r.lat,r.lon]))} away</span></span></div>`;}
+function renderNlRoad(){const b=document.getElementById("nlRoad");if(!b)return;
+  const L=nlRoad.list||[],nearL=me?L.filter(r=>hav([me.lat,me.lon],[r.lat,r.lon])<=25):[],imp=nearL.filter(r=>ROAD_KIND(r)[2]<2),works=nearL.filter(r=>ROAD_KIND(r)[2]===2);
+  const shown=roadAll?nearL:imp.slice(0,6);
+  b.innerHTML=`<div class="trip-h"><div class="dest">🚗 Roads near you</div>${nlRoad.at&&!nlRoad.busy?`<span class="badge">${hmI(new Date(nlRoad.at).toISOString())}</span>`:""}</div>
+    ${nlRoad.busy?`<div class="small">⏳ Getting live road info…</div>`:nlRoad.err?`<div class="live-err">${escH(nlRoad.err)}</div>`:
+      !nlRoad.list?`<div class="small">${me?"":"Waiting for your location…"}</div>`:
+      !imp.length&&!roadAll?`<div class="small" style="padding:4px 0">✅ No jams, accidents or closures within 25 km.${works.length?` ${works.length} roadworks.`:""}</div>`:shown.map(roadRow).join("")}
+    <div class="btns">${nearL.length>shown.length||roadAll?`<button class="btn ghost" id="rdAll">${roadAll?"Show less":`All ${nearL.length} messages (incl. roadworks)`}</button>`:""}<button class="btn ghost" id="rdRef">🔄 Refresh</button></div>`;
+  const a=b.querySelector("#rdAll");if(a)a.onclick=()=>{roadAll=!roadAll;renderNlRoad();};b.querySelector("#rdRef").onclick=loadNlRoad;}
+
+/* ---------- Departures near me (Transitous) ---------- */
+async function loadNlDep(){if(!me||nlDep.busy)return;nlDep.busy=true;nlDep.err="";renderNlDep();
+  try{const j=await trGet(`/v6/stoptimes?center=${me.lat.toFixed(5)},${me.lon.toFixed(5)}&radius=700&exactRadius=true&n=16`);
+    const now=Date.now();nlDep.list=(j.stopTimes||[]).filter(s=>s.place&&Date.parse(s.place.departure||s.place.scheduledDeparture)>=now-60e3).sort((a,c)=>Date.parse(a.place.departure)-Date.parse(c.place.departure)).slice(0,14);nlDep.at=now;}
+  catch(e){nlDep.err=e.message;}nlDep.busy=false;renderNlDep();}
+function depRow(s){const p=s.place,dl=s.realTime&&p.scheduledDeparture?Math.round((Date.parse(p.departure)-Date.parse(p.scheduledDeparture))/60e3):null;
+  const line=s.routeShortName||s.displayName||s.tripShortName||"";const col=s.routeColor?`background:#${s.routeColor};color:#${s.routeTextColor||"fff"}`:"";
+  const tr=p.track||p.scheduledTrack;const gone=s.cancelled||s.tripCancelled;
+  return `<div class="dep${gone?" gone":""}"><span class="t">${hmI(p.departure||p.scheduledDeparture)}</span><span><span class="to">${MODE_IC(s.mode)} ${line?`<span class="ln" style="${col}">${escH(line)}</span> `:""}${escH(s.headsign||"")}</span><br><span class="tr">${escH(p.name)}${tr?` · ${/RAIL|SUBURBAN/.test(s.mode)?"track":"platform"} ${escH(tr)}`:""}</span></span>
+    <span>${gone?`<span class="dl late">cancelled</span>`:dl!=null?`<span class="dl ${dl>0?"late":"ok"}">${dl>0?"+"+dl+" min":"on time"}</span>`:""}</span></div>`;}
+function renderNlDep(){const b=document.getElementById("nlDep");if(!b)return;
+  b.innerHTML=`<div class="trip-h"><div class="dest">🚏 Departures near you</div>${nlDep.at&&!nlDep.busy?`<span class="badge">${hmI(new Date(nlDep.at).toISOString())}</span>`:""}</div>
+    ${nlDep.busy?`<div class="small">⏳ Looking up stops around you…</div>`:nlDep.err?`<div class="live-err">${escH(nlDep.err)}</div>`:nlDep.list?(nlDep.list.length?nlDep.list.map(depRow).join(""):`<div class="small">No departures from stops within 700 m in the next while.</div>`):`<div class="small">${me?"":"Waiting for your location…"}</div>`}
+    <div class="btns"><button class="btn ghost" id="ndRef">🔄 Refresh</button></div>`;
+  b.querySelector("#ndRef").onclick=loadNlDep;}
+
+/* ---------- Trip planner A → B ---------- */
+var sugT=null;
+function renderNlPlan(){const b=document.getElementById("nlPlan");if(!b)return;const P=nlPlan;
+  const its=P.its||[];
+  b.innerHTML=`<div class="trip-h"><div class="dest">🧭 Plan a trip</div></div>
+    <div class="np-row" style="margin-top:6px"><span class="small" style="width:44px;flex:none">From</span><div class="np-select" style="display:flex;align-items:center">📍 My location</div></div>
+    <div class="np-row" style="margin-top:6px;position:relative"><span class="small" style="width:44px;flex:none">To</span><input class="search" id="npTo" style="margin:0;flex:1" placeholder="Station, stop, address or place" value="${escH(P.to?P.to.name:P.q)}" autocomplete="off"></div>
+    ${P.sugg.length?`<div class="sugg">${P.sugg.map((s,i)=>`<button data-sg="${i}"><b>${escH(s.name)}</b><span>${escH([s.type==="STOP"?"stop":s.type==="ADDRESS"?"address":"place",...(s.areas||[]).filter(a=>a.default||a.adminLevel===8||a.adminLevel===10).map(a=>a.name)].slice(0,2).join(" · "))}</span></button>`).join("")}</div>`:""}
+    ${P.busy?`<div class="small" style="padding:8px 0">⏳ Planning…</div>`:P.err?`<div class="live-err">${escH(P.err)}</div>`:""}
+    ${its.map((it,i)=>{const legs=it.legs||[];const tl=legs.filter(l=>l.mode!=="WALK"||l.duration>120).map(l=>`${MODE_IC(l.mode)}${l.mode==="WALK"?`<small>${Math.round(l.duration/60)}</small>`:` ${escH(l.routeShortName||l.displayName||"")}`}`).join(" › ");
+      const op=P.open===i;
+      return `<div class="dep tap" data-it="${i}"><span class="t">${hmI(it.startTime)}</span><span><span class="to">→ ${hmI(it.endTime)} <span class="tr">· ${minsTxt(it.duration)}</span></span><br><span class="tr">${tl} · ${it.transfers?it.transfers+" change"+(it.transfers>1?"s":""):"direct"} ${op?"▴":"▾"}</span>
+        ${op?`<div class="legs">${legs.map(l=>`<div>${MODE_IC(l.mode)} <b>${hmI(l.startTime)}</b> ${escH(l.from.name==="START"?"Start":l.from.name)}${l.from.track?` (${escH(l.from.track)})`:""} → <b>${hmI(l.endTime)}</b> ${escH(l.to.name==="END"?P.to.name:l.to.name)} <span class="tr">· ${l.mode==="WALK"?"walk "+minsTxt(l.duration):escH([l.routeShortName||l.displayName,l.headsign?"to "+l.headsign:""].filter(Boolean).join(" "))}${l.realTime&&l.scheduledStartTime&&l.startTime!==l.scheduledStartTime?` · <b class="late">${Math.round((Date.parse(l.startTime)-Date.parse(l.scheduledStartTime))/60e3)>0?"+":""}${Math.round((Date.parse(l.startTime)-Date.parse(l.scheduledStartTime))/60e3)} min</b>`:""}</span></div>`).join("")}</div>`:""}</span><span></span></div>`;}).join("")}
+    ${P.to&&!P.busy?`<div class="btns"><button class="btn ghost" id="npLater">Later</button><a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&destination=${P.to.lat},${P.to.lon}&travelmode=driving">🚗 Drive</a><button class="btn ghost" id="npSave">⭐ Save route</button></div>`:""}`;
+  const inp=b.querySelector("#npTo");
+  inp.oninput=()=>{P.q=inp.value;P.to=null;clearTimeout(sugT);if(inp.value.trim().length<2){P.sugg=[];return;}sugT=setTimeout(async()=>{try{const j=await trGet(`/v1/geocode?text=${encodeURIComponent(inp.value.trim())}${me?`&place=${me.lat.toFixed(4)},${me.lon.toFixed(4)}&placeBias=5`:""}&numResults=6`);
+      P.sugg=(Array.isArray(j)?j:[]).slice(0,6);const pos=inp.selectionStart;renderNlPlan();const n=document.getElementById("npTo");n.focus();n.setSelectionRange(pos,pos);}catch(e){}},450);};
+  b.querySelectorAll("[data-sg]").forEach(x=>x.onclick=()=>{const s=P.sugg[+x.dataset.sg];P.to={name:s.name,lat:s.lat,lon:s.lon};P.sugg=[];planNl();});
+  b.querySelectorAll("[data-it]").forEach(x=>x.onclick=()=>{P.open=P.open===+x.dataset.it?-1:+x.dataset.it;renderNlPlan();});
+  const l=b.querySelector("#npLater");if(l)l.onclick=()=>{const last=its[its.length-1];planNl(last?new Date(Date.parse(last.startTime)+60e3).toISOString():null);};
+  const sv=b.querySelector("#npSave");if(sv)sv.onclick=()=>{if(!me)return;const nm=prompt("Name this route",`${hereName()||"Here"} → ${P.to.name}`);if(!nm)return;
+    SAVED.push({id:"r"+Date.now(),name:nm,a:{name:hereName()||"Start",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5)},b:{...P.to}});saveRoutes();toast("⭐ Route saved");renderNlSaved();};
+}
+async function planNl(time){const P=nlPlan;if(!me||!P.to)return;P.busy=true;P.err="";P.open=-1;if(!time)P.its=null;renderNlPlan();
+  try{const j=await trGet(`/v6/plan?fromPlace=${me.lat.toFixed(5)},${me.lon.toFixed(5)}&toPlace=${P.to.lat},${P.to.lon}${time?`&time=${encodeURIComponent(time)}`:""}`);
+    const its=(j.itineraries||[]).filter(i=>(i.legs||[]).some(l=>l.mode!=="WALK"));P.its=time?[...(P.its||[]),...its]:its;
+    if(!P.its.length)P.err=(j.direct||[]).length?`It's quicker to walk: about ${minsTxt(j.direct[0].duration)}.`:"No public transport connection found.";}
+  catch(e){P.err=e.message;}P.busy=false;renderNlPlan();}
+
+/* ---------- Saved routes (incl. Home) ---------- */
+function routesList(){const L=[];if(NLHOME&&me&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>1)L.push({id:"home",name:"🏠 Home",a:{name:hereName()||"Here",lat:me.lat,lon:me.lon},b:NLHOME,home:true});return L.concat(SAVED);}
+function routeDir(r){if(r.home||!me)return [r.a,r.b];return hav([me.lat,me.lon],[r.a.lat,r.a.lon])<=hav([me.lat,me.lon],[r.b.lat,r.b.lon])?[r.a,r.b]:[r.b,r.a];}
+async function routeNext(r){const [f,t]=routeDir(r);const from=me&&hav([me.lat,me.lon],[f.lat,f.lon])<3?me:f;nlRouteRes[r.id]={busy:true};renderNlSaved();
+  try{const j=await trGet(`/v6/plan?fromPlace=${from.lat.toFixed(5)},${from.lon.toFixed(5)}&toPlace=${t.lat},${t.lon}`);nlRouteRes[r.id]={its:(j.itineraries||[]).filter(i=>(i.legs||[]).some(l=>l.mode!=="WALK")).slice(0,3),at:Date.now()};}
+  catch(e){nlRouteRes[r.id]={err:e.message};}renderNlSaved();}
+function renderNlSaved(){const b=document.getElementById("nlSaved");if(!b)return;const L=routesList();
+  b.innerHTML=`<div class="trip-h"><div class="dest">⭐ My routes</div></div>${!L.length?`<div class="small">Plan a trip above and tap ⭐ Save route, e.g. home ⇄ work. ${NLHOME?"":"Set your home in the card at the top to get a Home route."}</div>`:""}
+    ${L.map(r=>{const [f,t]=routeDir(r),R=nlRouteRes[r.id]||{};const onWay=(nlRoad.list||[]).filter(x=>routeCorridor(f,t).some(p=>hav([p[0],p[1]],[x.lat,x.lon])<=4)&&ROAD_KIND(x)[2]<2);
+      return `<div class="rt"><div class="rt-h"><b>${escH(r.name)}</b><span class="tr">to ${escH(t.name)}</span>${r.home?"":`<button class="mini" data-rdel="${r.id}" aria-label="Delete route">✕</button>`}</div>
+        ${onWay.length?`<div class="rt-warn">⚠️ ${onWay.length} traffic message${onWay.length>1?"s":""} on the way: ${onWay.slice(0,2).map(x=>`${x.roadNumber||""} ${ROAD_KIND(x)[1].toLowerCase()}`).join(", ")}</div>`:nlRoad.list?`<div class="tr" style="margin:2px 0">✅ No jams or closures on the way</div>`:""}
+        ${R.busy?`<div class="small">⏳ …</div>`:R.err?`<div class="live-err">${escH(R.err)}</div>`:R.its?(R.its.length?R.its.map(it=>`<div class="tr">🚆 ${hmI(it.startTime)} → ${hmI(it.endTime)} · ${minsTxt(it.duration)} · ${(it.legs||[]).filter(l=>l.mode!=="WALK").map(l=>MODE_IC(l.mode)+" "+escH(l.routeShortName||l.displayName||"")).join(" › ")}</div>`).join(""):`<div class="small">No connection found.</div>`):""}
+        <div class="btns"><button class="btn ghost" data-rnext="${r.id}">🚆 Next connections</button><a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&origin=${me&&!r.home&&hav([me.lat,me.lon],[f.lat,f.lon])>3?f.lat+","+f.lon:""}&destination=${t.lat},${t.lon}&travelmode=driving">🚗 Drive (traffic)</a></div></div>`;}).join("")}`;
+  b.querySelectorAll("[data-rnext]").forEach(x=>x.onclick=()=>{const r=routesList().find(y=>y.id===x.dataset.rnext);if(r)routeNext(r);});
+  b.querySelectorAll("[data-rdel]").forEach(x=>x.onclick=()=>{if(x.dataset.sure){SAVED=SAVED.filter(r=>r.id!==x.dataset.rdel);saveRoutes();renderNlSaved();}else{x.dataset.sure=1;x.textContent="Delete?";}});
+}
+setTimeout(applyCountry,0);
+var nlLoadedAt=null;
+function nlMoved(){if(appMode()!=="home"||!me)return;if(!nlLoadedAt||hav([me.lat,me.lon],nlLoadedAt)>3){nlLoadedAt=[me.lat,me.lon];if(nlDep.at)loadNlDep();if(nlRoad.at)loadNlRoad();fetchHereWx(false);placeName(me.lat,me.lon);renderNlSaved();}}
+setInterval(()=>{if(appMode()==="home"&&!document.hidden&&document.body.classList.contains("tab-dest")){if(Date.now()-nlDep.at>3*60e3)loadNlDep();if(Date.now()-nlRoad.at>5*60e3)loadNlRoad();fetchHereWx(false);}
+  if(appMode()==="home"&&me&&SHOPS["Near me"]&&SHOPS["Near me"].c&&hav([me.lat,me.lon],SHOPS["Near me"].c)>2&&!shopsBusy.has("Near me"))getShops("Near me");},60e3);
 
 /* ---------- WEATHER (Open-Meteo: free, no account) ---------- */
 let WX={};try{WX=JSON.parse(localStorage.getItem("pt-wx"))||{};}catch(e){}
@@ -3179,6 +3401,7 @@ function canNotify(){return !!(window.AndroidNotify&&window.AndroidNotify.schedu
 function planNotifs(){
   if(!canNotify())return;
   try{window.AndroidNotify.cancelPrefix("plan:");}catch(e){}
+  if(appMode()==="home")return;
   const now=Date.now(),at=(m,dayOff=0)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+dayOff);return d.getTime()+m*60000;};
   const S=(id,when,title,text)=>{if(when>now+30000&&when<now+36*3600e3)try{window.AndroidNotify.schedule("plan:"+id,when,title,text);}catch(e){}};
   // last connection back to Brindisi
