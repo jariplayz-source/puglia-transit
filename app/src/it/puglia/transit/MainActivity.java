@@ -296,14 +296,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -329,7 +329,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -365,7 +365,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     for (int i = 0; i < 6; i++) {
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -379,6 +379,60 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     }
 
     /** Travel group: encryption, relay, live location sharing, album files, sharing with other apps. */
+    /** Updates from the app's GitHub page: download the new APK, check it, hand it to Android's installer. */
+    public class Updater {
+        @JavascriptInterface public int versionCode() {
+            try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; }
+        }
+        @JavascriptInterface public void download(final String url, final String sha, final String key) {
+            new Thread(new Runnable() { public void run() {
+                String err = null;
+                try {
+                    File d = new File(getCacheDir(), "share"); d.mkdirs();
+                    File f = new File(d, "update.apk"), tmp = new File(d, "update.part");
+                    HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+                    c.setConnectTimeout(15000); c.setReadTimeout(60000); c.setInstanceFollowRedirects(true);
+                    c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
+                    if (c.getResponseCode() != 200) throw new Exception("download server said " + c.getResponseCode());
+                    long total = c.getContentLength(), got = 0; int lastPct = -1;
+                    java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+                    InputStream in = c.getInputStream(); java.io.FileOutputStream o = new java.io.FileOutputStream(tmp);
+                    byte[] b = new byte[32768]; int n;
+                    while ((n = in.read(b)) > 0) {
+                        o.write(b, 0, n); md.update(b, 0, n); got += n;
+                        int pct = total > 0 ? (int) (got * 100 / total) : -1;
+                        if (pct != lastPct && pct % 5 == 0) { lastPct = pct; final String js = "window.onUpdateProgress&&window.onUpdateProgress(" + JSONObject.quote(key) + "," + pct + ")"; web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } }); }
+                    }
+                    o.close(); in.close();
+                    StringBuilder hx = new StringBuilder(); for (byte x : md.digest()) hx.append(String.format("%02x", x));
+                    if (sha != null && sha.length() == 64 && !sha.equalsIgnoreCase(hx.toString())) { tmp.delete(); throw new Exception("the download is damaged (checksum mismatch), try again"); }
+                    if (f.exists()) f.delete();
+                    if (!tmp.renameTo(f)) throw new Exception("couldn't save the update");
+                } catch (Exception e) { err = e.getMessage() == null ? "download failed" : e.getMessage(); }
+                final String js = "window.onUpdateDone&&window.onUpdateDone(" + JSONObject.quote(key) + "," + (err == null) + "," + JSONObject.quote(err == null ? "" : err) + ")";
+                web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } });
+            }}).start();
+        }
+        /** Returns "ok", "permission" (user must allow installing from this app first) or an error. */
+        @JavascriptInterface public String install() {
+            try {
+                File f = new File(new File(getCacheDir(), "share"), "update.apk");
+                if (!f.exists()) return "no downloaded update";
+                if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+                    runOnUiThread(new Runnable() { public void run() {
+                        try { startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { }
+                    }});
+                    return "permission";
+                }
+                final Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setDataAndType(Uri.parse("content://" + ShareProvider.AUTH + "/update.apk"), "application/vnd.android.package-archive");
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                runOnUiThread(new Runnable() { public void run() { try { startActivity(i); } catch (Exception e) { Toast.makeText(MainActivity.this, "Couldn't open the installer", Toast.LENGTH_LONG).show(); } } });
+                return "ok";
+            } catch (Exception e) { return e.getMessage() == null ? "failed" : e.getMessage(); }
+        }
+    }
+
     /** Dutch road situation near points (NDW open data). */
     public class Road {
         @JavascriptInterface
@@ -654,6 +708,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         web.addJavascriptInterface(new Notify(), "AndroidNotify");
         web.addJavascriptInterface(new Group(), "AndroidGroup");
         web.addJavascriptInterface(new Road(), "AndroidRoad");
+        web.addJavascriptInterface(new Updater(), "AndroidUpdate");
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback cb) {

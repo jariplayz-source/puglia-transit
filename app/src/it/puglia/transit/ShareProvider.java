@@ -25,7 +25,7 @@ public class ShareProvider extends ContentProvider {
     }
     @Override public String getType(Uri u) {
         String n = u.getLastPathSegment() == null ? "" : u.getLastPathSegment();
-        return n.endsWith(".html") ? "text/html" : n.endsWith(".jpg") ? "image/jpeg" : n.endsWith(".webm") ? "audio/webm" : "application/octet-stream";
+        return n.endsWith(".apk") ? "application/vnd.android.package-archive" : n.endsWith(".html") ? "text/html" : n.endsWith(".jpg") ? "image/jpeg" : n.endsWith(".webm") ? "audio/webm" : "application/octet-stream";
     }
     @Override public Cursor query(Uri u, String[] proj, String sel, String[] args, String sort) {
         try { File f = file(u); MatrixCursor c = new MatrixCursor(new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE});

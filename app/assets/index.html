@@ -490,6 +490,8 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
 details.orig{margin-top:6px;font-size:13px;color:var(--muted)}details.orig summary{cursor:pointer}
 body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!important}
 .offl{border:1.5px dashed var(--line)}.offrow{display:grid;grid-template-columns:24px auto 1fr;gap:6px;align-items:baseline;margin-top:6px;font-size:14px}.offrow span{color:var(--muted);font-size:13px}
+#updBanner{display:flex;gap:6px;margin:0 16px}#updBanner:empty{display:none}.upd-ban{flex:1;border:0;border-radius:12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-size:14px;padding:8px 12px;text-align:left;margin-top:6px}
+.upd-x{border:0;background:none;color:var(--muted);font-size:16px;margin-top:6px}.upbar{height:8px;border-radius:4px;background:var(--chip);overflow:hidden;margin:6px 0}.upbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -499,6 +501,7 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
   <div class="appbar"><h1 id="hdrTitle">📍 Brindisi</h1><button class="iconbtn" id="hdrInfo" aria-label="Settings and info"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div class="sub"><span id="netChip" style="display:none;background:var(--chip);color:var(--ink);border-radius:10px;padding:1px 7px;font-weight:700;font-size:12px">📴 Offline: using saved data</span></div>
   <div id="lastBanner"></div>
+  <div id="updBanner"></div>
   <div id="placesStrip" style="display:none;margin-top:6px;font-size:13px;font-weight:600;color:var(--accent)"></div>
 </header>
 
@@ -1187,9 +1190,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.6";            // bump on every release
+const APP_VERSION="6.7";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.7","Updates inside the app: you get a note when a new version is out, and one tap downloads and installs it"],
  ["6.6","Group without internet: offline mode switches on by itself and keeps you in touch by Bluetooth (nearby) and text messages"],
  ["6.5","✈️ Flights (scan your boarding pass from Google Wallet), 🏠 everyday groups for friends at home, place info in your language (translated when needed), and more offline: posts wait and send later, I'm OK and SOS by text message, last departures, road info and train times stay visible without internet"],
  ["6.4","Several travel groups (switch at the top of Group, location sharing per group), a nicer trip summary like Polarsteps, and a food needs card (no cheese, lactose, vegetarian, vegan, gluten, nuts, pork, fish) in the language of the country you're in"],
@@ -1242,7 +1246,19 @@ const vNum=v=>v.split(".").map(Number).reduce((a,n)=>a*1000+n,0);
 function renderUpdate(){
   const box=document.getElementById("updateBox"); if(!box) return;
   const news=`<div class="small">What's new:</div><ul>${WHATS_NEW.slice(0,3).map(w=>`<li><b>${w[0]}</b> · ${w[1]}</li>`).join("")}</ul>`;
-  if(IN_APP){
+  if(window.AndroidUpdate){
+    const U=UPD,have=(()=>{try{return window.AndroidUpdate.versionCode();}catch(e){return 0;}})();
+    const avail=U&&U.code>have;
+    box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}</span></h3>
+      ${updBusy?`<div class="small">⬇ Downloading v${U.version}… ${updPct>=0?updPct+"%":""}</div><div class="upbar"><i style="width:${Math.max(3,updPct)}%"></i></div>`
+        :avail?`<p class="new">⬆ Update ready: v${escH(U.version)}</p>${U.notes?`<div class="small">${escH(U.notes)}</div>`:""}
+          <div class="btns"><button class="btn primary" id="updGo">${updReady?"📲 Install now":`⬇ Download &amp; install${U.size?" ("+(U.size/1048576).toFixed(1)+" MB)":""}`}</button></div>
+          <div class="small">Installs over this version: your places, groups, photos and settings stay.${updErr?` <span class="live-err">${escH(updErr)}</span>`:""}</div>`
+        :`<p class="ok">✓ Up to date${U&&U.checked?` · checked ${hmI(new Date(U.checked).toISOString())}`:""}</p>`}
+      <div class="btns"><button class="btn ghost" id="updCheck">🔄 Check for updates</button></div>${updMsg?`<div class="small">${escH(updMsg)}</div>`:""}${news}`;
+    const g=box.querySelector("#updGo");if(g)g.onclick=()=>updReady?updInstall():updDownload();
+    box.querySelector("#updCheck").onclick=()=>checkUpdate(true);
+  } else if(IN_APP){
     box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2311706a%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230c2b3b%22/%3E%20%3C/linearGradient%3E%20%3CradialGradient%20id%3D%22glow%22%20cx%3D%22.3%22%20cy%3D%22.2%22%20r%3D%22.8%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22/%3E%3C/radialGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23bg%29%22/%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23glow%29%22/%3E%20%3Cpath%20d%3D%22M256%20404%20L169%20280%20A108%20108%200%201%201%20343%20280%20Z%22%20fill%3D%22none%22%20stroke%3D%22%23f6f1e7%22%20stroke-width%3D%2230%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22/%3E%20%3Cpath%20d%3D%22M238%2092%20L262%20112%20L238%20132%22%20fill%3D%22none%22%20stroke%3D%22%23ffb547%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22404%22%20r%3D%2234%22%20fill%3D%22%23ffb547%22%20stroke%3D%22%230e3a44%22%20stroke-width%3D%2210%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22206%22%20r%3D%2234%22%20fill%3D%22%23f6f1e7%22/%3E%20%3C/svg%3E" width="36" height="36" alt="" style="border-radius:9px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}</span></h3>
       <div class="small">Installed on this phone. Checking needs internet.</div>
       <div class="btns"><a class="btn primary" href="${WEB_URL}#update-from-${APP_VERSION.replace(/\./g,"-")}">🔄 Check for updates</a></div>${news}`;
@@ -1257,6 +1273,31 @@ function renderUpdate(){
       <div class="small"><b>How to update:</b> in your Claude chat about this app, ask “send me the latest Out & Back APK”. Download it and install it over the old one. Your saved places and ticks are kept.</div>${news}`;
   }
 }
+/* ---------- IN-APP UPDATES from the app's GitHub page ---------- */
+const UPD_URL="https://raw.githubusercontent.com/jariplayz-source/puglia-transit/main/dist/latest.json";
+var UPD=null,updBusy=false,updPct=-1,updReady=false,updErr="",updMsg="";try{UPD=JSON.parse(localStorage.getItem("pt-upd"))||null;}catch(e){}
+async function checkUpdate(force){if(!window.AndroidUpdate||!window.AndroidNet)return;
+  if(navigator.onLine===false){if(force){updMsg="📴 Checking for updates needs internet.";renderUpdate();}return;}
+  if(!force&&UPD&&Date.now()-(UPD.checked||0)<12*3600e3)return updBanner();
+  if(force){updMsg="Checking…";renderUpdate();}
+  try{const j=JSON.parse(await netGet(UPD_URL+"?t="+Math.floor(Date.now()/60000),15000));UPD={...j,checked:Date.now()};try{localStorage.setItem("pt-upd",JSON.stringify(UPD));}catch(e){}updMsg=force&&!(j.code>window.AndroidUpdate.versionCode())?"You have the newest version.":"";}
+  catch(e){if(force)updMsg="Couldn't check: "+e.message;}
+  renderUpdate();updBanner();}
+function updBanner(){const b=document.getElementById("updBanner");if(!b)return;let have=0;try{have=window.AndroidUpdate.versionCode();}catch(e){}
+  const show=UPD&&UPD.code>have&&!(localStorage.getItem("pt-updskip")===String(UPD.code));
+  b.innerHTML=show?`<button class="upd-ban" id="updBanGo">⬆ Out &amp; Back ${escH(UPD.version)} is ready · <b>Update</b></button><button class="upd-x" id="updBanX" aria-label="Later">✕</button>`:"";
+  if(show){b.querySelector("#updBanGo").onclick=()=>{showTab("tips");setTimeout(()=>{const x=document.getElementById("updateBox");if(x)x.scrollIntoView();},100);};
+    b.querySelector("#updBanX").onclick=()=>{try{localStorage.setItem("pt-updskip",String(UPD.code));}catch(e){}updBanner();};}}
+function updDownload(){if(!UPD||updBusy)return;updBusy=true;updPct=0;updErr="";renderUpdate();
+  window.onUpdateProgress=(k,p)=>{updPct=p;renderUpdate();};
+  window.onUpdateDone=(k,ok,msg)=>{updBusy=false;if(ok){updReady=true;updInstall();}else updErr=msg;renderUpdate();};
+  try{window.AndroidUpdate.download(UPD.url,UPD.sha256||"","u1");}catch(e){updBusy=false;updErr=e.message;renderUpdate();}}
+function updInstall(){let r="";try{r=window.AndroidUpdate.install();}catch(e){r=e.message;}
+  if(r==="permission")updMsg="Allow “Install unknown apps” for Out & Back in the screen that opened, then come back and tap Install now.";
+  else if(r!=="ok")updErr=r;renderUpdate();}
+setTimeout(()=>checkUpdate(false),6000);window.addEventListener("online",()=>setTimeout(()=>checkUpdate(false),5000));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&updReady)renderUpdate();});
+
 function routeHash(){ if(/^#update/.test(location.hash||"")){ showTab("tips"); renderUpdate();
   const b=document.getElementById("updateBox"); if(b&&b.scrollIntoView) b.scrollIntoView(); } }
 window.addEventListener("hashchange",routeHash);

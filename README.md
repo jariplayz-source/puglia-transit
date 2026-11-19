@@ -11,6 +11,7 @@ and a home mode for the Netherlands (departures near you, A→B planner, saved r
 - `app/assets/index.html`: the whole UI and logic.
 - `app/src/`: small Java bridges (GPS, offline map tiles, network, notifications, encrypted group relay).
 - `build.sh`: build and sign the APK (see the comments at the top).
+- `dist/`: the latest signed APK and `latest.json`; the app checks this to offer in-app updates.
 
 ## Without internet
 
