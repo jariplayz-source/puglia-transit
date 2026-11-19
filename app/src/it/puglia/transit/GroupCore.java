@@ -1,0 +1,160 @@
+package it.puglia.transit;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.SecureRandom;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+import java.io.File;
+import java.io.FileWriter;
+
+/** Travel group: end-to-end encryption (AES-256-GCM) and the relay (ntfy.sh) that passes scrambled messages between phones. */
+public class GroupCore {
+    static final String RELAY = "https://ntfy.sh/";
+    static final SecureRandom RND = new SecureRandom();
+
+    static SharedPreferences prefs(Context c) { return c.getSharedPreferences("group", 0); }
+
+    static String newKey() { byte[] k = new byte[32]; RND.nextBytes(k); return Base64.encodeToString(k, Base64.NO_WRAP); }
+    static String newTopic() { byte[] b = new byte[16]; RND.nextBytes(b); StringBuilder s = new StringBuilder("pt-"); for (byte x : b) s.append(String.format("%02x", x)); return s.toString(); }
+
+    static String encrypt(String keyB64, byte[] plain) throws Exception {
+        byte[] iv = new byte[12]; RND.nextBytes(iv);
+        Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
+        c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(Base64.decode(keyB64, Base64.NO_WRAP), "AES"), new GCMParameterSpec(128, iv));
+        byte[] ct = c.doFinal(plain);
+        byte[] out = new byte[iv.length + ct.length];
+        System.arraycopy(iv, 0, out, 0, 12); System.arraycopy(ct, 0, out, 12, ct.length);
+        return "PT1:" + Base64.encodeToString(out, Base64.NO_WRAP);
+    }
+    static byte[] decrypt(String keyB64, String s) throws Exception {
+        if (s == null || !s.startsWith("PT1:")) throw new Exception("not ours");
+        byte[] in = Base64.decode(s.substring(4), Base64.NO_WRAP);
+        Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
+        c.init(Cipher.DECRYPT_MODE, new SecretKeySpec(Base64.decode(keyB64, Base64.NO_WRAP), "AES"), new GCMParameterSpec(128, in, 0, 12));
+        return c.doFinal(in, 12, in.length - 12);
+    }
+
+    static String http(String method, String url, byte[] body, JSONObject headers, int timeout) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(10000); c.setReadTimeout(timeout);
+        c.setRequestMethod(method);
+        c.setRequestProperty("User-Agent", "PugliaTransit/5.0 (personal travel app; Android)");
+        if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
+        if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
+        int code = c.getResponseCode();
+        InputStream in = code >= 400 ? c.getErrorStream() : c.getInputStream();
+        ByteArrayOutputStream bo = new ByteArrayOutputStream(); byte[] b = new byte[16384]; int n;
+        if (in != null) { while ((n = in.read(b)) > 0) bo.write(b, 0, n); in.close(); }
+        c.disconnect();
+        if (code >= 400) throw new Exception("relay said " + code + (code == 429 ? " (too many messages, wait a minute)" : code == 413 ? " (file too big)" : ""));
+        return bo.toString("UTF-8");
+    }
+
+    /** Battery level 0-100 (and +1000 when charging), or -1. */
+    static int battery(Context ctx) {
+        try {
+            Intent b = ctx.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int lvl = b.getIntExtra(BatteryManager.EXTRA_LEVEL, -1), sc = b.getIntExtra(BatteryManager.EXTRA_SCALE, 100), st = b.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            if (lvl < 0) return -1;
+            int pct = Math.round(lvl * 100f / sc);
+            return pct + ((st == BatteryManager.BATTERY_STATUS_CHARGING || st == BatteryManager.BATTERY_STATUS_FULL) ? 1000 : 0);
+        } catch (Exception e) { return -1; }
+    }
+
+    /** Journey: adds a point to your own route (kept only on this phone). */
+    static double tLat = 999, tLon = 999; static long tTs = 0;
+    static void recordPoint(Context ctx, double lat, double lon, float acc, float spd) {
+        if (acc > 120) return;
+        long now = System.currentTimeMillis();
+        if (tLat != 999) {
+            double d = Math.hypot((lat - tLat) * 111320, (lon - tLon) * 111320 * Math.cos(Math.toRadians(lat)));
+            if (d < 60 && now - tTs < 10 * 60000) return;
+        }
+        tLat = lat; tLon = lon; tTs = now;
+        try { FileWriter w = new FileWriter(new File(ctx.getFilesDir(), "track.csv"), true);
+              w.write(now + "," + (Math.round(lat * 1e5) / 1e5) + "," + (Math.round(lon * 1e5) / 1e5) + "," + Math.round(acc) + "," + Math.round(spd * 10) / 10.0 + "\n"); w.close(); } catch (Exception e) { }
+    }
+
+    /** Sends one encrypted location update (used by the background location service). */
+    static void sendLocation(Context ctx, double lat, double lon, float acc) { sendLocation(ctx, lat, lon, acc, -1); }
+    static void sendLocation(Context ctx, double lat, double lon, float acc, float spd) {
+        SharedPreferences p = prefs(ctx);
+        String topic = p.getString("topic", null), key = p.getString("key", null);
+        if (topic == null || key == null) return;
+        try {
+            JSONObject m = new JSONObject();
+            m.put("v", 1); m.put("ty", "loc"); m.put("from", p.getString("me", "")); m.put("name", p.getString("name", ""));
+            m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
+            int bat = battery(ctx); if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
+            if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
+            http("POST", RELAY + topic, encrypt(key, m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
+        } catch (Exception e) { }
+    }
+
+    /** "Sam arrived at B&B" / "Sam left B&B" for the places you saved (radius ~150 m). */
+    static void placeAlert(Context ctx, SharedPreferences p, JSONObject env) {
+        if (!p.getBoolean("placeAlerts", true)) return;
+        try {
+            JSONArray pl = new JSONArray(p.getString("places", "[]"));
+            double lat = env.getDouble("lat"), lon = env.getDouble("lon");
+            String now = "";
+            for (int i = 0; i < pl.length(); i++) {
+                JSONObject q = pl.getJSONObject(i);
+                double d = Math.hypot((lat - q.getDouble("lat")) * 111320, (lon - q.getDouble("lon")) * 111320 * Math.cos(Math.toRadians(lat)));
+                if (d < q.optDouble("r", 150)) { now = q.getString("n"); break; }
+            }
+            String key = "in:" + env.optString("from"), was = p.getString(key, null);
+            p.edit().putString(key, now).apply();
+            if (was == null || was.equals(now)) return;   // first sighting or no change
+            String name = env.optString("name", "Someone");
+            if (!now.isEmpty()) AlarmReceiver.show(ctx, "plc:" + env.optString("from") + now, "📍 " + name + " arrived at " + now, "Just now", true);
+            else AlarmReceiver.show(ctx, "plc:" + env.optString("from") + was, "🚶 " + name + " left " + was, "Just now", true);
+        } catch (Exception e) { }
+    }
+
+    /** Checks the relay for new group messages and shows a notification for each (works while the app is closed). */
+    static void pollAndNotify(Context ctx) {
+        SharedPreferences p = prefs(ctx);
+        String topic = p.getString("topic", null), key = p.getString("key", null), me = p.getString("me", "");
+        if (topic == null || key == null || !p.getBoolean("notify", true)) return;
+        String since = p.getString("lastNote", "6h");
+        try {
+            String txt = http("GET", RELAY + topic + "/json?poll=1&since=" + since, null, null, 20000);
+            String last = null;
+            for (String line : txt.split("\n")) {
+                line = line.trim(); if (line.isEmpty()) continue;
+                JSONObject o = new JSONObject(line);
+                if (!"message".equals(o.optString("event"))) continue;
+                last = o.optString("id", last);
+                try {
+                    JSONObject env = new JSONObject(new String(decrypt(key, o.optString("message")), "UTF-8"));
+                    if (me.equals(env.optString("from"))) continue;
+                    String ty = env.optString("ty"), name = env.optString("name", "Your group"), cap = env.optString("cap", "");
+                    String title = null, text = null;
+                    if ("loc".equals(ty)) { placeAlert(ctx, p, env); continue; }
+                    if ("sos".equals(ty)) { title = "🆘 " + name + " needs help"; text = cap.isEmpty() ? "Open the app to see where they are." : cap; }
+                    else if ("checkin".equals(ty)) { title = "✅ " + name; text = cap.isEmpty() ? "Checked in: all OK" : cap; }
+                    else if ("voice".equals(ty)) { title = "🎙 " + name + " sent a voice note"; text = "Open the app to hear it (it plays by itself)."; }
+                    else if ("photo".equals(ty)) { title = "📷 " + name + " added a photo"; text = cap.isEmpty() ? "Open the album to see it." : cap; }
+                    else if ("text".equals(ty)) { title = "💬 " + name; text = cap; }
+                    else if ("hello".equals(ty)) { title = "👋 " + name + " joined your travel group"; text = "You can now see each other on the map when location sharing is on."; }
+                    if (title != null) AlarmReceiver.show(ctx, "grp:" + o.optString("id"), title, text, true);
+                } catch (Exception notOurs) { }
+            }
+            if (last != null) p.edit().putString("lastNote", last).apply();
+        } catch (Exception e) { }
+    }
+}
