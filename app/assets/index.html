@@ -492,11 +492,35 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
 .offl{border:1.5px dashed var(--line)}.offrow{display:grid;grid-template-columns:24px auto 1fr;gap:6px;align-items:baseline;margin-top:6px;font-size:14px}.offrow span{color:var(--muted);font-size:13px}
 #updBanner{display:flex;gap:6px;margin:0 16px}#updBanner:empty{display:none}.upd-ban{flex:1;border:0;border-radius:12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-size:14px;padding:8px 12px;text-align:left;margin-top:6px}
 .upd-x{border:0;background:none;color:var(--muted);font-size:16px;margin-top:6px}.upbar{height:8px;border-radius:4px;background:var(--chip);overflow:hidden;margin:6px 0}.upbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+
+/* ---------- startup animation: the route goes out and comes back, forming the pin (about 1 s) ---------- */
+#splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:radial-gradient(120% 90% at 30% 20%,#11706a 0%,#0e4a52 45%,#0c2b3b 100%);transition:opacity .3s ease,transform .3s ease}
+#splash.sp-out{opacity:0;transform:scale(1.04);pointer-events:none}
+.sp-logo{width:118px;height:118px;overflow:visible}
+.sp-route{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-draw .7s cubic-bezier(.6,.05,.3,1) .12s forwards}
+.sp-home{transform-origin:256px 404px;transform:scale(0);animation:sp-pop .32s cubic-bezier(.3,1.6,.5,1) 0s forwards}
+.sp-dest{transform-origin:256px 206px;transform:scale(0);animation:sp-pop .32s cubic-bezier(.3,1.6,.5,1) .62s forwards}
+.sp-name{color:#f6f1e7;font:600 19px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.04em;opacity:0;transform:translateY(6px);animation:sp-up .35s ease .55s forwards}
+@keyframes sp-draw{to{stroke-dashoffset:0}}@keyframes sp-pop{to{transform:scale(1)}}@keyframes sp-up{to{opacity:.92;transform:none}}
+@media (prefers-reduced-motion: reduce){#splash *{animation:none!important;stroke-dashoffset:0!important;transform:none!important;opacity:1!important}}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
 </head>
 <body class="tab-dest">
+<div id="splash" aria-hidden="true">
+  <svg viewBox="0 0 512 512" class="sp-logo">
+    <path class="sp-route" pathLength="1" d="M256 404 L169 280 A108 108 0 1 1 343 280 Z" fill="none" stroke="#f6f1e7" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle class="sp-dest" cx="256" cy="206" r="34" fill="#f6f1e7"/>
+    <circle class="sp-home" cx="256" cy="404" r="34" fill="#ffb547" stroke="#0e3a44" stroke-width="10"/>
+  </svg>
+  <div class="sp-name">Out &amp; Back</div>
+</div>
+<script>(function(){var s=document.getElementById("splash");if(!s)return;
+  var quick=false;try{quick=matchMedia("(prefers-reduced-motion: reduce)").matches||sessionStorage.getItem("pt-splash")==="1";sessionStorage.setItem("pt-splash","1");}catch(e){}
+  var done=function(){s.classList.add("sp-out");setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},320);};
+  s.addEventListener("click",done);setTimeout(done,quick?0:1300);})();</script>
 <header>
   <div class="appbar"><h1 id="hdrTitle">📍 Brindisi</h1><button class="iconbtn" id="hdrInfo" aria-label="Settings and info"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div class="sub"><span id="netChip" style="display:none;background:var(--chip);color:var(--ink);border-radius:10px;padding:1px 7px;font-weight:700;font-size:12px">📴 Offline: using saved data</span></div>
@@ -1190,9 +1214,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.7";            // bump on every release
+const APP_VERSION="6.8";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.8","A short startup animation (the route goes out and back and becomes the pin), no more white flash when opening; storage clean-up: downloaded updates are removed once installed, and 🧹 removes old installers from Downloads"],
  ["6.7","Updates inside the app: you get a note when a new version is out, and one tap downloads and installs it"],
  ["6.6","Group without internet: offline mode switches on by itself and keeps you in touch by Bluetooth (nearby) and text messages"],
  ["6.5","✈️ Flights (scan your boarding pass from Google Wallet), 🏠 everyday groups for friends at home, place info in your language (translated when needed), and more offline: posts wait and send later, I'm OK and SOS by text message, last departures, road info and train times stay visible without internet"],
@@ -1249,15 +1274,17 @@ function renderUpdate(){
   if(window.AndroidUpdate){
     const U=UPD,have=(()=>{try{return window.AndroidUpdate.versionCode();}catch(e){return 0;}})();
     const avail=U&&U.code>have;
-    box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}</span></h3>
+    box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}${APP_TEST?" test build":""}</span></h3>
       ${updBusy?`<div class="small">⬇ Downloading v${U.version}… ${updPct>=0?updPct+"%":""}</div><div class="upbar"><i style="width:${Math.max(3,updPct)}%"></i></div>`
         :avail?`<p class="new">⬆ Update ready: v${escH(U.version)}</p>${U.notes?`<div class="small">${escH(U.notes)}</div>`:""}
           <div class="btns"><button class="btn primary" id="updGo">${updReady?"📲 Install now":`⬇ Download &amp; install${U.size?" ("+(U.size/1048576).toFixed(1)+" MB)":""}`}</button></div>
           <div class="small">Installs over this version: your places, groups, photos and settings stay.${updErr?` <span class="live-err">${escH(updErr)}</span>`:""}</div>`
         :`<p class="ok">✓ Up to date${U&&U.checked?` · checked ${hmI(new Date(U.checked).toISOString())}`:""}</p>`}
-      <div class="btns"><button class="btn ghost" id="updCheck">🔄 Check for updates</button></div>${updMsg?`<div class="small">${escH(updMsg)}</div>`:""}${news}`;
+      <div class="btns"><button class="btn ghost" id="updCheck">🔄 Check for updates</button><button class="btn ghost" id="updClean">🧹 Remove old installers</button></div>
+      <div class="small">Downloaded updates are deleted automatically once installed. Installers you downloaded yourself (e.g. from a chat) sit in Downloads: tap 🧹, tick them and they're gone.</div>${updMsg?`<div class="small">${escH(updMsg)}</div>`:""}${news}`;
     const g=box.querySelector("#updGo");if(g)g.onclick=()=>updReady?updInstall():updDownload();
     box.querySelector("#updCheck").onclick=()=>checkUpdate(true);
+    box.querySelector("#updClean").onclick=()=>{window.onOldApksDeleted=n=>{toast(n?`🧹 Deleted ${n} old installer${n>1?"s":""}`:"Nothing deleted");};try{window.AndroidUpdate.pickOldApks();}catch(e){}};
   } else if(IN_APP){
     box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2311706a%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230c2b3b%22/%3E%20%3C/linearGradient%3E%20%3CradialGradient%20id%3D%22glow%22%20cx%3D%22.3%22%20cy%3D%22.2%22%20r%3D%22.8%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22/%3E%3C/radialGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23bg%29%22/%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23glow%29%22/%3E%20%3Cpath%20d%3D%22M256%20404%20L169%20280%20A108%20108%200%201%201%20343%20280%20Z%22%20fill%3D%22none%22%20stroke%3D%22%23f6f1e7%22%20stroke-width%3D%2230%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22/%3E%20%3Cpath%20d%3D%22M238%2092%20L262%20112%20L238%20132%22%20fill%3D%22none%22%20stroke%3D%22%23ffb547%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22404%22%20r%3D%2234%22%20fill%3D%22%23ffb547%22%20stroke%3D%22%230e3a44%22%20stroke-width%3D%2210%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22206%22%20r%3D%2234%22%20fill%3D%22%23f6f1e7%22/%3E%20%3C/svg%3E" width="36" height="36" alt="" style="border-radius:9px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}</span></h3>
       <div class="small">Installed on this phone. Checking needs internet.</div>

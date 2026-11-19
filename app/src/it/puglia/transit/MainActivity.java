@@ -296,14 +296,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.8 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.8 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -329,7 +329,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/6.8 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -365,7 +365,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     for (int i = 0; i < 6; i++) {
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.8 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -381,6 +381,17 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     /** Travel group: encryption, relay, live location sharing, album files, sharing with other apps. */
     /** Updates from the app's GitHub page: download the new APK, check it, hand it to Android's installer. */
     public class Updater {
+        /** Opens the file picker on Downloads so you can tick old Out & Back installers; they're deleted right away. */
+        @JavascriptInterface public void pickOldApks() {
+            runOnUiThread(new Runnable() { public void run() {
+                try {
+                    Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT); i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("application/vnd.android.package-archive"); i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    if (Build.VERSION.SDK_INT >= 26) i.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADownload"));
+                    startActivityForResult(i, REQ_OLDAPK);
+                } catch (Exception e) { Toast.makeText(MainActivity.this, "Couldn't open your files", Toast.LENGTH_LONG).show(); }
+            }});
+        }
         @JavascriptInterface public int versionCode() {
             try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; }
         }
@@ -392,7 +403,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     File f = new File(d, "update.apk"), tmp = new File(d, "update.part");
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(15000); c.setReadTimeout(60000); c.setInstanceFollowRedirects(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/6.7 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/6.8 (+https://github.com/jariplayz-source/puglia-transit)");
                     if (c.getResponseCode() != 200) throw new Exception("download server said " + c.getResponseCode());
                     long total = c.getContentLength(), got = 0; int lastPct = -1;
                     java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
@@ -640,6 +651,18 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     @Override
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
+        if (req == REQ_OLDAPK) {   // old installers you picked: delete them
+            int n = 0;
+            if (res == RESULT_OK && data != null) {
+                java.util.ArrayList<Uri> us = new java.util.ArrayList<Uri>();
+                if (data.getClipData() != null) for (int i = 0; i < data.getClipData().getItemCount(); i++) us.add(data.getClipData().getItemAt(i).getUri());
+                else if (data.getData() != null) us.add(data.getData());
+                for (Uri u : us) { try { if (android.provider.DocumentsContract.deleteDocument(getContentResolver(), u)) n++; } catch (Exception e) { } }
+            }
+            final String js = "window.onOldApksDeleted&&window.onOldApksDeleted(" + n + ")";
+            web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } });
+            return;
+        }
         if (req != REQ_FILE || fileCb == null) return;
         Uri[] out = null;
         if (res == RESULT_OK && data != null) {
@@ -684,15 +707,39 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         return new WebResourceResponse("text/plain", null, 404, "Not Found", hdr, new ByteArrayInputStream(new byte[0]));
     }
 
+    static final int REQ_OLDAPK = 4711;
+
+    /** Storage: remove the downloaded update once it's installed, half-finished downloads, and shared files older than a week. */
+    static void cleanStorage(final Context c) {
+        new Thread(new Runnable() { public void run() {
+            try {
+                File d = new File(c.getCacheDir(), "share");
+                File apk = new File(d, "update.apk");
+                if (apk.exists()) {
+                    int have = c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionCode;
+                    android.content.pm.PackageInfo pi = c.getPackageManager().getPackageArchiveInfo(apk.getPath(), 0);
+                    if (pi == null || pi.versionCode <= have) apk.delete();
+                }
+                File[] fs = d.listFiles();
+                if (fs != null) for (File f : fs) {
+                    long age = System.currentTimeMillis() - f.lastModified();
+                    if ((f.getName().endsWith(".part") && age > 3600000L) || (!f.getName().equals("update.apk") && age > 7 * 86400000L)) f.delete();
+                }
+            } catch (Exception e) { }
+        }}).start();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cleanStorage(this);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         store = new MapStore(this);
 
         web = new WebView(this);
+        web.setBackgroundColor(0xFF0E4A52);   // matches the startup animation: no white flash
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);

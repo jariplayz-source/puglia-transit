@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same deep teal as the startup animation, so there's no white flash while the app opens -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/splash</item>
+        <item name="android:statusBarColor">@color/splash</item>
+        <item name="android:navigationBarColor">@color/splash</item>
+    </style>
+    <color name="splash">#0e4a52</color>
+</resources>
