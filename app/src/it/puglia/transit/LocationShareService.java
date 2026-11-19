@@ -21,6 +21,27 @@ public class LocationShareService extends Service implements LocationListener {
     static final int ID = 9;
     private LocationManager lm;
     private long lastSent = 0, lastPoll = 0;
+    private Location lastLoc = null;
+    private final android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
+    /** Heartbeat: also send when you're not moving, so the group always sees a fresh position (every ~2 min). */
+    private final Runnable beat = new Runnable() { public void run() {
+        Location l = lastLoc;
+        if (l == null) l = lastKnown();
+        if (l != null) send(l, true);
+        h.postDelayed(this, 120000);
+    }};
+
+    private Location lastKnown() {
+        Location best = null;
+        try {
+            for (String p : new String[]{"fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
+                if (!lm.getAllProviders().contains(p)) continue;
+                Location l = lm.getLastKnownLocation(p);
+                if (l != null && (best == null || l.getTime() > best.getTime() + 60000 || (Math.abs(l.getTime() - best.getTime()) < 60000 && l.getAccuracy() < best.getAccuracy()))) best = l;
+            }
+        } catch (SecurityException e) { } catch (Exception e) { }
+        return best;
+    }
 
     @Override public IBinder onBind(Intent i) { return null; }
 
@@ -53,18 +74,30 @@ public class LocationShareService extends Service implements LocationListener {
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         try { lm.removeUpdates(this); } catch (Exception e) { }
         try {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 15, this);
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 15, this);
-        } catch (SecurityException e) { stopSelf(); } catch (Exception e) { }
+            for (String p : new String[]{"fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
+                if (lm.getAllProviders().contains(p) && lm.isProviderEnabled(p)) lm.requestLocationUpdates(p, 20000, 0, this);
+            }
+        } catch (SecurityException e) { stopSelf(); return START_NOT_STICKY; } catch (Exception e) { }
+        h.removeCallbacks(beat);
+        Location k = lastKnown();
+        if (k != null && System.currentTimeMillis() - k.getTime() < 15 * 60000) { lastLoc = k; send(k, true); }
+        h.postDelayed(beat, 120000);
         return START_STICKY;
     }
 
     @Override public void onLocationChanged(final Location l) {
-        long now = System.currentTimeMillis();
         if (GroupCore.prefs(this).getBoolean("tracking", false))
             GroupCore.recordPoint(this, l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 50, l.hasSpeed() ? l.getSpeed() : -1);
+        // keep the better of: newer fix, or a much more accurate one from the last minute
+        if (lastLoc == null || l.getTime() - lastLoc.getTime() > 60000 || l.getAccuracy() <= lastLoc.getAccuracy() * 1.5) lastLoc = l;
+        send(lastLoc, false);
+    }
+
+    private void send(final Location l, boolean force) {
+        long now = System.currentTimeMillis();
+        GroupCore.prefs(this).edit().putString("lastLoc", l.getLatitude() + "," + l.getLongitude() + "," + (l.hasAccuracy() ? l.getAccuracy() : 50) + "," + l.getTime()).apply();
         if (!GroupCore.prefs(this).getBoolean("sharing", false) || GroupCore.prefs(this).getString("topic", null) == null) return;
-        if (now - lastSent < 110000) return;
+        if (now - lastSent < (force ? 30000 : 90000)) return;
         lastSent = now;
         final boolean poll = now - lastPoll > 110000; if (poll) lastPoll = now;
         new Thread(new Runnable() { public void run() {
@@ -77,6 +110,7 @@ public class LocationShareService extends Service implements LocationListener {
     @Override public void onProviderDisabled(String p) {}
 
     @Override public void onDestroy() {
+        h.removeCallbacks(beat);
         try { if (lm != null) lm.removeUpdates(this); } catch (Exception e) { }
         try { stopForeground(true); } catch (Exception e) { }
         super.onDestroy();

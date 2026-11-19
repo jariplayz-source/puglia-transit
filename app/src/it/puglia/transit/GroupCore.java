@@ -96,7 +96,7 @@ public class GroupCore {
         if (topic == null || key == null) return;
         try {
             JSONObject m = new JSONObject();
-            m.put("v", 1); m.put("ty", "loc"); m.put("from", p.getString("me", "")); m.put("name", p.getString("name", ""));
+            m.put("v", 1); m.put("ver", "6.3"); m.put("ty", "loc"); m.put("from", p.getString("me", "")); m.put("name", p.getString("name", ""));
             m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
             int bat = battery(ctx); if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
             if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
@@ -145,6 +145,15 @@ public class GroupCore {
                     String ty = env.optString("ty"), name = env.optString("name", "Your group"), cap = env.optString("cap", "");
                     String title = null, text = null;
                     if ("loc".equals(ty)) { placeAlert(ctx, p, env); continue; }
+                    if ("locreq".equals(ty)) {
+                        if (System.currentTimeMillis() - env.optLong("ts", 0) > 30 * 60000) continue;   // old request
+                        if (p.getBoolean("sharing", false)) {
+                            String[] ll = p.getString("lastLoc", "").split(",");
+                            if (ll.length >= 3) try { sendLocation(ctx, Double.parseDouble(ll[0]), Double.parseDouble(ll[1]), Float.parseFloat(ll[2])); } catch (Exception ignored) {}
+                            continue;
+                        }
+                        title = "📍 " + name + " asks where you are"; text = "Open the app and switch on “Share my live location” in Group.";
+                    }
                     if ("sos".equals(ty)) { title = "🆘 " + name + " needs help"; text = cap.isEmpty() ? "Open the app to see where they are." : cap; }
                     else if ("checkin".equals(ty)) { title = "✅ " + name; text = cap.isEmpty() ? "Checked in: all OK" : cap; }
                     else if ("voice".equals(ty)) { title = "🎙 " + name + " sent a voice note"; text = "Open the app to hear it (it plays by itself)."; }

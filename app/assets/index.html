@@ -479,6 +479,7 @@ body.walking #gpsQ{top:auto;bottom:96px}
 .hseg{margin:4px 0 10px}
 .hseg button .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--warn);color:#fff;font-size:11.5px;line-height:18px}
 body.mode-home #hSegT,body:not(.mode-home) #hSegH{display:none}
+html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) #nlRoad,html:not([data-country="nl"]) .rt-warn{display:none!important}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -1183,9 +1184,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.2";            // bump on every release
+const APP_VERSION="6.3";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.3","Group: locations now update by themselves every 15 s, a clear Update button, an 📍 Ask button to request someone's location, and sharing keeps sending even when you sit still. Home mode now follows where you live (set it in ⚙️), in any country"],
  ["6.2","New name and logo: Out & Back. Your data, places and group stay as they are"],
  ["6.1","Home is split into sections (Today · Trains · Day trips, or Now · Transit · Roads at home). Map chips no longer cut off. Sharper GPS: combined location, best fix wins, less jumping, and a hint when the signal is weak or only approximate location is allowed"],
  ["6.0","Country designs (Italian here, Dutch at home) and Home mode for the Netherlands: weather with rain in the next 2 hours, roads near you (jams, accidents, closures), departures near you, trip planner and saved routes"],
@@ -3076,7 +3078,18 @@ var SET_COUNTRY="auto",SET_MODE="auto",LAST_C="it";
 try{SET_COUNTRY=localStorage.getItem("pt-country")||"auto";SET_MODE=localStorage.getItem("pt-appmode")||"auto";LAST_C=localStorage.getItem("pt-lastc")||"it";}catch(e){}
 function countryAt(lat,lon){for(const k in COUNTRY_BOX){const b=COUNTRY_BOX[k];if(lat>=b[0]&&lat<=b[2]&&lon>=b[1]&&lon<=b[3])return k;}return "xx";}
 function curCountry(){if(SET_COUNTRY!=="auto")return SET_COUNTRY;return me?countryAt(me.lat,me.lon):LAST_C;}
-function appMode(){if(SET_MODE!=="auto")return SET_MODE;return curCountry()==="nl"?"home":"travel";}
+/* Home mode = near where you live (set in ⚙️ or with "This is my home"), in any country. Without a home set, the Netherlands counts as home. */
+var LAST_MODE="travel";try{LAST_MODE=localStorage.getItem("pt-lastmode")||"travel";}catch(e){}
+function appMode(){if(SET_MODE!=="auto")return SET_MODE;let m;
+  const H=typeof NLHOME!=="undefined"?NLHOME:null;
+  if(H&&me)m=hav([me.lat,me.lon],[H.lat,H.lon])<=50?"home":"travel";
+  else if(H)m=LAST_MODE;
+  else m=curCountry()==="nl"?"home":"travel";
+  if(m!==LAST_MODE){LAST_MODE=m;try{localStorage.setItem("pt-lastmode",m);}catch(e){}}
+  return m;}
+function setHomeHere(){if(!me){toast("📍 Waiting for your location…");return;}
+  NLHOME={lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),name:(typeof hereName==="function"&&hereName())||"Home"};try{localStorage.setItem("pt-home",JSON.stringify(NLHOME));}catch(e){}
+  toast("🏠 Home saved: Home mode is on when you're near it");appliedKey="";applyCountry();renderSet();}
 var appliedKey="";
 function applyCountry(){
   const c=curCountry(),m=appMode(),key=c+"|"+m;
@@ -3094,8 +3107,13 @@ function countrySet(){return `<div class="dest" style="margin-top:14px">Country 
   <div class="seg">${[["auto","Auto"],["it","🇮🇹 Italy"],["nl","🇳🇱 NL"],["xx","Neutral"]].map(([k,l])=>`<button data-cset="${k}" class="${SET_COUNTRY===k?"on":""}">${l}</button>`).join("")}</div>
   <div class="dest" style="margin-top:14px">Mode</div>
   <div class="seg">${[["auto","Auto"],["travel","🧳 Travel"],["home","🏠 Home"]].map(([k,l])=>`<button data-mset="${k}" class="${SET_MODE===k?"on":""}">${l}</button>`).join("")}</div>
-  <div class="small" style="margin-top:6px">Auto: the look follows the country you're in (now ${COUNTRY_NAME[curCountry()]}). Home mode switches on in the Netherlands: departures near you, trip planner, saved routes and traffic. Travel mode is for Puglia: day trips and the last train back.</div>`;}
-document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest("[data-cset],[data-mset]");if(!c)return;
+  <div class="dest" style="margin-top:14px">Where you live</div>
+  <div class="small">${NLHOME?`🏠 ${escH(NLHOME.name||"Home")}${me?` · ${kmTxt(hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon]))} from here`:""}`:"Not set yet."}</div>
+  <div class="btns"><button class="btn ghost" id="setHomeBtn">🏠 ${NLHOME?"Move home to":"Set home to"} where I am now</button>${NLHOME?`<button class="btn ghost" id="clrHomeBtn">Clear</button>`:""}</div>
+  <div class="small" style="margin-top:6px">Auto: the look follows the country you're in (now ${COUNTRY_NAME[curCountry()]}). Home mode is on within 50 km of where you live, in any country: departures near you, trip planner, saved routes${curCountry()==="nl"?" and traffic":""}. Away from home you get Travel mode: day trips and the last train back.</div>`;}
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#setHomeBtn"))return setHomeHere();
+  if(e.target.closest&&e.target.closest("#clrHomeBtn")){const b=e.target.closest("#clrHomeBtn");if(!b.dataset.sure){b.dataset.sure=1;b.textContent="Tap again to clear";return;}NLHOME=null;try{localStorage.removeItem("pt-home");}catch(x){}appliedKey="";applyCountry();renderSet();return;}
+  const c=e.target.closest&&e.target.closest("[data-cset],[data-mset]");if(!c)return;
   if(c.dataset.cset){SET_COUNTRY=c.dataset.cset;try{localStorage.setItem("pt-country",SET_COUNTRY);}catch(x){}}
   if(c.dataset.mset){SET_MODE=c.dataset.mset;try{localStorage.setItem("pt-appmode",SET_MODE);}catch(x){}}
   appliedKey="";applyCountry();renderSet();});
@@ -3103,7 +3121,7 @@ document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest
 /* ---------- Home sections (Today / Trains / Day trips, or Now / Transit / Roads at home) ---------- */
 var HPANE={travel:"today",home:"now"};try{Object.assign(HPANE,JSON.parse(localStorage.getItem("pt-hpane"))||{});}catch(e){}
 function homePane(k){const home=["now","ov","roads"].includes(k);HPANE[home?"home":"travel"]=k;try{localStorage.setItem("pt-hpane",JSON.stringify(HPANE));}catch(e){}applyPane();}
-function applyPane(){const k=HPANE[appMode()==="home"?"home":"travel"];
+function applyPane(){let k=HPANE[appMode()==="home"?"home":"travel"];if(k==="roads"&&curCountry()!=="nl")k="now";
   document.querySelectorAll("#v-dest [data-hp]").forEach(p=>p.hidden=p.dataset.hp!==k);
   document.querySelectorAll("[data-hseg]").forEach(b=>b.classList.toggle("on",b.dataset.hseg===k));}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-hseg]");if(!b)return;homePane(b.dataset.hseg);window.scrollTo({top:0});});
@@ -3176,7 +3194,7 @@ function renderNlNow(){const b=document.getElementById("nlNow");if(!b)return;
   const away=NLHOME&&me?hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon]):null;
   b.innerHTML=`<div class="trip-h"><div class="dest">${nm?"Now in "+escH(nm):me?"Here":"Waiting for your location…"}</div>${NLHOME?(away!=null&&away>1?`<span class="badge">${kmTxt(away)} from home</span>`:`<span class="badge">🏠 home</span>`):""}</div>${wx||(me?`<div class="small">Getting the weather…</div>`:"")}
     ${!NLHOME&&me?`<div class="btns"><button class="btn ghost" id="nlSetHome">🏠 This is my home</button></div><div class="small">Set it once, then you get "Home" routes and traffic on the way home.</div>`:""}`;
-  const s=b.querySelector("#nlSetHome");if(s)s.onclick=()=>{NLHOME={lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),name:nm||"Home"};try{localStorage.setItem("pt-home",JSON.stringify(NLHOME));}catch(e){}toast("🏠 Home saved");renderNL();};
+  const s=b.querySelector("#nlSetHome");if(s)s.onclick=()=>{setHomeHere();renderNL();};
 }
 
 /* ---------- Road info (NDW): jams, accidents, closures near you and on your routes ---------- */
@@ -3192,7 +3210,7 @@ const ROAD_KIND=r=>{const t=r.type||"",a=r.abnormalTrafficType||"",m=r.roadOrCar
   return ["ℹ️",t.replace(/([a-z])([A-Z])/g,"$1 $2"),2];};
 function routeCorridor(a,b2){const pts=[],n=Math.max(1,Math.ceil(hav([a.lat,a.lon],[b2.lat,b2.lon])/8));for(let i=0;i<=n;i++)pts.push([a.lat+(b2.lat-a.lat)*i/n,a.lon+(b2.lon-a.lon)*i/n,4]);return pts;}
 var roadKey=0;
-function loadNlRoad(){if(!me)return;if(!window.AndroidRoad){nlRoad.err="Road info works in the Android app.";return renderNlRoad();}
+function loadNlRoad(){if(!me||curCountry()!=="nl")return;if(!window.AndroidRoad){nlRoad.err="Road info works in the Android app.";return renderNlRoad();}
   if(navigator.onLine===false){nlRoad.err="No internet: road info needs a connection.";return renderNlRoad();}
   nlRoad.busy=true;nlRoad.err="";renderNlRoad();const key="r"+(++roadKey);
   const pts=[[me.lat,me.lon,25]];if(NLHOME&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>2)pts.push(...routeCorridor(me,NLHOME));
@@ -3269,7 +3287,7 @@ function renderNlSaved(){const b=document.getElementById("nlSaved");if(!b)return
   b.innerHTML=`<div class="trip-h"><div class="dest">⭐ My routes</div></div>${!L.length?`<div class="small">Plan a trip above and tap ⭐ Save route, e.g. home ⇄ work. ${NLHOME?"":"Set your home in the card at the top to get a Home route."}</div>`:""}
     ${L.map(r=>{const [f,t]=routeDir(r),R=nlRouteRes[r.id]||{};const onWay=(nlRoad.list||[]).filter(x=>routeCorridor(f,t).some(p=>hav([p[0],p[1]],[x.lat,x.lon])<=4)&&ROAD_KIND(x)[2]<2);
       return `<div class="rt"><div class="rt-h"><b>${escH(r.name)}</b><span class="tr">to ${escH(t.name)}</span>${r.home?"":`<button class="mini" data-rdel="${r.id}" aria-label="Delete route">✕</button>`}</div>
-        ${onWay.length?`<div class="rt-warn">⚠️ ${onWay.length} traffic message${onWay.length>1?"s":""} on the way: ${onWay.slice(0,2).map(x=>`${x.roadNumber||""} ${ROAD_KIND(x)[1].toLowerCase()}`).join(", ")}</div>`:nlRoad.list?`<div class="tr" style="margin:2px 0">✅ No jams or closures on the way</div>`:""}
+        ${onWay.length?`<div class="rt-warn">⚠️ ${onWay.length} traffic message${onWay.length>1?"s":""} on the way: ${onWay.slice(0,2).map(x=>`${x.roadNumber||""} ${ROAD_KIND(x)[1].toLowerCase()}`).join(", ")}</div>`:curCountry()==="nl"&&nlRoad.list?`<div class="tr" style="margin:2px 0">✅ No jams or closures on the way</div>`:""}
         ${R.busy?`<div class="small">⏳ …</div>`:R.err?`<div class="live-err">${escH(R.err)}</div>`:R.its?(R.its.length?R.its.map(it=>`<div class="tr">🚆 ${hmI(it.startTime)} → ${hmI(it.endTime)} · ${minsTxt(it.duration)} · ${(it.legs||[]).filter(l=>l.mode!=="WALK").map(l=>MODE_IC(l.mode)+" "+escH(l.routeShortName||l.displayName||"")).join(" › ")}</div>`).join(""):`<div class="small">No connection found.</div>`):""}
         <div class="btns"><button class="btn ghost" data-rnext="${r.id}">🚆 Next connections</button><a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&origin=${me&&!r.home&&hav([me.lat,me.lon],[f.lat,f.lon])>3?f.lat+","+f.lon:""}&destination=${t.lat},${t.lon}&travelmode=driving">🚗 Drive (traffic)</a></div></div>`;}).join("")}`;
   b.querySelectorAll("[data-rnext]").forEach(x=>x.onclick=()=>{const r=routesList().find(y=>y.id===x.dataset.rnext);if(r)routeNext(r);});
@@ -3492,7 +3510,7 @@ function gDec(s){if(!s)return null;const t=window.AndroidGroup.decrypt(GRP.key,s
 function gPublish(env,full){return new Promise((res,rej)=>{
   const id="g"+(++netSeq),tm=setTimeout(()=>{delete netCbs[id];rej(new Error("no answer from the relay"));},120000);
   netCbs[id]=(ok,txt)=>{clearTimeout(tm);ok?res(txt):rej(new Error(txt||"failed"));};
-  const e={v:1,from:GRP.me.id,name:GRP.me.name,ts:Date.now(),...env};
+  const e={v:1,ver:APP_VERSION,from:GRP.me.id,name:GRP.me.name,ts:Date.now(),...env};
   try{if(full)window.AndroidGroup.publish(id,GRP.topic,gEnc({...e,...full}),gEnc(e));else window.AndroidGroup.publish(id,GRP.topic,gEnc(e),"");}catch(x){clearTimeout(tm);rej(x);}});}
 function inviteCode(){return "PTG1-"+btoa(unescape(encodeURIComponent(JSON.stringify({n:GRP.name,k:GRP.key,t:GRP.topic})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 function readInvite(code){const m=/PTG1-([A-Za-z0-9_-]+)/.exec(code||"");if(!m)return null;try{let b=m[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const o=JSON.parse(decodeURIComponent(escape(atob(b))));return o.k&&o.t?o:null;}catch(e){return null;}}
@@ -3511,7 +3529,8 @@ async function gPoll(){
     for(const line of txt.split("\n")){if(!line.trim())continue;let o;try{o=JSON.parse(line);}catch(e){continue;}
       if(o.event!=="message")continue;GRP.lastId=o.id;
       const env=gDec(o.message);if(!env||env.from===GRP.me.id)continue;
-      const m=GRP.members[env.from]=GRP.members[env.from]||{name:env.name};m.name=env.name;m.seen=env.ts;
+      const m=GRP.members[env.from]=GRP.members[env.from]||{name:env.name};m.name=env.name;m.seen=Math.max(m.seen||0,env.ts||0);if(env.ver)m.ver=env.ver;
+      if(env.ty==="locreq"){if(Date.now()-(env.ts||0)<30*60e3){if(gSharing()){sendMyLoc(true);toast(`📍 ${env.name} asked where you are: sent`);}else{LOCREQ={name:env.name,ts:env.ts};toast(`📍 ${env.name} asks where you are`);}}continue;}
       if(env.ty==="loc"){const prevAt=m.last?placeOf([m.last.lat,m.last.lon]):null;m.last={lat:env.lat,lon:env.lon,acc:env.acc,ts:env.ts,bat:env.bat,chg:env.chg,spd:env.spd};
         m.trail=(m.trail||[]).filter(p=>Date.now()-p[0]<48*3600e3);m.trail.push([env.ts,env.lat,env.lon]);if(m.trail.length>500)m.trail.splice(0,m.trail.length-500);
         const nowAt=placeOf([env.lat,env.lon]);if(prevAt!=null&&prevAt!==nowAt&&NOTIF.places){const sp=s=>s&&!s.startsWith("in ");if(sp(nowAt))toast(`📍 ${env.name} arrived at ${nowAt.replace("🏠 ","")}`);else if(sp(prevAt))toast(`🚶 ${env.name} left ${prevAt.replace("🏠 ","")}`);}
@@ -3532,9 +3551,17 @@ async function gPoll(){
     }
     saveGrp();gCfg();if(fresh){saveAlbum();}gErr="";
   }catch(e){gErr=e.message;}
-  gBusy=false;renderGroup();drawMap();if(fresh)playNewVoices();
+  gBusy=false;gPolledAt=Date.now();GRP&&(GRP.polled=Date.now());renderGroup();drawMap();if(fresh)playNewVoices();
 }
-setInterval(()=>{if(GRP&&!document.hidden)gPoll();},30000);
+/* while the app is open: send my own position too (the background service does it when the app is closed), and look for updates often */
+let LOCREQ=null,lastMySend=0,gPolledAt=0;
+function gSharing(){try{return !!window.AndroidGroup.sharing();}catch(e){return false;}}
+function sendMyLoc(force){if(!GRP||!me||!gSharing()||navigator.onLine===false)return;if(!force&&Date.now()-lastMySend<60e3)return;lastMySend=Date.now();
+  let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}
+  gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})}).catch(()=>{});}
+async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;try{await gPublish({ty:"locreq",to:id});toast(`📍 Asked ${m.name} for their location`);m.asked=Date.now();renderGroup();setTimeout(gPoll,15000);setTimeout(gPoll,45000);}catch(e){toast("⚠ "+e.message);}}
+setInterval(()=>{if(!GRP||document.hidden)return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
+  if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&GRP)gPoll();});
 window.onAppOpened=()=>{if(GRP)gPoll();};
 // voice notes from others play by themselves, one after the other
@@ -3595,24 +3622,27 @@ function renderGroup(){
   const sharing=(()=>{try{return window.AndroidGroup.sharing();}catch(e){return false;}})();
   const mem=Object.entries(GRP.members).sort((a,b)=>(b[1].seen||0)-(a[1].seen||0));
   b.innerHTML=`<div class="card"><div class="trip-h"><div class="dest">👥 ${GRP.name}</div><span class="badge">${mem.length+1} people</span></div>
+    ${LOCREQ&&!sharing?`<div class="rt-warn" style="margin:6px 0">📍 ${LOCREQ.name} asked where you are: switch on sharing below.</div>`:""}
     <div class="sw"><span class="w">📍 Share my live location<small>${sharing?"On, also when the app is closed (you'll see a notification)":"Off: your group can't see where you are"}</small></span><button class="tg ${sharing?"on":""}" id="gShare" aria-pressed="${sharing}" aria-label="Share my live location"></button></div>
     <div class="mem"><span class="av" style="background:${gColor(GRP.me.id)}">${GRP.me.name.slice(0,1).toUpperCase()}</span><span class="w"><b>${GRP.me.name}</b> (you)<small>${sharing?"Sharing location":"Not sharing location"}${me?" · "+(placeOf([me.lat,me.lon])||""):""}</small>
       ${(()=>{let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}return bt>=0?`<span class="st"><span>${batOf(bt%1000,bt>=1000)}</span></span>`:"";})()}</span></div>
     ${mem.map(([id,m])=>`<div class="mem"><span class="av" style="background:${gColor(id)}">${(m.name||"?").slice(0,1).toUpperCase()}</span><span class="w"><b>${m.name}</b>
-      <small>${m.last?`${placeOf([m.last.lat,m.last.lon])||"📍"} · ${ago(m.last.ts)}${me?" · "+kmTxt(hav([me.lat,me.lon],[m.last.lat,m.last.lon])):""}`:"No location shared yet"}</small>
+      <small>${m.last?`${placeOf([m.last.lat,m.last.lon])||"📍"} · ${ago(m.last.ts)}${me?" · "+kmTxt(hav([me.lat,me.lon],[m.last.lat,m.last.lon])):""}${Date.now()-m.last.ts>15*60e3?" · not updated lately":""}`:"Not sharing location yet"}${m.ver?` · app ${m.ver}`:""}</small>
       ${m.last?`<span class="st">${batOf(m.last.bat,m.last.chg)?`<span class="${m.last.bat<=20&&!m.last.chg?"low":""}">${batOf(m.last.bat,m.last.chg)}</span>`:""}${moveOf(m.last)?`<span>${moveOf(m.last)}</span>`:""}</span>`:""}</span>
-      ${m.last?`<button class="mini" data-gmap="${id}" style="flex:none">Show</button>`:""}</div>`).join("")}
+      <span style="display:flex;flex-direction:column;gap:4px;flex:none">${m.last?`<button class="mini" data-gmap="${id}" style="margin:0">Show</button>`:""}${!m.last||Date.now()-m.last.ts>5*60e3?`<button class="mini" data-gask="${id}" style="margin:0">${m.asked&&Date.now()-m.asked<120e3?"Asked ✓":"📍 Ask"}</button>`:""}</span></div>`).join("")}
     ${!mem.length?`<div class="small" style="margin-top:6px">Nobody else yet. Send them the invite below.</div>`:""}
     <div class="ci"><button class="btn ghost" id="gCheck">✅ I'm OK</button><button class="btn sos" id="gSOS"><i></i>🆘 Hold for SOS</button></div>
     <div class="small" style="margin-top:6px">Arrive/leave alerts work for your saved places (❤️ My places on the Map tab).</div>
-    <div class="btns"><button class="btn primary" id="gInv">📤 Send invite</button><button class="btn ghost" id="gRef">${gBusy?"⏳":"🔄"} Check now</button></div>
+    <div class="btns"><button class="btn primary" id="gInv">📤 Send invite</button><button class="btn ghost" id="gRef">${gBusy?"⏳ Updating…":"🔄 Update locations"}</button></div>
+    <div class="small" style="margin-top:4px">${GRP.polled?`Updated ${hmI(new Date(GRP.polled).toISOString())} · `:""}updates by itself every 15 seconds while this screen is open.</div>
     ${gErr?`<div class="live-err">Last check: ${gErr}</div>`:""}
     <details class="adv"><summary>Invite code & privacy ▸</summary><div class="code">${inviteCode()}</div>
       <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>
       <div class="btns"><button class="btn ghost" id="gLeave" style="color:var(--warn)">Leave group</button></div></details></div>`;
-  b.querySelector("#gShare").onclick=()=>{try{window.AndroidGroup.share(!sharing);}catch(e){}setTimeout(renderGroup,800);};
+  b.querySelector("#gShare").onclick=()=>{try{window.AndroidGroup.share(!sharing);}catch(e){}if(!sharing){LOCREQ=null;setTimeout(()=>sendMyLoc(true),600);}setTimeout(renderGroup,800);};
   b.querySelector("#gInv").onclick=()=>{try{window.AndroidGroup.shareText(`Join my Out & Back travel group “${GRP.name}”. Open the app → Group → paste this code:\n\n${inviteCode()}`);}catch(e){}};
   b.querySelector("#gRef").onclick=()=>gPoll();
+  b.querySelectorAll("[data-gask]").forEach(x=>x.onclick=()=>askLoc(x.dataset.gask));
   b.querySelector("#gCheck").onclick=checkIn;
   {const s=b.querySelector("#gSOS");let t=null;const go=e=>{e.preventDefault();s.classList.add("hold");t=setTimeout(()=>{s.classList.remove("hold");if(navigator.vibrate)try{navigator.vibrate([300,100,300]);}catch(x){}sendSOS();},2000);};
    const stop=()=>{clearTimeout(t);s.classList.remove("hold");};s.addEventListener("pointerdown",go);s.addEventListener("pointerup",stop);s.addEventListener("pointerleave",stop);s.addEventListener("pointercancel",stop);}
