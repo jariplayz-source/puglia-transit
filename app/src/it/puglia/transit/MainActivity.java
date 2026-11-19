@@ -296,14 +296,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.3 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.3 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -329,7 +329,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.3 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -365,7 +365,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     for (int i = 0; i < 6; i++) {
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.3 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -403,7 +403,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     File f = new File(d, "update.apk"), tmp = new File(d, "update.part");
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(15000); c.setReadTimeout(60000); c.setInstanceFollowRedirects(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.3 (+https://github.com/jariplayz-source/puglia-transit)");
                     if (c.getResponseCode() != 200) throw new Exception("download server said " + c.getResponseCode());
                     long total = c.getContentLength(), got = 0; int lastPct = -1;
                     java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
@@ -570,10 +570,12 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     void restartService() {
         runOnUiThread(new Runnable() { public void run() {
             Intent i = new Intent(MainActivity.this, LocationShareService.class);
-            boolean any = GroupCore.prefs(MainActivity.this).getBoolean("sharing", false) || GroupCore.prefs(MainActivity.this).getBoolean("tracking", false);
+            android.content.SharedPreferences sp = GroupCore.prefs(MainActivity.this);
+            boolean any = GroupCore.anySharing(sp) || sp.getBoolean("tracking", false);
             try {
-                stopService(i);
-                if (!any) return;
+                // Don't stop and restart: a running service just re-reads its settings. Stopping one that was
+                // started a moment ago (before it reached the foreground) crashes the app on Android 12+.
+                if (!any) { stopService(i); return; }
                 if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED)
                     requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 79);
                 if (Build.VERSION.SDK_INT >= 26) startForegroundService(i); else startService(i);

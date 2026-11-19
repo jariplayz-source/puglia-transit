@@ -51,7 +51,7 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.2 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.3 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -77,11 +77,14 @@ public class GroupCore {
     /** Journey: adds a point to your own route (kept only on this phone). */
     static double tLat = 999, tLon = 999; static long tTs = 0;
     static void recordPoint(Context ctx, double lat, double lon, float acc, float spd) {
-        if (acc > 120) return;
+        // only reasonably precise fixes: phone-mast and Wi-Fi guesses make the zigzags across town
+        if (acc > 50) return;
         long now = System.currentTimeMillis();
         if (tLat != 999) {
             double d = Math.hypot((lat - tLat) * 111320, (lon - tLon) * 111320 * Math.cos(Math.toRadians(lat)));
-            if (d < 60 && now - tTs < 10 * 60000) return;
+            double dt = Math.max(1, (now - tTs) / 1000.0);
+            if (d < Math.max(25, acc) && now - tTs < 10 * 60000) return;   // standing still or GPS wobble
+            if (d / dt > 70 && dt < 600) return;                           // a jump faster than 250 km/h: a bad fix
         }
         tLat = lat; tLon = lon; tTs = now;
         try { FileWriter w = new FileWriter(new File(ctx.getFilesDir(), "track.csv"), true);
@@ -123,7 +126,7 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.2"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.3"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);

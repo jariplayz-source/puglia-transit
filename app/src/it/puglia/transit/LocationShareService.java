@@ -64,7 +64,6 @@ public class LocationShareService extends Service implements LocationListener {
             stopSelf(); return START_NOT_STICKY;
         }
         boolean sharing = GroupCore.anySharing(GroupCore.prefs(this)), tracking = GroupCore.prefs(this).getBoolean("tracking", false);
-        if (!sharing && !tracking) { stopSelf(); return START_NOT_STICKY; }
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder b;
         if (Build.VERSION.SDK_INT >= 26) {
@@ -82,10 +81,13 @@ public class LocationShareService extends Service implements LocationListener {
         b.setSmallIcon(android.R.drawable.ic_menu_mylocation).setContentTitle(title).setContentText(text)
          .setOngoing(true).setContentIntent(PendingIntent.getActivity(this, 1, open, fl))
          .addAction(new Notification.Action.Builder(null, "Stop", PendingIntent.getService(this, 2, stop, fl)).build());
+        // Always go to the foreground first: Android kills the whole app if a service started with
+        // startForegroundService() stops or fails before calling startForeground().
         try {
             if (Build.VERSION.SDK_INT >= 29) startForeground(ID, b.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
             else startForeground(ID, b.build());
-        } catch (Exception e) { stopSelf(); return START_NOT_STICKY; }
+        } catch (Exception e) { try { stopSelf(); } catch (Exception x) { } return START_NOT_STICKY; }
+        if (!sharing && !tracking) { try { stopForeground(true); } catch (Exception e) { } stopSelf(); return START_NOT_STICKY; }
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         try { lm.removeUpdates(this); } catch (Exception e) { }
         try {
@@ -126,7 +128,8 @@ public class LocationShareService extends Service implements LocationListener {
     @Override public void onProviderDisabled(String p) {}
 
     @Override public void onDestroy() {
-        h.removeCallbacks(beat);
+        h.removeCallbacks(beat); h.removeCallbacks(offline);
+        try { OfflineLink.btStop(this); } catch (Exception e) { }
         try { if (lm != null) lm.removeUpdates(this); } catch (Exception e) { }
         try { stopForeground(true); } catch (Exception e) { }
         super.onDestroy();
