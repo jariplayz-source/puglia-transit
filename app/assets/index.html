@@ -506,6 +506,155 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
 @media (prefers-reduced-motion: reduce){#splash *{animation:none!important;stroke-dashoffset:0!important;transform:none!important;opacity:1!important}}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
+/* ---------- SURVIVAL ---------- */
+.iconbtn.sv{background:#c5221f;color:#fff;font-weight:800;font-size:12px;letter-spacing:.02em;width:auto;padding:0 12px}
+.sv-call{background:#b3261e;color:#fff;border-radius:22px;padding:16px;margin:4px 0 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.sv-call b{font-size:15px}.sv-call small{display:block;opacity:.85;font-size:12.5px;line-height:1.4;margin-top:2px}
+.sv-call a.big{background:#fff;color:#b3261e;font-weight:800;font-size:26px;text-decoration:none;border-radius:18px;padding:10px 18px;line-height:1}
+.sv-where{grid-column:1/-1;background:rgba(0,0,0,.18);border-radius:12px;padding:9px 11px;font-size:13px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.sv-where code{font-family:inherit;font-weight:700;font-size:14px;letter-spacing:.01em}
+.sv-where button{border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:6px 10px;font-weight:600}
+.sv-nums{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.sv-nums a{color:#fff;text-decoration:none;font-size:12.5px;background:rgba(255,255,255,.14);border-radius:999px;padding:5px 10px}
+.sv-search{width:100%;box-sizing:border-box;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:11px 14px;font-size:15px;margin-bottom:12px}
+.sv-h{font-size:13px;color:var(--muted);font-weight:600;margin:16px 2px 8px}
+.sv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sv-g{border:0;text-align:left;background:var(--card);color:var(--ink);border-radius:16px;padding:12px;box-shadow:var(--shadow);border-left:4px solid var(--sc);display:flex;flex-direction:column;gap:4px;min-height:86px;cursor:pointer}
+.sv-g .e{font-size:22px;line-height:1}.sv-g>span:last-child{display:flex;flex-direction:column;gap:3px}.sv-g b{font-size:14px;line-height:1.25}.sv-g small{font-size:11.5px;color:var(--muted);line-height:1.3}
+.sv-g.wide{grid-column:1/-1;flex-direction:row;align-items:center;min-height:0;gap:12px}
+.sv-pack{background:var(--card);border-radius:16px;padding:13px 14px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.sv-pack .e{font-size:26px}.sv-pack div{flex:1;min-width:0}.sv-pack b{font-size:14.5px}.sv-pack small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+.sv-pack button{border:0;border-radius:12px;padding:8px 12px;font-weight:700;font-size:13px;background:var(--accent);color:var(--accent-ink);flex:none}
+.sv-pack button.rm{background:var(--chip);color:var(--muted)}
+.sv-note{font-size:12px;color:var(--muted);line-height:1.45;margin:14px 2px 4px}
+.sv-ov{position:fixed;inset:0;z-index:80;background:var(--bg);overflow:auto;padding:0 16px 40px;animation:svIn .18s ease-out}
+@keyframes svIn{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sv-ov{animation:none}}
+.sv-top{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:10px;padding:14px 0 10px;z-index:1}
+.sv-top button{border:0;background:var(--chip);color:var(--ink);border-radius:12px;padding:8px 12px;font-weight:600}
+.sv-hero{border-radius:20px;padding:16px;background:var(--sc);color:#fff;margin-bottom:14px}
+.sv-hero .e{font-size:30px}.sv-hero h2{margin:6px 0 2px;font-size:21px;line-height:1.2;color:#fff}.sv-hero p{margin:0;opacity:.9;font-size:13.5px}
+.sv-steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.sv-steps li{counter-increment:s;position:relative;background:var(--card);border-radius:16px;padding:14px 14px 14px 54px;margin-bottom:8px;font-size:16px;line-height:1.45;box-shadow:var(--shadow)}
+.sv-steps li::before{content:counter(s);position:absolute;left:14px;top:13px;width:28px;height:28px;border-radius:14px;background:var(--sc);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+.sv-dont{background:var(--warn-bg);color:var(--ink);border-radius:16px;padding:12px 14px;margin:12px 0}
+.sv-dont b{color:var(--warn);font-size:14px}.sv-dont ul{margin:6px 0 0;padding-left:20px;font-size:14.5px;line-height:1.5}
+.sv-callbar{display:flex;gap:8px;margin:12px 0}.sv-callbar a,.sv-callbar button{flex:1;text-align:center;text-decoration:none;border:0;border-radius:14px;padding:13px;font-weight:800;font-size:15px}
+.sv-callbar a{background:#b3261e;color:#fff}.sv-callbar button{background:var(--chip);color:var(--ink)}
+.sv-beat{background:var(--card);border-radius:16px;padding:14px;margin:12px 0;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+.sv-dot{width:46px;height:46px;border-radius:23px;background:var(--sc);flex:none;transition:transform .08s}
+.sv-dot.p{transform:scale(.72)}
+.sv-beat button{margin-left:auto;border:0;background:var(--sc);color:#fff;border-radius:12px;padding:9px 14px;font-weight:700}
+.sv-src{font-size:12px;color:var(--muted);margin-top:10px}
+:root{--svh:#24434d;--svp:#a3b1bb}
+html[data-theme="dark"]{--svh:#d3e4e8;--svp:#5f6f7b}
+.sv-art{display:block;width:100%;height:auto;overflow:hidden}
+.sv-art *{transform-box:view-box}
+.sv-pic{background:color-mix(in srgb,var(--sc) 9%,var(--card));border-radius:12px;margin:-2px -2px 10px;padding:6px 10px}
+.sv-pic .sv-art{max-height:150px}
+.sv-hero .sv-art{background:rgba(255,255,255,.92);border-radius:14px;margin:10px 0 2px;max-height:170px;--svh:#24434d;--svp:#a3b1bb;--line:#d5dade;--card:#fff;--card2:#f0f3f5;--muted:#8a96a0}
+.sv-g .sv-art{border-radius:10px;background:color-mix(in srgb,var(--sc) 8%,var(--card));margin-bottom:4px}
+.sv-g .sv-art *,.sv-art.still *{animation:none!important}
+.sv-steps li.pic{padding:10px 12px 14px 14px}
+.sv-steps li.pic::before{left:20px;top:16px;z-index:1;box-shadow:0 0 0 3px var(--card)}
+.a-ring{transform-box:fill-box;transform-origin:center;animation:svRing 1.5s infinite ease-out}
+@keyframes svRing{0%{transform:scale(.6);opacity:1}100%{transform:scale(2.6);opacity:0}}
+.a-pulse{animation:svPulse 1.2s infinite ease-in-out}@keyframes svPulse{50%{opacity:.25}}
+.a-bounce{transform-box:fill-box;animation:svBounce 1.1s infinite ease-in-out}@keyframes svBounce{50%{transform:translateY(-8px)}}
+.a-jog{animation:svJog .5s infinite ease-in-out}@keyframes svJog{50%{transform:translate(2px,-2px)}}
+.a-wig{animation:svWig .35s infinite ease-in-out}@keyframes svWig{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+.a-push{animation:svPush .545s infinite ease-in-out}@keyframes svPush{40%{transform:translateY(5px)}}
+.a-puff{transform-box:fill-box;transform-origin:center;animation:svPuff 1.2s infinite ease-out}@keyframes svPuff{0%{opacity:0;transform:translate(0,0) scale(.5)}30%{opacity:1}100%{opacity:0;transform:translate(-10px,-12px) scale(1.4)}}
+.a-blink{animation:svBlink 1s infinite steps(2,jump-none)}@keyframes svBlink{50%{opacity:.15}}
+.a-spin{animation:svSpin 3s infinite linear}@keyframes svSpin{to{transform:rotate(360deg)}}
+.a-roll{animation:svRoll 2.4s infinite ease-in-out}@keyframes svRoll{0%,20%{transform:rotate(-8deg) translateY(2px)}60%,100%{transform:none}}
+.a-hit{animation:svHit .6s infinite ease-in-out}@keyframes svHit{0%,100%{transform:translateX(4px)}45%{transform:translateX(-3px)}}
+.a-tug{animation:svTug .7s infinite ease-in-out}@keyframes svTug{45%{transform:translate(2px,-3px)}}
+.a-press{animation:svPress 1s infinite ease-in-out}@keyframes svPress{50%{transform:translateY(var(--d,4px))}}
+.a-droop{animation:svDroop 2s infinite ease-in-out}@keyframes svDroop{50%{transform:rotate(18deg)}}
+.a-droopE{animation:svDroopE 2s infinite ease-in-out}@keyframes svDroopE{50%{transform:translateY(3px)}}
+.a-drift{animation:svDrift 2.2s infinite ease-in-out}@keyframes svDrift{0%,15%{transform:rotate(-38deg)}70%,100%{transform:rotate(10deg)}}
+.a-wob{animation:svWob 1s infinite ease-in-out}@keyframes svWob{50%{transform:translateY(3px) skewX(10deg)}}
+.a-beat{animation:svBeat .9s infinite ease-in-out}@keyframes svBeat{15%{transform:scale(1.12)}30%{transform:scale(1)}45%{transform:scale(1.08)}}
+.a-flow{animation:svFlow .5s infinite linear}@keyframes svFlow{to{stroke-dashoffset:-12}}
+.a-slide{animation:svSlide 1.6s infinite ease-in-out}@keyframes svSlide{60%,100%{transform:translateX(26px);opacity:0}}
+.a-drop{animation:svDrop 1.1s infinite ease-in}@keyframes svDrop{0%{transform:translateY(-18px);opacity:0}30%{opacity:1}100%{transform:translateY(22px);opacity:0}}
+.a-fan{animation:svFan .6s infinite ease-in-out}@keyframes svFan{50%{transform:rotate(-24deg)}}
+.a-quake{animation:svQuake .25s infinite linear}@keyframes svQuake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+.a-fall{animation:svFall 1.4s infinite ease-in}@keyframes svFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(28px) rotate(90deg);opacity:0}}
+.a-turn{animation:svTurn 2s infinite ease-in-out}@keyframes svTurn{40%,100%{transform:rotate(90deg)}}
+.a-send{animation:svSend 1.8s infinite ease-in}@keyframes svSend{0%{transform:translate(-10px,10px);opacity:0}20%{opacity:1}100%{transform:translate(20px,-14px);opacity:0}}
+.a-door{animation:svDoor 2.4s infinite ease-in-out}@keyframes svDoor{0%,15%{transform:scaleX(.25)}60%,100%{transform:scaleX(1)}}
+.a-smoke{animation:svSmoke 2s infinite ease-out}@keyframes svSmoke{0%{transform:translateY(8px);opacity:0}40%{opacity:.6}100%{transform:translateY(-16px);opacity:0}}
+.a-smoke2{animation:svSmoke2 4s infinite ease-in-out}@keyframes svSmoke2{50%{transform:translateX(-14px)}}
+.a-flag{animation:svFlag 1s infinite ease-in-out}@keyframes svFlag{50%{transform:rotate(-12deg)}}
+.a-buzz{animation:svQuake .18s infinite linear}
+.a-rise{animation:svRise 3s infinite ease-in-out}@keyframes svRise{0%{transform:translate(0,12px)}100%{transform:translate(-20px,-8px)}}
+.a-wave{animation:svWave 2.5s infinite linear}@keyframes svWave{to{transform:translateX(-40px)}}
+.a-switch{animation:svSwitch 2s infinite ease-in-out}@keyframes svSwitch{40%,100%{transform:translateY(22px)}}
+.a-pop{animation:svPop 2s infinite ease-in-out}@keyframes svPop{50%{transform:translateY(-4px)}}
+.a-flowx{animation:svPulse .8s infinite}
+.a-swim{animation:svSwim 3s infinite ease-in-out}@keyframes svSwim{0%{transform:translate(0,0)}100%{transform:translate(70px,0)}}
+.a-bob{animation:svBob 2s infinite ease-in-out}@keyframes svBob{50%{transform:translateY(4px)}}
+.a-arc{animation:svArc 1.6s infinite ease-out}@keyframes svArc{0%{transform:translate(0,0)}50%{transform:translate(50px,-14px)}100%{transform:translate(96px,30px)}}
+.a-jelly{animation:svJelly 1.6s infinite ease-in-out}@keyframes svJelly{50%{transform:translateY(-5px) scaleY(.94)}}
+.a-lift{animation:svLift 1.6s infinite ease-in-out}@keyframes svLift{50%{transform:translate(6px,-8px)}}
+.a-slither{animation:svSlither .9s infinite ease-in-out}@keyframes svSlither{50%{transform:translateX(6px) scaleY(.85)}}
+.a-draw{animation:svFlow .8s infinite linear}
+.a-scrape{animation:svScrape 1s infinite ease-in-out}@keyframes svScrape{50%{transform:translateX(-22px)}}
+.a-sos{animation:svSos 3.6s infinite steps(1)}@keyframes svSos{0%,5%,10%{opacity:.8}2.5%,7.5%,12.5%{opacity:0}15%,30%,45%{opacity:.8}25%,40%,55%{opacity:0}60%,65%,70%{opacity:.8}62.5%,67.5%,72.5%,100%{opacity:0}}
+.a-bubble{animation:svBubble 1s infinite ease-in}@keyframes svBubble{0%{transform:translateY(24px);opacity:0}100%{transform:translateY(-4px);opacity:1}}
+.a-flick{transform-box:fill-box;transform-origin:bottom;animation:svFlick .5s infinite alternate ease-in-out}@keyframes svFlick{to{transform:scaleY(.82) skewX(4deg)}}
+.a-sneak{animation:svSneak 2s infinite ease-in-out}@keyframes svSneak{50%{transform:translateX(-30px)}}
+@media (prefers-reduced-motion:reduce){.sv-art *{animation:none!important}}
+/* ---------- FIRST-LAUNCH SETUP ---------- */
+#setup{position:fixed;inset:0;z-index:900;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+html[data-theme="dark"] #setup{background:#000}
+.su-top{height:52px;display:flex;align-items:center;padding:0 12px;flex:none}
+.su-top button{border:0;background:none;color:var(--accent);font-size:17px;padding:8px;display:flex;align-items:center;gap:2px}
+.su-top .su-dots{margin-left:auto;margin-right:auto;display:flex;gap:6px;transform:translateX(-22px)}
+.su-dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .25s,background .25s}
+.su-dots i.on{width:18px;background:var(--ink)}
+.su-page{flex:1;overflow:auto;padding:12px 24px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;max-width:460px;width:100%;box-sizing:border-box;margin:0 auto}
+.su-page.in-r{animation:suInR .38s cubic-bezier(.2,.8,.2,1)}.su-page.in-l{animation:suInL .38s cubic-bezier(.2,.8,.2,1)}
+@keyframes suInR{from{transform:translateX(36px);opacity:0}to{transform:none;opacity:1}}
+@keyframes suInL{from{transform:translateX(-36px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.su-page{animation:none!important}}
+.su-ic{font-size:46px;line-height:1;margin:18px 0 14px}
+.su-logo{width:104px;height:104px;border-radius:26px;background:linear-gradient(160deg,#11706a,#0c2b3b);display:flex;align-items:center;justify-content:center;margin:12vh 0 26px;box-shadow:0 14px 36px rgba(12,43,59,.28)}
+.su-logo svg{width:76px;height:76px}
+.su-page h1{font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.02em;margin:0 0 10px;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.su-page p.su-sub{font-size:16px;line-height:1.45;color:var(--muted);margin:0 0 26px;max-width:340px}
+.su-list{width:100%;background:var(--card);border-radius:14px;overflow:hidden;text-align:left}
+html[data-theme="dark"] .su-list{background:#1c1c1e}
+.su-row{width:100%;border:0;background:none;color:var(--ink);display:flex;align-items:center;gap:14px;padding:14px 16px;font-size:17px;text-align:left;position:relative;cursor:pointer;font-family:inherit}
+.su-row+.su-row::before{content:"";position:absolute;top:0;left:56px;right:0;border-top:1px solid var(--line)}
+.su-row .e{font-size:24px;width:26px;text-align:center;flex:none}
+.su-row span.t{flex:1;display:flex;flex-direction:column}.su-row small{color:var(--muted);font-size:13.5px;margin-top:2px;line-height:1.35}
+.su-row .ck{width:22px;height:22px;flex:none;color:var(--accent);opacity:0;transform:scale(.6);transition:opacity .15s,transform .2s}
+.su-row.on .ck{opacity:1;transform:none}
+.su-row:active{background:var(--chip)}
+.su-input{width:100%;box-sizing:border-box;border:0;background:var(--card);color:var(--ink);border-radius:14px;padding:16px;font-size:18px;text-align:center;font-family:inherit;outline:none}
+html[data-theme="dark"] .su-input{background:#1c1c1e}
+.su-input:focus{box-shadow:0 0 0 2px var(--accent)}
+.su-note{font-size:13px;color:var(--muted);line-height:1.45;margin:12px 4px 0;text-align:left;width:100%}
+.su-looks{display:flex;gap:14px;justify-content:center;width:100%}
+.su-look{border:0;background:none;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:15px;font-family:inherit;cursor:pointer}
+.su-look .ph{width:78px;height:132px;border-radius:14px;border:2px solid var(--line);overflow:hidden;display:flex;flex-direction:column;gap:5px;padding:12px 8px;box-sizing:border-box}
+.su-look .ph i{height:10px;border-radius:4px;display:block}
+.su-look .rb{width:22px;height:22px;border-radius:11px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+.su-look.on .rb{border-color:var(--accent);background:var(--accent)}.su-look.on .rb::after{content:"";width:8px;height:8px;border-radius:4px;background:#fff}
+.su-look.on .ph{border-color:var(--accent)}
+.su-bot{flex:none;padding:12px 24px calc(18px + env(safe-area-inset-bottom));max-width:460px;width:100%;box-sizing:border-box;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.su-go{border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-size:17px;font-weight:600;padding:16px;font-family:inherit;cursor:pointer}
+.su-go:disabled{opacity:.35}
+.su-skip{border:0;background:none;color:var(--accent);font-size:16px;padding:10px;font-family:inherit;cursor:pointer}
+.su-done{width:88px;height:88px;margin:14vh 0 22px}
+.su-done circle{stroke-dasharray:252;stroke-dashoffset:252;animation:suDraw .6s .1s ease-out forwards}
+.su-done path{stroke-dasharray:60;stroke-dashoffset:60;animation:suDraw .35s .6s ease-out forwards}
+@keyframes suDraw{to{stroke-dashoffset:0}}
+.su-sum{width:100%;text-align:left}
+.su-sum .su-row{cursor:default}
 </style>
 </head>
 <body class="tab-dest">
@@ -522,7 +671,7 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
   var done=function(){s.classList.add("sp-out");setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},320);};
   s.addEventListener("click",done);setTimeout(done,quick?0:1300);})();</script>
 <header>
-  <div class="appbar"><h1 id="hdrTitle">📍 Brindisi</h1><button class="iconbtn" id="hdrInfo" aria-label="Settings and info"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  <div class="appbar"><h1 id="hdrTitle">📍 Brindisi</h1><button class="iconbtn sv" id="hdrSurv" aria-label="Survival and emergency guides">SOS</button><button class="iconbtn" id="hdrInfo" aria-label="Settings and info"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div class="sub"><span id="netChip" style="display:none;background:var(--chip);color:var(--ink);border-radius:10px;padding:1px 7px;font-weight:700;font-size:12px">📴 Offline: using saved data</span></div>
   <div id="lastBanner"></div>
   <div id="updBanner"></div>
@@ -636,6 +785,12 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
     <div id="grpBox" data-pane="circle"></div>
     <div id="jrnBox" data-pane="journey" hidden></div>
     <div id="albumBox" data-pane="album" hidden></div>
+  </section>
+
+  <!-- SURVIVAL -->
+  <section class="view" id="v-surv">
+    <button class="back-btn" id="survBack">‹ Back</button>
+    <div id="survBox"></div>
   </section>
 
   <!-- INFO -->
@@ -1214,9 +1369,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.8";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.0";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.0","Out & Back 1.0 (versions before this were numbered up to 6.8). New 🆘 survival section: animated step-by-step guides for first aid and emergencies, always available offline, with extra packs to download (outdoors & sea, disasters, travel trouble). New welcome setup asks a few quick questions (name, home or trip, language, look, food needs) to set everything up; run it again from ⚙️. Fix: installs again (Google Play Protect blocked apps that read incoming texts). Offline location texts are now normal readable messages with a map link; paste one into the app to see that person on the map"],
  ["6.8","A short startup animation (the route goes out and back and becomes the pin), no more white flash when opening; storage clean-up: downloaded updates are removed once installed, and 🧹 removes old installers from Downloads"],
  ["6.7","Updates inside the app: you get a note when a new version is out, and one tap downloads and installs it"],
  ["6.6","Group without internet: offline mode switches on by itself and keeps you in touch by Bluetooth (nearby) and text messages"],
@@ -1288,12 +1444,13 @@ function renderUpdate(){
   } else if(IN_APP){
     box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2311706a%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230c2b3b%22/%3E%20%3C/linearGradient%3E%20%3CradialGradient%20id%3D%22glow%22%20cx%3D%22.3%22%20cy%3D%22.2%22%20r%3D%22.8%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22/%3E%3C/radialGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23bg%29%22/%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23glow%29%22/%3E%20%3Cpath%20d%3D%22M256%20404%20L169%20280%20A108%20108%200%201%201%20343%20280%20Z%22%20fill%3D%22none%22%20stroke%3D%22%23f6f1e7%22%20stroke-width%3D%2230%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22/%3E%20%3Cpath%20d%3D%22M238%2092%20L262%20112%20L238%20132%22%20fill%3D%22none%22%20stroke%3D%22%23ffb547%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22404%22%20r%3D%2234%22%20fill%3D%22%23ffb547%22%20stroke%3D%22%230e3a44%22%20stroke-width%3D%2210%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22206%22%20r%3D%2234%22%20fill%3D%22%23f6f1e7%22/%3E%20%3C/svg%3E" width="36" height="36" alt="" style="border-radius:9px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}</span></h3>
       <div class="small">Installed on this phone. Checking needs internet.</div>
-      <div class="btns"><a class="btn primary" href="${WEB_URL}#update-from-${APP_VERSION.replace(/\./g,"-")}">🔄 Check for updates</a></div>${news}`;
+      <div class="btns"><a class="btn primary" href="${WEB_URL}#update-from-r${APP_VERSION.replace(/\./g,"-")}">🔄 Check for updates</a></div>${news}`;
   } else {
-    const m=(location.hash||"").match(/^#update-from-([\d-]+)$/);
-    const have=m?m[1].replace(/-/g,"."):null;
+    const m=(location.hash||"").match(/^#update-from-(r?)([\d-]+)$/);
+    const have=m?m[2].replace(/-/g,"."):null,oldScheme=m&&!m[1]; // versions before 1.0 were numbered 2.x–6.x
+
     let status="";
-    if(have) status = vNum(have)>=vNum(APP_VERSION)
+    if(have) status = !oldScheme&&vNum(have)>=vNum(APP_VERSION)
       ? `<p class="ok">✓ You're up to date (v${have}).</p>`
       : `<p class="new">⬆ Update available: v${have} → v${APP_VERSION}</p>`;
     box.innerHTML=`<h3>📲 Android app · latest version v${APP_VERSION}</h3>${status}
@@ -1592,7 +1749,7 @@ document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest
   document.querySelectorAll("#nSeg button").forEach(x=>x.classList.toggle("on",x===s));
   document.querySelectorAll("#v-shops [data-npane]").forEach(p=>p.hidden=p.dataset.npane!==s.dataset.nseg);window.scrollTo(0,0);});
 document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#hdrInfo"))showTab("tips");if(e.target.closest&&e.target.closest("#infoBack"))showTab(prevTab||"dest");});
-function showTab(v){if(v==="trips"&&typeof appMode==="function"&&appMode()==="home"){setTimeout(()=>{const f=document.querySelector('[data-tseg="flights"]');if(f)f.click();},0);}if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}document.body.classList.toggle("tab-map",v==="map");document.body.classList.toggle("tab-dest",v==="dest");
+function showTab(v){if(v==="trips"&&typeof appMode==="function"&&appMode()==="home"){setTimeout(()=>{const f=document.querySelector('[data-tseg="flights"]');if(f)f.click();},0);}if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips"&&v!=="surv")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}document.body.classList.toggle("tab-map",v==="map");document.body.classList.toggle("tab-dest",v==="dest");
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));
   window.scrollTo(0,0); if(v==="map"){drawMap();if(mode==="street"&&ml)setTimeout(()=>ml.resize(),50);}
@@ -3148,7 +3305,7 @@ function applyTheme(){
 }
 function renderSet(){const b=document.getElementById("setBox");if(!b)return;
   b.innerHTML=`<div class="dest">Appearance</div><div class="seg">${[["auto","Auto"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button data-theme-set="${k}" class="${THEME===k?"on":""}">${l}</button>`).join("")}</div>
-    <div class="small" style="margin-top:6px">Auto follows your phone's dark mode.</div>${countrySet()}`;}
+    <div class="small" style="margin-top:6px">Auto follows your phone's dark mode.</div>${countrySet()}<button class="btn ghost" id="suAgain" style="display:block;width:100%;margin-top:14px">Run the welcome setup again</button>`;}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-theme-set]");if(!b)return;THEME=b.dataset.themeSet;try{localStorage.setItem("pt-theme",THEME);}catch(e){}applyTheme();});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&THEME==="auto")applyTheme();});
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>THEME==="auto"&&applyTheme());}catch(e){}
@@ -3896,9 +4053,14 @@ function offlineBanner(){if(!isOffline())return "";
   return `<div class="card offl"><div class="dest">📴 No internet: offline mode</div>
     <div class="small" style="margin-top:4px">${GROUPS.some(g=>g.sharing)?`Your location still goes out:`:`Switch on “Share my live location” to be found without internet:`}</div>
     <div class="offrow">${bt?"🔵":"⚪"} <b>Bluetooth nearby</b> <span>${bt?"on: finds your group within about 50–100 m":"turn on Bluetooth to find each other nearby"}</span></div>
-    <div class="offrow">${sms&&withNo.length?"📱":"⚪"} <b>Text messages</b> <span>${!sms?"allow text messages (tap below)":withNo.length?`your location goes to ${withNo.slice(0,3).join(", ")} every 30 min (max 16 a day)`:"nobody's phone number known yet"}</span></div>
+    <div class="offrow">${sms&&withNo.length?"📱":"⚪"} <b>Text messages</b> <span>${!sms?"allow text messages (tap below)":withNo.length?`your location goes to ${withNo.slice(0,3).join(", ")} every 30 min (max 16 a day), as a normal text they can read even without the app or internet`:"nobody's phone number known yet"}</span></div>
+    <div class="btns"><button class="btn ghost" id="offPaste">📋 Got a location text? Paste it</button></div>
     ${!sms||!bt?`<div class="btns"><button class="btn ghost" id="offPerm">Allow</button></div>`:""}
-    <div class="small">Posts wait and are sent when the internet is back. Texts cost what your phone plan charges.</div></div>`;}
+    <div class="small">Posts wait and are sent when the internet is back. Texts are plain text (not encrypted) and cost what your phone plan charges.</div></div>`;}
+function pasteLocText(txt){const m=/Out&Back:\s*(.+?)\s+is at\s+(-?\d+\.\d+),\s*(-?\d+\.\d+)(?:\s*\((\d{1,2}):(\d{2})\))?/.exec(txt||"");if(!m)return toast("That isn't an Out & Back location text");
+  const name=m[1].trim().toLowerCase();let hit=null;for(const G of GROUPS)for(const [i,mm] of Object.entries(G.members))if((mm.name||"").toLowerCase()===name)hit=[G,mm];
+  if(!hit)return toast(`No “${m[1]}” in your groups`);let ts=Date.now();if(m[4]){const d=new Date();d.setHours(+m[4],+m[5],0,0);if(d.getTime()<=Date.now()+60e3)ts=d.getTime();}
+  hit[1].last={lat:+m[2],lon:+m[3],acc:50,ts,via:"sms"};saveGrp();renderGroup();drawMap();toast(`📍 ${hit[1].name} is on the map (from the text)`);}
 
 async function addPost(ty,cap,b64,dur){
   const id=rid(),it={id,ty,from:GRP?GRP.me.id:"me",name:GRP?GRP.me.name:"Me",ts:Date.now(),cap:cap||"",town:hereTown||"",ll:me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,dur:dur||0,played:true,mine:true};
@@ -3946,7 +4108,7 @@ async function sendSOS(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.
   try{await gSend({ty:"sos",cap,ll});}catch(e){}
   // no internet: text messages and calls still work on the phone network
   const bg=document.createElement("div");bg.className="sheet-bg";bg.innerHTML=`<div class="sheet"><div class="dest">🆘 No internet</div><div class="small" style="margin:6px 0 10px">The SOS will go to your group as soon as there's internet again. Text messages and calls still work now.</div>
-    <div class="btns"><a class="btn sos" href="${smsLink("🆘 "+cap)}">📱 Send SOS by text message</a></div><div class="btns"><a class="btn ghost" href="tel:112">📞 Call 112</a><button class="btn ghost" data-sx="close">Close</button></div></div>`;
+    <div class="btns"><a class="btn sos" href="${smsLink("🆘 "+cap)}">📱 Send SOS by text message</a></div><div class="btns"><a class="btn ghost" href="tel:112">📞 Call 112</a><button class="btn ghost" data-sx="close" data-svopen="1">🩹 First aid</button><button class="btn ghost" data-sx="close">Close</button></div></div>`;
   document.body.appendChild(bg);bg.onclick=e=>{if(e.target===bg||e.target.closest("[data-sx]"))bg.remove();};}
 function renderGroup(){
   const b=document.getElementById("grpBox");if(!b)return;renderSOS();applyGroupKind();
@@ -3956,7 +4118,7 @@ function renderGroup(){
       <div class="small" style="margin-top:4px">Everything is locked with a key that only your group has. Your friends need this app too.</div>
       <div class="seg" style="margin-top:10px"><button data-gkind="trip" class="${gKind==="trip"?"on":""}">🧳 Trip</button><button data-gkind="home" class="${gKind==="home"?"on":""}">🏠 Everyday</button></div>
       <div class="small" style="margin-top:4px">${gKind==="home"?"For friends at home: see each other on the map and share cool things you see. No trip summary or journey.":"For travelling together: live locations, album, journey and a trip summary at the end."}</div>
-      <div class="cost-form" style="grid-template-columns:1fr"><input id="gName" placeholder="${gKind==="home"?"Group name (e.g. Jari & Tom)":"Group name (e.g. Puglia with Sam)"}"><input id="gMe" placeholder="Your name" value="${escH(GROUPS[0]?GROUPS[0].me.name:(COSTS.people[0]&&COSTS.people[0]!=="Me")?COSTS.people[0]:"")}"></div>
+      <div class="cost-form" style="grid-template-columns:1fr"><input id="gName" placeholder="${gKind==="home"?"Group name (e.g. Jari & Tom)":"Group name (e.g. Puglia with Sam)"}"><input id="gMe" placeholder="Your name" value="${escH(GROUPS[0]?GROUPS[0].me.name:localStorage.getItem("pt-myname")?localStorage.getItem("pt-myname"):(COSTS.people[0]&&COSTS.people[0]!=="Me")?COSTS.people[0]:"")}"></div>
       <div class="btns"><button class="btn primary" id="gNew">Start a group</button></div>
       <div class="dest" style="margin-top:14px;font-size:15px">Got an invite code?</div>
       <div class="cost-form" style="grid-template-columns:1fr"><textarea id="gCode" rows="2" placeholder="Paste the invite code (starts with PTG1-)" style="border:0;background:var(--card2);color:var(--ink);border-radius:10px;padding:10px;font:inherit"></textarea></div>
@@ -3986,7 +4148,7 @@ function renderGroup(){
     <details class="adv"><summary>Invite code & privacy ▸</summary><div class="code">${inviteCode()}</div>
       <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>
       <div class="dest" style="margin-top:12px;font-size:15px">📱 Backup when there's no internet</div>
-      <div class="small">Your phone number is shared (encrypted) with your groups and only used to send your location by text message when there's no internet.</div>
+      <div class="small">Your phone number is shared (encrypted) with your groups. Without internet their app texts them your location as a normal SMS, which they can read even without internet.</div>
       <div class="np-row" style="margin-top:6px"><input id="myPhone" class="np-select" type="tel" placeholder="+39 …" value="${escH(MYPHONE)}"><button class="mini" id="myPhoneSave" style="margin:0;flex:none">Save</button></div>
       <div class="btns"><button class="btn ghost" id="gLeave" style="color:var(--warn)">Leave group</button></div></details></div>`;
   b.querySelector("#gShare").onclick=()=>{GRP.sharing=!sharing;saveGrp();gCfg();if(!sharing){try{window.AndroidGroup.askOfflinePerms(!!MYPHONE);}catch(e){}}try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}if(!sharing){if(LOCREQ&&LOCREQ.g===GRP.id)LOCREQ=null;setTimeout(()=>sendMyLoc(true,GRP),600);}renderGroup();};
@@ -3995,6 +4157,7 @@ function renderGroup(){
   b.querySelector("#gRef").onclick=()=>gPoll();
   b.querySelectorAll("[data-gask]").forEach(x=>x.onclick=()=>askLoc(x.dataset.gask));
   {const s=b.querySelector("#myPhoneSave");if(s)s.onclick=()=>setMyPhone(b.querySelector("#myPhone").value);}
+  {const pp=b.querySelector("#offPaste");if(pp)pp.onclick=async()=>{let t="";try{t=await navigator.clipboard.readText();}catch(e){}if(!/Out&Back:/.test(t))t=prompt("Paste the text message")||"";pasteLocText(t);};}
   {const o=b.querySelector("#offPerm");if(o)o.onclick=()=>{try{window.AndroidGroup.askOfflinePerms(true);}catch(e){}setTimeout(renderGroup,3000);};}
   b.querySelector("#gCheck").onclick=checkIn;
   {const s=b.querySelector("#gSOS");let t=null;const go=e=>{e.preventDefault();s.classList.add("hold");t=setTimeout(()=>{s.classList.remove("hold");if(navigator.vibrate)try{navigator.vibrate([300,100,300]);}catch(x){}sendSOS();},2000);};
@@ -4322,6 +4485,273 @@ if(window.AndroidNet){const age=POSFIX.at?(Date.now()-new Date(POSFIX.at).getTim
 document.getElementById("leaveTime").onchange=e=>{if(e.target.value)setLeave(e.target.value);};
 document.getElementById("leaveNow").onclick=()=>{const d=new Date();const m=Math.ceil((d.getHours()*60+d.getMinutes())/5)*5;setLeave(fmt(m));};
 document.getElementById("backBox").addEventListener("click",e=>{const lv=e.target.dataset.live;if(lv)liveCheck(lv);});
+
+/* ---------- SURVIVAL PICTURES: original rounded pictograms, animated with CSS, drawn in code (offline, tiny) ---------- */
+const svH="var(--svh)",svP="var(--svp)",svK="var(--sc)";
+function svPl(pts,w,c,x){return `<path d="M${pts.map(p=>p.join(" ")).join("L")}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" fill="none"${x?" "+x:""}/>`;}
+// figure: h head, s shoulder, p hip, a/b arms [elbow,hand], l/m legs [knee,foot]; b,m are the far limbs
+function svFig(P,c,cls){const o=k=>P[k];return `<g${cls?` class="${cls}"`:""}>`+
+  (P.m?svPl([o("p"),...P.m],8,c,'opacity=".55"'):"")+(P.b?svPl([o("s"),...P.b],6.5,c,'opacity=".55"'):"")+
+  svPl([o("s"),o("p")],12,c)+(P.l?svPl([o("p"),...P.l],8,c):"")+(P.a?svPl([o("s"),...P.a],6.5,c):"")+
+  `<circle cx="${P.h[0]}" cy="${P.h[1]}" r="8" fill="${c}"/></g>`;}
+function svMv(P,dx,dy=0){const r={};for(const k in P){const v=P[k];r[k]=typeof v[0]==="number"?[v[0]+dx,v[1]+dy]:v.map(q=>[q[0]+dx,q[1]+dy]);}return r;}
+const svStand=x=>({h:[x,24],s:[x,37],p:[x,61],a:[[x-6,49],[x-7,61]],b:[[x+6,49],[x+7,61]],l:[[x-3,76],[x-4,92]],m:[[x+3,76],[x+4,92]]});
+const svLie=x=>({h:[x,83],s:[x+12,86],p:[x+38,86],a:[[x+24,89],[x+36,89]],l:[[x+52,87],[x+68,88]],m:[[x+52,85],[x+68,86]]});
+const svGround=`<path d="M6 93H154" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>`;
+const svArr=(d,cls)=>`<path class="${cls||""}" d="${d}" stroke="${svK}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+const svTxt=(x,y,t,s,c,a)=>`<text x="${x}" y="${y}" font-size="${s||11}" font-weight="800" fill="${c||svK}" text-anchor="${a||"middle"}" font-family="system-ui,sans-serif">${t}</text>`;
+const svX=(x,y)=>`<g stroke="#c5221f" stroke-width="4.5" stroke-linecap="round"><path d="M${x-7} ${y-7}L${x+7} ${y+7}M${x+7} ${y-7}L${x-7} ${y+7}"/></g>`;
+const svPhone=(x,y,inner)=>`<rect x="${x}" y="${y}" width="34" height="58" rx="7" fill="${svH}"/><rect x="${x+3.5}" y="${y+7}" width="27" height="42" rx="3" fill="var(--card)"/>${inner||""}`;
+const svRings=(x,y)=>[0,1,2].map(i=>`<circle class="a-ring" style="animation-delay:${i*.5}s" cx="${x}" cy="${y}" r="14" fill="none" stroke="${svK}" stroke-width="3"/>`).join("");
+const svWater=(y,cls)=>`<path class="${cls||"a-wave"}" d="M-20 ${y}q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0V104H-20Z" fill="#3b8fd0" opacity=".35"/>`;
+const svClock=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="var(--card)" stroke="${svH}" stroke-width="4"/><path class="a-spin" style="transform-origin:${x}px ${y}px" d="M${x} ${y}V${y-r+5}" stroke="${svK}" stroke-width="3.5" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="2.5" fill="${svH}"/>`;
+const svOver={h:[45,42],s:[49,53],p:[70,64],a:[[48,68],[47,81]],b:[[51,68],[50,81]],l:[[64,90],[84,92]]};
+const svKneel={h:[66,38],s:[64,51],p:[72,68],a:[[54,66],[44,83]],b:[[58,64],[48,82]],l:[[64,90],[86,92]]};
+const SV_ART={
+ phone:()=>svRings(80,46)+svPhone(63,17,svTxt(80,52,"112",13)),
+ speaker:()=>svPhone(50,17,svTxt(67,52,"112",13))+[0,1,2].map(i=>`<path class="a-pulse" style="animation-delay:${i*.25}s" d="M${96+i*9} ${30-i*4}q${8+i*3} ${16+i*4} 0 ${32+i*8}" stroke="${svK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`).join(""),
+ pin:()=>svGround+`<path d="M30 80H130M50 66H120M70 52H110" stroke="var(--line)" stroke-width="2"/><g class="a-bounce"><path d="M80 70c-12-15-17-23-17-31a17 17 0 0 1 34 0c0 8-5 16-17 31z" fill="${svK}"/><circle cx="80" cy="39" r="6.5" fill="var(--card)"/></g>`,
+ talk:()=>svGround+svFig(svStand(40),svH)+`<rect x="62" y="12" width="88" height="46" rx="12" fill="var(--card)" stroke="${svK}" stroke-width="3"/><path d="M70 58l-8 10 16-10" fill="${svK}"/>`+svTxt(70,29,"1 Where",10,svH,"start")+svTxt(70,41,"2 What",10,svH,"start")+svTxt(70,53,"3 How many",10,svH,"start"),
+ run:()=>svGround+svFig({h:[56,26],s:[52,38],p:[46,60],a:[[60,46],[68,40]],b:[[44,48],[36,56]],l:[[56,74],[52,92]],m:[[38,74],[26,84]]},svH,"a-jog")+`<path class="a-pulse" d="M14 40H30M8 52H26M14 64H28" stroke="${svK}" stroke-width="3" stroke-linecap="round"/><rect x="104" y="48" width="38" height="40" rx="7" fill="#1e8e3e"/><path d="M123 56l-6 12h6l-3 12 9-15h-6l3-9z" fill="#fff"/>`,
+ safe:()=>svGround+svFig(svStand(70),svH,"")+`<g class="a-pulse"><path d="M112 20l20 34h-40z" fill="#f2b632"/>`+svTxt(112,50,"!",18,"#3a2a00")+`</g><path d="M28 30q8-8 16 0M24 46q8-8 16 0" stroke="${svK}" stroke-width="3" fill="none" stroke-linecap="round" class="a-pulse"/>`,
+ shake:()=>svGround+svFig(svLie(30),svP)+svFig(svKneel,svH,"a-wig")+svTxt(112,34,"Hello?",13)+svTxt(126,52,"!",18),
+ tilt:()=>`<circle cx="70" cy="62" r="26" fill="${svP}"/><path d="M44 66h-24" stroke="${svP}" stroke-width="16" stroke-linecap="round"/>`+svPl([[56,22],[66,38]],9,svH)+svPl([[118,62],[94,74]],9,svH)+svArr("M42 30q-12 14 0 30","a-pulse")+`<path d="M38 60l5 3 2-6" stroke="${svK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+ listen:()=>svGround+svFig(svLie(30),svP)+svFig({h:[38,66],s:[52,60],p:[74,66],a:[[56,74],[50,86]],l:[[68,90],[90,92]]},svH)+`<path class="a-pulse" d="M28 70q-6 -8 0 -16M22 74q-10 -12 0 -24" stroke="${svK}" stroke-width="3" fill="none" stroke-linecap="round"/>`+svClock(128,28,15)+svTxt(128,58,"10 s",11),
+ compress:()=>svGround+svFig(svLie(30),svP)+svFig(svOver,svH,"a-push")+svTxt(128,30,"5–6 cm",12)+svArr("M120 40v20M114 54l6 7 6-7","a-pulse"),
+ breaths:()=>svGround+svFig(svLie(30),svP)+svFig({h:[36,68],s:[48,60],p:[72,66],a:[[42,74],[34,80]],l:[[66,90],[88,92]]},svH)+[0,1].map(i=>`<circle class="a-puff" style="animation-delay:${i*.6}s" cx="30" cy="76" r="4" fill="${svK}"/>`).join("")+svTxt(124,30,"30 : 2",14),
+ aed:()=>svGround+svFig(svLie(30),svP)+`<rect x="98" y="40" width="44" height="46" rx="8" fill="#1e8e3e"/><path class="a-blink" d="M121 48l-8 15h8l-4 15 12-19h-8l4-11z" fill="#fff"/><path d="M98 70q-20 6-46 14M98 76q-20 6-36 9" stroke="${svH}" stroke-width="2.5" fill="none"/><rect x="46" y="80" width="10" height="7" rx="2" fill="${svH}"/><rect x="58" y="82" width="10" height="7" rx="2" fill="${svH}"/>`,
+ swap:()=>svGround+svFig(svStand(46),svH)+svFig(svStand(114),svK)+`<g class="a-spin" style="transform-origin:80px 46px">`+svArr("M70 34a14 14 0 0 1 22 0")+svArr("M90 58a14 14 0 0 1-22 0")+`</g>`+svTxt(80,90,"2 min",11),
+ roll:()=>svGround+`<g class="a-roll" style="transform-origin:66px 88px">`+svFig({h:[34,82],s:[46,80],p:[72,80],a:[[54,70],[44,72]],b:[[52,90],[62,90]],l:[[84,72],[96,88]],m:[[86,88],[102,89]]},svP)+`</g>`+svArr("M92 34q22 0 22 24","a-pulse")+`<path d="M108 54l6 7 6-7" stroke="${svK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+ side:()=>svGround+svFig({h:[34,82],s:[46,80],p:[72,80],a:[[54,70],[44,72]],b:[[52,90],[62,90]],l:[[84,72],[96,88]],m:[[86,88],[102,89]]},svP)+`<path class="a-puff" d="M24 86q-4 4-8 3" stroke="${svK}" stroke-width="3" fill="none" stroke-linecap="round"/>`+svTxt(120,40,"✓",22,"#1e8e3e"),
+ cough:()=>svGround+svFig({...svStand(70),a:[[62,46],[63,30]]},svH)+`<g class="a-pulse"><path d="M52 24h-14M52 31h-18M52 38h-12" stroke="${svK}" stroke-width="3.5" stroke-linecap="round"/></g>`,
+ backblow:()=>svGround+svFig({h:[46,44],s:[56,46],p:[74,60],a:[[52,60],[50,72]],l:[[73,76],[72,92]],m:[[77,76],[78,92]]},svP)+svFig({h:[112,24],s:[110,37],p:[110,61],a:[[102,46],[86,44]],b:[[96,50],[84,54]],l:[[107,76],[106,92]],m:[[113,76],[114,92]]},svH,"a-hit")+svTxt(82,30,"×5",14),
+ thrust:()=>svGround+svFig(svStand(66),svP)+svFig({h:[86,22],s:[84,36],p:[84,61],a:[[72,46],[62,52]],b:[[76,52],[68,56]],l:[[81,76],[80,92]],m:[[87,76],[88,92]]},svH,"a-tug")+svArr("M36 62q8-2 14-10","a-pulse")+`<path d="M44 50l7 1-1 7" stroke="${svK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`+svTxt(130,30,"×5",14),
+ press:()=>`<path d="M14 72H118" stroke="${svP}" stroke-width="22" stroke-linecap="round"/><circle cx="66" cy="72" r="5" fill="#c5221f"/><g class="a-press"><rect x="46" y="50" width="40" height="14" rx="3" fill="var(--card)" stroke="${svH}" stroke-width="2"/>`+svPl([[66,10],[66,48]],12,svH)+svPl([[54,38],[66,48],[78,38]],6,svH)+`</g>`+svTxt(132,34,"10 min",12),
+ tourniquet:()=>`<path d="M14 66H140" stroke="${svP}" stroke-width="22" stroke-linecap="round"/><rect x="58" y="51" width="12" height="30" rx="3" fill="${svK}"/><circle cx="110" cy="66" r="5" fill="#c5221f"/>`+svTxt(64,40,"5–7 cm",11)+svClock(124,28,13),
+ face:()=>`<circle cx="80" cy="50" r="34" fill="${svP}"/><circle cx="68" cy="42" r="4" fill="${svH}"/><circle class="a-droopE" cx="92" cy="42" r="4" fill="${svH}"/><path d="M64 62Q72 66 80 64" stroke="${svH}" stroke-width="4" fill="none" stroke-linecap="round"/><path class="a-droop" style="transform-origin:80px 64px" d="M80 64Q88 62 96 62" stroke="${svH}" stroke-width="4" fill="none" stroke-linecap="round"/>`+svTxt(20,30,"F",22),
+ arms:()=>svGround+svFig({...svStand(80),a:[[66,34],[54,30]]},svH)+`<g class="a-drift" style="transform-origin:80px 37px">`+svPl([[80,37],[94,34],[106,30]],6.5,svH)+`</g>`+svTxt(20,30,"A",22),
+ speech:()=>`<circle cx="50" cy="56" r="22" fill="${svP}"/><path d="M78 20h64a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8h-50l-12 10v-10a8 8 0 0 1-8-8V28a8 8 0 0 1 8-8z" fill="var(--card)" stroke="${svK}" stroke-width="3"/><path class="a-wob" d="M86 41q6-8 12 0t12 0t12 0t12 0" stroke="${svH}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`+svTxt(20,30,"S",22),
+ clock:()=>svClock(80,50,32)+svTxt(130,30,"T",22),
+ sit:()=>svGround+`<rect x="22" y="20" width="10" height="73" rx="3" fill="var(--line)"/>`+svFig({h:[46,40],s:[42,52],p:[48,76],a:[[54,66],[66,74]],l:[[72,70],[90,92]],m:[[70,74],[86,90]]},svH)+`<path class="a-beat" style="transform-origin:120px 40px" d="M120 54c-16-10-22-16-22-24a9 9 0 0 1 22-4 9 9 0 0 1 22 4c0 8-6 14-22 24z" fill="${svK}"/>`,
+ pill:()=>`<rect x="40" y="40" width="40" height="18" rx="9" fill="var(--card)" stroke="${svH}" stroke-width="3"/><path d="M60 40v18" stroke="${svH}" stroke-width="3"/><path d="M98 30h28l-4 52h-20z" fill="#3b8fd0" opacity=".35" stroke="${svH}" stroke-width="3"/>`+svTxt(60,80,"chew",12),
+ inject:()=>`<path d="M10 70H120q16 0 16-14" stroke="${svP}" stroke-width="26" stroke-linecap="round" fill="none"/><g class="a-press" style="--d:6px"><rect x="64" y="10" width="14" height="44" rx="6" fill="#f2b632"/><rect x="66" y="52" width="10" height="6" rx="2" fill="${svH}"/></g>`+svTxt(110,22,"click",12)+svClock(28,26,12),
+ tap:()=>`<path d="M30 20h40v10H48v8" stroke="${svH}" stroke-width="8" fill="none" stroke-linecap="round"/><path class="a-flow" d="M48 44V76" stroke="#3b8fd0" stroke-width="7" stroke-dasharray="6 6" stroke-linecap="round"/><path d="M10 82H110" stroke="${svP}" stroke-width="18" stroke-linecap="round"/>`+svTxt(134,40,"20",20)+svTxt(134,56,"min",11),
+ ringoff:()=>`<path d="M20 60H90" stroke="${svP}" stroke-width="20" stroke-linecap="round"/><path d="M90 60h40" stroke="${svP}" stroke-width="12" stroke-linecap="round"/><rect class="a-slide" x="100" y="51" width="8" height="18" rx="3" fill="#f2b632"/>`,
+ wrap:()=>`<path d="M10 60H140" stroke="${svP}" stroke-width="22" stroke-linecap="round"/>`+[0,1,2,3].map(i=>`<path d="M${46+i*14} 44l10 32" stroke="#9fd3f0" stroke-width="5" opacity=".8"/>`).join("")+`<rect x="40" y="46" width="64" height="28" rx="6" fill="#bfe3f7" opacity=".45"/>`,
+ cool:()=>svGround+`<path d="M18 30q32-24 64 0z" fill="${svK}" opacity=".85"/><path d="M50 26V92" stroke="${svH}" stroke-width="3"/>`+svFig(svLie(60),svP)+[0,1,2,3].map(i=>`<circle class="a-drop" style="animation-delay:${i*.3}s" cx="${74+i*14}" cy="52" r="3" fill="#3b8fd0"/>`).join("")+`<path class="a-fan" style="transform-origin:140px 70px" d="M140 70l-14-26q14-4 22 4z" fill="${svH}"/>`,
+ drink:()=>`<path d="M60 22h40l-6 62H66z" fill="#3b8fd0" opacity=".35" stroke="${svH}" stroke-width="3" stroke-linejoin="round"/><path class="a-pulse" d="M66 44h28" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`,
+ dropcover:()=>`<g class="a-quake">`+svGround+`<rect x="34" y="44" width="94" height="8" rx="3" fill="${svH}"/><path d="M42 52V92M120 52V92" stroke="${svH}" stroke-width="6"/>`+svFig({h:[70,64],s:[78,70],p:[96,80],a:[[74,58],[66,58]],l:[[88,92],[104,92]]},svK)+`</g>`+[0,1].map(i=>`<rect class="a-fall" style="animation-delay:${i*.7}s" x="${60+i*30}" y="8" width="8" height="8" rx="2" fill="var(--muted)"/>`).join(""),
+ window:()=>`<rect x="46" y="14" width="68" height="70" rx="4" fill="#bfe3f7" opacity=".6" stroke="${svH}" stroke-width="4"/><path d="M80 14v70M46 49h68" stroke="${svH}" stroke-width="3"/><path d="M58 24l10 14-6 6 10 12" stroke="${svH}" stroke-width="2" fill="none"/>`+svX(128,22),
+ lift:()=>`<rect x="30" y="14" width="50" height="74" rx="3" fill="var(--card2)" stroke="${svH}" stroke-width="4"/><path d="M55 14v74" stroke="${svH}" stroke-width="3"/>`+svX(55,50)+`<path d="M96 88h14v-14h14v-14h14v-14h14" stroke="#1e8e3e" stroke-width="5" fill="none" stroke-linejoin="round"/>`+svTxt(126,30,"✓",20,"#1e8e3e"),
+ away:()=>svGround+`<rect x="10" y="22" width="40" height="71" fill="var(--line)"/><path d="M18 32h8M34 32h8M18 48h8M34 48h8M18 64h8M34 64h8" stroke="var(--card)" stroke-width="6"/>`+svFig({h:[100,26],s:[96,38],p:[92,60],a:[[102,46],[110,40]],b:[[90,48],[82,56]],l:[[100,74],[96,92]],m:[[86,74],[76,84]]},svH,"a-jog")+svArr("M58 52h20M72 46l6 6-6 6","a-pulse"),
+ car:()=>svGround+`<g class="a-quake"><path d="M30 80V64l14-16h52l18 16h12v16z" fill="${svH}"/><circle cx="52" cy="82" r="9" fill="${svK}"/><circle cx="108" cy="82" r="9" fill="${svK}"/><path d="M50 52h20v12H40z M76 52h18l12 12H76z" fill="#bfe3f7"/></g>`,
+ gas:()=>`<path d="M20 60H140" stroke="${svH}" stroke-width="12" stroke-linecap="round"/><rect x="70" y="48" width="20" height="24" rx="4" fill="${svH}"/><g class="a-turn" style="transform-origin:80px 46px"><rect x="62" y="40" width="36" height="10" rx="5" fill="#f2b632"/></g>`+svTxt(80,92,"OFF",12),
+ sms:()=>svPhone(30,17)+`<g class="a-send"><rect x="70" y="30" width="52" height="24" rx="10" fill="${svK}"/><path d="M80 42h32" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g>`,
+ exit:()=>svGround+`<rect x="98" y="20" width="44" height="73" fill="#1e8e3e"/><path d="M98 20l18 8v60l-18 5z" fill="#13652b"/>`+svFig({h:[64,26],s:[60,38],p:[56,60],a:[[66,46],[74,40]],b:[[54,48],[46,56]],l:[[64,74],[62,92]],m:[[48,74],[38,84]]},svH,"a-jog")+svArr("M78 70h14M86 64l6 6-6 6","a-pulse"),
+ doorclose:()=>`<rect x="50" y="12" width="60" height="80" fill="var(--card2)" stroke="${svH}" stroke-width="4"/><path class="a-door" style="transform-origin:52px 50px" d="M52 14h56v76H52z" fill="${svH}"/><circle cx="100" cy="54" r="3" fill="#f2b632"/>`+[0,1].map(i=>`<path class="a-smoke" style="animation-delay:${i}s" d="M${20+i*8} 80q-8-10 0-20t0-20" stroke="var(--muted)" stroke-width="5" fill="none" opacity=".5" stroke-linecap="round"/>`).join(""),
+ crawl:()=>svGround+`<path class="a-smoke2" d="M-10 10h180v26q-20 8-40 0t-40 0t-40 0t-40 0t-20 0z" fill="var(--muted)" opacity=".45"/>`+svFig({h:[46,66],s:[56,70],p:[86,72],a:[[50,82],[44,92]],b:[[60,84],[56,92]],l:[[98,92],[118,92]],m:[[96,88],[116,90]]},svH,"a-jog")+svArr("M24 82h-12M18 76l-6 6 6 6","a-pulse"),
+ hotdoor:()=>`<rect x="70" y="10" width="64" height="84" fill="var(--card2)" stroke="${svH}" stroke-width="4"/><circle cx="122" cy="54" r="3" fill="#f2b632"/><path d="M30 60h28" stroke="${svP}" stroke-width="14" stroke-linecap="round"/>`+[0,1,2].map(i=>`<path class="a-pulse" style="animation-delay:${i*.2}s" d="M${86+i*14} 40q-6-6 0-12t0-12" stroke="#c5221f" stroke-width="3" fill="none" stroke-linecap="round"/>`).join(""),
+ wave:()=>`<rect x="20" y="16" width="80" height="76" fill="var(--line)"/><rect x="40" y="30" width="40" height="34" fill="#bfe3f7"/>`+svFig({h:[60,44],s:[60,56],p:[60,80],a:[[70,46],[78,30]]},svH)+`<path class="a-flag" style="transform-origin:78px 30px" d="M78 30l26-6-4 12z" fill="${svK}"/>`,
+ alert:()=>`<g class="a-buzz">`+svPhone(63,17,`<path d="M80 30l14 24H66z" fill="#c5221f"/>`+svTxt(80,51,"!",14,"#fff"))+`</g><path class="a-pulse" d="M52 30v28M108 30v28" stroke="${svK}" stroke-width="3" stroke-linecap="round"/>`,
+ up:()=>`<rect x="40" y="10" width="80" height="84" fill="var(--line)"/><path d="M40 52h80" stroke="var(--card)" stroke-width="3"/>`+svFig({h:[80,20],s:[80,30],p:[80,46],a:[[86,24],[92,14]],b:[[74,38],[72,46]],l:[[78,50],[78,52]]},svH)+svWater(78,"a-rise")+svArr("M134 70V30M128 36l6-6 6 6","a-pulse"),
+ power:()=>`<rect x="58" y="16" width="44" height="70" rx="8" fill="var(--card2)" stroke="${svH}" stroke-width="4"/><rect class="a-switch" x="70" y="26" width="20" height="24" rx="4" fill="${svK}"/>`+svTxt(80,80,"OFF",12,svH),
+ bag:()=>`<rect x="48" y="30" width="64" height="60" rx="14" fill="${svK}"/><path d="M64 30v-6a16 16 0 0 1 32 0v6" stroke="${svK}" stroke-width="6" fill="none"/><rect x="60" y="54" width="40" height="22" rx="5" fill="rgba(255,255,255,.25)"/><g class="a-pop"><rect x="18" y="20" width="18" height="30" rx="3" fill="#3b8fd0" opacity=".7"/><rect x="124" y="34" width="22" height="14" rx="3" fill="#1e8e3e"/></g>`,
+ battery:()=>`<rect x="40" y="34" width="72" height="34" rx="6" fill="none" stroke="${svH}" stroke-width="5"/><rect x="113" y="44" width="7" height="14" rx="2" fill="${svH}"/><rect class="a-blink" x="47" y="41" width="14" height="20" rx="2" fill="#c5221f"/>`,
+ meet:()=>svGround+svFig(svStand(36),svH)+svFig(svStand(124),svK)+`<path d="M80 92V30" stroke="${svH}" stroke-width="3"/><path class="a-flag" style="transform-origin:80px 30px" d="M80 30h24l-6 8 6 8H80z" fill="#f2b632"/>`,
+ cash:()=>`<rect x="34" y="30" width="92" height="44" rx="6" fill="#7cc48a" stroke="#2e7d4f" stroke-width="3"/><circle cx="80" cy="52" r="12" fill="none" stroke="#2e7d4f" stroke-width="3"/>`+svTxt(80,57,"€",13,"#2e7d4f"),
+ radio:()=>`<rect x="34" y="40" width="80" height="46" rx="8" fill="${svH}"/><circle cx="60" cy="63" r="13" fill="var(--card2)"/><rect x="82" y="54" width="22" height="6" rx="3" fill="var(--card2)"/><path d="M100 40l14-26" stroke="${svH}" stroke-width="3"/>`+[0,1].map(i=>`<path class="a-pulse" style="animation-delay:${i*.3}s" d="M${120+i*8} ${16-i*2}q${6+i*3} 8 0 ${16+i*4}" stroke="${svK}" stroke-width="3" fill="none" stroke-linecap="round"/>`).join(""),
+ nowade:()=>svWater(62)+svFig(svStand(70),svH)+svArr("M20 76h30M44 70l6 6-6 6","a-flowx")+svX(122,24),
+ // outdoors & disasters & travel packs
+ rip:()=>`<rect x="0" y="0" width="160" height="70" fill="#3b8fd0" opacity=".28"/><rect x="0" y="70" width="160" height="34" fill="#e8d3a2"/>`+svArr("M80 66V20M74 26l6-6 6 6","a-pulse")+`<g class="a-swim"><circle cx="40" cy="36" r="7" fill="${svH}"/><path d="M30 42h22" stroke="${svH}" stroke-width="6" stroke-linecap="round"/></g>`+svArr("M44 52h70M108 46l6 6-6 6"),
+ float:()=>svWater(56)+`<g class="a-bob">`+svFig({h:[40,50],s:[52,52],p:[80,52],a:[[44,40],[36,32]],b:[[64,42],[70,34]],l:[[96,50],[112,52]]},svH)+`</g>`,
+ handup:()=>svWater(60)+`<g class="a-bob">`+svFig({h:[80,46],s:[80,58],p:[80,80],a:[[88,40],[94,22]]},svH)+`</g>`+svTxt(120,30,"Help!",13),
+ throwring:()=>svWater(60)+svFig(svStand(20),svH)+`<circle class="a-arc" cx="40" cy="30" r="9" fill="none" stroke="#e8542e" stroke-width="6"/>`,
+ jelly:()=>svWater(70)+`<g class="a-jelly"><path d="M50 50a30 24 0 0 1 60 0z" fill="#b06ad6" opacity=".85"/>`+[0,1,2,3].map(i=>`<path d="M${58+i*14} 50q-4 12 0 22t0 16" stroke="#b06ad6" stroke-width="3" fill="none" opacity=".8"/>`).join("")+`</g>`,
+ rinse:()=>`<path d="M84 18l30 10-6 18-30-10z" fill="${svH}"/><path class="a-flow" d="M84 44q-6 14-8 28" stroke="#3b8fd0" stroke-width="7" stroke-dasharray="6 6" stroke-linecap="round" fill="none"/><path d="M10 82H130" stroke="${svP}" stroke-width="18" stroke-linecap="round"/>`+svTxt(36,30,"sea",13,"#3b8fd0"),
+ tweezers:()=>`<path d="M10 76H140" stroke="${svP}" stroke-width="18" stroke-linecap="round"/><path d="M50 72q14-6 28 0t28 0" stroke="#b06ad6" stroke-width="3" fill="none"/><g class="a-lift"><path d="M70 66L110 14M78 68l36-52" stroke="${svH}" stroke-width="4" stroke-linecap="round"/></g>`,
+ coldpack:()=>`<path d="M10 76H140" stroke="${svP}" stroke-width="18" stroke-linecap="round"/><rect class="a-press" x="56" y="48" width="44" height="20" rx="6" fill="#9fd3f0"/>`+svTxt(78,38,"cold",12,"#3b8fd0"),
+ snake:()=>svGround+`<path class="a-slither" d="M20 84q12-12 24 0t24 0t24 0" stroke="#5a7d2a" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="94" cy="84" r="6" fill="#5a7d2a"/>`+svArr("M110 60h30M134 54l6 6-6 6","a-pulse"),
+ still:()=>`<path d="M14 64H120" stroke="${svP}" stroke-width="20" stroke-linecap="round"/><rect x="30" y="50" width="80" height="6" rx="3" fill="#c08a45"/><rect x="30" y="72" width="80" height="6" rx="3" fill="#c08a45"/><path d="M50 50v28M90 50v28" stroke="${svK}" stroke-width="4"/>`+svTxt(132,30,"still",12),
+ mark:()=>`<path d="M14 64H140" stroke="${svP}" stroke-width="24" stroke-linecap="round"/><ellipse cx="78" cy="64" rx="26" ry="11" fill="#e8a19b" opacity=".7"/><path class="a-draw" d="M52 64a26 11 0 1 0 52 0a26 11 0 1 0-52 0" stroke="${svH}" stroke-width="2.5" stroke-dasharray="4 4" fill="none"/>`+svClock(130,24,12),
+ scrape:()=>`<path d="M10 76H140" stroke="${svP}" stroke-width="18" stroke-linecap="round"/><path d="M78 66v-6" stroke="${svH}" stroke-width="3"/><rect class="a-scrape" x="88" y="44" width="34" height="22" rx="4" fill="${svK}"/>`,
+ blanket:()=>svGround+svFig(svStand(80),svH)+`<path d="M60 36q20-8 40 0l4 50q-24 6-48 0z" fill="#c45a10" opacity=".85"/>`+[0,1].map(i=>`<path class="a-pulse" style="animation-delay:${i*.4}s" d="M${30+i*100} 40q-6 6 0 12t0 12" stroke="#3b8fd0" stroke-width="3" fill="none"/>`).join(""),
+ sun:()=>`<g class="a-spin" style="transform-origin:80px 46px">`+[0,45,90,135,180,225,270,315].map(a=>`<path d="M80 18v-10" stroke="#f2b632" stroke-width="4" stroke-linecap="round" transform="rotate(${a} 80 46)"/>`).join("")+`</g><circle cx="80" cy="46" r="18" fill="#f2b632"/>`+svTxt(20,92,"E",13,svH,"start")+svTxt(140,92,"W",13,svH,"end"),
+ whistle:()=>`<path d="M40 56h40a14 14 0 1 1-14 14H40z" fill="${svH}"/>`+[0,1,2].map(i=>`<path class="a-pulse" style="animation-delay:${i*.3}s" d="M${96+i*12} ${40-i*4}q${8} ${16+i*4} 0 ${32+i*8}" stroke="${svK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`).join("")+svTxt(36,30,"× 3",14),
+ torch:()=>`<rect x="20" y="44" width="50" height="18" rx="5" fill="${svH}"/><path d="M70 40h10v26H70z" fill="${svH}"/><path class="a-sos" d="M80 40l70-16v58L80 66z" fill="#f2d24a" opacity=".7"/>`+svTxt(116,96,"· · · — — — · · ·",11,svH),
+ boil:()=>`<path class="a-pulse" d="M60 22q-6-6 0-12M80 22q-6-6 0-12M100 22q-6-6 0-12" stroke="var(--muted)" stroke-width="3" fill="none"/><rect x="44" y="30" width="72" height="48" rx="8" fill="${svH}"/>`+[0,1,2].map(i=>`<circle class="a-bubble" style="animation-delay:${i*.35}s" cx="${62+i*18}" cy="40" r="4" fill="#9fd3f0"/>`).join("")+`<path class="a-flick" d="M60 92q4-12 10 0q4-12 10 0q4-12 10 0q4-12 10 0" fill="#e8542e"/>`,
+ flames:()=>svGround+[0,1,2].map(i=>`<path class="a-flick" style="animation-delay:${i*.2}s" d="M${100+i*18} 92c-10-10-6-22 4-34 0 10 10 14 10 24s-6 12-14 10z" fill="${i%2?"#f2b632":"#e8542e"}"/>`).join("")+svFig({h:[44,26],s:[40,38],p:[36,60],a:[[30,46],[22,40]],b:[[46,48],[52,56]],l:[[30,74],[34,92]],m:[[44,74],[52,84]]},svH,"a-jog"),
+ lightning:()=>`<path d="M30 30a20 14 0 0 1 36-12 18 14 0 0 1 34 4 14 12 0 0 1-2 24H34a12 10 0 0 1-4-16z" fill="var(--muted)" opacity=".6"/><path class="a-blink" d="M70 46l-12 22h12l-8 22 22-30H72l8-14z" fill="#f2b632"/>`+svFig({h:[130,62],s:[126,72],p:[128,86],a:[[120,82],[118,90]],l:[[136,92],[142,92]]},svH),
+ shutters:()=>`<rect x="40" y="16" width="80" height="72" fill="var(--card2)" stroke="${svH}" stroke-width="4"/>`+[0,1,2,3,4,5].map(i=>`<path d="M44 ${26+i*11}h72" stroke="${svH}" stroke-width="4"/>`).join("")+`<circle cx="140" cy="20" r="10" fill="#f2b632" class="a-pulse"/>`,
+ passport:()=>`<rect x="56" y="16" width="48" height="70" rx="5" fill="#7b2a2a"/><circle cx="80" cy="44" r="10" fill="none" stroke="#f2d24a" stroke-width="2.5"/>`+svTxt(80,74,"ID",10,"#f2d24a"),
+ lock:()=>svPhone(50,17,`<rect x="58" y="40" width="18" height="14" rx="2" fill="${svK}"/><path d="M61 40v-5a6 6 0 0 1 12 0v5" stroke="${svK}" stroke-width="3" fill="none"/>`)+`<path class="a-pulse" d="M100 46h30" stroke="${svK}" stroke-width="3" stroke-dasharray="3 5"/>`,
+ card:()=>`<rect x="34" y="28" width="80" height="50" rx="7" fill="#1f5fa8"/><rect x="44" y="40" width="16" height="12" rx="2" fill="#f2d24a"/>`+svX(122,30),
+ cross:()=>`<rect x="56" y="22" width="48" height="48" rx="8" fill="#1e8e3e"/><path d="M80 34v24M68 46h24" stroke="#fff" stroke-width="7" stroke-linecap="round" class="a-pulse"/>`,
+ luggage:()=>svGround+`<rect x="56" y="34" width="48" height="56" rx="7" fill="${svK}"/><path d="M70 34v-8h20v8" stroke="${svH}" stroke-width="4" fill="none"/><g class="a-flag" style="transform-origin:104px 46px"><rect x="104" y="46" width="22" height="14" rx="3" fill="#f2d24a"/></g>`,
+ pocket:()=>svFig(svStand(80),svH)+`<rect x="70" y="56" width="14" height="10" rx="2" fill="#f2b632"/><path d="M68 54h18" stroke="${svK}" stroke-width="3"/>`+`<path class="a-sneak" d="M140 60h-24" stroke="${svP}" stroke-width="7" stroke-linecap="round"/>`,
+};
+// which picture goes with each step (null = no picture for that step)
+const SV_STEPS={call:["phone","speaker","talk",null,"pin","run"],cpr:["safe","shake","tilt","compress","compress","breaths","aed","swap"],
+ recovery:["phone","roll","roll","roll","side","listen"],choking:["cough","backblow","thrust","phone",null,"cross"],bleeding:["phone","press","press","clock","tourniquet",null],
+ stroke:["face","arms","speech","phone","clock",null],heart:["phone","sit",null,"pill",null,"compress"],allergy:["phone","inject","sit","inject","compress"],
+ burns:["tap","ringoff","wrap","phone"],heat:["phone","cool","cool","drink",null],quake:["dropcover","window","lift","away","car","gas","sms"],
+ fire:["exit","doorclose","crawl","hotdoor","lift","wave"],flood:["alert","up","power","bag",null],nonet:["sms",null,"battery","meet","cash","radio"],
+ rip:["float",null,"rip","float","handup","throwring"],jelly:[null,"rinse","tweezers","coldpack","phone"],snake:["snake","still","still","ringoff","mark","pill"],
+ sting:["scrape","coldpack","clock","phone"],cold:["blanket","blanket","blanket","drink","phone"],lost:["meet",null,"sms","sun","wave"],signal:["whistle","torch","wave","torch"],
+ water:["drink","boil",null,"boil"],wildfire:["phone","away","flames","car","shutters",null],storm:["lightning","lightning","clock","window"],
+ heatwave:["drink","sun","shutters","meet","cool"],evac:["exit","bag","power","sms","meet"],kit:["drink","bag","radio","battery","cross","passport","whistle"],
+ passport:["passport","passport",null,null],phone:["lock","lock","lock",null,"sms"],cards:["card",null,null,"cash"],medical:["phone","cross","card",null],
+ luggage:["luggage",null,null,"luggage"],scam:["car",null,null,"pocket"]};
+const SV_HERO={call:"phone",cpr:"compress",recovery:"side",choking:"backblow",bleeding:"press",stroke:"face",heart:"sit",allergy:"inject",burns:"tap",heat:"cool",quake:"dropcover",fire:"crawl",flood:"up",nonet:"battery"};
+function svArt(name,cls){const f=SV_ART[name];if(!f)return "";return `<svg class="sv-art${cls?" "+cls:""}" viewBox="0 0 160 104" aria-hidden="true">${f()}</svg>`;}
+function svStepArt(g,i){const a=(g.a&&g.a[i])||(SV_STEPS[g.id]||[])[i];return a?svArt(a):"";}
+function svHeroArt(g){const n=g.hero||SV_HERO[g.id]||(SV_STEPS[g.id]||g.a||[]).find(Boolean);return n?svArt(n,"hero"):"";}
+
+/* ---------- SURVIVAL (basics built in, extra packs downloadable, all offline once saved) ---------- */
+const SURV_BASE=[{"id":"call","cat":"first","ic":"📞","t":"Calling for help","w":"Before anything else in a serious emergency","call":true,"s":["Call 112. It works free from any mobile phone everywhere in the EU, also abroad and without credit.","Put the phone on speaker so your hands are free.","Say WHERE you are first (address, or the coordinates shown at the top of this screen), then WHAT happened and HOW MANY people are hurt.","Follow the operator's instructions and don't hang up until they tell you to.","Android phones usually send your location to 112 automatically during the call.","Send someone to meet the ambulance and to look for an AED (defibrillator) if there is one nearby."],"d":["Don't hang up early","Don't move an injured person unless they're in danger where they are"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"cpr","cat":"first","ic":"❤️","t":"CPR: not responding, not breathing normally","w":"Someone collapsed and doesn't react","call":true,"metro":true,"s":["Make sure it's safe for you to approach.","Shout and gently shake their shoulders. If there's no reaction, call 112 on speaker straight away.","Open the airway: tilt the head back, lift the chin. Look and listen for normal breathing for no more than 10 seconds. Gasping is NOT normal breathing.","Not breathing normally? Start CPR: heel of one hand in the centre of the chest, other hand on top, arms straight.","Push hard and fast: 5–6 cm deep, 100–120 times a minute (use the beat button below). Let the chest come back up fully each time.","If you're trained: after 30 compressions give 2 rescue breaths, then continue 30:2. Not trained or not willing: just keep doing compressions.","As soon as an AED arrives, switch it on and follow its voice instructions.","Keep going until help takes over, the person clearly starts breathing normally, or you're exhausted. Swap with someone every 2 minutes if you can."],"d":["Don't stop to check for a pulse","Don't worry about hurting them: doing nothing is worse"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"recovery","cat":"first","ic":"🛌","t":"Unconscious but breathing","w":"Not responding, but breathing normally","call":true,"s":["Call 112.","Kneel beside them. Put the arm nearest you at a right angle, elbow bent, palm up.","Bring the other arm across the chest and hold the back of that hand against their cheek nearest you.","Bend the far knee up, then pull on that knee to roll them towards you onto their side.","Tilt the head back slightly so the airway stays open and anything in the mouth can drain out.","Check their breathing every minute. If it stops or isn't normal, start CPR."],"d":["Don't give food or drink","Don't leave them alone"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"choking","cat":"first","ic":"😮","t":"Choking (adult or child over 1)","w":"Can't breathe, can't speak, clutching the throat","call":true,"s":["Ask: “Are you choking?” If they can cough, tell them to keep coughing.","If coughing doesn't work: stand to the side and slightly behind, lean them forward and give up to 5 sharp blows between the shoulder blades with the heel of your hand.","Still blocked? Give up to 5 abdominal thrusts: stand behind, fist just above the belly button, other hand over it, pull sharply inwards and upwards.","If it's still not cleared, call 112 and keep alternating 5 back blows and 5 abdominal thrusts.","If they become unresponsive, start CPR.","Anyone who had abdominal thrusts should see a doctor afterwards."],"d":["Don't do abdominal thrusts on a baby under 1 (use back blows and chest thrusts)","Don't put your fingers blindly in their mouth"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"bleeding","cat":"first","ic":"🩸","t":"Severe bleeding","w":"Blood spurting or soaking through quickly","call":true,"s":["Call 112 (or let someone else call) right away.","Press firmly and directly on the wound with a clean cloth, or your hand if nothing else. Keep pressing.","If blood soaks through, put more cloth on top and keep pressing. Don't lift it to look.","Keep the pressure on for at least 10 minutes, or until help arrives.","Life-threatening bleeding from an arm or leg that pressure doesn't stop: a tourniquet 5–7 cm above the wound (not on a joint), tightened until the bleeding stops. Note the time.","Let them lie down and keep them warm."],"d":["Don't remove an object stuck in the wound: press around it","Don't loosen a tourniquet once it's on"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"stroke","cat":"first","ic":"🧠","t":"Stroke: think FAST","w":"Sudden drooping face, weak arm, slurred speech","call":true,"s":["F (face): ask them to smile. Does one side droop?","A (arms): can they lift both arms and keep them up?","S (speech): is their speech slurred or strange?","T (time): if you see any of these, call 112 immediately. Every minute counts.","Note the time the symptoms started and tell the ambulance.","Keep them comfortable and stay with them."],"d":["Don't give food, drink or medicines"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"heart","cat":"first","ic":"💔","t":"Heart attack","w":"Chest pain or pressure lasting more than a few minutes","call":true,"s":["Call 112.","Let them sit down and rest in the position most comfortable for them, often half-sitting.","Loosen tight clothing.","If they're an adult, not allergic to aspirin, and the dispatcher agrees: one aspirin (150–300 mg) to chew.","If they have their own heart medication (e.g. a nitro spray), help them use it.","Stay with them. If they stop responding and aren't breathing normally, start CPR."],"d":["Don't let them walk around or ‘wait and see’"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"allergy","cat":"first","ic":"🐝","t":"Severe allergic reaction","w":"Swelling, hives, trouble breathing after food, a sting or medicine","call":true,"s":["Call 112 and say it's anaphylaxis.","If they have an adrenaline auto-injector (EpiPen etc.), help them use it in the outer thigh, through clothing if needed.","Breathing hard? Let them sit up. Feeling faint? Let them lie down with the legs raised.","If there's no improvement after 5 minutes and they have a second injector, use it.","If they stop responding and aren't breathing normally, start CPR."],"d":["Don't let them stand up or walk suddenly"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"burns","cat":"first","ic":"🔥","t":"Burns","w":"Hot liquid, fire, sun, chemicals","call":false,"s":["Cool the burn under cool or lukewarm running water for at least 20 minutes, as soon as possible.","Remove rings, watches and clothing near the burn, unless it's stuck to the skin.","Cover loosely with cling film or a clean plastic bag (not wrapped tightly).","Call 112 for large burns, burns on the face, hands, feet, genitals or airway, electrical or chemical burns, and burns on children."],"d":["No ice, butter, toothpaste or creams","Don't pop blisters"],"src":"European Resuscitation Council Guidelines 2025"},{"id":"heat","cat":"first","ic":"🥵","t":"Heat stroke","w":"Hot, confused, very unwell in the heat","call":true,"s":["Call 112: heatstroke is life-threatening.","Move them to a cool, shaded place and remove outer clothing.","Cool them fast: cold water over the body, a cold wet sheet with more water poured on, fanning, or cold packs in armpits, groin and neck. Cold water immersion up to the neck is best if it's safe.","If they're fully awake and can swallow, give sips of cold water.","Keep cooling and watch them until help arrives. Ready for CPR if they stop responding."],"d":["Don't give alcohol or caffeine"],"src":"Red Cross first-aid guidance"},{"id":"quake","cat":"danger","ic":"🌋","t":"Earthquake","w":"The ground is shaking","call":false,"s":["Inside: DROP, COVER, HOLD ON. Get under a sturdy table or bed, or against a load-bearing wall, and protect your head and neck.","Stay away from windows, mirrors, shelves and anything that can fall.","Don't run for the stairs or the lift during the shaking.","Outside: move away from buildings, trees, street lights and power lines.","In a car: stop away from bridges, flyovers and buildings, and stay inside.","After the shaking: leave the building carefully (stairs, not the lift), turn off gas if you can, expect aftershocks.","Keep phone lines free for emergencies; send texts instead of calling."],"d":["Don't use the lift","Don't go back inside a damaged building"],"src":"Protezione Civile, “Io non rischio”"},{"id":"fire","cat":"danger","ic":"🚒","t":"Fire in a building","w":"Smoke or fire where you are","call":true,"s":["Warn everyone and get out. Leave your belongings.","Close doors behind you to slow the fire.","Stay low under smoke: the air is cleaner near the floor.","Feel doors with the back of your hand before opening. Hot? Use another way out.","Use the stairs, never the lift. Call 112 once you're outside.","Trapped? Close the door, block gaps with wet cloth, go to a window and signal (light, cloth, shouting)."],"d":["Never go back in for belongings or pets","Don't open a hot door"],"src":"Red Cross first-aid guidance"},{"id":"flood","cat":"danger","ic":"🌊","t":"Flood","w":"Water is rising or a flood warning is out","call":false,"s":["Follow official alerts: NL-Alert in the Netherlands, IT-alert in Italy (they arrive as loud messages on your phone).","Go up: to a higher floor or higher ground. If told to evacuate, leave early.","Switch off electricity and gas if you can do it safely.","Take your phone, power bank, medicines, documents and water.","Keep the app's offline map downloaded so you can find routes without internet."],"d":["Don't walk or drive through moving water: even shallow water can sweep you or your car away","Stay away from flood water near electrical cables"],"src":"NL-Alert / Protezione Civile"},{"id":"nonet","cat":"trouble","ic":"📴","t":"No internet or no power","w":"Network down, power cut, battery low","call":false,"s":["112 still works if there's any mobile network. Texts often get through when calls and data don't.","This app keeps working: offline maps, saved places, train estimates, this survival guide, group by Bluetooth and text messages.","Save battery: low-power mode, lower brightness, close other apps. Airplane mode with location on keeps GPS working on offline maps.","Agree a meeting point with your group in advance, and a time to meet if you get separated.","Keep some cash: card payments may not work.","A battery or wind-up radio gives official news when phones don't."],"d":["Don't waste battery searching for signal: check now and then"],"src":""}];
+const SURV_URL="https://raw.githubusercontent.com/jariplayz-source/puglia-transit/main/packs/";
+const SURV_COL={first:"#c5221f",danger:"#c45a10",trouble:"#455a64",out:"#2e7d4f",dis:"#c45a10",trv:"#1f5fa8"};
+const SURV_OFFER=[{id:"outdoors",name:"Outdoors & sea",ic:"🌿",desc:"Rip currents, jellyfish, snakes, stings, cold, getting lost, signalling, drinking water",n:8,size:4694},
+ {id:"disasters",name:"Disasters & alerts",ic:"⚠️",desc:"Wildfire, storms, heatwaves, evacuation, emergency kit checklist",n:5,size:3007},
+ {id:"travel",name:"Travel trouble",ic:"🧳",desc:"Lost passport, phone or cards, doctor abroad, lost luggage, scams",n:6,size:2737}];
+const SURV_NUMS={it:[["118","Ambulance"],["115","Fire"],["113","Police"],["1530","Coastguard"]],nl:[["0900-8844","Police (not urgent)"]]};
+let SURV_PACKS={};try{SURV_PACKS=JSON.parse(localStorage.getItem("pt-surv")||"{}");}catch(e){}
+let svBusy="",svQ="",svBeat=null;
+function svAll(){const a=SURV_BASE.map(g=>({...g,pk:""}));for(const k in SURV_PACKS)(SURV_PACKS[k].guides||[]).forEach(g=>a.push({...g,pk:k}));return a;}
+function svEsc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function svCC(){try{return (typeof appMode==="function"&&appMode()==="home")?"nl":(document.documentElement.dataset.country||"it");}catch(e){return "it";}}
+function svCard(g,wide){const pic=wide?"":svHeroArt(g).replace('class="sv-art hero"','class="sv-art still"');return `<button class="sv-g${wide?" wide":""}" style="--sc:${SURV_COL[g.cat]||"#455a64"}" data-sv="${g.id}">${pic||`<span class="e">${g.ic}</span>`}<span><b>${svEsc(g.t)}</b>${g.w?`<small>${svEsc(g.w)}</small>`:""}</span></button>`;}
+function renderSurv(){const box=document.getElementById("survBox");if(!box)return;
+  const ll=(typeof me!=="undefined"&&me)?me.lat.toFixed(5)+", "+me.lon.toFixed(5):"";
+  const nums=(SURV_NUMS[svCC()]||[]).map(([n,l])=>`<a href="tel:${n.replace(/-/g,"")}">${l} ${n}</a>`).join("");
+  let h=`<div class="sv-call"><div><b>Emergency: call 112</b><small>Free from any phone in Europe, also without credit or a SIM that works here.</small></div><a class="big" href="tel:112" aria-label="Call 112">112</a>
+   <div class="sv-where"><span>Your location<br><code>${ll||"Waiting for GPS…"}</code></span>${ll?`<button id="svCopy">Copy</button>`:""}</div>${nums?`<div class="sv-nums">${nums}</div>`:""}</div>
+   <input class="sv-search" id="svSearch" type="search" placeholder="Search: bleeding, fire, jellyfish…" value="${svEsc(svQ)}">`;
+  const all=svAll();
+  if(svQ.trim()){const q=svQ.trim().toLowerCase();const r=all.filter(g=>(g.t+" "+g.w+" "+g.s.join(" ")).toLowerCase().includes(q));
+    h+=`<div class="sv-h">${r.length?r.length+" found":"Nothing found"}</div><div class="sv-grid">${r.map(g=>svCard(g,true)).join("")}</div>`;
+    if(!r.length&&Object.keys(SURV_PACKS).length<SURV_OFFER.length)h+=`<p class="sv-note">More topics are in the extra packs below the list.</p>`;}
+  else{const by=c=>all.filter(g=>g.cat===c);
+    h+=`<div class="sv-h">First aid</div><div class="sv-grid">${by("first").map(g=>svCard(g)).join("")}</div>
+    <div class="sv-h">Emergencies</div><div class="sv-grid">${[...by("danger"),...by("trouble")].map(g=>svCard(g)).join("")}</div>`;
+    for(const p of SURV_OFFER)if(SURV_PACKS[p.id])h+=`<div class="sv-h">${p.ic} ${svEsc(p.name)}</div><div class="sv-grid">${(SURV_PACKS[p.id].guides||[]).map(g=>svCard(g)).join("")}</div>`;}
+  h+=`<div class="sv-h">Extra packs</div>`+SURV_OFFER.map(p=>{const have=!!SURV_PACKS[p.id];return `<div class="sv-pack"><span class="e">${p.ic}</span><div><b>${svEsc(p.name)}</b><small>${svEsc(p.desc)}<br>${p.n} guides · ${Math.max(1,Math.round(p.size/1024))} KB${have?" · saved on this phone":""}</small></div>
+   ${svBusy===p.id?`<button disabled>…</button>`:have?`<button class="rm" data-svrm="${p.id}">Remove</button>`:`<button data-svdl="${p.id}">Download</button>`}</div>`;}).join("");
+  h+=`<p class="sv-note">Everything here works without internet: the basics are built in, and packs stay on your phone after downloading. These guides are a reminder, not a replacement for a first-aid course. Always follow what the 112 operator tells you.</p>`;
+  box.innerHTML=h;
+  const s=document.getElementById("svSearch");s.oninput=()=>{svQ=s.value;const p=s.selectionStart;renderSurv();const n=document.getElementById("svSearch");n.focus();try{n.setSelectionRange(p,p);}catch(e){}};}
+async function svDownload(id){if(navigator.onLine===false){alert("Downloading a pack needs internet. The basics work offline already.");return;}
+  svBusy=id;renderSurv();
+  try{const url=SURV_URL+"pack-"+id+".json?t="+Math.floor(Date.now()/3600e3);
+    const txt=window.AndroidNet&&typeof netGet==="function"?await netGet(url,15000):await (await fetch(url)).text();
+    const j=JSON.parse(txt);if(!j||!Array.isArray(j.guides))throw new Error("bad pack");
+    SURV_PACKS[id]=j;localStorage.setItem("pt-surv",JSON.stringify(SURV_PACKS));}
+  catch(e){alert("Couldn't download the pack: "+(e.message||e)+". Try again with a better connection.");}
+  svBusy="";renderSurv();}
+function svRemove(id){delete SURV_PACKS[id];try{localStorage.setItem("pt-surv",JSON.stringify(SURV_PACKS));}catch(e){}renderSurv();}
+function svStopBeat(){if(svBeat){clearInterval(svBeat.t);try{svBeat.ac&&svBeat.ac.close();}catch(e){}svBeat=null;}}
+function svToggleBeat(){const b=document.getElementById("svBeatBtn"),d=document.getElementById("svDot");
+  if(svBeat){svStopBeat();if(b)b.textContent="Start beat";return;}
+  let ac=null;try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  const tick=()=>{if(d){d.classList.add("p");setTimeout(()=>d.classList.remove("p"),90);}
+    if(ac){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.25;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.05);}
+    try{navigator.vibrate&&navigator.vibrate(30);}catch(e){}};
+  svBeat={ac,t:setInterval(tick,545)};tick();if(b)b.textContent="Stop";}
+function openSurvGuide(id){const g=svAll().find(x=>x.id===id);if(!g)return;svStopBeat();
+  const ov=document.createElement("div");ov.className="sv-ov";ov.id="svOv";ov.style.setProperty("--sc",SURV_COL[g.cat]||"#455a64");
+  ov.innerHTML=`<div class="sv-top"><button data-svclose>‹ Back</button></div>
+   <div class="sv-hero"><h2>${g.ic} ${svEsc(g.t)}</h2>${g.w?`<p>${svEsc(g.w)}</p>`:""}${svHeroArt(g)}</div>
+   ${g.call?`<div class="sv-callbar"><a href="tel:112">📞 Call 112</a></div>`:""}
+   ${g.metro?`<div class="sv-beat"><span class="sv-dot" id="svDot"></span><span><b>Compression beat</b><br><small style="color:var(--muted)">110 per minute, sound and vibration</small></span><button id="svBeatBtn">Start beat</button></div>`:""}
+   <ol class="sv-steps">${g.s.map((x,i)=>{const a=svStepArt(g,i);return a?`<li class="pic"><div class="sv-pic">${a}</div>${svEsc(x)}</li>`:`<li>${svEsc(x)}</li>`;}).join("")}</ol>
+   ${g.d&&g.d.length?`<div class="sv-dont"><b>Don't</b><ul>${g.d.map(x=>`<li>${svEsc(x)}</li>`).join("")}</ul></div>`:""}
+   ${g.src?`<div class="sv-src">Based on: ${svEsc(g.src)}</div>`:""}`;
+  document.body.appendChild(ov);history.pushState&&history.pushState({sv:1},"");}
+function closeSurvGuide(){svStopBeat();const o=document.getElementById("svOv");if(o)o.remove();}
+window.addEventListener("popstate",()=>{if(document.getElementById("svOv"))closeSurvGuide();});
+document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(!t)return;
+  if(t.closest("#hdrSurv")||t.closest("[data-svopen]")){showTab("surv");renderSurv();return;}
+  if(t.closest("#survBack")){showTab(prevTab||"dest");return;}
+  const c=t.closest("[data-sv]");if(c){openSurvGuide(c.dataset.sv);return;}
+  if(t.closest("[data-svclose]")){if(history.state&&history.state.sv)history.back();else closeSurvGuide();return;}
+  if(t.closest("#svBeatBtn")){svToggleBeat();return;}
+  const dl=t.closest("[data-svdl]");if(dl){svDownload(dl.dataset.svdl);return;}
+  const rm=t.closest("[data-svrm]");if(rm){svRemove(rm.dataset.svrm);return;}
+  if(t.closest("#svCopy")&&typeof me!=="undefined"&&me){const s=me.lat.toFixed(5)+", "+me.lon.toFixed(5);try{navigator.clipboard.writeText(s);}catch(err){}t.closest("#svCopy").textContent="Copied";}
+});
+/* ---------- FIRST-LAUNCH SETUP (a few quick questions; everything can be changed later in ⚙️) ---------- */
+const SU_CK=`<svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+let SU=null,suI=0;
+function suInit(){let name="";try{name=localStorage.getItem("pt-myname")||(GROUPS[0]&&GROUPS[0].me&&GROUPS[0].me.name)||"";}catch(e){}
+  SU={name,where:(typeof appMode==="function"&&appMode()==="home")?"home":"trip",home:NLHOME?"keep":"now",lang:INFO_LANG||"en",theme:(typeof THEME!=="undefined"?THEME:"auto"),
+      diet:[...(typeof DIET!=="undefined"?DIET:[])],packs:Object.keys(SURV_PACKS||{})};if(!SU.packs.length)SU.packs=["outdoors"];}
+function suPages(){return ["hi","name","where",SU.where==="home"?"home":null,"lang","look","food","perm","offline","done"].filter(Boolean);}
+function suRow(sel,attr,val,ic,t,sub){return `<button class="su-row${sel?" on":""}" ${attr}="${val}">${ic?`<span class="e">${ic}</span>`:""}<span class="t">${t}${sub?`<small>${sub}</small>`:""}</span>${SU_CK}</button>`;}
+function suPage(k){const E=svEsc;switch(k){
+ case "hi":return {b:`<div class="su-logo"><svg viewBox="0 0 512 512"><path d="M256 404 L169 280 A108 108 0 1 1 343 280 Z" fill="none" stroke="#f6f1e7" stroke-width="30" stroke-linejoin="round"/><circle cx="256" cy="206" r="34" fill="#f6f1e7"/></svg></div>
+   <h1>Welcome to Out&nbsp;&amp;&nbsp;Back</h1><p class="su-sub">Getting there, finding your way and staying together, also when the internet is down. A few quick questions and you're ready.</p>`,go:"Get started"};
+ case "name":return {b:`<div class="su-ic">👋</div><h1>What's your name?</h1><p class="su-sub">People in your groups see this name next to your location and photos.</p>
+   <input class="su-input" id="suName" placeholder="Your name" autocomplete="given-name" maxlength="30" value="${E(SU.name)}">`,go:"Continue",skip:true};
+ case "where":return {b:`<div class="su-ic">🧭</div><h1>Where are you right now?</h1><p class="su-sub">The app looks and works differently at home than on a trip.</p>
+   <div class="su-list">${suRow(SU.where==="home","data-su-where","home","🏠","At home","Car traffic, departures near you, everyday group")}${suRow(SU.where==="trip","data-su-where","trip","🧳","On a trip","Trains and buses, places to visit, things to do")}</div>`,go:"Continue"};
+ case "home":return {b:`<div class="su-ic">🏡</div><h1>Is this where you live?</h1><p class="su-sub">Home mode switches on automatically within 50 km of your home, wherever that is.</p>
+   <div class="su-list">${NLHOME?suRow(SU.home==="keep","data-su-home","keep","✅","Keep my saved home",E(NLHOME.name||"")):""}${suRow(SU.home==="now","data-su-home","now","📍","Yes, I'm at home now","Saved from your location in a moment")}${suRow(SU.home==="later","data-su-home","later","⏳","Not now","You can set it later in ⚙️")}</div>`,go:"Continue"};
+ case "lang":return {b:`<div class="su-ic">🌍</div><h1>Your language</h1><p class="su-sub">Information about places is translated into this language.</p>
+   <div class="su-list">${INFO_LANGS.map(([c,l])=>suRow(SU.lang===c,"data-su-lang",c,"",l)).join("")}</div>`,go:"Continue"};
+ case "look":{const ph=(bg,a,b)=>`<span class="ph" style="background:${bg}"><i style="background:${a};width:70%"></i><i style="background:${b}"></i><i style="background:${b}"></i><i style="background:${b};width:60%"></i></span>`;
+   return {b:`<div class="su-ic">🎨</div><h1>Choose a look</h1><p class="su-sub">Automatic follows your phone's light and dark setting.</p>
+   <div class="su-looks">${[["light","Light",ph("#f4f5f6","#0b72a8","#dfe3e6")],["dark","Dark",ph("#0f1317","#5ec4f5","#2a3139")],["auto","Automatic",`<span class="ph" style="background:linear-gradient(90deg,#f4f5f6 50%,#0f1317 50%)"><i style="background:#0b72a8;width:70%"></i><i style="background:#8a96a0"></i><i style="background:#8a96a0"></i></span>`]].map(([v,l,p])=>`<button class="su-look${SU.theme===v?" on":""}" data-su-theme="${v}">${p}${l}<span class="rb"></span></button>`).join("")}</div>`,go:"Continue"};}
+ case "food":return {b:`<div class="su-ic">🍽️</div><h1>Any food needs?</h1><p class="su-sub">The app can show a card in the local language to show at restaurants. Pick any that apply.</p>
+   <div class="su-list">${DIET_KEYS.map(([c,ic,l])=>suRow(SU.diet.includes(c),"data-su-diet",c,ic,l)).join("")}</div>`,go:SU.diet.length?"Continue":"None for me"};
+ case "perm":return {b:`<div class="su-ic">📍</div><h1>Location &amp; alerts</h1><p class="su-sub">Your location stays on your phone unless you share it with a group.</p>
+   <div class="su-list">${suRow(false,"data-su-perm","gps","📍","Precise location","For the map, nearby departures and your group")}${suRow(false,"data-su-perm","notif","🔔","Notifications","Last train back, group arrivals, strikes")}</div>
+   <p class="su-note">Tap each one to allow it. You can change this later in your phone settings.</p>`,go:"Continue"};
+ case "offline":return {b:`<div class="su-ic">📴</div><h1>Ready without internet</h1><p class="su-sub">The basic first-aid and emergency guides are always on your phone. Add extra guide packs too?</p>
+   <div class="su-list">${SURV_OFFER.map(p=>suRow(SU.packs.includes(p.id),"data-su-pack",p.id,p.ic,E(p.name),`${p.n} guides · ${Math.max(1,Math.round(p.size/1024))} KB`)).join("")}</div>
+   <p class="su-note">${navigator.onLine===false?"You're offline now: the packs will be skipped. Download them later in 🆘.":"Offline maps for an area can be downloaded from the Map tab."}</p>`,go:"Continue"};
+ case "done":return {b:`<svg class="su-done" viewBox="0 0 88 88" fill="none" stroke="var(--ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="44" cy="44" r="40"/><path d="M27 45l11 11 24-24"/></svg>
+   <h1>You're all set${SU.name?", "+E(SU.name.split(" ")[0]):""}</h1><p class="su-sub">${SU.where==="home"?"Home mode is on.":"Have a great trip."} You can change all of this later in ⚙️.</p>`,go:"Start using Out & Back"};}}
+function suRender(dir){const ov=document.getElementById("setup");if(!ov)return;const P=suPages();if(suI>=P.length)suI=P.length-1;const k=P[suI],pg=suPage(k);
+  ov.innerHTML=`<div class="su-top">${suI>0&&k!=="done"?`<button data-su-back aria-label="Back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L2 10l8 8"/></svg>Back</button>`:""}
+   ${k!=="hi"&&k!=="done"?`<div class="su-dots">${P.slice(1,-1).map((_,i)=>`<i class="${i===suI-1?"on":""}"></i>`).join("")}</div>`:""}</div>
+   <div class="su-page ${dir<0?"in-l":dir>0?"in-r":""}">${pg.b}</div>
+   <div class="su-bot"><button class="su-go" data-su-go>${pg.go}</button>${pg.skip?`<button class="su-skip" data-su-skip>Not now</button>`:""}</div>`;
+  const n=document.getElementById("suName");if(n){n.oninput=()=>{SU.name=n.value;};n.onkeydown=e=>{if(e.key==="Enter")suNext();};}}
+function suNext(){const P=suPages(),k=P[suI];if(k==="name"){const n=document.getElementById("suName");if(n)SU.name=n.value.trim();}
+  if(k==="done")return suFinish();suI++;suRender(1);}
+function suApply(){try{
+  if(SU.name)localStorage.setItem("pt-myname",SU.name);
+  INFO_LANG=SU.lang;localStorage.setItem("pt-infolang",SU.lang);
+  THEME=SU.theme;localStorage.setItem("pt-theme",THEME);applyTheme();
+  DIET=[...SU.diet];localStorage.setItem("pt-diet",JSON.stringify(DIET));
+  SET_MODE="auto";localStorage.setItem("pt-appmode","auto");
+  if(SU.where==="home"){if(SU.home==="now"){if(me)setHomeHere();else localStorage.setItem("pt-homepending","1");}}
+  if(!NLHOME){LAST_MODE=SU.where==="home"?"home":"travel";localStorage.setItem("pt-lastmode",LAST_MODE);}
+  if(SU.where==="home"&&!NLHOME&&SU.home!=="now"){SET_MODE="home";localStorage.setItem("pt-appmode","home");}
+  if(SU.where==="trip"&&NLHOME&&me&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])<=50){SET_MODE="travel";localStorage.setItem("pt-appmode","travel");}
+}catch(e){}appliedKey="";try{applyCountry();renderDiet();renderSet();}catch(e){}
+  if(navigator.onLine!==false)SU.packs.filter(p=>!SURV_PACKS[p]).forEach((p,i)=>setTimeout(()=>svDownload(p).catch(()=>{}),800+i*600));}
+function suFinish(){suApply();try{localStorage.setItem("pt-setup-1.0","1");}catch(e){}const ov=document.getElementById("setup");
+  if(ov){ov.style.transition="opacity .3s";ov.style.opacity="0";setTimeout(()=>ov.remove(),320);}showTab("dest");}
+function openSetup(){if(document.getElementById("setup"))return;suInit();suI=0;const ov=document.createElement("div");ov.id="setup";document.body.appendChild(ov);suRender(1);}
+// a home asked for before GPS had a fix: save it as soon as the location arrives
+setInterval(()=>{try{if(localStorage.getItem("pt-homepending")&&typeof me!=="undefined"&&me&&(me.acc||0)<200){localStorage.removeItem("pt-homepending");setHomeHere();}}catch(e){}},4000);
+document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(!t||!t.closest("#setup,#suAgain"))return;
+  if(t.closest("#suAgain")){openSetup();return;}
+  if(t.closest("[data-su-go]")){suNext();return;}
+  if(t.closest("[data-su-skip]")){if(suPages()[suI]==="name")SU.name="";suI++;suRender(1);return;}
+  if(t.closest("[data-su-back]")){suI=Math.max(0,suI-1);suRender(-1);return;}
+  const w=t.closest("[data-su-where]");if(w){SU.where=w.dataset.suWhere;suRender(0);setTimeout(suNext,220);return;}
+  const h=t.closest("[data-su-home]");if(h){SU.home=h.dataset.suHome;suRender(0);setTimeout(suNext,220);return;}
+  const l=t.closest("[data-su-lang]");if(l){SU.lang=l.dataset.suLang;suRender(0);return;}
+  const th=t.closest("[data-su-theme]");if(th){SU.theme=th.dataset.suTheme;try{THEME=SU.theme;applyTheme();}catch(x){}suRender(0);return;}
+  const d=t.closest("[data-su-diet]");if(d){const c=d.dataset.suDiet;SU.diet=SU.diet.includes(c)?SU.diet.filter(x=>x!==c):[...SU.diet,c];suRender(0);return;}
+  const pk=t.closest("[data-su-pack]");if(pk){const c=pk.dataset.suPack;SU.packs=SU.packs.includes(c)?SU.packs.filter(x=>x!==c):[...SU.packs,c];suRender(0);return;}
+  const pm=t.closest("[data-su-perm]");if(pm){pm.classList.add("on");
+    if(pm.dataset.suPerm==="gps"){try{window.AndroidGPS&&window.AndroidGPS.askPrecise();}catch(x){}}
+    else{try{window.AndroidNotify&&window.AndroidNotify.askPermission&&window.AndroidNotify.askPermission();}catch(x){}}return;}
+});
+
+try{if(!localStorage.getItem("pt-setup-1.0"))openSetup();}catch(e){}
 </script>
 </body>
 </html>

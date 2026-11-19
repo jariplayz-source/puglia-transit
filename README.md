@@ -18,7 +18,8 @@ and a home mode for the Netherlands (departures near you, A→B planner, saved r
 Every feature is checked for what still works when the internet is down:
 offline maps per city, saved places and descriptions, train/bus estimates and last connections back, the food needs card,
 flights (barcode reading and the airport list are built in), group members' last known positions and the album,
-posts that wait in an outbox and send automatically later, I'm OK / SOS by text message (SMS) and calls, and an automatic offline group mode: encrypted locations by Bluetooth between nearby phones and by text message to members (max 16 a day per group).
+posts that wait in an outbox and send automatically later, I'm OK / SOS by text message (SMS) and calls, and an automatic offline group mode: encrypted locations by Bluetooth between nearby phones and by readable text message to members (max 16 a day per group).
+The 🆘 survival section (first aid and emergency guides with animated pictures) is built into the app; extra guide packs in `packs/` are downloaded once and then work offline.
 Home mode keeps the last departures, road messages, connections and weather with the time they were saved.
 
 ## Data sources and attribution

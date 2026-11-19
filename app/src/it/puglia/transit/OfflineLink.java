@@ -74,6 +74,17 @@ public class OfflineLink {
     static synchronized String takeInbox(Context c) { SharedPreferences p = GroupCore.prefs(c); String s = p.getString("inbox", "[]"); p.edit().putString("inbox", "[]").apply(); return s; }
 
     // ================= SMS =================
+    /** Plain, readable text (one SMS): works even if the other person has no internet or no app.
+     *  Play Protect blocks sideloaded apps that read incoming texts, so the app doesn't read SMS; the person sees it in their messages. */
+    static String smsReadable(JSONObject g, String kind, double lat, double lon) {
+        String nm = g.optString("name", "Your friend").replaceAll("[^\\p{L}\\p{N} .'-]", "");
+        if (nm.length() > 18) nm = nm.substring(0, 18);
+        String t = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.US).format(new java.util.Date());
+        if ("Q".equals(kind)) return "Out&Back: " + nm + " asks where you are (no internet here). Reply with your location or call.";
+        String ll = String.format(java.util.Locale.US, "%.5f,%.5f", lat, lon);
+        return "Out&Back: " + nm + " is at " + ll + " (" + t + "). Map: https://maps.google.com/?q=" + ll;
+    }
+
     /** Compact, encrypted, fits one normal text message (~110 characters). */
     static String smsBody(JSONObject g, String kind, double lat, double lon) throws Exception {
         String plain = kind + "|" + g.optString("me") + "|" + (Math.round(lat * 1e5) / 1e5) + "|" + (Math.round(lon * 1e5) / 1e5) + "|" + Long.toString(System.currentTimeMillis() / 1000, 36);
@@ -153,7 +164,7 @@ public class OfflineLink {
                 if (cnt >= SMS_PER_DAY) continue;
                 if (now - last < 30 * 60000 && moved < 400) continue;
                 if (now - last < 5 * 60000) continue;
-                String body = smsBody(g, "L", lat, lon);
+                String body = smsReadable(g, "L", lat, lon);
                 java.util.Iterator<String> it = phones.keys();
                 while (it.hasNext()) { String ph = phones.optString(it.next()); if (ph.length() > 5) sendSms(c, ph, body); }
                 p.edit().putString("sms:" + t, day + "," + (cnt + 1) + "," + now + "," + lat + "," + lon).apply();
@@ -170,7 +181,7 @@ public class OfflineLink {
             try {
                 String[] ll = GroupCore.prefs(c).getString("lastLoc", "").split(",");
                 boolean have = ll.length >= 2 && g.optBoolean("share");
-                sendSms(c, phone, smsBody(g, have ? "R" : "Q", have ? Double.parseDouble(ll[0]) : 0, have ? Double.parseDouble(ll[1]) : 0));
+                sendSms(c, phone, have ? smsReadable(g, "L", Double.parseDouble(ll[0]), Double.parseDouble(ll[1])) + " Where are you?" : smsReadable(g, "Q", 0, 0));
             } catch (Exception e) { }
         }
     }
