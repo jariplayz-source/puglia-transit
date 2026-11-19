@@ -455,7 +455,7 @@ html[data-country="nl"] .badge{background:#ff7a1a;color:#fff}
 html[data-country="xx"] .appbar h1::after{display:none}
 /* ---------- home mode ---------- */
 body.mode-home #alertTop,body.mode-home #hereBox,body.mode-home #backBox,body.mode-home #depBox,body.mode-home #v-dest .home-h,body.mode-home #q,body.mode-home #chips,
-body.mode-home #v-dest .sortbar,body.mode-home #dest,body.mode-home #v-dest>p.small,body.mode-home #lastBanner,body.mode-home nav [data-v="trips"]{display:none!important}
+body.mode-home #v-dest .sortbar,body.mode-home #dest,body.mode-home #v-dest>p.small,body.mode-home #lastBanner,body.mode-home #tSeg{display:none!important}
 body:not(.mode-home) #nlHome{display:none}
 .rain{margin-top:8px;font-size:14px}.rbars{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:6px}.rbars span{flex:1;background:var(--accent);border-radius:3px 3px 0 0}
 .rlab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
@@ -484,6 +484,11 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
 .cheese-card .cc-lang{font-size:12px;font-weight:700;letter-spacing:.04em;color:#8a6d00;margin-bottom:4px}.cheese-card .cc-list{margin:4px 0 8px;padding-left:4px;list-style:none;font-size:18px;line-height:1.45}.cheese-card.full .cc-list{font-size:23px}
 .sum-ov{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}.sum-ov iframe{flex:1;border:0;width:100%;background:#f6f1e7}
 .sum-bar{display:flex;gap:10px;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);background:var(--card);box-shadow:0 -2px 10px rgba(0,0,0,.12)}.sum-bar .btn{flex:1}
+.fl-h{display:flex;align-items:center;gap:8px;cursor:pointer}.fl-code{font-weight:800;font-size:17px}.fl-h .tr{flex:1}
+.fl-route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;margin-top:8px}.fl-route b{display:block;font-size:30px;letter-spacing:.02em;line-height:1}.fl-route span{display:block;font-size:12.5px;color:var(--muted);max-width:110px}.fl-route i{font-style:normal;font-weight:700;font-size:15px}
+.fl-arc{width:100%;height:auto}.fl-meta{font-size:13.5px;color:var(--muted);margin-top:6px}.fl-more{border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
+details.orig{margin-top:6px;font-size:13px;color:var(--muted)}details.orig summary{cursor:pointer}
+body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!important}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -571,6 +576,9 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
 
   <!-- DAY TRIPS -->
   <section class="view" id="v-trips">
+    <div class="seg" id="tSeg" style="margin:10px 0 4px"><button data-tseg="days" class="on">🗺️ Day trips</button><button data-tseg="flights">✈️ Flights</button></div>
+    <div data-tp="flights" hidden><div id="flBox"></div></div>
+    <div data-tp="days">
     <h2>🗺️ Day trips from Brindisi</h2>
     <div class="card leave-card"><div class="np-row"><span style="flex:1"><b>🏠 We leave home at</b><br><span class="small">All trip times adjust to this</span></span>
       <input type="time" id="leaveTime" class="np-select" style="width:auto"><button class="mini" id="leaveNow" style="margin:0">Now</button></div></div>
@@ -578,6 +586,7 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
     <div class="card" id="costBox" style="display:none"></div>
     <div class="card" id="tripMaker"></div>
     <div id="trips"></div>
+    </div>
   </section>
 
   <!-- NO CHEESE -->
@@ -1177,9 +1186,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.4";            // bump on every release
+const APP_VERSION="6.5";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.5","✈️ Flights (scan your boarding pass from Google Wallet), 🏠 everyday groups for friends at home, place info in your language (translated when needed), and more offline: posts wait and send later, I'm OK and SOS by text message, last departures, road info and train times stay visible without internet"],
  ["6.4","Several travel groups (switch at the top of Group, location sharing per group), a nicer trip summary like Polarsteps, and a food needs card (no cheese, lactose, vegetarian, vegan, gluten, nuts, pork, fish) in the language of the country you're in"],
  ["6.3","Group: locations now update by themselves every 15 s, a clear Update button, an 📍 Ask button to request someone's location, and sharing keeps sending even when you sit still. Home mode now follows where you live (set it in ⚙️), in any country"],
  ["6.2","New name and logo: Out & Back. Your data, places and group stay as they are"],
@@ -1512,7 +1522,7 @@ document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest
   document.querySelectorAll("#nSeg button").forEach(x=>x.classList.toggle("on",x===s));
   document.querySelectorAll("#v-shops [data-npane]").forEach(p=>p.hidden=p.dataset.npane!==s.dataset.nseg);window.scrollTo(0,0);});
 document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#hdrInfo"))showTab("tips");if(e.target.closest&&e.target.closest("#infoBack"))showTab(prevTab||"dest");});
-function showTab(v){if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}document.body.classList.toggle("tab-map",v==="map");document.body.classList.toggle("tab-dest",v==="dest");
+function showTab(v){if(v==="trips"&&typeof appMode==="function"&&appMode()==="home"){setTimeout(()=>{const f=document.querySelector('[data-tseg="flights"]');if(f)f.click();},0);}if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}document.body.classList.toggle("tab-map",v==="map");document.body.classList.toggle("tab-dest",v==="dest");
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));
   window.scrollTo(0,0); if(v==="map"){drawMap();if(mode==="street"&&ml)setTimeout(()=>ml.resize(),50);}
@@ -2641,16 +2651,26 @@ const saveDesc=()=>{try{const ks=Object.keys(DESC);if(ks.length>900)for(const k 
 const descBusy=new Map();
 function builtInText(o){if(!o||(o.kind!=="sight"&&o.kind!=="gem"))return null;const base=Object.getPrototypeOf(o)&&Object.getPrototypeOf(o).desc;const d=typeof o.desc==="string"&&o.desc.length>25?o.desc:(typeof base==="string"?base:null);return d;}
 function shortText(s,n){s=(s||"").replace(/\s*\([^)]{0,80}\)/g,"").replace(/\s+/g," ").trim();if(s.length<=n)return s;const cut=s.slice(0,n);const i=Math.max(cut.lastIndexOf(". "),cut.lastIndexOf("! "));return (i>120?cut.slice(0,i+1):cut.replace(/\s+\S*$/,"")+"…");}
+/* Info language: the Wikipedia article in your language when it exists, otherwise the local one translated (and saved for offline). */
+var INFO_LANG="en";try{INFO_LANG=localStorage.getItem("pt-infolang")||"en";}catch(e){}
+const INFO_LANGS=[["en","English"],["nl","Nederlands"],["it","Italiano"],["de","Deutsch"],["fr","Français"],["es","Español"],["pt","Português"]];
+async function translateText(txt,from,to){if(!txt||from===to)return txt;
+  const parts=[];let cur="";for(const s of txt.split(/(?<=[.!?])\s+/)){if((cur+" "+s).length>440&&cur){parts.push(cur);cur=s;}else cur=cur?cur+" "+s:s;}if(cur)parts.push(cur);
+  const out=[];for(const q of parts){const j=JSON.parse(await netGet(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(q)}&langpair=${from}|${to}`,15000));
+    const t=j&&j.responseData&&j.responseData.translatedText;if(!t||/MYMEMORY WARNING|QUERY LENGTH LIMIT/i.test(t))throw new Error("translation limit reached for today");out.push(t);}
+  return out.join(" ");}
 async function wikiExtract(lang,title){
-  const j=JSON.parse(await netGet(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&redirects=1&prop=extracts|langlinks&exintro=1&explaintext=1&lllang=en&titles=${encodeURIComponent(title)}`,15000));
+  const j=JSON.parse(await netGet(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&redirects=1&prop=extracts|langlinks&exintro=1&explaintext=1&lllang=${INFO_LANG}&titles=${encodeURIComponent(title)}`,15000));
   const pg=Object.values((j.query&&j.query.pages)||{})[0]||{};
-  if(lang!=="en"&&pg.langlinks&&pg.langlinks[0]){const en=pg.langlinks[0]["*"];try{const r=await wikiExtract("en",en);if(r&&r.t)return r;}catch(e){}}
-  return pg.extract?{t:shortText(pg.extract,700),l:lang}:null;
+  if(lang!==INFO_LANG&&pg.langlinks&&pg.langlinks[0]){const t2=pg.langlinks[0]["*"];try{const r=await wikiExtract(INFO_LANG,t2);if(r&&r.t)return r;}catch(e){}}
+  if(!pg.extract)return null;const t=shortText(pg.extract,700);
+  if(lang!==INFO_LANG){try{return {t:await translateText(t,lang,INFO_LANG),l:lang,tl:INFO_LANG,mt:1,orig:t};}catch(e){return {t,l:lang,tl:lang};}}
+  return {t,l:lang,tl:INFO_LANG};
 }
 async function findDesc(o){
   let ref=o.wk||null;if(ref&&!/^Q\d+$/.test(ref)&&!/^[a-z]{2,3}:.+/.test(ref))ref=null;
-  if(ref&&/^Q\d+$/.test(ref)){const j=JSON.parse(await netGet(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ref}&props=sitelinks&sitefilter=enwiki|itwiki&format=json`,15000));
-    const sl=((j.entities||{})[ref]||{}).sitelinks||{};ref=sl.enwiki?"en:"+sl.enwiki.title:sl.itwiki?"it:"+sl.itwiki.title:null;}
+  if(ref&&/^Q\d+$/.test(ref)){const j=JSON.parse(await netGet(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ref}&props=sitelinks&sitefilter=${INFO_LANG}wiki|enwiki|itwiki|nlwiki&format=json`,15000));
+    const sl=((j.entities||{})[ref]||{}).sitelinks||{},mine=sl[INFO_LANG+"wiki"];ref=mine?INFO_LANG+":"+mine.title:sl.enwiki?"en:"+sl.enwiki.title:sl.itwiki?"it:"+sl.itwiki.title:sl.nlwiki?"nl:"+sl.nlwiki.title:null;}
   if(!ref){ // look for a Wikipedia article right at this spot with a matching name
     const j=JSON.parse(await netGet(`https://it.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${o.ll[0]}|${o.ll[1]}&gsradius=300&gslimit=20&format=json`,15000));
     const g=((j.query&&j.query.geosearch)||[]).map(g=>({g,s:Math.max(nameScore(o.label,g.title),nameScore(g.title,o.label))})).filter(x=>x.s>=0.5).sort((a,b)=>b.s-a.s)[0];
@@ -2660,7 +2680,7 @@ async function findDesc(o){
 }
 function getDesc(id){
   const o=POIMAP[id];if(!o)return Promise.resolve(null);
-  if(DESC[id])return Promise.resolve(DESC[id]);
+  if(DESC[id]&&(DESC[id].l==="app"||DESC[id].l==="none"||(DESC[id].tl||DESC[id].l)===INFO_LANG||!window.AndroidNet||navigator.onLine===false))return Promise.resolve(DESC[id]);
   const b=builtInText(o);
   if(!window.AndroidNet||o.kind==="station")return Promise.resolve(b?{t:b,l:"app"}:null);
   if(descBusy.has(id))return descBusy.get(id);
@@ -2670,14 +2690,16 @@ function getDesc(id){
 }
 function aboutHTML(r){
   if(!r||!r.t)return r&&r.l==="err"?`⚠ Couldn't load the explanation (${r.e}). It needs internet the first time, then it's saved.`:"No explanation for this place yet.";
-  return `${r.t}<span class="src">${r.l==="app"?"From the app's own notes":r.l==="it"?"From Italian Wikipedia":"From Wikipedia"}</span>`;}
+  const LN={en:"English",it:"Italian",nl:"Dutch",de:"German",fr:"French",es:"Spanish",pt:"Portuguese"};
+  return `${escH(r.t)}<span class="src">${r.l==="app"?"From the app's own notes":r.mt?`From ${LN[r.l]||r.l} Wikipedia, machine-translated (MyMemory)`:r.l===INFO_LANG?"From Wikipedia":`From ${LN[r.l]||r.l} Wikipedia${navigator.onLine===false?" · translation needs internet":""}`}</span>${r.orig?`<details class="orig"><summary>Original text</summary>${escH(r.orig)}</details>`:""}`;}
 async function toggleAbout(btn){
   const box=btn.nextElementSibling;if(!box)return;
   if(!box.hidden){box.hidden=true;btn.textContent="About this place ▸";return;}
   box.hidden=false;btn.textContent="About this place ▾";
   const id=btn.dataset.about,cached=DESC[id];
-  if(cached){box.innerHTML=aboutHTML(cached);return;}
-  box.textContent=window.AndroidNet?"⏳ Loading…":"";const r=await getDesc(id);box.innerHTML=aboutHTML(r);
+  if(cached&&(cached.l==="app"||(cached.tl||cached.l)===INFO_LANG||!window.AndroidNet||navigator.onLine===false)){box.innerHTML=aboutHTML(cached);return;}
+  if(cached)box.innerHTML=aboutHTML(cached)+`<div class="small">⏳ Getting it in your language…</div>`;
+  if(!cached)box.textContent=window.AndroidNet?"⏳ Loading…":"";const r=await getDesc(id);box.innerHTML=aboutHTML(r);
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-about]");if(b){e.preventDefault();e.stopPropagation();toggleAbout(b);}},true);
 const aboutBtn=id=>POIMAP[id]&&POIMAP[id].kind!=="station"?`<button class="about-btn" data-about="${id.replace(/"/g,"&quot;")}">About this place ▸</button><div class="about-txt" hidden></div>`:"";
@@ -3101,6 +3123,9 @@ function countrySet(){return `<div class="dest" style="margin-top:14px">Country 
   <div class="seg">${[["auto","Auto"],["it","🇮🇹 Italy"],["nl","🇳🇱 NL"],["xx","Neutral"]].map(([k,l])=>`<button data-cset="${k}" class="${SET_COUNTRY===k?"on":""}">${l}</button>`).join("")}</div>
   <div class="dest" style="margin-top:14px">Mode</div>
   <div class="seg">${[["auto","Auto"],["travel","🧳 Travel"],["home","🏠 Home"]].map(([k,l])=>`<button data-mset="${k}" class="${SET_MODE===k?"on":""}">${l}</button>`).join("")}</div>
+  <div class="dest" style="margin-top:14px">Language for place info</div>
+  <select class="np-select" id="infoLang">${INFO_LANGS.map(([k,l])=>`<option value="${k}" ${INFO_LANG===k?"selected":""}>${l}</option>`).join("")}</select>
+  <div class="small" style="margin-top:4px">Explanations about sights come from Wikipedia in this language. If a place only has a local article, it's translated automatically and saved, so it also works offline later.</div>
   <div class="dest" style="margin-top:14px">Where you live</div>
   <div class="small">${NLHOME?`🏠 ${escH(NLHOME.name||"Home")}${me?` · ${kmTxt(hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon]))} from here`:""}`:"Not set yet."}</div>
   <div class="btns"><button class="btn ghost" id="setHomeBtn">🏠 ${NLHOME?"Move home to":"Set home to"} where I am now</button>${NLHOME?`<button class="btn ghost" id="clrHomeBtn">Clear</button>`:""}</div>
@@ -3147,6 +3172,13 @@ var NLHOME=null,SAVED=[],HWX=null,PLACE_NM={};
 try{NLHOME=JSON.parse(localStorage.getItem("pt-home"))||null;SAVED=JSON.parse(localStorage.getItem("pt-routes"))||[];HWX=JSON.parse(localStorage.getItem("pt-hwx"))||null;PLACE_NM=JSON.parse(localStorage.getItem("pt-placenm"))||{};}catch(e){}
 const saveRoutes=()=>{try{localStorage.setItem("pt-routes",JSON.stringify(SAVED));}catch(e){}};
 var nlDep={busy:false,err:"",list:null,at:0},nlRoad={busy:false,err:"",list:null,at:0},nlPlan={to:null,busy:false,err:"",its:null,open:-1,sugg:[],q:""},nlRouteRes={};
+/* last results are kept on the phone: without internet you still see departures, road messages and connections from the last check, with their time */
+var NLC={};try{NLC=JSON.parse(localStorage.getItem("pt-nlcache"))||{};}catch(e){}
+const saveNLC=()=>{try{localStorage.setItem("pt-nlcache",JSON.stringify(NLC));}catch(e){}};
+if(NLC.dep){nlDep.list=NLC.dep.list.filter(s=>Date.parse(s.place.departure||s.place.scheduledDeparture)>=Date.now()-60e3);nlDep.at=NLC.dep.at;nlDep.cached=true;}
+if(NLC.road&&Date.now()-NLC.road.at<6*3600e3){nlRoad.list=NLC.road.list;nlRoad.at=NLC.road.at;nlRoad.cached=true;}
+if(NLC.routes)for(const [k,v] of Object.entries(NLC.routes))nlRouteRes[k]={...v,cached:true};
+const offNote=(at,cached)=>cached||navigator.onLine===false?`<div class="small" style="margin:2px 0 4px">📴 ${navigator.onLine===false?"No internet: ":""}saved ${at?hmI(new Date(at).toISOString()):""}${at&&Date.now()-at>86400e3?" ("+Math.round((Date.now()-at)/86400e3)+" d ago)":""}</div>`:"";
 
 function renderNL(){
   const b=document.getElementById("nlHome");if(!b)return;
@@ -3182,7 +3214,8 @@ function renderNlNow(){const b=document.getElementById("nlNow");if(!b)return;
   {const ht=document.getElementById("hdrTitle");if(ht)ht.textContent="📍 "+(nm||"Here");}
   if(cur){let [ic,tx]=WMO(cur.weather_code);if(cur.is_day===0&&cur.weather_code<=2){ic="🌙";tx=cur.weather_code===0?"Clear":"Partly cloudy";}
     const r=rainSoon(j);
-    wx=`<div class="wx"><span class="wi">${ic}</span><span><b>${Math.round(cur.temperature_2m)}°</b> now · ${tx}${d?`, ${Math.round(d.temperature_2m_min[0])}–${Math.round(d.temperature_2m_max[0])}°`:""}${cur.wind_speed_10m>=40?" · 💨 windy":""}</span>
+    const old=Date.now()-HWX.ts>3*3600e3;
+    wx=`${old||navigator.onLine===false?offNote(HWX.ts,true):""}<div class="wx"><span class="wi">${ic}</span><span><b>${Math.round(cur.temperature_2m)}°</b> ${old?"then":"now"} · ${tx}${d?`, ${Math.round(d.temperature_2m_min[0])}–${Math.round(d.temperature_2m_max[0])}°`:""}${cur.wind_speed_10m>=40?" · 💨 windy":""}</span>
       ${d&&d.time[1]?`<span>Tomorrow ${WMO(d.weather_code[1])[0]} ${Math.round(d.temperature_2m_min[1])}–${Math.round(d.temperature_2m_max[1])}°${d.precipitation_sum[1]>=1?` · 🌂 ${Math.round(d.precipitation_sum[1])} mm`:" · dry"}</span>`:""}</div>
       ${r?`<div class="rain"><b>${r.txt}</b>${r.bars}</div>`:""}`;}
   const away=NLHOME&&me?hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon]):null;
@@ -3205,13 +3238,13 @@ const ROAD_KIND=r=>{const t=r.type||"",a=r.abnormalTrafficType||"",m=r.roadOrCar
 function routeCorridor(a,b2){const pts=[],n=Math.max(1,Math.ceil(hav([a.lat,a.lon],[b2.lat,b2.lon])/8));for(let i=0;i<=n;i++)pts.push([a.lat+(b2.lat-a.lat)*i/n,a.lon+(b2.lon-a.lon)*i/n,4]);return pts;}
 var roadKey=0;
 function loadNlRoad(){if(!me||curCountry()!=="nl")return;if(!window.AndroidRoad){nlRoad.err="Road info works in the Android app.";return renderNlRoad();}
-  if(navigator.onLine===false){nlRoad.err="No internet: road info needs a connection.";return renderNlRoad();}
+  if(navigator.onLine===false){if(nlRoad.list){nlRoad.cached=true;nlRoad.err="";}else nlRoad.err="📴 No internet: road info needs a connection.";return renderNlRoad();}
   nlRoad.busy=true;nlRoad.err="";renderNlRoad();const key="r"+(++roadKey);
   const pts=[[me.lat,me.lon,25]];if(NLHOME&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>2)pts.push(...routeCorridor(me,NLHOME));
   for(const r of SAVED)pts.push(...routeCorridor(r.a,r.b));
   window.onRoadResult=(k,res)=>{if(k!==key)return;nlRoad.busy=false;if(!res.ok){nlRoad.err=res.error||"Road info didn't load";return renderNlRoad();}
     const now=Date.now();nlRoad.list=(res.list||[]).filter(r=>{const s=r.overallStartTime?Date.parse(r.overallStartTime):0,e=r.overallEndTime?Date.parse(r.overallEndTime):0;return (!s||s<=now+5*60e3)&&(!e||e>=now)&&ROAD_KIND(r);});
-    nlRoad.at=now;renderNlRoad();renderNlSaved();};
+    nlRoad.at=now;nlRoad.cached=false;NLC.road={list:nlRoad.list,at:now};saveNLC();renderNlRoad();renderNlSaved();};
   try{window.AndroidRoad.near(JSON.stringify(pts),25,key);}catch(e){nlRoad.busy=false;nlRoad.err="Road info isn't available";renderNlRoad();}}
 var roadAll=false;
 function roadRow(r){const k=ROAD_KIND(r);const len=r.queueLength?` · ${(r.queueLength/1000).toFixed(r.queueLength<10000?1:0)} km`:"";const since=r.overallStartTime?` · since ${hmI(r.overallStartTime)}`:"";
@@ -3220,17 +3253,20 @@ function renderNlRoad(){const b=document.getElementById("nlRoad");if(!b)return;
   const L=nlRoad.list||[],nearL=me?L.filter(r=>hav([me.lat,me.lon],[r.lat,r.lon])<=25):[],imp=nearL.filter(r=>ROAD_KIND(r)[2]<2),works=nearL.filter(r=>ROAD_KIND(r)[2]===2);
   const shown=roadAll?nearL:imp.slice(0,6);segBadge("roads",imp.length);
   b.innerHTML=`<div class="trip-h"><div class="dest">🚗 Roads near you</div>${nlRoad.at&&!nlRoad.busy?`<span class="badge">${hmI(new Date(nlRoad.at).toISOString())}</span>`:""}</div>
-    ${nlRoad.busy?`<div class="small">⏳ Getting live road info…</div>`:nlRoad.err?`<div class="live-err">${escH(nlRoad.err)}</div>`:
+    ${!nlRoad.busy&&nlRoad.list?offNote(nlRoad.at,nlRoad.cached):""}${nlRoad.busy?`<div class="small">⏳ Getting live road info…</div>`:nlRoad.err?`<div class="live-err">${escH(nlRoad.err)}</div>`:
       !nlRoad.list?`<div class="small">${me?"":"Waiting for your location…"}</div>`:
       !imp.length&&!roadAll?`<div class="small" style="padding:4px 0">✅ No jams, accidents or closures within 25 km.${works.length?` ${works.length} roadworks.`:""}</div>`:shown.map(roadRow).join("")}
     <div class="btns">${nearL.length>shown.length||roadAll?`<button class="btn ghost" id="rdAll">${roadAll?"Show less":`All ${nearL.length} messages (incl. roadworks)`}</button>`:""}<button class="btn ghost" id="rdRef">🔄 Refresh</button></div>`;
   const a=b.querySelector("#rdAll");if(a)a.onclick=()=>{roadAll=!roadAll;renderNlRoad();};b.querySelector("#rdRef").onclick=loadNlRoad;}
 
 /* ---------- Departures near me (Transitous) ---------- */
-async function loadNlDep(){if(!me||nlDep.busy)return;nlDep.busy=true;nlDep.err="";renderNlDep();
+async function loadNlDep(){if(!me||nlDep.busy)return;
+  if(navigator.onLine===false){if(nlDep.list){nlDep.list=nlDep.list.filter(s=>Date.parse(s.place.departure||s.place.scheduledDeparture)>=Date.now()-60e3);nlDep.cached=true;nlDep.err="";}else nlDep.err="📴 No internet, and no saved departures for here yet.";return renderNlDep();}
+  nlDep.busy=true;nlDep.err="";renderNlDep();
   try{const j=await trGet(`/v6/stoptimes?center=${me.lat.toFixed(5)},${me.lon.toFixed(5)}&radius=700&exactRadius=true&n=16`);
-    const now=Date.now();nlDep.list=(j.stopTimes||[]).filter(s=>s.place&&Date.parse(s.place.departure||s.place.scheduledDeparture)>=now-60e3).sort((a,c)=>Date.parse(a.place.departure)-Date.parse(c.place.departure)).slice(0,14);nlDep.at=now;}
-  catch(e){nlDep.err=e.message;}nlDep.busy=false;renderNlDep();}
+    const now=Date.now();nlDep.list=(j.stopTimes||[]).filter(s=>s.place&&Date.parse(s.place.departure||s.place.scheduledDeparture)>=now-60e3).sort((a,c)=>Date.parse(a.place.departure)-Date.parse(c.place.departure)).slice(0,14);nlDep.at=now;nlDep.cached=false;
+    NLC.dep={list:(j.stopTimes||[]).slice(0,40),at:now,ll:[me.lat,me.lon]};saveNLC();}
+  catch(e){if(nlDep.list&&NLC.dep&&hav([me.lat,me.lon],NLC.dep.ll)<1.5){nlDep.cached=true;nlDep.err="";}else nlDep.err=e.message;}nlDep.busy=false;renderNlDep();}
 function depRow(s){const p=s.place,dl=s.realTime&&p.scheduledDeparture?Math.round((Date.parse(p.departure)-Date.parse(p.scheduledDeparture))/60e3):null;
   const line=s.routeShortName||s.displayName||s.tripShortName||"";const col=s.routeColor?`background:#${s.routeColor};color:#${s.routeTextColor||"fff"}`:"";
   const tr=p.track||p.scheduledTrack;const gone=s.cancelled||s.tripCancelled;
@@ -3238,7 +3274,7 @@ function depRow(s){const p=s.place,dl=s.realTime&&p.scheduledDeparture?Math.roun
     <span>${gone?`<span class="dl late">cancelled</span>`:dl!=null?`<span class="dl ${dl>0?"late":"ok"}">${dl>0?"+"+dl+" min":"on time"}</span>`:""}</span></div>`;}
 function renderNlDep(){const b=document.getElementById("nlDep");if(!b)return;
   b.innerHTML=`<div class="trip-h"><div class="dest">🚏 Departures near you</div>${nlDep.at&&!nlDep.busy?`<span class="badge">${hmI(new Date(nlDep.at).toISOString())}</span>`:""}</div>
-    ${nlDep.busy?`<div class="small">⏳ Looking up stops around you…</div>`:nlDep.err?`<div class="live-err">${escH(nlDep.err)}</div>`:nlDep.list?(nlDep.list.length?nlDep.list.map(depRow).join(""):`<div class="small">No departures from stops within 700 m in the next while.</div>`):`<div class="small">${me?"":"Waiting for your location…"}</div>`}
+    ${!nlDep.busy&&nlDep.list?offNote(nlDep.at,nlDep.cached):""}${nlDep.busy?`<div class="small">⏳ Looking up stops around you…</div>`:nlDep.err?`<div class="live-err">${escH(nlDep.err)}</div>`:nlDep.list?(nlDep.list.length?nlDep.list.map(depRow).join(""):`<div class="small">No departures from stops within 700 m in the next while.</div>`):`<div class="small">${me?"":"Waiting for your location…"}</div>`}
     <div class="btns"><button class="btn ghost" id="ndRef">🔄 Refresh</button></div>`;
   b.querySelector("#ndRef").onclick=loadNlDep;}
 
@@ -3274,15 +3310,16 @@ async function planNl(time){const P=nlPlan;if(!me||!P.to)return;P.busy=true;P.er
 /* ---------- Saved routes (incl. Home) ---------- */
 function routesList(){const L=[];if(NLHOME&&me&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>1)L.push({id:"home",name:"🏠 Home",a:{name:hereName()||"Here",lat:me.lat,lon:me.lon},b:NLHOME,home:true});return L.concat(SAVED);}
 function routeDir(r){if(r.home||!me)return [r.a,r.b];return hav([me.lat,me.lon],[r.a.lat,r.a.lon])<=hav([me.lat,me.lon],[r.b.lat,r.b.lon])?[r.a,r.b]:[r.b,r.a];}
-async function routeNext(r){const [f,t]=routeDir(r);const from=me&&hav([me.lat,me.lon],[f.lat,f.lon])<3?me:f;nlRouteRes[r.id]={busy:true};renderNlSaved();
-  try{const j=await trGet(`/v6/plan?fromPlace=${from.lat.toFixed(5)},${from.lon.toFixed(5)}&toPlace=${t.lat},${t.lon}`);nlRouteRes[r.id]={its:(j.itineraries||[]).filter(i=>(i.legs||[]).some(l=>l.mode!=="WALK")).slice(0,3),at:Date.now()};}
+async function routeNext(r){if(navigator.onLine===false){if(nlRouteRes[r.id]&&nlRouteRes[r.id].its){nlRouteRes[r.id].cached=true;}else nlRouteRes[r.id]={err:"📴 No internet, no saved connections for this route yet."};return renderNlSaved();}
+  const [f,t]=routeDir(r);const from=me&&hav([me.lat,me.lon],[f.lat,f.lon])<3?me:f;nlRouteRes[r.id]={busy:true};renderNlSaved();
+  try{const j=await trGet(`/v6/plan?fromPlace=${from.lat.toFixed(5)},${from.lon.toFixed(5)}&toPlace=${t.lat},${t.lon}`);nlRouteRes[r.id]={its:(j.itineraries||[]).filter(i=>(i.legs||[]).some(l=>l.mode!=="WALK")).slice(0,3),at:Date.now()};NLC.routes=NLC.routes||{};NLC.routes[r.id]=nlRouteRes[r.id];saveNLC();}
   catch(e){nlRouteRes[r.id]={err:e.message};}renderNlSaved();}
 function renderNlSaved(){const b=document.getElementById("nlSaved");if(!b)return;const L=routesList();
   b.innerHTML=`<div class="trip-h"><div class="dest">⭐ My routes</div></div>${!L.length?`<div class="small">Plan a trip above and tap ⭐ Save route, e.g. home ⇄ work. ${NLHOME?"":"Set your home in the card at the top to get a Home route."}</div>`:""}
     ${L.map(r=>{const [f,t]=routeDir(r),R=nlRouteRes[r.id]||{};const onWay=(nlRoad.list||[]).filter(x=>routeCorridor(f,t).some(p=>hav([p[0],p[1]],[x.lat,x.lon])<=4)&&ROAD_KIND(x)[2]<2);
       return `<div class="rt"><div class="rt-h"><b>${escH(r.name)}</b><span class="tr">to ${escH(t.name)}</span>${r.home?"":`<button class="mini" data-rdel="${r.id}" aria-label="Delete route">✕</button>`}</div>
         ${onWay.length?`<div class="rt-warn">⚠️ ${onWay.length} traffic message${onWay.length>1?"s":""} on the way: ${onWay.slice(0,2).map(x=>`${x.roadNumber||""} ${ROAD_KIND(x)[1].toLowerCase()}`).join(", ")}</div>`:curCountry()==="nl"&&nlRoad.list?`<div class="tr" style="margin:2px 0">✅ No jams or closures on the way</div>`:""}
-        ${R.busy?`<div class="small">⏳ …</div>`:R.err?`<div class="live-err">${escH(R.err)}</div>`:R.its?(R.its.length?R.its.map(it=>`<div class="tr">🚆 ${hmI(it.startTime)} → ${hmI(it.endTime)} · ${minsTxt(it.duration)} · ${(it.legs||[]).filter(l=>l.mode!=="WALK").map(l=>MODE_IC(l.mode)+" "+escH(l.routeShortName||l.displayName||"")).join(" › ")}</div>`).join(""):`<div class="small">No connection found.</div>`):""}
+        ${R.its&&!R.busy?offNote(R.at,R.cached):""}${R.busy?`<div class="small">⏳ …</div>`:R.err?`<div class="live-err">${escH(R.err)}</div>`:R.its?(R.its.length?R.its.map(it=>`<div class="tr">🚆 ${hmI(it.startTime)} → ${hmI(it.endTime)} · ${minsTxt(it.duration)} · ${(it.legs||[]).filter(l=>l.mode!=="WALK").map(l=>MODE_IC(l.mode)+" "+escH(l.routeShortName||l.displayName||"")).join(" › ")}</div>`).join(""):`<div class="small">No connection found.</div>`):""}
         <div class="btns"><button class="btn ghost" data-rnext="${r.id}">🚆 Next connections</button><a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&origin=${me&&!r.home&&hav([me.lat,me.lon],[f.lat,f.lon])>3?f.lat+","+f.lon:""}&destination=${t.lat},${t.lon}&travelmode=driving">🚗 Drive (traffic)</a></div></div>`;}).join("")}`;
   b.querySelectorAll("[data-rnext]").forEach(x=>x.onclick=()=>{const r=routesList().find(y=>y.id===x.dataset.rnext);if(r)routeNext(r);});
   b.querySelectorAll("[data-rdel]").forEach(x=>x.onclick=()=>{if(x.dataset.sure){SAVED=SAVED.filter(r=>r.id!==x.dataset.rdel);saveRoutes();renderNlSaved();}else{x.dataset.sure=1;x.textContent="Delete?";}});
@@ -3319,7 +3356,7 @@ const DIET_LANG={
    q:x=>`Tem ${x}?`,w:x=>`Sem ${x}, por favor`,can:"Pode ser sem?",
    i:{cheese:["queijo (nem queijo ralado por cima)","queijo"],lactose:["leite e laticínios (leite, natas, manteiga, queijo, iogurte): tenho intolerância à lactose","leite ou laticínios"],veg:["carne e peixe (sou vegetariano/a), nem caldo de carne","carne ou peixe"],vegan:["nenhum produto animal: carne, peixe, ovos, leite, queijo, manteiga, mel","produtos animais"],gluten:["glúten (sou celíaco/a): pão, massa, farinha, pão ralado","glúten"],nuts:["frutos secos: amêndoas, nozes, avelãs, pistácios, amendoins","frutos secos"],pork:["carne de porco (nem fiambre, bacon, chouriço)","porco"],fish:["peixe e marisco","peixe ou marisco"]}}};
 const CC_LANGS={it:["it"],sm:["it"],va:["it"],nl:["nl"],be:["nl","fr"],de:["de"],at:["de"],ch:["de","fr","it"],li:["de"],lu:["fr","de"],fr:["fr"],mc:["fr"],es:["es"],ad:["es"],pt:["pt"],br:["pt"],gb:["en"],ie:["en"],us:["en"],mt:["en"],ca:["en","fr"]};
-var DIET=["cheese"],DIET_CC="",DIET_LANGSEL=null;
+var DIET=[],DIET_CC="",DIET_LANGSEL=null;
 try{const d=JSON.parse(localStorage.getItem("pt-diet"));if(Array.isArray(d))DIET=d;DIET_CC=localStorage.getItem("pt-cc")||"";}catch(e){}
 function dietLangs(){if(DIET_LANGSEL)return [DIET_LANGSEL];const cc=DIET_CC||({it:"it",nl:"nl"}[curCountry()]||"");return (CC_LANGS[cc]||["en"]).filter(l=>DIET_LANG[l]);}
 var ccAt=null;
@@ -3339,7 +3376,7 @@ function renderDiet(){const b=document.getElementById("dietBox");if(!b)return;
     <div class="chips" style="padding-top:0">${DIET_KEYS.map(([k,ic,lb])=>`<button class="chip ${DIET.includes(k)?"on":""}" data-diet="${k}">${ic} ${lb}</button>`).join("")}</div>
     <div class="sortbar" style="margin:2px 0 4px">Language: <button class="${!DIET_LANGSEL?"on":""}" data-dlang="">Here (${(CC_LANGS[DIET_CC||({it:"it",nl:"nl"}[curCountry()]||"")]||["en"]).map(l=>DIET_LANG[l]?DIET_LANG[l].n:l).join(" + ")})</button>
       <select id="dLangSel" class="np-select" style="width:auto;padding:4px 8px;font-size:13px">${Object.entries(DIET_LANG).map(([k,v])=>`<option value="${k}" ${DIET_LANGSEL===k?"selected":""}>${v.n}</option>`).join("")}</select></div>
-    ${!ks.length?`<div class="card small">Tick what you can't eat above, then show the card to the waiter.</div>`:`<p class="small" style="margin:0">Tap a card to show it full-screen to the waiter.</p>${langs.map(dietCard).join("")}
+    ${!ks.length?`<div class="card"><div class="dest">What can't you eat?</div><div class="small" style="margin-top:4px">Tap one or more above. The app then makes a card in the local language that you can show to the waiter, plus a few handy phrases.</div></div>`:`<p class="small" style="margin:0">Tap a card to show it full-screen to the waiter.</p>${langs.map(dietCard).join("")}
     <div class="card">${ks.map(k=>`<div class="phr"><span>${DIET_LANG.en.q(DIET_LANG.en.i[k[0]][1])}</span><i>${L0.q(L0.i[k[0]][1])}</i></div><div class="phr"><span>${DIET_LANG.en.w(DIET_LANG.en.i[k[0]][1])}</span><i>${L0.w(L0.i[k[0]][2]||L0.i[k[0]][1])}</i></div>`).join("")}
       <div class="phr"><span>${DIET_LANG.en.can}</span><i>${L0.can}</i></div></div>`}`;
   const cheeseIt=DIET.includes("cheese")&&langs.includes("it");document.querySelectorAll(".cheese-it").forEach(x=>x.style.display=cheeseIt?"":"none");}
@@ -3347,8 +3384,107 @@ document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest
   const d=e.target.closest&&e.target.closest("[data-diet]");if(d){const k=d.dataset.diet;DIET=DIET.includes(k)?DIET.filter(x=>x!==k):[...DIET,k];
     try{localStorage.setItem("pt-diet",JSON.stringify(DIET));}catch(x){}renderDiet();return;}
   const g=e.target.closest&&e.target.closest("[data-dlang]");if(g){DIET_LANGSEL=null;renderDiet();}});
-document.addEventListener("change",e=>{if(e.target&&e.target.id==="dLangSel"){DIET_LANGSEL=e.target.value;renderDiet();}});
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="infoLang"){INFO_LANG=e.target.value;try{localStorage.setItem("pt-infolang",INFO_LANG);}catch(x){}toast("Place info will now be in "+e.target.selectedOptions[0].textContent);return;}if(e.target&&e.target.id==="dLangSel"){DIET_LANGSEL=e.target.value;renderDiet();}});
 setTimeout(renderDiet,0);
+
+/* ---------- FLIGHTS: import from a boarding-pass screenshot (barcode), or by flight number ---------- */
+const AIRLINES={FR:["Ryanair","https://www.ryanair.com/check-in"],U2:["easyJet","https://www.easyjet.com/en/manage-bookings"],EC:["easyJet Europe","https://www.easyjet.com/en/manage-bookings"],W6:["Wizz Air","https://wizzair.com/#/check-in"],W4:["Wizz Air Malta","https://wizzair.com/#/check-in"],
+  HV:["Transavia","https://www.transavia.com/en-EU/my-transavia/check-in/"],TO:["Transavia France","https://www.transavia.com/en-EU/my-transavia/check-in/"],KL:["KLM","https://www.klm.com/check-in"],AF:["Air France","https://wwws.airfrance.fr/en/check-in"],AZ:["ITA Airways","https://www.ita-airways.com/en_gb/fly-ita/check-in.html"],
+  VY:["Vueling","https://www.vueling.com/en/manage-your-booking/check-in"],V7:["Volotea","https://www.volotea.com/en/check-in/"],LH:["Lufthansa","https://www.lufthansa.com/check-in"],EW:["Eurowings","https://www.eurowings.com/en/my-trip/check-in.html"],
+  BA:["British Airways","https://www.britishairways.com/travel/olcilandingpageauthreq/public/en_gb"],IB:["Iberia","https://www.iberia.com/check-in/"],SN:["Brussels Airlines","https://www.brusselsairlines.com/check-in"],LX:["SWISS","https://www.swiss.com/check-in"],
+  OS:["Austrian","https://www.austrian.com/check-in"],TP:["TAP Air Portugal","https://www.flytap.com/check-in"],A3:["Aegean","https://en.aegeanair.com/check-in/"],TK:["Turkish Airlines","https://www.turkishairlines.com/en-int/flights/manage-booking/"],
+  PC:["Pegasus","https://www.flypgs.com/en/online-check-in"],SK:["SAS","https://www.flysas.com/en/check-in/"],DY:["Norwegian","https://www.norwegian.com/en/check-in/"],AY:["Finnair","https://www.finnair.com/check-in"],EI:["Aer Lingus","https://www.aerlingus.com/manage-trip/check-in/"],
+  LS:["Jet2","https://www.jet2.com/checkin"],BT:["airBaltic","https://www.airbaltic.com/en/check-in"],LO:["LOT","https://www.lot.com/check-in"],EK:["Emirates","https://www.emirates.com/english/manage-booking/online-check-in/"],QR:["Qatar Airways","https://www.qatarairways.com/en/manage-booking/check-in.html"],DL:["Delta","https://www.delta.com/check-in"],UA:["United","https://www.united.com/checkin"],AA:["American","https://www.aa.com/reservation/flightCheckInViewReservationsAccess.do"]};
+var FLIGHTS=[];try{FLIGHTS=JSON.parse(localStorage.getItem("pt-flights"))||[];}catch(e){}
+const saveFlights=()=>{try{localStorage.setItem("pt-flights",JSON.stringify(FLIGHTS));}catch(e){}planFlightNotifs();};
+var AP=null;
+function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`)&&src.includes("airports")&&window.PT_AIRPORTS)return res();const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("couldn't load "+src));document.head.appendChild(s);});}
+async function airports(){if(AP)return AP;try{if(!window.PT_AIRPORTS)await loadScript("map/airports.js");}catch(e){return AP={};}
+  AP={};for(const l of String(window.PT_AIRPORTS||"").split("\n")){const [c,n,city,cc,la,lo,link]=l.split("|");if(c)AP[c]={n,city,cc,lat:+la,lon:+lo,link};}return AP;}
+const apName=c=>AP&&AP[c]?(AP[c].city||AP[c].n):c;
+/* IATA bar-coded boarding pass (BCBP, "M1…"): one string per pass, up to 4 flights */
+function parseBCBP(s){s=String(s||"").replace(/\r|\n/g,"");if(!/^M[1-4]/.test(s)||s.length<58)return null;
+  const legs=+s[1],name=s.slice(2,22).trim(),out=[];let p=22+1;
+  for(let i=0;i<legs&&p+37<=s.length;i++){const L={pnr:s.slice(p,p+7).trim(),from:s.slice(p+7,p+10),to:s.slice(p+10,p+13),carrier:s.slice(p+13,p+16).trim(),num:s.slice(p+16,p+21).trim().replace(/^0+/,""),jday:+s.slice(p+21,p+24),cls:s.slice(p+24,p+25),seat:s.slice(p+25,p+29).trim().replace(/^0+/,""),seq:s.slice(p+29,p+34).trim().replace(/^0+/,"")};
+    const vs=parseInt(s.slice(p+35,p+37),16)||0;p+=37+vs;if(/^[A-Z]{3}$/.test(L.from)&&/^[A-Z]{3}$/.test(L.to)&&L.carrier)out.push({...L,name:name.replace("/"," ").replace(/\s+/g," ")});}
+  return out.length?out:null;}
+function jdayDate(j){const now=new Date();let best=null;for(const y of [now.getFullYear()-1,now.getFullYear(),now.getFullYear()+1]){const d=new Date(y,0,1);d.setDate(j);const diff=(d-now)/864e5;if(diff>-120&&diff<330&&(!best||Math.abs(diff)<Math.abs((best-now)/864e5)))best=d;}
+  const d=best||new Date(now.getFullYear(),0,j);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function addFlight(f){const k=f.carrier+f.num+f.date;const ex=FLIGHTS.find(x=>x.carrier+x.num+x.date===k);if(ex){Object.assign(ex,Object.fromEntries(Object.entries(f).filter(([a,b])=>b)));}else FLIGHTS.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),...f});
+  FLIGHTS.sort((a,b)=>(a.date+(a.dep||""))<(b.date+(b.dep||""))?-1:1);saveFlights();}
+async function decodeImage(file){
+  await loadScript("map/zxing.min.js");const Z=window.ZXing;if(!Z)throw new Error("Barcode reader missing");
+  const url=URL.createObjectURL(file),img=new Image();await new Promise((r,j)=>{img.onload=r;img.onerror=()=>j(new Error("Couldn't open the picture"));img.src=url;});
+  const hints=new Map();hints.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.PDF_417,Z.BarcodeFormat.AZTEC,Z.BarcodeFormat.QR_CODE,Z.BarcodeFormat.DATA_MATRIX]);hints.set(Z.DecodeHintType.TRY_HARDER,true);
+  const reader=new Z.MultiFormatReader();reader.setHints(hints);
+  const tryBox=(sx,sy,sw,sh,scale)=>{const c=document.createElement("canvas");c.width=Math.round(sw*scale);c.height=Math.round(sh*scale);const g=c.getContext("2d");g.imageSmoothingEnabled=false;g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);
+    try{return reader.decode(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(c)))).getText();}catch(e){return null;}};
+  const W=img.naturalWidth,H=img.naturalHeight,fit=Math.min(1,1600/Math.max(W,H));
+  const tries=[[0,0,W,H,fit],[0,0,W,H,Math.min(2,2400/Math.max(W,H))]];
+  for(const f of [[0,.25],[.2,.5],[.4,.6],[.55,.45],[0,.5],[.5,.5]])tries.push([0,H*f[0],W,H*f[1],Math.min(2,1600/W)]);
+  for(const t of tries){const r=tryBox(...t);if(r){URL.revokeObjectURL(url);return r;}}
+  URL.revokeObjectURL(url);throw new Error("No boarding-pass barcode found. Make sure the whole barcode is in the screenshot.");}
+async function importText(txt){const legs=parseBCBP(txt.trim());if(legs){await airports();for(const L of legs)addFlight({carrier:L.carrier,num:L.num,from:L.from,to:L.to,date:jdayDate(L.jday),seat:L.seat,pnr:L.pnr,pax:L.name,src:"pass"});return legs.length;}
+  // free text, e.g. from a confirmation e-mail: flight number, date, (AMS) codes
+  const fn=/\b([A-Z][A-Z0-9]|[A-Z0-9][A-Z])\s?(\d{1,4})\b/.exec(txt.toUpperCase()),codes=(txt.match(/\(([A-Z]{3})\)/g)||[]).map(x=>x.slice(1,4));
+  const dm=/(\d{4})-(\d{2})-(\d{2})|(\d{1,2})[\/.\- ](\d{1,2}|[A-Za-z]{3,9})[\/.\- ](\d{2,4})/.exec(txt);
+  if(!fn)return 0;let date="";if(dm){if(dm[1])date=`${dm[1]}-${dm[2]}-${dm[3]}`;else{const M=isNaN(+dm[5])?["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].findIndex(m=>dm[5].toLowerCase().startsWith(m))+1:+dm[5];const y=dm[6].length===2?"20"+dm[6]:dm[6];if(M>0)date=`${y}-${String(M).padStart(2,"0")}-${String(+dm[4]).padStart(2,"0")}`;}}
+  const tm=/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/.exec(txt);
+  addFlight({carrier:fn[1],num:fn[2],from:codes[0]||"",to:codes[1]||"",date:date||localDay(),dep:tm?`${tm[1].padStart(2,"0")}:${tm[2]}`:"",src:"text"});return 1;}
+function flightWhen(f){if(!f.date)return null;const [y,m,d]=f.date.split("-").map(Number);const [h,mi]=(f.dep||"00:00").split(":").map(Number);return new Date(y,m-1,d,h||0,mi||0).getTime();}
+function gcDist(a,b){return hav([a.lat,a.lon],[b.lat,b.lon]);}
+function arcSvg(A,B){const W=320,H=90,x0=28,x1=W-28,y=62,mx=(x0+x1)/2,cy=6;
+  return `<svg viewBox="0 0 ${W} ${H}" class="fl-arc"><path d="M${x0},${y} Q${mx},${cy} ${x1},${y}" fill="none" stroke="var(--line)" stroke-width="3"/><path d="M${x0},${y} Q${mx},${cy} ${x1},${y}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/>
+    <circle cx="${x0}" cy="${y}" r="6" fill="var(--accent)"/><circle cx="${x1}" cy="${y}" r="6" fill="var(--accent)"/><text x="${mx}" y="${cy+30}" text-anchor="middle" font-size="22">✈️</text></svg>`;}
+var flOpen=null,flAdd=false,flMsg="";
+async function renderFlights(){const b=document.getElementById("flBox");if(!b)return;await airports();
+  const now=Date.now(),list=FLIGHTS.slice(),up=list.filter(f=>(flightWhen(f)||0)>now-12*3600e3),past=list.filter(f=>!up.includes(f));
+  const card=f=>{const A=AP[f.from],B=AP[f.to],t=flightWhen(f),al=AIRLINES[f.carrier],code=f.carrier+" "+f.num,dist=A&&B?gcDist(A,B):0,dur=dist?Math.round((dist/780+0.5)*60):0;
+    const dd=t?Math.round((new Date(f.date)-new Date(localDay()))/864e5):null;
+    const when=t?(dd===0?(f.dep?(t>now?`today ${f.dep} · in ${minsTxt((t-now)/1000)}`:`today ${f.dep}`):"today"):dd===1?`tomorrow${f.dep?" "+f.dep:""}`:dd>1?`in ${dd} days`:`${-dd} days ago`):"";
+    const op=flOpen===f.id;
+    return `<div class="card fl"><div class="fl-h" data-flo="${f.id}"><span class="fl-code">✈️ ${escH(code)}</span><span class="tr">${escH(al?al[0]:"")}</span><span class="badge">${escH(when)}</span></div>
+      <div class="fl-route"><div><b>${escH(f.from||"???")}</b><span>${escH(f.from?apName(f.from):"")}</span><i>${escH(f.dep||"")}</i></div>${arcSvg(A,B)}<div style="text-align:right"><b>${escH(f.to||"???")}</b><span>${escH(f.to?apName(f.to):"")}</span><i>${escH(f.arr||(f.dep&&dur?"≈ "+hm(((+f.dep.split(":")[0])*60+(+f.dep.split(":")[1])+dur)%1440):""))}</i></div></div>
+      <div class="fl-meta">${escH(new Date(f.date).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"}))}${dist?` · ${Math.round(dist)} km · ≈ ${minsTxt(dur*60)}`:""}${f.seat?` · seat <b>${escH(f.seat)}</b>`:""}${f.pnr?` · booking <b>${escH(f.pnr)}</b>`:""}</div>
+      ${op?`<div class="fl-more">
+        ${!f.dep?`<div class="np-row" style="margin:6px 0"><span class="small" style="flex:1">Departure time (on your pass)</span><input type="time" class="np-select" style="width:auto" data-fldep="${f.id}"></div>`:`<div class="np-row" style="margin:6px 0"><span class="small" style="flex:1">Departs</span><input type="time" class="np-select" style="width:auto" value="${f.dep}" data-fldep="${f.id}"></div>`}
+        ${f.pax?`<div class="small">Passenger: ${escH(f.pax)}</div>`:""}
+        <div id="flwx-${f.id}" class="small"></div>
+        <div class="btns"><a class="btn ghost" href="https://www.google.com/search?q=${encodeURIComponent(f.carrier+f.num+" flight status")}">🛰 Live status</a><a class="btn ghost" href="https://www.flightradar24.com/data/flights/${(f.carrier+f.num).toLowerCase()}">📡 Flightradar24</a></div>
+        <div class="btns">${al?`<a class="btn ghost" href="${al[1]}">✅ Check in (${escH(al[0])})</a>`:""}${A?`<a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&destination=${A.lat},${A.lon}&travelmode=transit">🚆 To the airport</a>`:""}</div>
+        <div class="btns">${A&&A.link?`<a class="btn ghost" href="${escH(A.link)}">🏢 ${escH(f.from)} airport info</a>`:""}<button class="btn ghost" data-fldel="${f.id}">🗑 Remove</button></div></div>`:""}</div>`;};
+  b.innerHTML=`<div class="card"><div class="trip-h"><div class="dest">✈️ My flights</div></div>
+      <div class="btns"><label class="btn primary" style="cursor:pointer">📷 Scan boarding pass<input type="file" accept="image/*" id="flImg" hidden></label><button class="btn ghost" id="flAddB">✍️ Add by hand</button></div>
+      <div class="small">Take a screenshot of the boarding pass in Google Wallet (or the airline app), then pick it here. The app reads the barcode: flight, route, date, seat and booking code.</div>
+      ${flMsg?`<div class="${/^⚠/.test(flMsg)?"live-err":"small"}" style="margin-top:6px">${escH(flMsg)}</div>`:""}
+      ${flAdd?`<div class="cost-form" style="grid-template-columns:1fr 1fr;margin-top:8px"><input id="flNo" placeholder="Flight (e.g. FR 1234)"><input id="flDate" type="date" value="${localDay()}">
+        <input id="flFrom" placeholder="From (e.g. BDS)" maxlength="3" style="text-transform:uppercase"><input id="flTo" placeholder="To (e.g. EIN)" maxlength="3" style="text-transform:uppercase"><input id="flDep" type="time"><button class="btn primary" id="flSave">Add flight</button></div>
+        <textarea id="flPaste" rows="2" placeholder="…or paste text from your booking e-mail" style="width:100%;margin-top:6px;border:0;background:var(--card2);color:var(--ink);border-radius:10px;padding:10px;font:inherit"></textarea><div class="btns"><button class="btn ghost" id="flPasteGo">Read pasted text</button></div>`:""}</div>
+    ${up.length?up.map(card).join(""):`<div class="card small">No upcoming flights yet.</div>`}
+    ${past.length?`<h2>Past flights</h2>${past.slice(-6).reverse().map(card).join("")}`:""}`;
+  const fi=b.querySelector("#flImg");fi.onchange=async()=>{const f=fi.files&&fi.files[0];if(!f)return;flMsg="Reading the barcode…";renderFlights();
+    try{const txt=await decodeImage(f);const n=await importText(txt);flMsg=n?`✅ Added ${n} flight${n>1?"s":""} from your boarding pass. Add the departure time to get reminders.`:"⚠ The barcode isn't a boarding pass.";const last=FLIGHTS.find(x=>x.src==="pass");if(n&&last)flOpen=last.id;}
+    catch(e){flMsg="⚠ "+e.message;}renderFlights();};
+  b.querySelector("#flAddB").onclick=()=>{flAdd=!flAdd;flMsg="";renderFlights();};
+  const sv=b.querySelector("#flSave");if(sv)sv.onclick=()=>{const m=/([A-Z0-9]{2})\s*(\d{1,4})/i.exec(b.querySelector("#flNo").value||"");if(!m)return toast("Type the flight number, e.g. FR 1234");
+    addFlight({carrier:m[1].toUpperCase(),num:m[2],date:b.querySelector("#flDate").value||localDay(),from:(b.querySelector("#flFrom").value||"").toUpperCase(),to:(b.querySelector("#flTo").value||"").toUpperCase(),dep:b.querySelector("#flDep").value||"",src:"manual"});flAdd=false;flMsg="✅ Flight added";renderFlights();};
+  const pg=b.querySelector("#flPasteGo");if(pg)pg.onclick=async()=>{const n=await importText(b.querySelector("#flPaste").value||"");flMsg=n?"✅ Flight added: check the details below":"⚠ No flight number found in that text";if(n)flAdd=false;renderFlights();};
+  b.querySelectorAll("[data-flo]").forEach(x=>x.onclick=()=>{flOpen=flOpen===x.dataset.flo?null:x.dataset.flo;renderFlights();if(flOpen)flightWx(FLIGHTS.find(f=>f.id===flOpen));});
+  b.querySelectorAll("[data-fldep]").forEach(x=>x.onchange=()=>{const f=FLIGHTS.find(y=>y.id===x.dataset.fldep);if(f){f.dep=x.value;saveFlights();renderFlights();}});
+  b.querySelectorAll("[data-fldel]").forEach(x=>x.onclick=()=>{if(!x.dataset.sure){x.dataset.sure=1;x.textContent="Tap again to remove";return;}FLIGHTS=FLIGHTS.filter(f=>f.id!==x.dataset.fldel);saveFlights();renderFlights();});
+  if(flOpen)flightWx(FLIGHTS.find(f=>f.id===flOpen));
+}
+async function flightWx(f){if(!f||!AP||!AP[f.to]||!window.AndroidNet||navigator.onLine===false)return;const B=AP[f.to],dd=Math.round((new Date(f.date)-new Date(localDay()))/864e5);if(dd<0||dd>14)return;
+  try{const j=JSON.parse(await netGet(`https://api.open-meteo.com/v1/forecast?latitude=${B.lat}&longitude=${B.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=16&timezone=auto`,15000));
+    const i=j.daily.time.indexOf(f.date);if(i<0)return;const el=document.getElementById("flwx-"+f.id);if(el)el.innerHTML=`Weather in ${escH(apName(f.to))} that day: ${WMO(j.daily.weather_code[i])[0]} ${Math.round(j.daily.temperature_2m_min[i])}–${Math.round(j.daily.temperature_2m_max[i])}°${j.daily.precipitation_sum[i]>=1?` · 🌂 ${Math.round(j.daily.precipitation_sum[i])} mm`:""}`;}catch(e){}}
+function planFlightNotifs(){if(!canNotify())return;try{window.AndroidNotify.cancelPrefix("flt:");}catch(e){}const now=Date.now();
+  for(const f of FLIGHTS){const t=flightWhen(f);if(!t||!f.dep)continue;const code=f.carrier+f.num,to=f.to?apName(f.to):"";
+    const S=(id,when,ti,tx)=>{if(when>now+30000&&when<now+40*86400e3)try{window.AndroidNotify.schedule("flt:"+f.id+id,when,ti,tx);}catch(e){}};
+    S("ci",t-24*3600e3,`✅ Check-in is usually open now: ${code}`,`Flight to ${to} tomorrow at ${f.dep}. Check in with ${AIRLINES[f.carrier]?AIRLINES[f.carrier][0]:"the airline"}.`);
+    S("go",t-3*3600e3,`✈️ ${code} to ${to} at ${f.dep}`,`Time to head to the airport (about 3 hours before). Open the app for the route.`);}}
+document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest("[data-tseg]");if(!s)return;document.querySelectorAll("[data-tseg]").forEach(x=>x.classList.toggle("on",x===s));
+  document.querySelectorAll("#v-trips [data-tp]").forEach(p=>p.hidden=p.dataset.tp!==s.dataset.tseg);if(s.dataset.tseg==="flights")renderFlights();window.scrollTo(0,0);});
+setTimeout(planFlightNotifs,3000);
 
 /* ---------- WEATHER (Open-Meteo: free, no account) ---------- */
 let WX={};try{WX=JSON.parse(localStorage.getItem("pt-wx"))||{};}catch(e){}
@@ -3415,16 +3551,19 @@ let depOpen=new Set();
 let depTo=null;try{depTo=localStorage.getItem("pt-depto");}catch(e){}
 const depFromName=()=>DEP_ST[depSt].replace(/\b(\w)(\w*)/g,(m,a,b)=>a+b.toLowerCase()).replace(" A "," a ").replace(" Dei "," dei ");
 function defaultTo(){const f=depFromName();if(depTo&&depTo!==f)return depTo;return f==="Brindisi"?"Lecce":"Brindisi";}
-let depKey=0;
+let depKey=0;var DEPC={};try{DEPC=JSON.parse(localStorage.getItem("pt-depcache"))||{};for(const k in DEPC)if(DEPC[k].date!==localDay())delete DEPC[k];}catch(e){}
 async function loadDeps(){
   if(depBusy)return;
   if(!window.AndroidLive){depErr="Train times work in the Android app.";return renderDeps();}
-  if(navigator.onLine===false){depErr="No internet: train times need a connection.";return renderDeps();}
+  if(navigator.onLine===false){const c=DEPC[depFromName()+">"+defaultTo()];
+    if(c&&c.date===localDay()){const nowM=new Date().getHours()*60+new Date().getMinutes();depData={from:c.from,to:c.to,list:c.list.filter(t=>{const [hh,mm]=t.dep.split(":").map(Number);return hh*60+mm>=nowM-1;}),cached:c.at};depAt=new Date(c.at);depErr="";return renderDeps();}
+    depErr="📴 No internet. Check “Getting back” and the day-trip cards: they have offline times.";return renderDeps();}
   depBusy=true;depErr="";renderDeps();
   const key="d"+(++depKey),to=defaultTo(),from=depFromName(),toQ=DEP_Q[to]||to;
   window.onTripResult=async(k,res)=>{if(k!==key)return;
     if(!res.ok){depErr=/not found/i.test(res.error||"")?`Trenitalia doesn't know a stop called “${toQ}”.`:(res.error||"Couldn't reach Trenitalia")+".";depBusy=false;return renderDeps();}
-    depData={from,to,list:(res.list||[]).slice(0,10)};depAt=new Date();depBusy=false;renderDeps();
+    depData={from,to,list:(res.list||[]).slice(0,10)};depAt=new Date();depBusy=false;
+    DEPC[from+">"+to]={from,to,date:localDay(),at:Date.now(),list:(res.list||[]).slice(0,30)};try{localStorage.setItem("pt-depcache",JSON.stringify(DEPC));}catch(e){}renderDeps();
     // extra: live delays + platforms from the station board (if ViaggiaTreno answers)
     try{const code=await vtCode(DEP_ST[depSt]);const d=new Date();
       const when=d.toString().replace(/\s*\(.*\)$/,"").replace(/ /g,"%20");
@@ -3453,7 +3592,7 @@ function renderDeps(){
       return `<div class="dep${L&&L.length>1?" tap":""}" ${L&&L.length>1?`data-dep="${k}"`:""}><span class="t">${t.dep}</span><span><span class="to">→ ${t.arr}${dur?` <span class="tr">· ${dur}</span>`:""}</span><br><span class="tr">${how} · ${t.changes?t.changes+" change"+(t.changes>1?"s":""):"direct"}${bus?" · <b>includes a bus</b>":""}${L&&L.length>1?(op?" ▴":" ▾"):""}</span>
         ${op&&L?`<div class="legs">${L.map(l=>`<div>${legIcon(l)} <b>${l.dep}</b> ${nice(l.from)} → <b>${l.arr}</b> ${nice(l.to)} <span class="tr">· ${legName(l)}</span></div>`).join("")}</div>`:""}</span>
         <span>${t.late!=null?`<span class="dl ${t.late>0?"late":"ok"}">${t.late>0?`+${t.late} min`:"on time"}</span>`:""}${t.pf?`<br><span class="pf">Platform ${t.pf}</span>`:""}</span></div>`;}).join("")
-      +`<div class="small" style="margin-top:6px">Trenitalia timetable for today (includes FSE trains and buses)${depData.list.some(t=>t.late!=null)?", delays and platforms live":""}.</div>`
+      +`<div class="small" style="margin-top:6px">${depData.cached?`📴 Saved at ${hmI(new Date(depData.cached).toISOString())} (no internet) · `:""}Trenitalia timetable for today (includes FSE trains and buses)${depData.list.some(t=>t.late!=null)?", delays and platforms live":""}.</div>`
       :`<div class="small">No more trains or buses from ${from} to ${to} today in Trenitalia's planner.</div>${D.some(d=>d.to===to)?`<button class="mini" data-howto="${to}" style="margin-top:6px">How to get to ${to} ›</button>`:""}`;
   else body=`<div class="small" style="padding:6px 0">Pick where you want to go and tap Show: you get the next trains, arrival times and changes.</div>`;
   b.innerHTML=`<div class="trip-h"><div class="dest">🚆 Next trains</div>${depAt&&!depBusy&&!depErr&&depData?`<span class="badge">${fmt(depAt.getHours()*60+depAt.getMinutes())}</span>`:""}</div>
@@ -3579,12 +3718,12 @@ function gPublish(env,full,G=GRP){return new Promise((res,rej)=>{
   netCbs[id]=(ok,txt)=>{clearTimeout(tm);ok?res(txt):rej(new Error(txt||"failed"));};
   const e={v:1,ver:APP_VERSION,from:G.me.id,name:G.me.name,ts:Date.now(),...env};
   try{if(full)window.AndroidGroup.publish(id,G.topic,gEnc({...e,...full},G),gEnc(e,G));else window.AndroidGroup.publish(id,G.topic,gEnc(e,G),"");}catch(x){clearTimeout(tm);rej(x);}});}
-function inviteCode(G=GRP){return "PTG1-"+btoa(unescape(encodeURIComponent(JSON.stringify({n:G.name,k:G.key,t:G.topic})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+function inviteCode(G=GRP){return "PTG1-"+btoa(unescape(encodeURIComponent(JSON.stringify({n:G.name,k:G.key,t:G.topic,y:G.kind||"trip"})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 function readInvite(code){const m=/PTG1-([A-Za-z0-9_-]+)/.exec(code||"");if(!m)return null;try{let b=m[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const o=JSON.parse(decodeURIComponent(escape(atob(b))));return o.k&&o.t?o:null;}catch(e){return null;}}
-async function gStart(gname,myname,inv){
+async function gStart(gname,myname,inv,kind){
   if(inv&&GROUPS.some(g=>g.topic===inv.t)){toast("You're already in that group");switchGroup(GROUPS.find(g=>g.topic===inv.t).id);gAdding=false;return;}
   saveAlbum();saveCosts();
-  GRP={id:gid0(),name:gname||"Our trip",key:inv?inv.k:window.AndroidGroup.newKey(),topic:inv?inv.t:window.AndroidGroup.newTopic(),me:{id:rid(),name:myname||(GROUPS[0]&&GROUPS[0].me.name)||"Me"},members:{},lastId:null,since:Date.now(),sharing:false};
+  GRP={id:gid0(),name:gname||"Our trip",key:inv?inv.k:window.AndroidGroup.newKey(),topic:inv?inv.t:window.AndroidGroup.newTopic(),me:{id:rid(),name:myname||(GROUPS[0]&&GROUPS[0].me.name)||"Me"},members:{},lastId:null,since:Date.now(),sharing:false,kind:inv?(inv.y||"trip"):(kind||"trip")};
   GROUPS.push(GRP);ALBUM=[];gAdding=false;saveGrp();loadCostsFor();gCfg();renderGroup();try{renderAlbum();}catch(e){}
   try{await gPublish({ty:"hello"});}catch(e){toast("⚠ "+e.message);}
   gPoll();
@@ -3649,13 +3788,31 @@ function nextVoice(){if(voicePlaying||!voiceQ.length||document.hidden)return;con
   voicePlaying=true;const au=new Audio("https://tiles.local/media/"+a.media);toast(`🎙 ${a.name}: playing voice note`);
   const done=()=>{voicePlaying=false;a.played=true;saveAlbum();renderAlbum();nextVoice();};au.onended=done;au.onerror=done;au.play().catch(done);}
 // your own posts: photos with a note, voice notes, notes
+/* ---------- OUTBOX: posts made without internet are kept and sent automatically when you're back online ---------- */
+var OUTBOX=[];try{OUTBOX=JSON.parse(localStorage.getItem("pt-outbox"))||[];}catch(e){}
+const saveOutbox=()=>{try{localStorage.setItem("pt-outbox",JSON.stringify(OUTBOX));}catch(e){}};
+async function gSend(env,media,G=GRP,itemId){
+  const full=media?(()=>{const b=window.AndroidGroup.mediaB64(media);return b?(/\.webm$/.test(media)?{au:b}:{img:b}):null;})():null;
+  if(navigator.onLine!==false){try{await gPublish(env,full,G);return "sent";}catch(e){if(/413|too big|key/i.test(e.message))throw e;}}
+  OUTBOX.push({gid:G.id,env:{...env,ts0:Date.now()},media:media||null,item:itemId||null});saveOutbox();return "queued";}
+var flushing=false;
+async function flushOutbox(){if(flushing||!OUTBOX.length||navigator.onLine===false||!gNative())return;flushing=true;let n=0;
+  for(const q of OUTBOX.slice()){const G=GROUPS.find(g=>g.id===q.gid);if(!G){OUTBOX=OUTBOX.filter(x=>x!==q);continue;}
+    const full=q.media?(()=>{const b=window.AndroidGroup.mediaB64(q.media);return b?(/\.webm$/.test(q.media)?{au:b}:{img:b}):null;})():null;
+    try{await gPublish(q.env,full,G);OUTBOX=OUTBOX.filter(x=>x!==q);n++;
+      if(q.item){const A=G===GRP?ALBUM:albumOf(G),it=A.find(a=>a.id===q.item);if(it){it.sent=true;it.queued=false;delete it.err;G===GRP?saveAlbum():saveAlbumOf(G,A);}}}
+    catch(e){break;}}
+  saveOutbox();flushing=false;if(n){toast(`📤 Sent ${n} saved message${n>1?"s":""}`);try{renderAlbum();renderGroup();}catch(e){}}}
+window.addEventListener("online",()=>setTimeout(flushOutbox,3000));setInterval(flushOutbox,60e3);setTimeout(flushOutbox,8000);
+function smsLink(text){return "sms:?body="+encodeURIComponent(text);}
+
 async function addPost(ty,cap,b64,dur){
   const id=rid(),it={id,ty,from:GRP?GRP.me.id:"me",name:GRP?GRP.me.name:"Me",ts:Date.now(),cap:cap||"",town:hereTown||"",ll:me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,dur:dur||0,played:true,mine:true};
   if(b64){it.media=id+(ty==="voice"?".webm":".jpg");if(!window.AndroidGroup.saveMedia(it.media,b64))return toast("⚠ Couldn't save on the phone");}
   ALBUM.push(it);saveAlbum();renderAlbum();
   const send=GRP&&document.getElementById("toGroup")&&document.getElementById("toGroup").checked;
   if(send){it.sending=true;renderAlbum();
-    try{await gPublish({ty,cap:it.cap,town:it.town,ll:it.ll,dur:it.dur},b64?(ty==="voice"?{au:b64}:{img:b64}):null);it.sent=true;}catch(e){it.err=e.message;toast("⚠ Not sent: "+e.message);}
+    try{const r=await gSend({ty,cap:it.cap,town:it.town,ll:it.ll,dur:it.dur},it.media||null,GRP,it.id);if(r==="sent")it.sent=true;else{it.queued=true;toast("📴 No internet: saved, it's sent automatically when you're back online");}}catch(e){it.err=e.message;toast("⚠ Not sent: "+e.message);}
     it.sending=false;saveAlbum();renderAlbum();}
 }
 function shrinkPhoto(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const M=1600,s=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement("canvas");
@@ -3672,7 +3829,11 @@ async function toggleRec(btn){
     setTimeout(()=>{if(rec&&Date.now()-recStart>=118000)rec.stop();},120000);
   }catch(e){toast("⚠ Microphone: "+(e.message||"not allowed"));rec=null;}
 }
-let SOS=null,gAdding=false;
+let SOS=null,gAdding=false,gKind="trip";
+document.addEventListener("click",e=>{const k=e.target.closest&&e.target.closest("[data-gkind]");if(!k)return;gKind=k.dataset.gkind;const nm=document.getElementById("gName"),me2=document.getElementById("gMe");const keep=[nm&&nm.value,me2&&me2.value];renderGroup();const a=document.getElementById("gName"),c=document.getElementById("gMe");if(a)a.value=keep[0]||"";if(c&&keep[1])c.value=keep[1];});
+function applyGroupKind(){const home=!!(GRP&&GRP.kind==="home");document.body.classList.toggle("grp-home",home);
+  const al=document.querySelector('[data-gseg="album"]');if(al)al.textContent=home?"✨ Moments":"📷 Album";
+  if(home){const j=document.querySelector('[data-gseg="journey"].on');if(j)document.querySelector('[data-gseg="circle"]').click();}}
 function gSwHooks(b){const p=b.querySelector("#gPick");if(p)p.onchange=()=>{if(GROUPS.some(g=>g.id===p.value)){gAdding=false;switchGroup(p.value);}};
   const a=b.querySelector("#gAdd");if(a)a.onclick=()=>{gAdding=!gAdding;renderGroup();};}
 function renderSOS(){const b=document.getElementById("sosBanner");if(!b)return;if(!SOS||Date.now()-SOS.ts>6*3600e3){b.innerHTML="";return;}
@@ -3682,28 +3843,38 @@ function renderSOS(){const b=document.getElementById("sosBanner");if(!b)return;i
   b.querySelector("#sosOk").onclick=()=>{SOS=null;renderSOS();};
   if(document.getElementById("v-group").classList.contains("on")===false)toast(`🆘 ${SOS.name} needs help: open the Group tab`);}
 async function checkIn(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
-  try{await gPublish({ty:"checkin",cap:`I'm OK${where?" · "+where.replace("🏠 ",""):""}`,ll});toast("✅ Check-in sent");}catch(e){toast("⚠ "+e.message);}}
+  const cap=`I'm OK${where?" · "+where.replace("🏠 ",""):""}`;
+  try{const r=await gSend({ty:"checkin",cap,ll});if(r==="sent")toast("✅ Check-in sent");else{toast("📴 No internet: check-in saved and sent later. Opening a text message as well…");setTimeout(()=>{location.href=smsLink(`✅ ${cap}${ll?` https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`);},900);}}catch(e){toast("⚠ "+e.message);}}
 async function sendSOS(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
   const cap=`I need help${where?" · "+where.replace("🏠 ",""):""}${ll?` · https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`;
-  try{await gPublish({ty:"sos",cap,ll});toast("🆘 SOS sent to your group");}catch(e){toast("⚠ SOS not sent: "+e.message+". Call 112 if it's urgent.");}}
+  let ok=false;try{if(navigator.onLine!==false){await gPublish({ty:"sos",cap,ll});ok=true;}}catch(e){}
+  if(ok){toast("🆘 SOS sent to your group");return;}
+  try{await gSend({ty:"sos",cap,ll});}catch(e){}
+  // no internet: text messages and calls still work on the phone network
+  const bg=document.createElement("div");bg.className="sheet-bg";bg.innerHTML=`<div class="sheet"><div class="dest">🆘 No internet</div><div class="small" style="margin:6px 0 10px">The SOS will go to your group as soon as there's internet again. Text messages and calls still work now.</div>
+    <div class="btns"><a class="btn sos" href="${smsLink("🆘 "+cap)}">📱 Send SOS by text message</a></div><div class="btns"><a class="btn ghost" href="tel:112">📞 Call 112</a><button class="btn ghost" data-sx="close">Close</button></div></div>`;
+  document.body.appendChild(bg);bg.onclick=e=>{if(e.target===bg||e.target.closest("[data-sx]"))bg.remove();};}
 function renderGroup(){
-  const b=document.getElementById("grpBox");if(!b)return;renderSOS();
+  const b=document.getElementById("grpBox");if(!b)return;renderSOS();applyGroupKind();
   if(!gNative()){b.innerHTML=`<div class="card"><div class="small">The travel group works in the Android app.</div></div>`;return;}
-  const sw=GROUPS.length?`<div class="gsw"><select class="np-select" id="gPick" aria-label="Group">${GROUPS.map(g=>`<option value="${g.id}" ${g===GRP&&!gAdding?"selected":""}>👥 ${escH(g.name)}${g.sharing?"  📍":""}</option>`).join("")}${gAdding?`<option selected>＋ New group…</option>`:""}</select><button class="mini" id="gAdd" style="margin:0;flex:none">${gAdding?"Cancel":"＋ Group"}</button></div>`:"";
+  const sw=GROUPS.length?`<div class="gsw"><select class="np-select" id="gPick" aria-label="Group">${GROUPS.map(g=>`<option value="${g.id}" ${g===GRP&&!gAdding?"selected":""}>${g.kind==="home"?"🏠":"🧳"} ${escH(g.name)}${g.sharing?"  📍":""}</option>`).join("")}${gAdding?`<option selected>＋ New group…</option>`:""}</select><button class="mini" id="gAdd" style="margin:0;flex:none">${gAdding?"Cancel":"＋ Group"}</button></div>`:"";
   if(!GRP||gAdding){b.innerHTML=sw+`<div class="card"><div class="dest">${GROUPS.length?"Start or join another group":"See each other on the map, share photos and voice notes"}</div>
       <div class="small" style="margin-top:4px">Everything is locked with a key that only your group has. Your friends need this app too.</div>
-      <div class="cost-form" style="grid-template-columns:1fr"><input id="gName" placeholder="Group name (e.g. Puglia with Sam)"><input id="gMe" placeholder="Your name" value="${escH(GROUPS[0]?GROUPS[0].me.name:(COSTS.people[0]&&COSTS.people[0]!=="Me")?COSTS.people[0]:"")}"></div>
+      <div class="seg" style="margin-top:10px"><button data-gkind="trip" class="${gKind==="trip"?"on":""}">🧳 Trip</button><button data-gkind="home" class="${gKind==="home"?"on":""}">🏠 Everyday</button></div>
+      <div class="small" style="margin-top:4px">${gKind==="home"?"For friends at home: see each other on the map and share cool things you see. No trip summary or journey.":"For travelling together: live locations, album, journey and a trip summary at the end."}</div>
+      <div class="cost-form" style="grid-template-columns:1fr"><input id="gName" placeholder="${gKind==="home"?"Group name (e.g. Jari & Tom)":"Group name (e.g. Puglia with Sam)"}"><input id="gMe" placeholder="Your name" value="${escH(GROUPS[0]?GROUPS[0].me.name:(COSTS.people[0]&&COSTS.people[0]!=="Me")?COSTS.people[0]:"")}"></div>
       <div class="btns"><button class="btn primary" id="gNew">Start a group</button></div>
       <div class="dest" style="margin-top:14px;font-size:15px">Got an invite code?</div>
       <div class="cost-form" style="grid-template-columns:1fr"><textarea id="gCode" rows="2" placeholder="Paste the invite code (starts with PTG1-)" style="border:0;background:var(--card2);color:var(--ink);border-radius:10px;padding:10px;font:inherit"></textarea></div>
       <div class="btns"><button class="btn ghost" id="gJoin">Join with code</button></div></div>`;
     gSwHooks(b);
-    b.querySelector("#gNew").onclick=()=>{const n=b.querySelector("#gMe").value.trim();if(!n)return toast("Type your name first");gStart(b.querySelector("#gName").value.trim(),n,null);};
+    b.querySelector("#gNew").onclick=()=>{const n=b.querySelector("#gMe").value.trim();if(!n)return toast("Type your name first");gStart(b.querySelector("#gName").value.trim(),n,null,gKind);};
     b.querySelector("#gJoin").onclick=()=>{const inv=readInvite(b.querySelector("#gCode").value);if(!inv)return toast("That doesn't look like an invite code");const n=b.querySelector("#gMe").value.trim();if(!n)return toast("Type your name first");gStart(inv.n,n,inv);};
     return;}
   const sharing=!!GRP.sharing;
   const mem=Object.entries(GRP.members).sort((a,b)=>(b[1].seen||0)-(a[1].seen||0));
-  b.innerHTML=sw+`<div class="card"><div class="trip-h"><div class="dest">👥 ${GRP.name}</div><span class="badge">${mem.length+1} people</span></div>
+  const offB=navigator.onLine===false?`<div class="rt-warn" style="margin:0 0 8px">📴 No internet: showing last known locations. What you post is saved and sent when you're back online${OUTBOX.length?` (${OUTBOX.length} waiting)`:""}.</div>`:OUTBOX.length?`<div class="small" style="margin:0 0 8px">📤 ${OUTBOX.length} message${OUTBOX.length>1?"s":""} waiting to be sent…</div>`:"";
+  b.innerHTML=sw+offB+`<div class="card"><div class="trip-h"><div class="dest">${GRP.kind==="home"?"🏠":"👥"} ${escH(GRP.name)}</div><span class="badge">${mem.length+1} people</span></div>
     ${LOCREQ&&!sharing&&(!LOCREQ.g||LOCREQ.g===GRP.id)?`<div class="rt-warn" style="margin:6px 0">📍 ${LOCREQ.name} asked where you are: switch on sharing below.</div>`:""}
     <div class="sw"><span class="w">📍 Share my live location<small>${sharing?`On for ${escH(GRP.name)}, also when the app is closed`:`Off: ${escH(GRP.name)} can't see where you are`}${GROUPS.length>1?" · set per group":""}</small></span><button class="tg ${sharing?"on":""}" id="gShare" aria-pressed="${sharing}" aria-label="Share my live location"></button></div>
     <div class="mem"><span class="av" style="background:${gColor(GRP.me.id)}">${GRP.me.name.slice(0,1).toUpperCase()}</span><span class="w"><b>${GRP.me.name}</b> (you)<small>${sharing?"Sharing location":"Not sharing location"}${me?" · "+(placeOf([me.lat,me.lon])||""):""}</small>
@@ -3747,7 +3918,7 @@ function renderAlbum(){
       <div class="pb"><div class="ph"><span class="av" style="width:22px;height:22px;border-radius:50%;background:${gColor(a.from)};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${(a.name||"?").slice(0,1)}</span><b>${a.mine?"You":a.name}</b> · ${new Date(a.ts).toLocaleString("en-GB",{weekday:"short",hour:"2-digit",minute:"2-digit"})}${a.town?" · "+a.town:""}</div>
       ${a.ty==="voice"?(a.media?`<audio controls preload="none" src="https://tiles.local/media/${a.media}"></audio>`:`<div class="small">🎙 Voice note expired before it arrived</div>`):""}
       ${a.cap?`<div class="cap">${a.cap.replace(/</g,"&lt;")}</div>`:""}
-      <div class="small">${a.sending?"⏳ Sending…":a.err?`⚠ Not sent: ${a.err}`:a.sent?"✓ Sent to group":""}${!a.played&&a.ty==="voice"?" · new":""}</div>
+      <div class="small">${a.sending?"⏳ Sending…":a.queued?"📴 Waiting for internet, sends by itself":a.err?`⚠ Not sent: ${a.err}`:a.sent?"✓ Sent to group":""}${!a.played&&a.ty==="voice"?" · new":""}</div>
       <div class="acts">${a.ll?`<button class="mini" data-aloc="${a.id}">📍 Where</button>`:""}<button class="mini" data-adel="${a.id}" style="color:var(--warn)">Delete</button></div></div></div>`).join("")}
       ${!items.length?`<div class="card small">Your trip album is empty. Add a photo with a note, or a voice note.</div>`:""}</div>`;
   b.querySelector("#pPick").onchange=async e=>{const fs=[...e.target.files];const cap=b.querySelector("#memo").value.trim();b.querySelector("#memo").value="";
