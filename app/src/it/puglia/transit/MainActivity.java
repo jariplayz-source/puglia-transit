@@ -77,6 +77,29 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
             }});
         }
         /** Is the phone in dark mode? */
+        /** true when the user allowed "Precise location" (Android 12+ can give approximate only). */
+        @JavascriptInterface
+        public boolean precise() {
+            return Build.VERSION.SDK_INT < 23 || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        }
+        @JavascriptInterface
+        public boolean gpsOn() {
+            try { return lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception e) { return true; }
+        }
+        @JavascriptInterface
+        public void askPrecise() {
+            runOnUiThread(new Runnable() { public void run() {
+                if (Build.VERSION.SDK_INT >= 23 && !precise())
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOC);
+                else openLocSettings();
+            }});
+        }
+        @JavascriptInterface
+        public void appSettings() {
+            runOnUiThread(new Runnable() { public void run() {
+                try { startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception ignored) {}
+            }});
+        }
         @JavascriptInterface
         public boolean isNight() {
             int m = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
@@ -677,11 +700,13 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         }
         try {
             boolean any = false;
-            for (String p : new String[]{LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
+            try { lm.removeUpdates(this); } catch (Exception ignored) {}
+            for (String p : new String[]{"fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
                 if (lm.getAllProviders().contains(p) && lm.isProviderEnabled(p)) {
-                    lm.requestLocationUpdates(p, fastGps ? 1000 : 2000, fastGps ? 0 : 2, this);
+                    boolean gps = LocationManager.GPS_PROVIDER.equals(p) || "fused".equals(p);
+                    lm.requestLocationUpdates(p, gps ? 1000 : 5000, 0, this);
                     Location last = lm.getLastKnownLocation(p);
-                    if (last != null) onLocationChanged(last);
+                    if (last != null && System.currentTimeMillis() - last.getTime() < 120000) onLocationChanged(last);
                     any = true;
                 }
             }
@@ -691,6 +716,10 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         }
         Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         if (rv != null) sm.registerListener(this, rv, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    private void openLocSettings() {
+        try { startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)); } catch (Exception ignored) {}
     }
 
     private void stopLocation() {
@@ -710,10 +739,43 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         }
     }
 
+    private Location best = null;
+    private double kLat, kLon, kVar = -1; private long kTime;
+
+    /** Keep a new fix only if it is better than what we have: more accurate, or ours is getting old. */
+    private boolean better(Location n) {
+        if (best == null) return true;
+        long dt = n.getTime() - best.getTime();
+        if (dt > 12000) return true;                 // ours is stale
+        if (dt < -2000) return false;                // older than ours
+        float na = n.hasAccuracy() ? n.getAccuracy() : 999, ba = best.hasAccuracy() ? best.getAccuracy() : 999;
+        if (na <= ba) return true;
+        boolean sameSrc = n.getProvider() != null && n.getProvider().equals(best.getProvider());
+        return sameSrc && na < ba * 1.6 && dt > 0;   // same source, a bit worse but newer: take it
+    }
+
     @Override
-    public void onLocationChanged(Location l) {
-        final String js = "window.onNativeLocation&&window.onNativeLocation(" + l.getLatitude() + ","
-                + l.getLongitude() + "," + (l.hasAccuracy() ? l.getAccuracy() : 50) + ","
+    public void onLocationChanged(Location raw) {
+        if (raw.hasAccuracy() && raw.getAccuracy() > 3000) return;
+        if (!better(raw)) return;
+        best = raw;
+        // light Kalman filter: steadies the dot when the signal jitters, follows quickly when you move
+        double acc = Math.max(raw.hasAccuracy() ? raw.getAccuracy() : 50, 3);
+        long t = raw.getTime() > 0 ? raw.getTime() : System.currentTimeMillis();
+        double speed = raw.hasSpeed() ? raw.getSpeed() : 0, q = Math.max(1.5, speed);
+        if (kVar < 0 || Math.abs(raw.getLatitude() - kLat) * 111000 > acc * 4 + 60 || Math.abs(raw.getLongitude() - kLon) * 78000 > acc * 4 + 60) {
+            kLat = raw.getLatitude(); kLon = raw.getLongitude(); kVar = acc * acc; kTime = t;
+        } else {
+            double dt = Math.max(0, (t - kTime) / 1000.0); kTime = t;
+            kVar += dt * q * q;
+            double k = kVar / (kVar + acc * acc);
+            kLat += k * (raw.getLatitude() - kLat); kLon += k * (raw.getLongitude() - kLon);
+            kVar = (1 - k) * kVar;
+        }
+        final Location l = raw;
+        final double outAcc = Math.min(acc, Math.sqrt(kVar));
+        final String js = "window.onNativeLocation&&window.onNativeLocation(" + kLat + ","
+                + kLon + "," + Math.round(outAcc) + ","
                 + (l.hasBearing() && l.hasSpeed() && l.getSpeed() > 0.7 ? l.getBearing() : -1) + ")";
         web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } });
     }

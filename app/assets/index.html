@@ -467,6 +467,18 @@ body:not(.mode-home) #nlHome{display:none}
 .rt{padding:10px 0;border-bottom:1px solid var(--line)}.rt-h{display:flex;align-items:baseline;gap:8px}.rt-h b{font-size:16px}.rt-h .tr{flex:1}
 .rt-warn{margin:4px 0;font-size:13.5px;color:var(--warn);font-weight:600}
 b.late{color:var(--warn)}
+.gm-top{right:8px!important}
+.gm-search{margin-right:52px}
+.gm-chips{margin:0 -8px;padding-left:8px!important;padding-right:8px!important;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent)}
+.gm-chips::after{content:"";flex:0 0 24px}
+.map-ctrl{top:122px!important}
+#gpsQ{position:absolute;left:10px;top:122px;z-index:6;border:0;border-radius:16px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;background:var(--card);color:var(--ink);box-shadow:var(--float);display:none;max-width:calc(100% - 80px);text-align:left}
+#gpsQ.bad{background:var(--warn-bg);color:var(--warn)}
+body.walking #gpsQ{top:auto;bottom:96px}
+/* ---- Home sections ---- */
+.hseg{margin:4px 0 10px}
+.hseg button .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--warn);color:#fff;font-size:11.5px;line-height:18px}
+body.mode-home #hSegT,body:not(.mode-home) #hSegH{display:none}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -482,17 +494,21 @@ b.late{color:var(--warn)}
 <main>
   <!-- DESTINATIONS -->
   <section class="view on" id="v-dest">
-    <div id="nlHome"></div>
     <div id="alertTop"></div>
-    <div class="card" id="hereBox" style="display:none"></div>
-    <div class="card back" id="backBox"></div>
-    <div class="card" id="depBox"></div>
+    <div class="seg hseg" id="hSegT"><button data-hseg="today" class="on">☀️ Today</button><button data-hseg="trains">🚆 Trains</button><button data-hseg="trips">🗺️ Day trips</button></div>
+    <div class="seg hseg" id="hSegH"><button data-hseg="now" class="on">☀️ Now</button><button data-hseg="ov">🚏 Transit</button><button data-hseg="roads">🚗 Roads</button></div>
+    <div id="nlHome"></div>
+    <div data-hp="today"><div class="card" id="hereBox" style="display:none"></div>
+    <div class="card back" id="backBox"></div></div>
+    <div data-hp="trains" hidden><div class="card" id="depBox"></div></div>
+    <div data-hp="trips" hidden>
     <div class="home-h"><h2>🗺️ Where to next?</h2></div>
     <input class="search" id="q" type="search" placeholder="Where to? (e.g. Otranto, Matera)" autocomplete="off">
     <div class="chips" id="chips"></div>
     <div class="sortbar">Sort: <button id="s-near" class="on">Closest first</button><button id="s-area">By area</button></div>
     <div id="dest"></div>
-    <p class="small">📴 Works offline. Times marked “est.” are estimates: check “Next trains” above when you're online.</p>
+    <p class="small">📴 Works offline. Times marked “est.” are estimates: check “Trains” when you're online.</p>
+    </div>
   </section>
 
   <!-- MAP -->
@@ -508,6 +524,7 @@ b.late{color:var(--warn)}
         <div class="gm-res" id="gmRes"></div>
       </div>
       <button id="jChip">🧭 Journey · tap to close</button>
+      <button id="gpsQ"></button>
       <div id="placeCard" class="place-card"></div>
       <svg id="map" viewBox="0 0 1863 1700" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="map-ctrl">
@@ -1166,9 +1183,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.0";            // bump on every release
+const APP_VERSION="6.1";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.1","Home is split into sections (Today · Trains · Day trips, or Now · Transit · Roads at home). Map chips no longer cut off. Sharper GPS: combined location, best fix wins, less jumping, and a hint when the signal is weak or only approximate location is allowed"],
  ["6.0","Country designs (Italian here, Dutch at home) and Home mode for the Netherlands: weather with rain in the next 2 hours, roads near you (jams, accidents, closures), departures near you, trip planner and saved routes"],
  ["5.2","Tidier app: 5 tabs (Home, Map, Trips, Nearby, Group), settings behind the ⚙️ button, strike alerts fold up, Getting back and Next trains at the top. Street map repairs itself when it comes up blank"],
  ["5.1","Group is now like Polarsteps + Life360: record your journey (route, photo steps, stats, day by day), battery and walking/on-the-move status, arrive/leave alerts, I'm OK check-in, SOS"],
@@ -1427,7 +1445,7 @@ function updatePanel(){
   el("npRoute").textContent=routeText();
   el("npInfo").textContent=(route&&route.ok?`Next: head ${cardinal(b)} · `:`${cardinal(b)} (${Math.round(b)}°) of you · `)+(heading==null?"arrow: top of screen = north":"arrow points the way, hold the phone flat")+(out?" · you're outside the map area":"")+(me.acc>200?` · GPS accuracy ±${Math.round(me.acc)} m`:"");
 }
-function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTimeout(()=>{applyCountry();if(first&&appMode()==="home")renderNL();nlMoved();},0);updateHere();followTick();
+function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTimeout(()=>{applyCountry();if(first&&appMode()==="home")renderNL();nlMoved();gpsQuality();},0);updateHere();followTick();
   if(!onLocation._s||Date.now()-onLocation._s>30000){onLocation._s=Date.now();try{localStorage.setItem("pt-lastme",JSON.stringify([+lat.toFixed(5),+lon.toFixed(5)]));}catch(e){}}
   if(first&&!mapMoved&&activeTrip==null&&!walking){
     if(lat>MB.s&&lat<MB.n&&lon>MB.w&&lon<MB.e){const [x,y]=proj(lat,lon);vb=[x-40,y-36,80,72];}
@@ -1505,7 +1523,7 @@ function showTab(v){if(v==="food"){showTab("shops");const b=document.querySelect
 function openOnMap(n){const ll=T_LL(n);if(ll){target=n;routeFor=null;syncPicker();
   const [x,y]=proj(...ll);const w=POIMAP[n]?18:40;vb=[x-w/2,y-w*0.44,w,w*0.88];}showTab("map");updatePanel();
   if(mode==="street"&&ll){if(ml)ml.resize();streetFly(ll,POIMAP[n]?16:13);}}
-function showPlace(n){filter="All";renderChips();const q=document.getElementById("q");q.value=n==="Brindisi"?"":n;render();showTab("dest");}
+function showPlace(n){homePane("trips");filter="All";renderChips();const q=document.getElementById("q");q.value=n==="Brindisi"?"":n;render();showTab("dest");}
 
 /* ---------- STREET MAP (Android app only, offline after download) ---------- */
 let mode="simple", ml=null, mlReady=false, mlLoading=false, meMarker=null, pendingDl=null;
@@ -3064,6 +3082,7 @@ function applyCountry(){
   if(me&&SET_COUNTRY==="auto"&&c!==LAST_C){LAST_C=c;try{localStorage.setItem("pt-lastc",c);}catch(e){}}
   document.documentElement.dataset.country=c;
   document.body.classList.toggle("mode-home",m==="home");document.body.classList.toggle("mode-travel",m!=="home");
+  applyPane();
   if(key===appliedKey)return;appliedKey=key;
   if(m==="home"){renderNL();if(document.body.classList.contains("tab-trips"))showTab("dest");}
   try{planNotifs();}catch(e){}
@@ -3079,6 +3098,27 @@ document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest
   if(c.dataset.cset){SET_COUNTRY=c.dataset.cset;try{localStorage.setItem("pt-country",SET_COUNTRY);}catch(x){}}
   if(c.dataset.mset){SET_MODE=c.dataset.mset;try{localStorage.setItem("pt-appmode",SET_MODE);}catch(x){}}
   appliedKey="";applyCountry();renderSet();});
+
+/* ---------- Home sections (Today / Trains / Day trips, or Now / Transit / Roads at home) ---------- */
+var HPANE={travel:"today",home:"now"};try{Object.assign(HPANE,JSON.parse(localStorage.getItem("pt-hpane"))||{});}catch(e){}
+function homePane(k){const home=["now","ov","roads"].includes(k);HPANE[home?"home":"travel"]=k;try{localStorage.setItem("pt-hpane",JSON.stringify(HPANE));}catch(e){}applyPane();}
+function applyPane(){const k=HPANE[appMode()==="home"?"home":"travel"];
+  document.querySelectorAll("#v-dest [data-hp]").forEach(p=>p.hidden=p.dataset.hp!==k);
+  document.querySelectorAll("[data-hseg]").forEach(b=>b.classList.toggle("on",b.dataset.hseg===k));}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-hseg]");if(!b)return;homePane(b.dataset.hseg);window.scrollTo({top:0});});
+function segBadge(k,n){const b=document.querySelector(`[data-hseg="${k}"]`);if(!b)return;let s=b.querySelector(".n");if(!n){if(s)s.remove();return;}if(!s){s=document.createElement("span");s.className="n";b.appendChild(s);}s.textContent=n;}
+
+/* ---------- GPS quality ---------- */
+function gpsQuality(){const b=document.getElementById("gpsQ");if(!b)return;const G=window.AndroidGPS;let precise=true,on=true;
+  try{if(G&&G.precise)precise=G.precise();if(G&&G.gpsOn)on=G.gpsOn();}catch(e){}
+  let t="",bad=false,act="";
+  if(!precise){t="📍 Only approximate location allowed: tap to allow precise";bad=true;act="precise";}
+  else if(!on){t="🛰 GPS is off: tap to turn on location";bad=true;act="precise";}
+  else if(me&&me.acc>35){t=me.acc>150?`📡 Weak signal ±${Math.round(me.acc)} m: step outside or wait a moment`:`📡 ±${Math.round(me.acc)} m`;bad=me.acc>150;}
+  b.textContent=t;b.style.display=t?"block":"none";b.className=bad?"bad":"";b.dataset.act=act;}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#gpsQ");if(!b)return;
+  if(b.dataset.act==="precise"){try{window.AndroidGPS.askPrecise();}catch(x){}setTimeout(gpsQuality,4000);}});
+setInterval(gpsQuality,5000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(gpsQuality,800);});
 
 /* ---------- small helpers ---------- */
 const hmI=iso=>{const d=new Date(iso);return isNaN(d)?"":String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
@@ -3098,8 +3138,11 @@ var nlDep={busy:false,err:"",list:null,at:0},nlRoad={busy:false,err:"",list:null
 function renderNL(){
   const b=document.getElementById("nlHome");if(!b)return;
   if(!b.dataset.built){b.dataset.built=1;
-    b.innerHTML=`<div class="card" id="nlNow"></div><div class="card" id="nlRoad"></div><div class="card" id="nlDep"></div><div class="card" id="nlPlan"></div><div class="card" id="nlSaved"></div>
+    b.innerHTML=`<div data-hp="now"><div class="card" id="nlNow"></div><div class="card" id="nlSaved"></div></div>
+      <div data-hp="ov" hidden><div class="card" id="nlDep"></div><div class="card" id="nlPlan"></div></div>
+      <div data-hp="roads" hidden><div class="card" id="nlRoad"></div></div>
       <p class="small">Public transport by <a href="https://transitous.org/sources/">Transitous</a> (open data). Road info: NDW open data. Weather: Open-Meteo.</p>`;}
+  applyPane();
   renderNlNow();renderNlRoad();renderNlDep();renderNlPlan();renderNlSaved();
   if(me){if(!nlDep.list&&!nlDep.busy&&!nlDep.err)loadNlDep();if(!nlRoad.list&&!nlRoad.busy&&!nlRoad.err)loadNlRoad();fetchHereWx(false);placeName(me.lat,me.lon);}
 }
@@ -3162,7 +3205,7 @@ function roadRow(r){const k=ROAD_KIND(r);const len=r.queueLength?` · ${(r.queue
   return `<div class="rd"><span class="ri">${k[0]}</span><span><b>${r.roadNumber?escH(r.roadNumber)+" · ":""}${k[1]}</b>${len}<br><span class="tr">${r.comment?escH(r.comment):escH(r.roadName||"")}${since} · ${kmTxt(hav([me.lat,me.lon],[r.lat,r.lon]))} away</span></span></div>`;}
 function renderNlRoad(){const b=document.getElementById("nlRoad");if(!b)return;
   const L=nlRoad.list||[],nearL=me?L.filter(r=>hav([me.lat,me.lon],[r.lat,r.lon])<=25):[],imp=nearL.filter(r=>ROAD_KIND(r)[2]<2),works=nearL.filter(r=>ROAD_KIND(r)[2]===2);
-  const shown=roadAll?nearL:imp.slice(0,6);
+  const shown=roadAll?nearL:imp.slice(0,6);segBadge("roads",imp.length);
   b.innerHTML=`<div class="trip-h"><div class="dest">🚗 Roads near you</div>${nlRoad.at&&!nlRoad.busy?`<span class="badge">${hmI(new Date(nlRoad.at).toISOString())}</span>`:""}</div>
     ${nlRoad.busy?`<div class="small">⏳ Getting live road info…</div>`:nlRoad.err?`<div class="live-err">${escH(nlRoad.err)}</div>`:
       !nlRoad.list?`<div class="small">${me?"":"Waiting for your location…"}</div>`:
