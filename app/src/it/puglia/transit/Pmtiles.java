@@ -244,7 +244,7 @@ public class Pmtiles {
                 HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                 c.setConnectTimeout(connectTimeout); c.setReadTimeout(readTimeout);
                 c.setRequestProperty("Range", "bytes=" + off + "-" + (off + len - 1));
-                c.setRequestProperty("User-Agent", "OutAndBack/1.0 (+https://github.com/jariplayz-source/puglia-transit)");
+                c.setRequestProperty("User-Agent", "OutAndBack/1.1 (+https://github.com/jariplayz-source/puglia-transit)");
                 int code = c.getResponseCode();
                 if (code != 206 && code != 200) throw new IOException("HTTP " + code);
                 byte[] b = readAll(c.getInputStream());
@@ -257,22 +257,45 @@ public class Pmtiles {
         throw last;
     }
 
-    /** Finds the newest daily world build that is still online (builds are kept about a week). */
-    public static String findLatestBuild() throws IOException {
+    /** Is this a real PMTiles archive (not a Wi-Fi login page or an error page)? Returns null if fine, else why not. */
+    public static String probe(String u) {
+        try {
+            HttpURLConnection h = (HttpURLConnection) new URL(u).openConnection();
+            h.setConnectTimeout(8000); h.setReadTimeout(8000);
+            h.setRequestProperty("Range", "bytes=0-6");
+            h.setRequestProperty("User-Agent", "OutAndBack/1.1 (+https://github.com/jariplayz-source/puglia-transit)");
+            int code = h.getResponseCode();
+            if (code != 206 && code != 200) { h.disconnect(); return "HTTP " + code; }
+            byte[] b = new byte[7]; java.io.InputStream in = h.getInputStream(); int off = 0, n;
+            while (off < 7 && (n = in.read(b, off, 7 - off)) > 0) off += n;
+            in.close(); h.disconnect();
+            if (!"PMTiles".equals(new String(b, 0, off, "ISO-8859-1"))) return "not map data (Wi-Fi login page?)";
+            return null;
+        } catch (java.net.UnknownHostException e) { return "no internet (can't find the map server)";
+        } catch (java.net.SocketTimeoutException e) { return "map server too slow";
+        } catch (IOException e) { return e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""); }
+    }
+
+    public static volatile String lastProblem = "";
+
+    /** Finds the newest daily world build that is still online. Daily builds are kept a week, Monday builds a month. */
+    public static String findLatestBuild(String remembered) throws IOException {
+        if (remembered != null && remembered.length() > 0 && probe(remembered) == null) return remembered;
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         c.add(Calendar.DAY_OF_MONTH, -1);   // yesterday's build first: today's may still be uploading
-        for (int i = 0; i < 12; i++) {
+        String why = "";
+        for (int i = 0; i < 45; i++, c.add(Calendar.DAY_OF_MONTH, -1)) {
+            if (i >= 8 && c.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) continue;   // older than a week: only Monday builds are kept
             String name = String.format(java.util.Locale.US, "%04d%02d%02d.pmtiles",
                     c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
-            try {
-                HttpURLConnection h = (HttpURLConnection) new URL(BUILDS + name).openConnection();
-                h.setConnectTimeout(10000); h.setReadTimeout(10000);
-                h.setRequestProperty("Range", "bytes=0-6");
-                int code = h.getResponseCode(); h.disconnect();
-                if (code == 206 || code == 200) return BUILDS + name;
-            } catch (IOException ignored) {}
-            c.add(Calendar.DAY_OF_MONTH, -1);
+            String r = probe(BUILDS + name);
+            if (r == null) { lastProblem = ""; return BUILDS + name; }
+            why = r;
+            if (r.startsWith("no internet") || r.startsWith("not map data")) break;   // no point trying older days
         }
-        throw new IOException("Couldn't find the map data online");
+        lastProblem = why;
+        throw new IOException("Couldn't find the map data online (" + why + ")");
     }
+
+    public static String findLatestBuild() throws IOException { return findLatestBuild(null); }
 }

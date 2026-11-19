@@ -33,6 +33,10 @@ public class MapStore {
     private int cacheWrites = 0;
     private volatile boolean busy = false;
     private String buildUrl = null;
+    public volatile String lastError = "";
+    private File buildFile() { return new File(root, "build.txt"); }
+    private String rememberedBuild() { try { File f = buildFile(); return f.exists() ? readText(f).trim() : null; } catch (Exception e) { return null; } }
+    private void rememberBuild(String u) { try { FileWriter w = new FileWriter(buildFile()); w.write(u); w.close(); } catch (Exception ignored) {} }
 
     public interface Listener {
         void progress(String id, String phase, int done, int total, long bytes);
@@ -64,11 +68,14 @@ public class MapStore {
             if (p == null) return null;
             byte[] data = p.getTile(z, x, y);
             if (data == null || data.length == 0) return new byte[0];   // never cache empty answers
+            lastError = "";
             c.getParentFile().mkdirs();
             FileOutputStream o = new FileOutputStream(c); o.write(data); o.close();
             if (++cacheWrites % 200 == 0 && dirSize(cache) > 150L * 1024 * 1024) { deleteTree(cache); cache.mkdirs(); }
             return data;
         } catch (Exception e) {
+            lastError = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            if (e instanceof java.net.UnknownHostException) lastError = "no internet";
             liveFailUntil = System.currentTimeMillis() + 20000;   // offline: don't keep trying for a bit
             synchronized (this) { live = null; buildUrl = null; }  // the online map build may have changed: find it again
             return null;
@@ -77,16 +84,18 @@ public class MapStore {
 
     /** Forget the online map build and the temporary tile cache (fixes a blank street map). */
     public synchronized void resetLive() {
-        live = null; buildUrl = null; liveFailUntil = 0;
-        deleteTree(cache); cache.mkdirs();
+        live = null; buildUrl = null; liveFailUntil = 0;   // keep the tile cache: only good tiles are ever cached
     }
+
+    public String liveStatus() { return lastError == null ? "" : lastError; }
 
     private synchronized Pmtiles liveArchive() throws IOException {
         if (live != null) return live;
-        if (buildUrl == null) buildUrl = Pmtiles.findLatestBuild();
+        if (buildUrl == null) { buildUrl = Pmtiles.findLatestBuild(rememberedBuild()); }
         Pmtiles p = new Pmtiles(buildUrl);
-        p.connectTimeout = 5000; p.readTimeout = 10000;
+        p.connectTimeout = 8000; p.readTimeout = 15000;
         p.open();
+        rememberBuild(buildUrl);
         live = p;
         return live;
     }
@@ -132,9 +141,10 @@ public class MapStore {
         new Thread(new Runnable() { public void run() {
             try {
                 l.progress(id, "Finding map data…", 0, 1, 0);
-                if (buildUrl == null) buildUrl = Pmtiles.findLatestBuild();
+                if (buildUrl == null) buildUrl = Pmtiles.findLatestBuild(rememberedBuild());
                 Pmtiles p = new Pmtiles(buildUrl);
                 p.open();
+                rememberBuild(buildUrl);
                 // 1) small overview of the whole region (once)
                 if (!hasArea("overview")) {
                     l.progress(id, "Overview of the region…", 0, 1, 0);
