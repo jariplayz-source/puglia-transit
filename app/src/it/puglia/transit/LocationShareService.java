@@ -22,6 +22,19 @@ public class LocationShareService extends Service implements LocationListener {
     private LocationManager lm;
     private long lastSent = 0, lastPoll = 0;
     private Location lastLoc = null;
+    /** Every 30 s: without internet, keep the group in touch by Bluetooth (nearby) and text messages. */
+    private final Runnable offline = new Runnable() { public void run() {
+        try {
+            boolean on = OfflineLink.online(LocationShareService.this);
+            GroupCore.prefs(LocationShareService.this).edit().putBoolean("offline", !on).apply();
+            if (!on && GroupCore.anySharing(GroupCore.prefs(LocationShareService.this))) {
+                Location l = lastLoc != null ? lastLoc : lastKnown();
+                OfflineLink.btTick(LocationShareService.this, l != null ? l.getLatitude() : 999, l != null ? l.getLongitude() : 999);
+                if (l != null) OfflineLink.maybeSms(LocationShareService.this, l.getLatitude(), l.getLongitude());
+            } else OfflineLink.btStop(LocationShareService.this);
+        } catch (Exception e) { }
+        h.postDelayed(this, 30000);
+    }};
     private final android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
     /** Heartbeat: also send when you're not moving, so the group always sees a fresh position (every ~2 min). */
     private final Runnable beat = new Runnable() { public void run() {
@@ -80,10 +93,11 @@ public class LocationShareService extends Service implements LocationListener {
                 if (lm.getAllProviders().contains(p) && lm.isProviderEnabled(p)) lm.requestLocationUpdates(p, 20000, 0, this);
             }
         } catch (SecurityException e) { stopSelf(); return START_NOT_STICKY; } catch (Exception e) { }
-        h.removeCallbacks(beat);
+        h.removeCallbacks(beat); h.removeCallbacks(offline); OfflineLink.btStop(this);
         Location k = lastKnown();
         if (k != null && System.currentTimeMillis() - k.getTime() < 15 * 60000) { lastLoc = k; send(k, true); }
         h.postDelayed(beat, 120000);
+        h.removeCallbacks(offline); h.postDelayed(offline, 5000);
         return START_STICKY;
     }
 

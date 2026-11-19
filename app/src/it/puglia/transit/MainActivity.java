@@ -296,14 +296,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.5 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.5 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -329,7 +329,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/6.5 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -365,7 +365,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     for (int i = 0; i < 6; i++) {
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.5 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.6 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -439,6 +439,23 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         }
         @JavascriptInterface public void clearTrack() { new File(getFilesDir(), "track.csv").delete(); }
         @JavascriptInterface public int battery() { return GroupCore.battery(MainActivity.this); }
+        /** Offline link: messages that came in by text message or Bluetooth while there was no internet. */
+        @JavascriptInterface public String inbox() { return OfflineLink.takeInbox(MainActivity.this); }
+        @JavascriptInterface public boolean offline() { return !OfflineLink.online(MainActivity.this); }
+        @JavascriptInterface public boolean btReady() { return OfflineLink.btAvailable(MainActivity.this); }
+        @JavascriptInterface public boolean smsReady() { return Build.VERSION.SDK_INT < 23 || (checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED); }
+        @JavascriptInterface public void askOfflinePerms(final boolean sms) {
+            runOnUiThread(new Runnable() { public void run() {
+                if (Build.VERSION.SDK_INT < 23) return;
+                java.util.ArrayList<String> p = new java.util.ArrayList<String>();
+                if (sms) { p.add(Manifest.permission.SEND_SMS); p.add(Manifest.permission.RECEIVE_SMS); }
+                if (Build.VERSION.SDK_INT >= 31) { p.add(Manifest.permission.BLUETOOTH_SCAN); p.add(Manifest.permission.BLUETOOTH_ADVERTISE); }
+                java.util.ArrayList<String> need = new java.util.ArrayList<String>();
+                for (String x : p) if (checkSelfPermission(x) != PackageManager.PERMISSION_GRANTED) need.add(x);
+                if (!need.isEmpty()) requestPermissions(need.toArray(new String[0]), 77);
+            }});
+        }
+        @JavascriptInterface public void askBySms(final String topic, final String phone) { new Thread(new Runnable() { public void run() { OfflineLink.askBySms(MainActivity.this, topic, phone); } }).start(); }
         @JavascriptInterface public boolean sharing() { return GroupCore.prefs(MainActivity.this).getBoolean("sharing", false); }
         /** Sends an encrypted message to the relay; big ones (photos, voice notes) go as an attachment with a small encrypted note. */
         @JavascriptInterface public void publish(final String reqId, final String topic, final String body, final String note) {

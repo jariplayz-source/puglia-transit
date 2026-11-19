@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="it.puglia.transit" android:versionCode="49" android:versionName="6.5">
+    package="it.puglia.transit" android:versionCode="50" android:versionName="6.6">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -12,6 +12,15 @@
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-permission android:name="android.permission.SEND_SMS"/>
+  <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+  <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+  <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+  <uses-feature android:name="android.hardware.telephony" android:required="false"/>
   <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="34"/>
   <queries>
     <intent><action android:name="android.intent.action.VIEW"/><data android:scheme="geo"/></intent>
@@ -27,6 +36,9 @@
       </intent-filter>
     </activity>
     <receiver android:name=".AlarmReceiver" android:exported="false"/>
+    <receiver android:name=".SmsReceiver" android:exported="true" android:permission="android.permission.BROADCAST_SMS">
+      <intent-filter><action android:name="android.provider.Telephony.SMS_RECEIVED"/></intent-filter>
+    </receiver>
     <service android:name=".LocationShareService" android:exported="false" android:foregroundServiceType="location"/>
     <service android:name=".GroupPollJob" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE"/>
     <provider android:name=".ShareProvider" android:authorities="it.puglia.transit.share" android:exported="false" android:grantUriPermissions="true"/>

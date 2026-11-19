@@ -489,6 +489,7 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
 .fl-arc{width:100%;height:auto}.fl-meta{font-size:13.5px;color:var(--muted);margin-top:6px}.fl-more{border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
 details.orig{margin-top:6px;font-size:13px;color:var(--muted)}details.orig summary{cursor:pointer}
 body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!important}
+.offl{border:1.5px dashed var(--line)}.offrow{display:grid;grid-template-columns:24px auto 1fr;gap:6px;align-items:baseline;margin-top:6px;font-size:14px}.offrow span{color:var(--muted);font-size:13px}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -1186,9 +1187,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.5";            // bump on every release
+const APP_VERSION="6.6";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.6","Group without internet: offline mode switches on by itself and keeps you in touch by Bluetooth (nearby) and text messages"],
  ["6.5","✈️ Flights (scan your boarding pass from Google Wallet), 🏠 everyday groups for friends at home, place info in your language (translated when needed), and more offline: posts wait and send later, I'm OK and SOS by text message, last departures, road info and train times stay visible without internet"],
  ["6.4","Several travel groups (switch at the top of Group, location sharing per group), a nicer trip summary like Polarsteps, and a food needs card (no cheese, lactose, vegetarian, vegan, gluten, nuts, pork, fish) in the language of the country you're in"],
  ["6.3","Group: locations now update by themselves every 15 s, a clear Update button, an 📍 Ask button to request someone's location, and sharing keeps sending even when you sit still. Home mode now follows where you live (set it in ⚙️), in any country"],
@@ -3707,7 +3709,7 @@ const gNative=()=>!!(window.AndroidGroup&&window.AndroidGroup.encrypt);
 const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const ago=ts=>{const m=Math.round((Date.now()-ts)/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago";};
 const alertPlaces=()=>MYP.filter(m=>!m.pin).map(m=>({n:m.name,lat:m.lat,lon:m.lon,r:150}));
-function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,since:g.lastId||"1h"})),notify:!!NOTIF.group,places:alertPlaces(),placeAlerts:!!NOTIF.places}));}catch(e){}}
+function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,since:g.lastId||"1h",mids:Object.keys(g.members),phones:Object.fromEntries(Object.entries(g.members).filter(([i,m])=>m.phone).map(([i,m])=>[i,m.phone]))})),notify:!!NOTIF.group,places:alertPlaces(),placeAlerts:!!NOTIF.places}));}catch(e){}}
 function placeOf(ll){for(const m of MYP)if(!m.pin&&hav(ll,[m.lat,m.lon])<0.15)return (m.home?"🏠 ":"")+m.name;const t=hereTownOf(ll[0],ll[1]);return t?"in "+t:"";}
 function moveOf(l){if(!l||l.spd==null||l.spd<0)return "";return l.spd>8?"🚆 On the move":l.spd>0.8?"🚶 Walking":"🧍 Still";}
 function batOf(b,chg){if(b==null||b<0)return "";return `${chg?"⚡":b<=20?"🪫":"🔋"} ${b}%`;}
@@ -3725,7 +3727,7 @@ async function gStart(gname,myname,inv,kind){
   saveAlbum();saveCosts();
   GRP={id:gid0(),name:gname||"Our trip",key:inv?inv.k:window.AndroidGroup.newKey(),topic:inv?inv.t:window.AndroidGroup.newTopic(),me:{id:rid(),name:myname||(GROUPS[0]&&GROUPS[0].me.name)||"Me"},members:{},lastId:null,since:Date.now(),sharing:false,kind:inv?(inv.y||"trip"):(kind||"trip")};
   GROUPS.push(GRP);ALBUM=[];gAdding=false;saveGrp();loadCostsFor();gCfg();renderGroup();try{renderAlbum();}catch(e){}
-  try{await gPublish({ty:"hello"});}catch(e){toast("⚠ "+e.message);}
+  try{await gPublish({ty:"hello",...(MYPHONE?{phone:MYPHONE}:{})});}catch(e){toast("⚠ "+e.message);}
   gPoll();
 }
 function gLeave(){const G=GRP;if(!G)return;try{gPublish({ty:"bye"},null,G).catch(()=>{});}catch(e){}
@@ -3753,7 +3755,9 @@ async function gPollG(G){
         continue;}
       if(env.ty==="sos"){SOS={name:env.name+gl,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
       if(env.ty==="checkin"){toast(`✅ ${env.name}${gl}: ${env.cap||"all OK"}`);continue;}
-      if(env.ty==="hello"){toast(`👋 ${env.name} joined ${G.name}`);continue;}
+      if(env.phone)m.phone=env.phone;
+      if(env.ty==="profile")continue;
+      if(env.ty==="hello"){toast(`👋 ${env.name} joined ${G.name}`);if(MYPHONE)gPublish({ty:"profile",phone:MYPHONE},null,G).catch(()=>{});continue;}
       if(env.ty==="bye"){delete G.members[env.from];continue;}
       if(A.some(a=>a.id===o.id))continue;
       const it={id:o.id,ty:env.ty,from:env.from,name:env.name,ts:env.ts,cap:env.cap||"",town:env.town||"",ll:env.ll||null,dur:env.dur||0,played:false};
@@ -3776,7 +3780,8 @@ function sendMyLoc(force,only){if(!me||navigator.onLine===false)return;const L=G
   if(!force&&Date.now()-lastMySend<60e3)return;if(!only)lastMySend=Date.now();
   let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}
   for(const G of L)gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})},null,G).catch(()=>{});}
-async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;try{await gPublish({ty:"locreq",to:id});toast(`📍 Asked ${m.name} for their location`);m.asked=Date.now();renderGroup();setTimeout(gPoll,15000);setTimeout(gPoll,45000);}catch(e){toast("⚠ "+e.message);}}
+async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;
+  if(isOffline()){if(m.phone){try{window.AndroidGroup.askBySms(GRP.topic,m.phone);}catch(e){}m.asked=Date.now();toast(`📱 Asked ${m.name} by text message`);renderGroup();}else toast(`📴 No internet, and no phone number for ${m.name} yet`);return;}try{await gPublish({ty:"locreq",to:id});toast(`📍 Asked ${m.name} for their location`);m.asked=Date.now();renderGroup();setTimeout(gPoll,15000);setTimeout(gPoll,45000);}catch(e){toast("⚠ "+e.message);}}
 setInterval(()=>{if(!GROUPS.length||document.hidden)return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
   if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&GRP)gPoll();});
@@ -3805,6 +3810,27 @@ async function flushOutbox(){if(flushing||!OUTBOX.length||navigator.onLine===fal
   saveOutbox();flushing=false;if(n){toast(`📤 Sent ${n} saved message${n>1?"s":""}`);try{renderAlbum();renderGroup();}catch(e){}}}
 window.addEventListener("online",()=>setTimeout(flushOutbox,3000));setInterval(flushOutbox,60e3);setTimeout(flushOutbox,8000);
 function smsLink(text){return "sms:?body="+encodeURIComponent(text);}
+/* ---------- OFFLINE LINK: when there's no internet the app keeps the group in touch by Bluetooth (nearby) and text messages ---------- */
+var MYPHONE="";try{MYPHONE=localStorage.getItem("pt-myphone")||"";}catch(e){}
+function setMyPhone(v){MYPHONE=(v||"").replace(/[^+\d]/g,"");try{localStorage.setItem("pt-myphone",MYPHONE);}catch(e){}
+  if(MYPHONE){try{window.AndroidGroup.askOfflinePerms(true);}catch(e){}for(const G of GROUPS)gSend({ty:"profile",phone:MYPHONE},null,G).catch(()=>{});toast("📱 Saved: your group gets your number, only used when there's no internet");}renderGroup();}
+function isOffline(){try{if(window.AndroidGroup&&window.AndroidGroup.offline)return window.AndroidGroup.offline();}catch(e){}return navigator.onLine===false;}
+function readInbox(){if(!gNative()||!window.AndroidGroup.inbox)return;let L=[];try{L=JSON.parse(window.AndroidGroup.inbox()||"[]");}catch(e){}if(!L.length)return;
+  let ch=false;for(const x of L){const G=GROUPS.find(g=>g.topic===x.topic);if(!G||!x.from)continue;const m=G.members[x.from];if(!m)continue;
+    if(x.phone&&!m.phone)m.phone=x.phone;
+    if(x.ty==="loc"&&(!m.last||x.ts>=m.last.ts)){m.last={lat:x.lat,lon:x.lon,acc:x.via==="bt"?60:100,ts:x.ts,via:x.via};m.trail=(m.trail||[]).concat([[x.ts,x.lat,x.lon]]).slice(-500);ch=true;}
+    if(x.ty==="locreq"){LOCREQ={name:m.name,ts:x.ts,g:G.id};ch=true;}}
+  if(ch){saveGrp();gCfg();try{renderGroup();}catch(e){}drawMap();}}
+setInterval(readInbox,15000);setTimeout(readInbox,3000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(readInbox,500);});
+function offlineBanner(){if(!isOffline())return "";
+  let bt=false,sms=false;try{bt=window.AndroidGroup.btReady();sms=window.AndroidGroup.smsReady();}catch(e){}
+  const withNo=GROUPS.filter(g=>g.sharing).flatMap(g=>Object.values(g.members).filter(m=>m.phone).map(m=>m.name));
+  return `<div class="card offl"><div class="dest">📴 No internet: offline mode</div>
+    <div class="small" style="margin-top:4px">${GROUPS.some(g=>g.sharing)?`Your location still goes out:`:`Switch on “Share my live location” to be found without internet:`}</div>
+    <div class="offrow">${bt?"🔵":"⚪"} <b>Bluetooth nearby</b> <span>${bt?"on: finds your group within about 50–100 m":"turn on Bluetooth to find each other nearby"}</span></div>
+    <div class="offrow">${sms&&withNo.length?"📱":"⚪"} <b>Text messages</b> <span>${!sms?"allow text messages (tap below)":withNo.length?`your location goes to ${withNo.slice(0,3).join(", ")} every 30 min (max 16 a day)`:"nobody's phone number known yet"}</span></div>
+    ${!sms||!bt?`<div class="btns"><button class="btn ghost" id="offPerm">Allow</button></div>`:""}
+    <div class="small">Posts wait and are sent when the internet is back. Texts cost what your phone plan charges.</div></div>`;}
 
 async function addPost(ty,cap,b64,dur){
   const id=rid(),it={id,ty,from:GRP?GRP.me.id:"me",name:GRP?GRP.me.name:"Me",ts:Date.now(),cap:cap||"",town:hereTown||"",ll:me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,dur:dur||0,played:true,mine:true};
@@ -3873,14 +3899,14 @@ function renderGroup(){
     return;}
   const sharing=!!GRP.sharing;
   const mem=Object.entries(GRP.members).sort((a,b)=>(b[1].seen||0)-(a[1].seen||0));
-  const offB=navigator.onLine===false?`<div class="rt-warn" style="margin:0 0 8px">📴 No internet: showing last known locations. What you post is saved and sent when you're back online${OUTBOX.length?` (${OUTBOX.length} waiting)`:""}.</div>`:OUTBOX.length?`<div class="small" style="margin:0 0 8px">📤 ${OUTBOX.length} message${OUTBOX.length>1?"s":""} waiting to be sent…</div>`:"";
+  const offB=isOffline()?offlineBanner()+(OUTBOX.length?`<div class="small" style="margin:0 0 8px">📤 ${OUTBOX.length} waiting to be sent</div>`:""):OUTBOX.length?`<div class="small" style="margin:0 0 8px">📤 ${OUTBOX.length} message${OUTBOX.length>1?"s":""} waiting to be sent…</div>`:"";
   b.innerHTML=sw+offB+`<div class="card"><div class="trip-h"><div class="dest">${GRP.kind==="home"?"🏠":"👥"} ${escH(GRP.name)}</div><span class="badge">${mem.length+1} people</span></div>
     ${LOCREQ&&!sharing&&(!LOCREQ.g||LOCREQ.g===GRP.id)?`<div class="rt-warn" style="margin:6px 0">📍 ${LOCREQ.name} asked where you are: switch on sharing below.</div>`:""}
     <div class="sw"><span class="w">📍 Share my live location<small>${sharing?`On for ${escH(GRP.name)}, also when the app is closed`:`Off: ${escH(GRP.name)} can't see where you are`}${GROUPS.length>1?" · set per group":""}</small></span><button class="tg ${sharing?"on":""}" id="gShare" aria-pressed="${sharing}" aria-label="Share my live location"></button></div>
     <div class="mem"><span class="av" style="background:${gColor(GRP.me.id)}">${GRP.me.name.slice(0,1).toUpperCase()}</span><span class="w"><b>${GRP.me.name}</b> (you)<small>${sharing?"Sharing location":"Not sharing location"}${me?" · "+(placeOf([me.lat,me.lon])||""):""}</small>
       ${(()=>{let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}return bt>=0?`<span class="st"><span>${batOf(bt%1000,bt>=1000)}</span></span>`:"";})()}</span></div>
     ${mem.map(([id,m])=>`<div class="mem"><span class="av" style="background:${gColor(id)}">${(m.name||"?").slice(0,1).toUpperCase()}</span><span class="w"><b>${m.name}</b>
-      <small>${m.last?`${placeOf([m.last.lat,m.last.lon])||"📍"} · ${ago(m.last.ts)}${me?" · "+kmTxt(hav([me.lat,me.lon],[m.last.lat,m.last.lon])):""}${Date.now()-m.last.ts>15*60e3?" · not updated lately":""}`:"Not sharing location yet"}${m.ver?` · app ${m.ver}`:""}</small>
+      <small>${m.last?`${placeOf([m.last.lat,m.last.lon])||"📍"} · ${ago(m.last.ts)}${me?" · "+kmTxt(hav([me.lat,me.lon],[m.last.lat,m.last.lon])):""}${m.last.via==="sms"?" · 📱 by text":m.last.via==="bt"?" · 🔵 nearby":""}${Date.now()-m.last.ts>15*60e3?" · not updated lately":""}`:"Not sharing location yet"}${m.ver?` · app ${m.ver}`:""}</small>
       ${m.last?`<span class="st">${batOf(m.last.bat,m.last.chg)?`<span class="${m.last.bat<=20&&!m.last.chg?"low":""}">${batOf(m.last.bat,m.last.chg)}</span>`:""}${moveOf(m.last)?`<span>${moveOf(m.last)}</span>`:""}</span>`:""}</span>
       <span style="display:flex;flex-direction:column;gap:4px;flex:none">${m.last?`<button class="mini" data-gmap="${id}" style="margin:0">Show</button>`:""}${!m.last||Date.now()-m.last.ts>5*60e3?`<button class="mini" data-gask="${id}" style="margin:0">${m.asked&&Date.now()-m.asked<120e3?"Asked ✓":"📍 Ask"}</button>`:""}</span></div>`).join("")}
     ${!mem.length?`<div class="small" style="margin-top:6px">Nobody else yet. Send them the invite below.</div>`:""}
@@ -3891,12 +3917,17 @@ function renderGroup(){
     ${gErr?`<div class="live-err">Last check: ${gErr}</div>`:""}
     <details class="adv"><summary>Invite code & privacy ▸</summary><div class="code">${inviteCode()}</div>
       <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>
+      <div class="dest" style="margin-top:12px;font-size:15px">📱 Backup when there's no internet</div>
+      <div class="small">Your phone number is shared (encrypted) with your groups and only used to send your location by text message when there's no internet.</div>
+      <div class="np-row" style="margin-top:6px"><input id="myPhone" class="np-select" type="tel" placeholder="+39 …" value="${escH(MYPHONE)}"><button class="mini" id="myPhoneSave" style="margin:0;flex:none">Save</button></div>
       <div class="btns"><button class="btn ghost" id="gLeave" style="color:var(--warn)">Leave group</button></div></details></div>`;
-  b.querySelector("#gShare").onclick=()=>{GRP.sharing=!sharing;saveGrp();gCfg();try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}if(!sharing){if(LOCREQ&&LOCREQ.g===GRP.id)LOCREQ=null;setTimeout(()=>sendMyLoc(true,GRP),600);}renderGroup();};
+  b.querySelector("#gShare").onclick=()=>{GRP.sharing=!sharing;saveGrp();gCfg();if(!sharing){try{window.AndroidGroup.askOfflinePerms(!!MYPHONE);}catch(e){}}try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}if(!sharing){if(LOCREQ&&LOCREQ.g===GRP.id)LOCREQ=null;setTimeout(()=>sendMyLoc(true,GRP),600);}renderGroup();};
   gSwHooks(b);
   b.querySelector("#gInv").onclick=()=>{try{window.AndroidGroup.shareText(`Join my Out & Back travel group “${GRP.name}”. Open the app → Group → paste this code:\n\n${inviteCode()}`);}catch(e){}};
   b.querySelector("#gRef").onclick=()=>gPoll();
   b.querySelectorAll("[data-gask]").forEach(x=>x.onclick=()=>askLoc(x.dataset.gask));
+  {const s=b.querySelector("#myPhoneSave");if(s)s.onclick=()=>setMyPhone(b.querySelector("#myPhone").value);}
+  {const o=b.querySelector("#offPerm");if(o)o.onclick=()=>{try{window.AndroidGroup.askOfflinePerms(true);}catch(e){}setTimeout(renderGroup,3000);};}
   b.querySelector("#gCheck").onclick=checkIn;
   {const s=b.querySelector("#gSOS");let t=null;const go=e=>{e.preventDefault();s.classList.add("hold");t=setTimeout(()=>{s.classList.remove("hold");if(navigator.vibrate)try{navigator.vibrate([300,100,300]);}catch(x){}sendSOS();},2000);};
    const stop=()=>{clearTimeout(t);s.classList.remove("hold");};s.addEventListener("pointerdown",go);s.addEventListener("pointerup",stop);s.addEventListener("pointerleave",stop);s.addEventListener("pointercancel",stop);}
