@@ -480,6 +480,10 @@ body.walking #gpsQ{top:auto;bottom:96px}
 .hseg button .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--warn);color:#fff;font-size:11.5px;line-height:18px}
 body.mode-home #hSegT,body:not(.mode-home) #hSegH{display:none}
 html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) #nlRoad,html:not([data-country="nl"]) .rt-warn{display:none!important}
+.gsw{display:flex;gap:8px;align-items:center;margin:4px 0 10px}.gsw select{flex:1;font-weight:700}
+.cheese-card .cc-lang{font-size:12px;font-weight:700;letter-spacing:.04em;color:#8a6d00;margin-bottom:4px}.cheese-card .cc-list{margin:4px 0 8px;padding-left:4px;list-style:none;font-size:18px;line-height:1.45}.cheese-card.full .cc-list{font-size:23px}
+.sum-ov{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}.sum-ov iframe{flex:1;border:0;width:100%;background:#f6f1e7}
+.sum-bar{display:flex;gap:10px;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);background:var(--card);box-shadow:0 -2px 10px rgba(0,0,0,.12)}.sum-bar .btn{flex:1}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 </style>
@@ -578,25 +582,14 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
 
   <!-- NO CHEESE -->
   <section class="view" id="v-shops">
-    <div class="seg" id="nSeg" style="margin:10px 0 4px"><button data-nseg="shops" class="on">🛒 Shops &amp; bars</button><button data-nseg="food">🧀🚫 Eating out</button></div>
+    <div class="seg" id="nSeg" style="margin:10px 0 4px"><button data-nseg="shops" class="on">🛒 Shops &amp; bars</button><button data-nseg="food">🍽 Food needs</button></div>
     <div data-npane="shops"><div id="shopsBox"></div></div>
     <div data-npane="food" hidden>
-    <h2>🧀🚫 No-cheese card</h2>
-    <p class="small" style="margin-top:0">Tap the card to show it full-screen to the waiter.</p>
-    <div class="cheese-card" id="cheeseCard">
-      <div class="cc-big">Non mangio formaggio.</div>
-      <div class="cc-mid">Per favore, <b>niente formaggio</b> nel mio piatto: niente mozzarella, burrata, stracciatella, ricotta, pecorino, parmigiano o caciocavallo.</div>
-      <div class="cc-mid">Grazie mille! 🙏</div>
-      <div class="cc-en">I don't eat cheese. Please no cheese of any kind in my dish. Thank you!</div>
-    </div>
-    <div class="card"><div class="phr"><span>Is there cheese in it?</span><i>C'è formaggio dentro?</i></div>
-      <div class="phr"><span>Without cheese, please</span><i>Senza formaggio, per favore</i></div>
-      <div class="phr"><span>No grated cheese on top</span><i>Niente formaggio grattugiato sopra</i></div>
-      <div class="phr"><span>Can you make it without?</span><i>Si può fare senza?</i></div></div>
-    <h2>✅ Usually cheese-free</h2>
+    <div id="dietBox"></div>
+    <div class="cheese-it"><h2>✅ Usually cheese-free in Puglia</h2>
     <div class="card"><ul class="list" id="foodOk"></ul></div>
     <h2>⚠️ Hidden cheese: check first</h2>
-    <div class="card"><ul class="list" id="foodNo"></ul></div>
+    <div class="card"><ul class="list" id="foodNo"></ul></div></div>
   </div>
   </section>
 
@@ -1184,9 +1177,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.3";            // bump on every release
+const APP_VERSION="6.4";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.4","Several travel groups (switch at the top of Group, location sharing per group), a nicer trip summary like Polarsteps, and a food needs card (no cheese, lactose, vegetarian, vegan, gluten, nuts, pork, fish) in the language of the country you're in"],
  ["6.3","Group: locations now update by themselves every 15 s, a clear Update button, an 📍 Ask button to request someone's location, and sharing keeps sending even when you sit still. Home mode now follows where you live (set it in ⚙️), in any country"],
  ["6.2","New name and logo: Out & Back. Your data, places and group stay as they are"],
  ["6.1","Home is split into sections (Today · Trains · Day trips, or Now · Transit · Roads at home). Map chips no longer cut off. Sharper GPS: combined location, best fix wins, less jumping, and a hint when the signal is weak or only approximate location is allowed"],
@@ -1390,7 +1384,7 @@ function drawMap(){
       ${vb[2]<160||m.home?`<text x="${x+12*u}" y="${y+4*u}" font-size="${12*u}">${m.name}</text>`:""}</g>`;}
   if(journeyOn){const jg=journeyGeo();for(const f of jg[0].features)h+=`<polyline points="${f.geometry.coordinates.map(c=>proj(c[1],c[0]).join(",")).join(" ")}" fill="none" stroke="${f.properties.col}" stroke-width="${f.properties.w}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".85"/>`;
     for(const f of jg[1].features){const [x,y]=proj(f.geometry.coordinates[1],f.geometry.coordinates[0]);h+=`<g class="jstep" data-jstep="${f.properties.id}"><circle cx="${x}" cy="${y}" r="${8*u}" fill="${f.properties.col}" stroke="#fff" stroke-width="3" vector-effect="non-scaling-stroke"/></g>`;}}
-  if(GRP)for(const f of groupGeo().features){const [x,y]=proj(f.geometry.coordinates[1],f.geometry.coordinates[0]);
+  if(GROUPS.length)for(const f of groupGeo().features){const [x,y]=proj(f.geometry.coordinates[1],f.geometry.coordinates[0]);
     h+=`<g><circle cx="${x}" cy="${y}" r="${10*u}" fill="${f.properties.col}" stroke="#fff" stroke-width="3" vector-effect="non-scaling-stroke"/><text x="${x}" y="${y+4*u}" font-size="${11*u}" text-anchor="middle" style="stroke:none;fill:#fff">${f.properties.ini}</text>
       <text x="${x+13*u}" y="${y+4*u}" font-size="${11.5*u}">${f.properties.label}</text></g>`;}
   h+=scaleBar();
@@ -1448,7 +1442,7 @@ function updatePanel(){
   el("npRoute").textContent=routeText();
   el("npInfo").textContent=(route&&route.ok?`Next: head ${cardinal(b)} · `:`${cardinal(b)} (${Math.round(b)}°) of you · `)+(heading==null?"arrow: top of screen = north":"arrow points the way, hold the phone flat")+(out?" · you're outside the map area":"")+(me.acc>200?` · GPS accuracy ±${Math.round(me.acc)} m`:"");
 }
-function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTimeout(()=>{applyCountry();if(first&&appMode()==="home")renderNL();nlMoved();gpsQuality();},0);updateHere();followTick();
+function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTimeout(()=>{applyCountry();if(first&&appMode()==="home")renderNL();nlMoved();gpsQuality();dietCountry();},0);updateHere();followTick();
   if(!onLocation._s||Date.now()-onLocation._s>30000){onLocation._s=Date.now();try{localStorage.setItem("pt-lastme",JSON.stringify([+lat.toFixed(5),+lon.toFixed(5)]));}catch(e){}}
   if(first&&!mapMoved&&activeTrip==null&&!walking){
     if(lat>MB.s&&lat<MB.n&&lon>MB.w&&lon<MB.e){const [x,y]=proj(lat,lon);vb=[x-40,y-36,80,72];}
@@ -2169,7 +2163,7 @@ function renderOffBox(){setTimeout(bgSync,0);
     <div class="small">⬇ saves a city's street map, places, explanations, supermarkets and bars so everything works without internet: map, walking directions, search, day trips and “About this place”. 🗑 removes it again (the built-in list stays).${online?"":" <b>📴 You're offline now: downloads wait until you're back online.</b>"}</div>
     ${app&&online?`<div class="btns"><button class="btn ghost" style="border:0" id="cdlHere" ${!hereTown?"disabled":""}>⬇ Save the city I'm in${hereTown?" ("+hereTown+")":""}</button></div>`:""}
     <div style="margin-top:6px">${rows}</div>${short.length&&short.length<all.length?`<button class="offmore" id="offMore">${offAll?"Show fewer":"Show all "+all.length+" cities ▸"}</button>`:""}
-    <div class="small" style="margin-top:8px">Always offline: train & bus estimates, last connections back, day trips, the no-cheese card, practical info. Needs internet: real-time trains, online search, updates.</div>`;
+    <div class="small" style="margin-top:8px">Always offline: train & bus estimates, last connections back, day trips, the food needs card, practical info. Needs internet: real-time trains, online search, updates.</div>`;
   b.querySelectorAll("[data-cdl]").forEach(x=>x.onclick=()=>downloadCity(x.dataset.cdl));
   b.querySelectorAll("[data-cdel]").forEach(x=>x.onclick=()=>{const t=x.dataset.cdel;if(offConfirm!==t){offConfirm=t;renderOffBox();setTimeout(()=>{if(offConfirm===t){offConfirm=null;renderOffBox();}},4000);return;}offConfirm=null;removeCity(t);});
   const om=b.querySelector("#offMore");if(om)om.onclick=()=>{offAll=!offAll;renderOffBox();};
@@ -3039,7 +3033,7 @@ document.getElementById("dest").addEventListener("click",e=>{
   const v=e.target.dataset.vis; if(v){visited=visited.includes(v)?visited.filter(x=>x!==v):[...visited,v];saveVisited();render();return;}
   const k=e.target.dataset.k;if(!k)return;
   favs=favs.includes(k)?favs.filter(x=>x!==k):[...favs,k];saveFavs();render();});
-document.getElementById("cheeseCard").addEventListener("click",e=>e.currentTarget.classList.toggle("full"));
+
 function renderExtra(){
   renderTrips();
   document.getElementById("foodOk").innerHTML=FOOD_OK.map(x=>`<li>${x}</li>`).join("");
@@ -3299,6 +3293,63 @@ function nlMoved(){if(appMode()!=="home"||!me)return;if(!nlLoadedAt||hav([me.lat
 setInterval(()=>{if(appMode()==="home"&&!document.hidden&&document.body.classList.contains("tab-dest")){if(Date.now()-nlDep.at>3*60e3)loadNlDep();if(Date.now()-nlRoad.at>5*60e3)loadNlRoad();fetchHereWx(false);}
   if(appMode()==="home"&&me&&SHOPS["Near me"]&&SHOPS["Near me"].c&&hav([me.lat,me.lon],SHOPS["Near me"].c)>2&&!shopsBusy.has("Near me"))getShops("Near me");},60e3);
 
+/* ---------- FOOD NEEDS CARD: what you can't eat, in the language(s) of the country you're in ---------- */
+const DIET_KEYS=[["cheese","🧀","No cheese"],["lactose","🥛","Lactose-free"],["veg","🥦","Vegetarian"],["vegan","🌱","Vegan"],["gluten","🌾","Gluten-free (coeliac)"],["nuts","🥜","Nut allergy"],["pork","🐖","No pork"],["fish","🐟","No fish or seafood"]];
+const DIET_ALLERGY=new Set(["gluten","nuts"]);
+const DIET_LANG={
+ en:{n:"English",intro:"I can't eat:",please:"Please make my dish without these ingredients.",allergy:"This is an allergy: even small traces make me ill.",thanks:"Thank you very much! 🙏",
+   q:x=>`Is there ${x} in it?`,w:x=>`Without ${x}, please`,can:"Can you make it without?",
+   i:{cheese:["cheese (no grated cheese on top either)","cheese"],lactose:["milk and dairy (milk, cream, butter, cheese, yoghurt): lactose intolerant","milk or dairy"],veg:["meat and fish (I'm vegetarian), also no meat stock","meat or fish"],vegan:["any animal products: meat, fish, eggs, milk, cheese, butter, honey","animal products"],gluten:["gluten (I'm coeliac): bread, pasta, flour, breadcrumbs","gluten"],nuts:["nuts: almonds, walnuts, hazelnuts, pistachios, peanuts","nuts"],pork:["pork (also ham, bacon, salami)","pork"],fish:["fish and seafood","fish or seafood"]}},
+ it:{n:"Italiano",intro:"Non posso mangiare:",please:"Per favore, prepari il mio piatto senza questi ingredienti.",allergy:"È un'allergia: anche piccole tracce mi fanno stare male.",thanks:"Grazie mille! 🙏",
+   q:x=>`Contiene ${x}?`,w:x=>`Senza ${x}, per favore`,can:"Si può fare senza?",
+   i:{cheese:["formaggio (niente mozzarella, burrata, ricotta, pecorino, parmigiano, nemmeno grattugiato)","formaggio"],lactose:["latte e latticini (latte, panna, burro, formaggio, yogurt): sono intollerante al lattosio","latte o latticini"],veg:["carne e pesce (sono vegetariano/a), anche niente brodo di carne o acciughe","carne o pesce"],vegan:["nessun prodotto animale: carne, pesce, uova, latte, formaggio, burro, miele","prodotti animali"],gluten:["glutine (sono celiaco/a): pane, pasta, farina, pangrattato","glutine"],nuts:["frutta a guscio: mandorle, noci, nocciole, pistacchi, arachidi","frutta a guscio"],pork:["carne di maiale (anche prosciutto, salame, pancetta, guanciale, strutto)","maiale"],fish:["pesce e frutti di mare","pesce o frutti di mare"]}},
+ nl:{n:"Nederlands",intro:"Ik kan dit niet eten:",please:"Wilt u mijn gerecht zonder deze ingrediënten maken?",allergy:"Dit is een allergie: zelfs kleine sporen maken me ziek.",thanks:"Hartelijk dank! 🙏",
+   q:x=>`Zit er ${x} in?`,w:x=>`Zonder ${x}, alstublieft`,can:"Kan het zonder?",
+   i:{cheese:["kaas (ook geen geraspte kaas erover)","kaas"],lactose:["melk en zuivel (melk, room, boter, kaas, yoghurt): ik ben lactose-intolerant","melk of zuivel"],veg:["vlees en vis (ik ben vegetariër), ook geen vleesbouillon","vlees of vis"],vegan:["geen dierlijke producten: vlees, vis, eieren, melk, kaas, boter, honing","dierlijke producten"],gluten:["gluten (ik heb coeliakie): brood, pasta, bloem, paneermeel","gluten"],nuts:["noten: amandelen, walnoten, hazelnoten, pistachenoten, pinda's","noten"],pork:["varkensvlees (ook ham, spek, salami)","varkensvlees"],fish:["vis en zeevruchten","vis of zeevruchten"]}},
+ de:{n:"Deutsch",intro:"Ich darf Folgendes nicht essen:",please:"Bitte bereiten Sie mein Gericht ohne diese Zutaten zu.",allergy:"Das ist eine Allergie: Schon kleine Spuren machen mich krank.",thanks:"Vielen Dank! 🙏",
+   q:x=>`Ist da ${x} drin?`,w:x=>`Ohne ${x}, bitte`,can:"Geht es auch ohne?",
+   i:{cheese:["Käse (auch keinen geriebenen Käse darüber)","Käse"],lactose:["Milch und Milchprodukte (Milch, Sahne, Butter, Käse, Joghurt): ich habe eine Laktoseintoleranz","Milch"],veg:["Fleisch und Fisch (ich bin Vegetarier/in), auch keine Fleischbrühe","Fleisch oder Fisch"],vegan:["keine tierischen Produkte: Fleisch, Fisch, Eier, Milch, Käse, Butter, Honig","tierische Produkte"],gluten:["Gluten (ich habe Zöliakie): Brot, Nudeln, Mehl, Paniermehl","Gluten"],nuts:["Nüsse: Mandeln, Walnüsse, Haselnüsse, Pistazien, Erdnüsse","Nüsse"],pork:["Schweinefleisch (auch Schinken, Speck, Salami)","Schweinefleisch"],fish:["Fisch und Meeresfrüchte","Fisch oder Meeresfrüchte"]}},
+ fr:{n:"Français",intro:"Je ne peux pas manger :",please:"Merci de préparer mon plat sans ces ingrédients.",allergy:"C'est une allergie : même de petites traces me rendent malade.",thanks:"Merci beaucoup ! 🙏",
+   q:x=>`Est-ce qu'il y a ${x} dedans ?`,w:x=>`Sans ${x}, s'il vous plaît`,can:"Est-ce possible sans ?",
+   i:{cheese:["le fromage (pas de fromage râpé non plus)","du fromage","fromage"],lactose:["le lait et les produits laitiers (lait, crème, beurre, fromage, yaourt) : intolérance au lactose","du lait","lait"],veg:["la viande et le poisson (je suis végétarien·ne), ni bouillon de viande","de la viande ou du poisson","viande ni poisson"],vegan:["aucun produit animal : viande, poisson, œufs, lait, fromage, beurre, miel","des produits animaux","produits animaux"],gluten:["le gluten (je suis cœliaque) : pain, pâtes, farine, chapelure","du gluten","gluten"],nuts:["les fruits à coque : amandes, noix, noisettes, pistaches, cacahuètes","des fruits à coque","fruits à coque"],pork:["le porc (ni jambon, lardons, saucisson)","du porc","porc"],fish:["le poisson et les fruits de mer","du poisson ou des fruits de mer","poisson ni fruits de mer"]}},
+ es:{n:"Español",intro:"No puedo comer:",please:"Por favor, prepare mi plato sin estos ingredientes.",allergy:"Es una alergia: incluso pequeñas trazas me sientan mal.",thanks:"¡Muchas gracias! 🙏",
+   q:x=>`¿Lleva ${x}?`,w:x=>`Sin ${x}, por favor`,can:"¿Se puede hacer sin?",
+   i:{cheese:["queso (tampoco queso rallado por encima)","queso"],lactose:["leche y lácteos (leche, nata, mantequilla, queso, yogur): tengo intolerancia a la lactosa","leche o lácteos"],veg:["carne y pescado (soy vegetariano/a), tampoco caldo de carne","carne o pescado"],vegan:["ningún producto animal: carne, pescado, huevos, leche, queso, mantequilla, miel","productos animales"],gluten:["gluten (soy celíaco/a): pan, pasta, harina, pan rallado","gluten"],nuts:["frutos secos: almendras, nueces, avellanas, pistachos, cacahuetes","frutos secos"],pork:["cerdo (tampoco jamón, beicon, chorizo)","cerdo"],fish:["pescado y marisco","pescado o marisco"]}},
+ pt:{n:"Português",intro:"Não posso comer:",please:"Por favor, prepare o meu prato sem estes ingredientes.",allergy:"É uma alergia: até pequenos vestígios me fazem mal.",thanks:"Muito obrigado/a! 🙏",
+   q:x=>`Tem ${x}?`,w:x=>`Sem ${x}, por favor`,can:"Pode ser sem?",
+   i:{cheese:["queijo (nem queijo ralado por cima)","queijo"],lactose:["leite e laticínios (leite, natas, manteiga, queijo, iogurte): tenho intolerância à lactose","leite ou laticínios"],veg:["carne e peixe (sou vegetariano/a), nem caldo de carne","carne ou peixe"],vegan:["nenhum produto animal: carne, peixe, ovos, leite, queijo, manteiga, mel","produtos animais"],gluten:["glúten (sou celíaco/a): pão, massa, farinha, pão ralado","glúten"],nuts:["frutos secos: amêndoas, nozes, avelãs, pistácios, amendoins","frutos secos"],pork:["carne de porco (nem fiambre, bacon, chouriço)","porco"],fish:["peixe e marisco","peixe ou marisco"]}}};
+const CC_LANGS={it:["it"],sm:["it"],va:["it"],nl:["nl"],be:["nl","fr"],de:["de"],at:["de"],ch:["de","fr","it"],li:["de"],lu:["fr","de"],fr:["fr"],mc:["fr"],es:["es"],ad:["es"],pt:["pt"],br:["pt"],gb:["en"],ie:["en"],us:["en"],mt:["en"],ca:["en","fr"]};
+var DIET=["cheese"],DIET_CC="",DIET_LANGSEL=null;
+try{const d=JSON.parse(localStorage.getItem("pt-diet"));if(Array.isArray(d))DIET=d;DIET_CC=localStorage.getItem("pt-cc")||"";}catch(e){}
+function dietLangs(){if(DIET_LANGSEL)return [DIET_LANGSEL];const cc=DIET_CC||({it:"it",nl:"nl"}[curCountry()]||"");return (CC_LANGS[cc]||["en"]).filter(l=>DIET_LANG[l]);}
+var ccAt=null;
+async function dietCountry(){if(!me||!window.AndroidNet||navigator.onLine===false)return;if(ccAt&&hav(ccAt,[me.lat,me.lon])<40)return;
+  const quick=countryAt(me.lat,me.lon);if(quick!=="xx"){ccAt=[me.lat,me.lon];if(DIET_CC!==quick){DIET_CC=quick;try{localStorage.setItem("pt-cc",quick);}catch(e){}renderDiet();}return;}
+  try{const j=JSON.parse(await netGet(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=3&lat=${me.lat}&lon=${me.lon}`,15000));const cc=((j.address||{}).country_code||"").toLowerCase();
+    ccAt=[me.lat,me.lon];if(cc&&cc!==DIET_CC){DIET_CC=cc;try{localStorage.setItem("pt-cc",cc);}catch(e){}renderDiet();}}catch(e){}}
+function dietCard(l){const L=DIET_LANG[l],ks=DIET_KEYS.filter(k=>DIET.includes(k[0]));
+  return `<div class="cheese-card" data-diet-card><div class="cc-lang">${L.n}</div><div class="cc-big">${L.intro}</div>
+    <ul class="cc-list">${ks.map(k=>`<li>${k[1]} ${L.i[k[0]][0]}</li>`).join("")}</ul>
+    ${ks.some(k=>DIET_ALLERGY.has(k[0]))?`<div class="cc-mid"><b>⚠️ ${L.allergy}</b></div>`:""}
+    <div class="cc-mid">${L.please}</div><div class="cc-mid">${L.thanks}</div>
+    ${l!=="en"?`<div class="cc-en">${ks.map(k=>k[2]).join(" · ")}</div>`:""}</div>`;}
+function renderDiet(){const b=document.getElementById("dietBox");if(!b)return;
+  const langs=dietLangs(),ks=DIET_KEYS.filter(k=>DIET.includes(k[0])),L0=DIET_LANG[langs[0]];
+  b.innerHTML=`<h2>🍽 Food needs card</h2>
+    <div class="chips" style="padding-top:0">${DIET_KEYS.map(([k,ic,lb])=>`<button class="chip ${DIET.includes(k)?"on":""}" data-diet="${k}">${ic} ${lb}</button>`).join("")}</div>
+    <div class="sortbar" style="margin:2px 0 4px">Language: <button class="${!DIET_LANGSEL?"on":""}" data-dlang="">Here (${(CC_LANGS[DIET_CC||({it:"it",nl:"nl"}[curCountry()]||"")]||["en"]).map(l=>DIET_LANG[l]?DIET_LANG[l].n:l).join(" + ")})</button>
+      <select id="dLangSel" class="np-select" style="width:auto;padding:4px 8px;font-size:13px">${Object.entries(DIET_LANG).map(([k,v])=>`<option value="${k}" ${DIET_LANGSEL===k?"selected":""}>${v.n}</option>`).join("")}</select></div>
+    ${!ks.length?`<div class="card small">Tick what you can't eat above, then show the card to the waiter.</div>`:`<p class="small" style="margin:0">Tap a card to show it full-screen to the waiter.</p>${langs.map(dietCard).join("")}
+    <div class="card">${ks.map(k=>`<div class="phr"><span>${DIET_LANG.en.q(DIET_LANG.en.i[k[0]][1])}</span><i>${L0.q(L0.i[k[0]][1])}</i></div><div class="phr"><span>${DIET_LANG.en.w(DIET_LANG.en.i[k[0]][1])}</span><i>${L0.w(L0.i[k[0]][2]||L0.i[k[0]][1])}</i></div>`).join("")}
+      <div class="phr"><span>${DIET_LANG.en.can}</span><i>${L0.can}</i></div></div>`}`;
+  const cheeseIt=DIET.includes("cheese")&&langs.includes("it");document.querySelectorAll(".cheese-it").forEach(x=>x.style.display=cheeseIt?"":"none");}
+document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest("[data-diet-card]");if(c){c.classList.toggle("full");return;}
+  const d=e.target.closest&&e.target.closest("[data-diet]");if(d){const k=d.dataset.diet;DIET=DIET.includes(k)?DIET.filter(x=>x!==k):[...DIET,k];
+    try{localStorage.setItem("pt-diet",JSON.stringify(DIET));}catch(x){}renderDiet();return;}
+  const g=e.target.closest&&e.target.closest("[data-dlang]");if(g){DIET_LANGSEL=null;renderDiet();}});
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="dLangSel"){DIET_LANGSEL=e.target.value;renderDiet();}});
+setTimeout(renderDiet,0);
+
 /* ---------- WEATHER (Open-Meteo: free, no account) ---------- */
 let WX={};try{WX=JSON.parse(localStorage.getItem("pt-wx"))||{};}catch(e){}
 const WMO=c=>c==null?["",""]:c===0?["☀️","Sunny"]:c<=2?["🌤","Partly cloudy"]:c===3?["☁️","Cloudy"]:c<=48?["🌫","Fog"]:c<=57?["🌦","Drizzle"]:c<=67?["🌧","Rain"]:c<=77?["🌨","Snow"]:c<=82?["🌦","Showers"]:c<=86?["🌨","Snow showers"]:["⛈","Thunderstorms"];
@@ -3428,7 +3479,7 @@ function ticketBlock(d){
 
 /* ---------- SHARED COSTS (switch on in Info) ---------- */
 let COSTS={on:false,people:["Me","Friend"],items:[]};try{COSTS=Object.assign(COSTS,JSON.parse(localStorage.getItem("pt-costs"))||{});}catch(e){}
-const saveCosts=()=>{try{localStorage.setItem("pt-costs",JSON.stringify(COSTS));}catch(e){}};
+const saveCosts=()=>{try{localStorage.setItem(typeof costKey==="function"?costKey():"pt-costs",JSON.stringify(COSTS));}catch(e){}};
 const eur=v=>"€"+(Math.round(v*100)/100).toFixed(2);
 function balances(){const P=COSTS.people,bal=Object.fromEntries(P.map(p=>[p,0]));
   for(const it of COSTS.items){const sh=it.for&&it.for.length?it.for:P;const part=it.amt/sh.length;if(bal[it.by]!=null)bal[it.by]+=it.amt;for(const p of sh)if(bal[p]!=null)bal[p]-=part;}
@@ -3491,76 +3542,103 @@ function renderNotifBox(){
 }
 
 /* ---------- TRAVEL GROUP: live location, album, voice notes (end-to-end encrypted) ---------- */
-let GRP=null;try{GRP=JSON.parse(localStorage.getItem("pt-group"));}catch(e){}
-let ALBUM=[];try{ALBUM=JSON.parse(localStorage.getItem("pt-album"))||[];}catch(e){}
-const saveGrp=()=>{try{GRP?localStorage.setItem("pt-group",JSON.stringify(GRP)):localStorage.removeItem("pt-group");}catch(e){}};
-const saveAlbum=()=>{try{localStorage.setItem("pt-album",JSON.stringify(ALBUM));}catch(e){}};
+/* Several groups: GROUPS holds them all, GRP is the one on screen. Album and shared costs are kept per group. */
+const gid0=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+let GROUPS=[];try{GROUPS=JSON.parse(localStorage.getItem("pt-groups"))||[];}catch(e){}
+if(!GROUPS.length){try{const old=JSON.parse(localStorage.getItem("pt-group"));if(old){old.id=old.id||gid0();
+  try{old.sharing=!!(window.AndroidGroup&&window.AndroidGroup.sharing&&window.AndroidGroup.sharing());}catch(e){}
+  GROUPS=[old];localStorage.setItem("pt-groups",JSON.stringify(GROUPS));localStorage.setItem("pt-album:"+old.id,localStorage.getItem("pt-album")||"[]");
+  if(localStorage.getItem("pt-costs"))localStorage.setItem("pt-costs:"+old.id,localStorage.getItem("pt-costs"));}}catch(e){}}
+for(const g of GROUPS)if(!g.id)g.id=gid0();
+let GRP=null;{let a=null;try{a=localStorage.getItem("pt-gactive");}catch(e){}GRP=GROUPS.find(g=>g.id===a)||GROUPS[0]||null;}
+const albumOf=G=>{try{return JSON.parse(localStorage.getItem("pt-album:"+G.id))||[];}catch(e){return [];}};
+const saveAlbumOf=(G,A)=>{try{localStorage.setItem("pt-album:"+G.id,JSON.stringify(A));}catch(e){}};
+let ALBUM=GRP?albumOf(GRP):[];
+setTimeout(()=>{if(GRP){loadCostsFor();try{renderCosts();}catch(e){}}},0);
+const saveGrp=()=>{if(GRP&&!GROUPS.includes(GRP))GROUPS.push(GRP);try{localStorage.setItem("pt-groups",JSON.stringify(GROUPS));localStorage.setItem("pt-gactive",GRP?GRP.id:"");localStorage.removeItem("pt-group");}catch(e){}};
+const saveAlbum=()=>{if(GRP)saveAlbumOf(GRP,ALBUM);};
+const costKey=()=>GRP?"pt-costs:"+GRP.id:"pt-costs";
+function loadCostsFor(){const base={on:COSTS.on,people:["Me","Friend"],items:[]};let c=null;try{c=JSON.parse(localStorage.getItem(costKey()));}catch(e){}
+  COSTS=Object.assign(base,c||{});if(!c&&GRP){COSTS.people=[GRP.me.name,...Object.values(GRP.members).map(m=>m.name)].slice(0,8);}}
+function switchGroup(id){const G=GROUPS.find(g=>g.id===id);if(!G)return;saveAlbum();saveCosts();GRP=G;ALBUM=albumOf(G);saveGrp();loadCostsFor();
+  try{renderGroup();renderAlbum();renderJourney();renderCosts();}catch(e){}drawMap();}
 const G_COL=["#e8453c","#0b9d58","#f08c00","#8e44ad","#0096c7","#d0378f","#5c7cfa"];
 const gColor=id=>{let s=0;for(const c of String(id))s=(s*31+c.charCodeAt(0))|0;return G_COL[Math.abs(s)%G_COL.length];};
 const gNative=()=>!!(window.AndroidGroup&&window.AndroidGroup.encrypt);
 const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const ago=ts=>{const m=Math.round((Date.now()-ts)/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago";};
 const alertPlaces=()=>MYP.filter(m=>!m.pin).map(m=>({n:m.name,lat:m.lat,lon:m.lon,r:150}));
-function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify(GRP?{active:true,topic:GRP.topic,key:GRP.key,me:GRP.me.id,name:GRP.me.name,gname:GRP.name,notify:!!NOTIF.group,since:GRP.lastId||"1h",places:alertPlaces(),placeAlerts:!!NOTIF.places}:{active:false}));}catch(e){}}
+function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,since:g.lastId||"1h"})),notify:!!NOTIF.group,places:alertPlaces(),placeAlerts:!!NOTIF.places}));}catch(e){}}
 function placeOf(ll){for(const m of MYP)if(!m.pin&&hav(ll,[m.lat,m.lon])<0.15)return (m.home?"🏠 ":"")+m.name;const t=hereTownOf(ll[0],ll[1]);return t?"in "+t:"";}
 function moveOf(l){if(!l||l.spd==null||l.spd<0)return "";return l.spd>8?"🚆 On the move":l.spd>0.8?"🚶 Walking":"🧍 Still";}
 function batOf(b,chg){if(b==null||b<0)return "";return `${chg?"⚡":b<=20?"🪫":"🔋"} ${b}%`;}
-const gEnc=o=>window.AndroidGroup.encrypt(GRP.key,JSON.stringify(o));
-function gDec(s){if(!s)return null;const t=window.AndroidGroup.decrypt(GRP.key,s);if(!t)return null;try{return JSON.parse(t);}catch(e){return null;}}
-function gPublish(env,full){return new Promise((res,rej)=>{
+const gEnc=(o,G=GRP)=>window.AndroidGroup.encrypt(G.key,JSON.stringify(o));
+function gDec(s,G=GRP){if(!s)return null;const t=window.AndroidGroup.decrypt(G.key,s);if(!t)return null;try{return JSON.parse(t);}catch(e){return null;}}
+function gPublish(env,full,G=GRP){return new Promise((res,rej)=>{
   const id="g"+(++netSeq),tm=setTimeout(()=>{delete netCbs[id];rej(new Error("no answer from the relay"));},120000);
   netCbs[id]=(ok,txt)=>{clearTimeout(tm);ok?res(txt):rej(new Error(txt||"failed"));};
-  const e={v:1,ver:APP_VERSION,from:GRP.me.id,name:GRP.me.name,ts:Date.now(),...env};
-  try{if(full)window.AndroidGroup.publish(id,GRP.topic,gEnc({...e,...full}),gEnc(e));else window.AndroidGroup.publish(id,GRP.topic,gEnc(e),"");}catch(x){clearTimeout(tm);rej(x);}});}
-function inviteCode(){return "PTG1-"+btoa(unescape(encodeURIComponent(JSON.stringify({n:GRP.name,k:GRP.key,t:GRP.topic})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+  const e={v:1,ver:APP_VERSION,from:G.me.id,name:G.me.name,ts:Date.now(),...env};
+  try{if(full)window.AndroidGroup.publish(id,G.topic,gEnc({...e,...full},G),gEnc(e,G));else window.AndroidGroup.publish(id,G.topic,gEnc(e,G),"");}catch(x){clearTimeout(tm);rej(x);}});}
+function inviteCode(G=GRP){return "PTG1-"+btoa(unescape(encodeURIComponent(JSON.stringify({n:G.name,k:G.key,t:G.topic})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 function readInvite(code){const m=/PTG1-([A-Za-z0-9_-]+)/.exec(code||"");if(!m)return null;try{let b=m[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const o=JSON.parse(decodeURIComponent(escape(atob(b))));return o.k&&o.t?o:null;}catch(e){return null;}}
 async function gStart(gname,myname,inv){
-  GRP={name:gname||"Our trip",key:inv?inv.k:window.AndroidGroup.newKey(),topic:inv?inv.t:window.AndroidGroup.newTopic(),me:{id:rid(),name:myname||"Me"},members:{},lastId:null,since:Date.now()};
-  saveGrp();gCfg();renderGroup();
+  if(inv&&GROUPS.some(g=>g.topic===inv.t)){toast("You're already in that group");switchGroup(GROUPS.find(g=>g.topic===inv.t).id);gAdding=false;return;}
+  saveAlbum();saveCosts();
+  GRP={id:gid0(),name:gname||"Our trip",key:inv?inv.k:window.AndroidGroup.newKey(),topic:inv?inv.t:window.AndroidGroup.newTopic(),me:{id:rid(),name:myname||(GROUPS[0]&&GROUPS[0].me.name)||"Me"},members:{},lastId:null,since:Date.now(),sharing:false};
+  GROUPS.push(GRP);ALBUM=[];gAdding=false;saveGrp();loadCostsFor();gCfg();renderGroup();try{renderAlbum();}catch(e){}
   try{await gPublish({ty:"hello"});}catch(e){toast("⚠ "+e.message);}
   gPoll();
 }
-function gLeave(){try{gPublish({ty:"bye"}).catch(()=>{});}catch(e){}try{window.AndroidGroup.share(false);}catch(e){}GRP=null;saveGrp();gCfg();renderGroup();drawMap();}
+function gLeave(){const G=GRP;if(!G)return;try{gPublish({ty:"bye"},null,G).catch(()=>{});}catch(e){}
+  GROUPS=GROUPS.filter(g=>g!==G);try{localStorage.removeItem("pt-album:"+G.id);}catch(e){}
+  GRP=GROUPS[0]||null;ALBUM=GRP?albumOf(GRP):[];saveGrp();loadCostsFor();gCfg();
+  try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}renderGroup();try{renderAlbum();}catch(e){}drawMap();}
 let gBusy=false,gErr="";
 async function gPoll(){
-  if(!GRP||gBusy||!gNative()||navigator.onLine===false)return;gBusy=true;let fresh=0;
+  if(!GROUPS.length||gBusy||!gNative()||navigator.onLine===false)return;gBusy=true;let fresh=0;
+  for(const G of GROUPS.slice())fresh+=await gPollG(G);
+  gBusy=false;gPolledAt=Date.now();if(GRP)GRP.polled=Date.now();saveGrp();gCfg();renderGroup();drawMap();if(fresh)playNewVoices();
+}
+async function gPollG(G){
+  const act=G===GRP,A=act?ALBUM:albumOf(G),gl=GROUPS.length>1?` (${G.name})`:"";let fresh=0;
   try{
-    const txt=await netGet(`https://ntfy.sh/${GRP.topic}/json?poll=1&since=${GRP.lastId||"12h"}`,20000);
+    const txt=await netGet(`https://ntfy.sh/${G.topic}/json?poll=1&since=${G.lastId||"12h"}`,20000);
     for(const line of txt.split("\n")){if(!line.trim())continue;let o;try{o=JSON.parse(line);}catch(e){continue;}
-      if(o.event!=="message")continue;GRP.lastId=o.id;
-      const env=gDec(o.message);if(!env||env.from===GRP.me.id)continue;
-      const m=GRP.members[env.from]=GRP.members[env.from]||{name:env.name};m.name=env.name;m.seen=Math.max(m.seen||0,env.ts||0);if(env.ver)m.ver=env.ver;
-      if(env.ty==="locreq"){if(Date.now()-(env.ts||0)<30*60e3){if(gSharing()){sendMyLoc(true);toast(`📍 ${env.name} asked where you are: sent`);}else{LOCREQ={name:env.name,ts:env.ts};toast(`📍 ${env.name} asks where you are`);}}continue;}
+      if(o.event!=="message")continue;G.lastId=o.id;
+      const env=gDec(o.message,G);if(!env||env.from===G.me.id)continue;
+      const m=G.members[env.from]=G.members[env.from]||{name:env.name};m.name=env.name;m.seen=Math.max(m.seen||0,env.ts||0);if(env.ver)m.ver=env.ver;
+      if(env.ty==="locreq"){if(Date.now()-(env.ts||0)<30*60e3){if(G.sharing){sendMyLoc(true,G);toast(`📍 ${env.name}${gl} asked where you are: sent`);}else{LOCREQ={name:env.name+gl,ts:env.ts,g:G.id};toast(`📍 ${env.name} asks where you are`);}}continue;}
       if(env.ty==="loc"){const prevAt=m.last?placeOf([m.last.lat,m.last.lon]):null;m.last={lat:env.lat,lon:env.lon,acc:env.acc,ts:env.ts,bat:env.bat,chg:env.chg,spd:env.spd};
         m.trail=(m.trail||[]).filter(p=>Date.now()-p[0]<48*3600e3);m.trail.push([env.ts,env.lat,env.lon]);if(m.trail.length>500)m.trail.splice(0,m.trail.length-500);
-        const nowAt=placeOf([env.lat,env.lon]);if(prevAt!=null&&prevAt!==nowAt&&NOTIF.places){const sp=s=>s&&!s.startsWith("in ");if(sp(nowAt))toast(`📍 ${env.name} arrived at ${nowAt.replace("🏠 ","")}`);else if(sp(prevAt))toast(`🚶 ${env.name} left ${prevAt.replace("🏠 ","")}`);}
+        const nowAt=placeOf([env.lat,env.lon]);if(prevAt!=null&&prevAt!==nowAt&&NOTIF.places){const sp=s=>s&&!s.startsWith("in ");if(sp(nowAt))toast(`📍 ${env.name}${gl} arrived at ${nowAt.replace("🏠 ","")}`);else if(sp(prevAt))toast(`🚶 ${env.name}${gl} left ${prevAt.replace("🏠 ","")}`);}
         continue;}
-      if(env.ty==="sos"){SOS={name:env.name,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
-      if(env.ty==="checkin"){toast(`✅ ${env.name}: ${env.cap||"all OK"}`);continue;}
-      if(env.ty==="hello"){toast(`👋 ${env.name} joined ${GRP.name}`);continue;}
-      if(env.ty==="bye"){delete GRP.members[env.from];continue;}
-      if(ALBUM.some(a=>a.id===o.id))continue;
+      if(env.ty==="sos"){SOS={name:env.name+gl,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
+      if(env.ty==="checkin"){toast(`✅ ${env.name}${gl}: ${env.cap||"all OK"}`);continue;}
+      if(env.ty==="hello"){toast(`👋 ${env.name} joined ${G.name}`);continue;}
+      if(env.ty==="bye"){delete G.members[env.from];continue;}
+      if(A.some(a=>a.id===o.id))continue;
       const it={id:o.id,ty:env.ty,from:env.from,name:env.name,ts:env.ts,cap:env.cap||"",town:env.town||"",ll:env.ll||null,dur:env.dur||0,played:false};
       if(o.attachment&&o.attachment.url){
-        try{const full=gDec(await netGet(o.attachment.url,60000));
+        try{const full=gDec(await netGet(o.attachment.url,60000),G);
           if(full&&env.ty==="photo"&&full.img){it.media=o.id+".jpg";window.AndroidGroup.saveMedia(it.media,full.img);}
           if(full&&env.ty==="voice"&&full.au){it.media=o.id+".webm";window.AndroidGroup.saveMedia(it.media,full.au);}
         }catch(e){it.lost=true;}
       }
-      ALBUM.push(it);fresh++;
+      A.push(it);fresh++;
     }
-    saveGrp();gCfg();if(fresh){saveAlbum();}gErr="";
+    if(fresh)saveAlbumOf(G,A);gErr="";
   }catch(e){gErr=e.message;}
-  gBusy=false;gPolledAt=Date.now();GRP&&(GRP.polled=Date.now());renderGroup();drawMap();if(fresh)playNewVoices();
+  return act?fresh:0;
 }
 /* while the app is open: send my own position too (the background service does it when the app is closed), and look for updates often */
 let LOCREQ=null,lastMySend=0,gPolledAt=0;
-function gSharing(){try{return !!window.AndroidGroup.sharing();}catch(e){return false;}}
-function sendMyLoc(force){if(!GRP||!me||!gSharing()||navigator.onLine===false)return;if(!force&&Date.now()-lastMySend<60e3)return;lastMySend=Date.now();
+function gSharing(){return !!(GRP&&GRP.sharing);}
+function sendMyLoc(force,only){if(!me||navigator.onLine===false)return;const L=GROUPS.filter(g=>g.sharing&&(!only||g===only));if(!L.length)return;
+  if(!force&&Date.now()-lastMySend<60e3)return;if(!only)lastMySend=Date.now();
   let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}
-  gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})}).catch(()=>{});}
+  for(const G of L)gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})},null,G).catch(()=>{});}
 async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;try{await gPublish({ty:"locreq",to:id});toast(`📍 Asked ${m.name} for their location`);m.asked=Date.now();renderGroup();setTimeout(gPoll,15000);setTimeout(gPoll,45000);}catch(e){toast("⚠ "+e.message);}}
-setInterval(()=>{if(!GRP||document.hidden)return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
+setInterval(()=>{if(!GROUPS.length||document.hidden)return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
   if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&GRP)gPoll();});
 window.onAppOpened=()=>{if(GRP)gPoll();};
@@ -3594,7 +3672,9 @@ async function toggleRec(btn){
     setTimeout(()=>{if(rec&&Date.now()-recStart>=118000)rec.stop();},120000);
   }catch(e){toast("⚠ Microphone: "+(e.message||"not allowed"));rec=null;}
 }
-let SOS=null;
+let SOS=null,gAdding=false;
+function gSwHooks(b){const p=b.querySelector("#gPick");if(p)p.onchange=()=>{if(GROUPS.some(g=>g.id===p.value)){gAdding=false;switchGroup(p.value);}};
+  const a=b.querySelector("#gAdd");if(a)a.onclick=()=>{gAdding=!gAdding;renderGroup();};}
 function renderSOS(){const b=document.getElementById("sosBanner");if(!b)return;if(!SOS||Date.now()-SOS.ts>6*3600e3){b.innerHTML="";return;}
   b.innerHTML=`<div class="sosb"><b>🆘 ${SOS.name} needs help</b><div style="margin-top:4px">${(SOS.cap||"").replace(/</g,"&lt;")} · ${ago(SOS.ts)}</div>
     <div class="btns">${SOS.ll?`<button class="btn" id="sosMap">📍 Show where</button>`:""}<a class="btn" href="tel:112">📞 Call 112</a><button class="btn" id="sosOk" style="background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px #fff">Dismiss</button></div></div>`;
@@ -3609,21 +3689,23 @@ async function sendSOS(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.
 function renderGroup(){
   const b=document.getElementById("grpBox");if(!b)return;renderSOS();
   if(!gNative()){b.innerHTML=`<div class="card"><div class="small">The travel group works in the Android app.</div></div>`;return;}
-  if(!GRP){b.innerHTML=`<div class="card"><div class="dest">See each other on the map, share photos and voice notes</div>
+  const sw=GROUPS.length?`<div class="gsw"><select class="np-select" id="gPick" aria-label="Group">${GROUPS.map(g=>`<option value="${g.id}" ${g===GRP&&!gAdding?"selected":""}>👥 ${escH(g.name)}${g.sharing?"  📍":""}</option>`).join("")}${gAdding?`<option selected>＋ New group…</option>`:""}</select><button class="mini" id="gAdd" style="margin:0;flex:none">${gAdding?"Cancel":"＋ Group"}</button></div>`:"";
+  if(!GRP||gAdding){b.innerHTML=sw+`<div class="card"><div class="dest">${GROUPS.length?"Start or join another group":"See each other on the map, share photos and voice notes"}</div>
       <div class="small" style="margin-top:4px">Everything is locked with a key that only your group has. Your friends need this app too.</div>
-      <div class="cost-form" style="grid-template-columns:1fr"><input id="gName" placeholder="Group name (e.g. Puglia with Sam)"><input id="gMe" placeholder="Your name" value="${(COSTS.people[0]&&COSTS.people[0]!=="Me")?COSTS.people[0]:""}"></div>
+      <div class="cost-form" style="grid-template-columns:1fr"><input id="gName" placeholder="Group name (e.g. Puglia with Sam)"><input id="gMe" placeholder="Your name" value="${escH(GROUPS[0]?GROUPS[0].me.name:(COSTS.people[0]&&COSTS.people[0]!=="Me")?COSTS.people[0]:"")}"></div>
       <div class="btns"><button class="btn primary" id="gNew">Start a group</button></div>
       <div class="dest" style="margin-top:14px;font-size:15px">Got an invite code?</div>
       <div class="cost-form" style="grid-template-columns:1fr"><textarea id="gCode" rows="2" placeholder="Paste the invite code (starts with PTG1-)" style="border:0;background:var(--card2);color:var(--ink);border-radius:10px;padding:10px;font:inherit"></textarea></div>
       <div class="btns"><button class="btn ghost" id="gJoin">Join with code</button></div></div>`;
+    gSwHooks(b);
     b.querySelector("#gNew").onclick=()=>{const n=b.querySelector("#gMe").value.trim();if(!n)return toast("Type your name first");gStart(b.querySelector("#gName").value.trim(),n,null);};
     b.querySelector("#gJoin").onclick=()=>{const inv=readInvite(b.querySelector("#gCode").value);if(!inv)return toast("That doesn't look like an invite code");const n=b.querySelector("#gMe").value.trim();if(!n)return toast("Type your name first");gStart(inv.n,n,inv);};
     return;}
-  const sharing=(()=>{try{return window.AndroidGroup.sharing();}catch(e){return false;}})();
+  const sharing=!!GRP.sharing;
   const mem=Object.entries(GRP.members).sort((a,b)=>(b[1].seen||0)-(a[1].seen||0));
-  b.innerHTML=`<div class="card"><div class="trip-h"><div class="dest">👥 ${GRP.name}</div><span class="badge">${mem.length+1} people</span></div>
-    ${LOCREQ&&!sharing?`<div class="rt-warn" style="margin:6px 0">📍 ${LOCREQ.name} asked where you are: switch on sharing below.</div>`:""}
-    <div class="sw"><span class="w">📍 Share my live location<small>${sharing?"On, also when the app is closed (you'll see a notification)":"Off: your group can't see where you are"}</small></span><button class="tg ${sharing?"on":""}" id="gShare" aria-pressed="${sharing}" aria-label="Share my live location"></button></div>
+  b.innerHTML=sw+`<div class="card"><div class="trip-h"><div class="dest">👥 ${GRP.name}</div><span class="badge">${mem.length+1} people</span></div>
+    ${LOCREQ&&!sharing&&(!LOCREQ.g||LOCREQ.g===GRP.id)?`<div class="rt-warn" style="margin:6px 0">📍 ${LOCREQ.name} asked where you are: switch on sharing below.</div>`:""}
+    <div class="sw"><span class="w">📍 Share my live location<small>${sharing?`On for ${escH(GRP.name)}, also when the app is closed`:`Off: ${escH(GRP.name)} can't see where you are`}${GROUPS.length>1?" · set per group":""}</small></span><button class="tg ${sharing?"on":""}" id="gShare" aria-pressed="${sharing}" aria-label="Share my live location"></button></div>
     <div class="mem"><span class="av" style="background:${gColor(GRP.me.id)}">${GRP.me.name.slice(0,1).toUpperCase()}</span><span class="w"><b>${GRP.me.name}</b> (you)<small>${sharing?"Sharing location":"Not sharing location"}${me?" · "+(placeOf([me.lat,me.lon])||""):""}</small>
       ${(()=>{let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}return bt>=0?`<span class="st"><span>${batOf(bt%1000,bt>=1000)}</span></span>`:"";})()}</span></div>
     ${mem.map(([id,m])=>`<div class="mem"><span class="av" style="background:${gColor(id)}">${(m.name||"?").slice(0,1).toUpperCase()}</span><span class="w"><b>${m.name}</b>
@@ -3639,7 +3721,8 @@ function renderGroup(){
     <details class="adv"><summary>Invite code & privacy ▸</summary><div class="code">${inviteCode()}</div>
       <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>
       <div class="btns"><button class="btn ghost" id="gLeave" style="color:var(--warn)">Leave group</button></div></details></div>`;
-  b.querySelector("#gShare").onclick=()=>{try{window.AndroidGroup.share(!sharing);}catch(e){}if(!sharing){LOCREQ=null;setTimeout(()=>sendMyLoc(true),600);}setTimeout(renderGroup,800);};
+  b.querySelector("#gShare").onclick=()=>{GRP.sharing=!sharing;saveGrp();gCfg();try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}if(!sharing){if(LOCREQ&&LOCREQ.g===GRP.id)LOCREQ=null;setTimeout(()=>sendMyLoc(true,GRP),600);}renderGroup();};
+  gSwHooks(b);
   b.querySelector("#gInv").onclick=()=>{try{window.AndroidGroup.shareText(`Join my Out & Back travel group “${GRP.name}”. Open the app → Group → paste this code:\n\n${inviteCode()}`);}catch(e){}};
   b.querySelector("#gRef").onclick=()=>gPoll();
   b.querySelectorAll("[data-gask]").forEach(x=>x.onclick=()=>askLoc(x.dataset.gask));
@@ -3676,27 +3759,96 @@ function renderAlbum(){
   b.querySelectorAll("[data-aloc]").forEach(x=>x.onclick=()=>{const a=ALBUM.find(i=>i.id===x.dataset.aloc);if(a&&a.ll){showTab("map");showPlaceCard(null,a.ll,a.cap||"Album photo","📷 "+(a.town||"Album"));}});
 }
 // one file with all photos and notes, to send home (opens in any browser)
+/* ---------- TRIP SUMMARY (like Polarsteps): cover, stats, a designed route line, day-by-day steps ---------- */
+function buildSummary(){
+  const items=ALBUM.slice().sort((a,c)=>a.ts-c.ts).filter(a=>!(a.ty==="voice"&&!a.cap));
+  const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+  const pts=trackPts(),S=jStats(pts),title=GRP?GRP.name:"Our trip";
+  const img=a=>{if(a.ty!=="photo"||!a.media)return "";try{const b=window.AndroidGroup.mediaB64(a.media);return b?`data:image/jpeg;base64,${b}`:"";}catch(e){return "";}};
+  const photos=items.filter(a=>a.ty==="photo"&&a.media);const cover=photos.length?img(photos[Math.floor(photos.length/3)]):"";
+  const t0=Math.min(...[...items.map(a=>a.ts),...pts.map(p=>p[0])].filter(Boolean),Date.now()),t1=Math.max(...[...items.map(a=>a.ts),...pts.map(p=>p[0])].filter(Boolean),t0);
+  const dfmt=(t,o)=>new Date(t).toLocaleDateString("en-GB",o);
+  const range=dfmt(t0,{day:"numeric",month:"short"})+(dfmt(t0,{dateStyle:"short"})!==dfmt(t1,{dateStyle:"short"})?" – "+dfmt(t1,{day:"numeric",month:"short",year:"numeric"}):" "+dfmt(t0,{year:"numeric"}));
+  const people=GRP?[GRP.me.name,...Object.values(GRP.members).map(m=>m.name)]:[];
+  const ppl=people.length>1?people.slice(0,-1).join(", ")+" & "+people[people.length-1]:people[0]||"";
+  // ---- route map ----
+  const stops=items.filter(a=>a.ll);let route=pts.map(p=>[p[1],p[2]]);if(route.length<2)route=stops.map(a=>a.ll);
+  let svg="";const all=route.concat(stops.map(a=>a.ll));
+  if(all.length>=1){let la=all.map(p=>p[0]),lo=all.map(p=>p[1]),a0=Math.min(...la),a1=Math.max(...la),o0=Math.min(...lo),o1=Math.max(...lo);
+    const padA=Math.max((a1-a0)*.18,.012),padO=Math.max((o1-o0)*.18,.016);a0-=padA;a1+=padA;o0-=padO;o1+=padO;
+    const k=Math.cos((a0+a1)/2*Math.PI/180),W=720,H=Math.round(Math.max(360,Math.min(820,W*(a1-a0)/((o1-o0)*k))));
+    const sx=W/((o1-o0)),sy=H/((a1-a0)),X=o=>(o-o0)*sx,Y=a=>H-(a-a0)*sy;
+    // land & sea from the built-in coastline (Puglia) when it covers the trip
+    let coast="";const C=window.PT_COAST;
+    if(C&&C.geometry&&a0>39.3&&a1<42.1&&o0>15.4&&o1<19.4){coast=C.geometry.coordinates.map(poly=>poly.map(r=>"M"+r.map(([x,y])=>X(x).toFixed(1)+","+Y(y).toFixed(1)).join("L")+"Z").join("")).join("");}
+    // smooth line (Catmull-Rom) through a thinned route
+    const thin=[];for(const p of route){const q=thin[thin.length-1];if(!q||Math.hypot(X(p[1])-X(q[1]),Y(p[0])-Y(q[0]))>6)thin.push(p);}
+    const P=thin.map(p=>[X(p[1]),Y(p[0])]);let d="";
+    if(P.length>1){d=`M${P[0][0].toFixed(1)},${P[0][1].toFixed(1)}`;for(let i=0;i<P.length-1;i++){const p0=P[i-1]||P[i],p1=P[i],p2=P[i+1],p3=P[i+2]||p2;
+      d+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;}}
+    const towns=[...new Set(S.seq)].filter(t=>PT[t]&&PT[t][0]>a0&&PT[t][0]<a1&&PT[t][1]>o0&&PT[t][1]<o1);
+    let n=0;const stepDots=stops.map(a=>{n++;const x=X(a.ll[1]),y=Y(a.ll[0]),u=img(a);
+      return u?`<g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="27" fill="#fff"/><clipPath id="c${n}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="23"/></clipPath><image href="${u}" x="${(x-23).toFixed(1)}" y="${(y-23).toFixed(1)}" width="46" height="46" preserveAspectRatio="xMidYMid slice" clip-path="url(#c${n})"/></g>`
+        :`<g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="#fff"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="#ff8a3d"/></g>`;}).join("");
+    const st=P[0]||[X(all[0][1]),Y(all[0][0])],en=P[P.length-1]||st;
+    svg=`<svg viewBox="0 0 ${W} ${H}" class="map" role="img" aria-label="Route map">
+      <defs><linearGradient id="rl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11a39a"/><stop offset=".55" stop-color="#ffb547"/><stop offset="1" stop-color="#ff6b4a"/></linearGradient>
+        <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0c2b3b" flood-opacity=".28"/></filter>
+        <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#9fc3cf" opacity=".5"/></pattern></defs>
+      <rect width="${W}" height="${H}" fill="${coast?"#cfe6ee":"#eef3ee"}"/>${coast?`<rect width="${W}" height="${H}" fill="url(#dots)"/><path d="${coast}" fill="#f6f1e7" stroke="#d9cdb8" stroke-width="2"/>`:""}
+      ${towns.map(t=>{const x=X(PT[t][1]),y=Y(PT[t][0]),left=x>W*.62;return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#8b7f6c"/><text x="${(left?x-30:x+30).toFixed(1)}" y="${(y+8).toFixed(1)}" text-anchor="${left?"end":"start"}" class="tl">${esc(t)}</text>`;}).join("")}
+      ${d?`<path d="${d}" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" filter="url(#sh)"/><path d="${d}" fill="none" stroke="url(#rl)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${d}" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="1 9" stroke-linecap="round" opacity=".85"/>`:""}
+      <g filter="url(#sh)">${stepDots}</g>
+      <g filter="url(#sh)"><circle cx="${st[0].toFixed(1)}" cy="${st[1].toFixed(1)}" r="12" fill="#0c2b3b"/><circle cx="${st[0].toFixed(1)}" cy="${st[1].toFixed(1)}" r="5" fill="#ffb547"/>
+        ${P.length>1?`<path d="M${en[0].toFixed(1)},${(en[1]-26).toFixed(1)}c-9,0-15,6-15,14c0,10,15,22,15,22s15-12,15-22c0-8-6-14-15-14z" fill="#ff6b4a" stroke="#fff" stroke-width="3"/>`:""}</g></svg>`;}
+  // ---- days ----
+  const byDay={};for(const p of pts){const k=new Date(p[0]).toDateString();(byDay[k]=byDay[k]||{pts:[],steps:[]}).pts.push(p);}
+  for(const a of items){const k=new Date(a.ts).toDateString();(byDay[k]=byDay[k]||{pts:[],steps:[]}).steps.push(a);}
+  const dayKeys=Object.keys(byDay).sort((a,c)=>new Date(a)-new Date(c));const first=dayKeys.length?new Date(dayKeys[0]):new Date();
+  const daysHtml=dayKeys.map(k=>{const D=byDay[k],js=jStats(D.pts),tw=[...new Set(D.pts.map(p=>hereTownOf(p[1],p[2])).concat(D.steps.map(a=>a.town)).filter(Boolean))];
+    const n=Math.round((new Date(k)-first)/864e5)+1;
+    return `<section class="day"><div class="dh"><span class="dn">Day ${n}</span><div><h2>${esc(dfmt(new Date(k),{weekday:"long",day:"numeric",month:"long"}))}</h2>
+      <div class="m">${tw.length?esc(tw.join(" → ")):""}${js.km>0.3?` · ${js.km<10?js.km.toFixed(1):Math.round(js.km)} km`:""}</div></div></div>
+      <div class="tl">${D.steps.sort((a,c)=>a.ts-c.ts).map(a=>{const u=img(a);
+        return `<article class="step"><span class="dot"></span>${u?`<img src="${u}" alt="">`:""}<div class="sb">${a.cap?`<p class="${u?"":"q"}">${esc(a.cap)}</p>`:""}
+          <div class="m">${esc(a.mine||a.from===(GRP&&GRP.me.id)?"Me":a.name)} · ${new Date(a.ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}${a.town?" · 📍 "+esc(a.town):""}</div></div></article>`;}).join("")||`<div class="m" style="padding:6px 0 10px 26px">On the road.</div>`}</div></section>`;}).join("");
+  const stat=(v,l)=>`<div class="sc"><b>${v}</b><span>${l}</span></div>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f1e7;color:#1d2a30;font:16px/1.55 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+.hero{position:relative;min-height:62vh;display:flex;align-items:flex-end;color:#fff;background:#0c2b3b ${cover?`url(${cover}) center/cover`:"linear-gradient(135deg,#11706a,#0c2b3b)"}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,43,59,.05) 30%,rgba(12,43,59,.88))}
+.hero .in{position:relative;z-index:1;padding:28px 22px 30px;max-width:760px;width:100%;margin:auto}
+.kick{font-size:13px;letter-spacing:.06em;opacity:.85}h1{font-family:Georgia,"Noto Serif",serif;font-size:44px;line-height:1.05;margin:.15em 0 .2em;letter-spacing:-.01em}
+.who{opacity:.9}main{max-width:760px;margin:auto;padding:0 16px 40px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:-26px 0 18px;position:relative;z-index:2}
+.sc{background:#fff;border-radius:16px;padding:14px 8px;text-align:center;box-shadow:0 6px 18px rgba(12,43,59,.12)}.sc b{display:block;font-size:28px;line-height:1.1;font-family:Georgia,serif;color:#0c2b3b}.sc span{font-size:12.5px;color:#6b7680}
+.map{width:100%;display:block;border-radius:20px;box-shadow:0 6px 18px rgba(12,43,59,.12);margin:4px 0 6px}svg .tl{font:700 22px system-ui,sans-serif;fill:#4a4237;paint-order:stroke;stroke:#fffaf0;stroke-width:5;stroke-linejoin:round}
+.seq{font-size:14px;color:#5d5446;text-align:center;margin:8px 4px 4px}
+.day{margin-top:26px}.dh{display:flex;gap:12px;align-items:center;margin-bottom:8px}.dn{flex:none;background:#0c2b3b;color:#ffb547;font-weight:800;font-size:13px;border-radius:12px;padding:8px 10px;text-align:center;min-width:58px}
+.dh h2{font-family:Georgia,serif;font-size:22px;margin:0;line-height:1.2}.m{color:#6b7680;font-size:13.5px}
+.day .tl{position:relative;margin-left:8px;padding-left:22px;border-left:3px dotted #c9bfae;font:inherit;fill:none;stroke:none}
+.step{position:relative;background:#fff;border-radius:18px;overflow:hidden;margin:0 0 14px;box-shadow:0 4px 14px rgba(12,43,59,.08)}
+.step .dot{position:absolute;left:-33px;top:18px;width:16px;height:16px;border-radius:50%;background:#ff8a3d;border:3px solid #f6f1e7}
+.step img{display:block;width:100%;max-height:520px;object-fit:cover}.sb{padding:12px 16px 14px}.sb p{margin:0 0 4px;font-size:17px}.sb p.q{font-family:Georgia,serif;font-size:20px;line-height:1.4}
+.end{margin:34px 0 0;background:#0c2b3b;color:#fff;border-radius:22px;padding:26px 22px;text-align:center}.end h3{font-family:Georgia,serif;font-size:26px;margin:0 0 6px}.end .m{color:#bcd0d6}
+@media(max-width:420px){h1{font-size:36px}.sc b{font-size:23px}}
+</style></head><body>
+<header class="hero"><div class="in"><div class="kick">${esc(range)}</div><h1>${esc(title)}</h1>${ppl?`<div class="who">${esc(ppl)}</div>`:""}</div></header>
+<main>
+<div class="stats">${stat(Math.max(1,S.days||dayKeys.length),"days")}${stat(S.km<10?S.km.toFixed(1):Math.round(S.km),"km")}${stat(Math.max(S.towns.length,[...new Set(items.map(a=>a.town).filter(Boolean))].length),"places")}${stat(photos.length,"photos")}</div>
+${svg}${S.seq.length?`<div class="seq">${esc(S.seq.join("  ›  "))}</div>`:""}
+${daysHtml}
+<div class="end"><h3>Until the next trip</h3><div class="m">${Math.max(1,S.days||dayKeys.length)} days · ${S.km<10?S.km.toFixed(1):Math.round(S.km)} km · ${items.length} moments</div><div class="m" style="margin-top:10px">Made with Out &amp; Back</div></div>
+</main></body></html>`;}
 function shareSummary(){
-  const items=ALBUM.slice().sort((a,c)=>a.ts-c.ts),esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  if(!items.length)return;const days={};for(const a of items){const k=new Date(a.ts).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});(days[k]=days[k]||[]).push(a);}
-  const towns=[...new Set(items.map(a=>a.town).filter(Boolean))];
-  let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(GRP?GRP.name:"Our Puglia trip")}</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;margin:0;background:#f1f3f4;color:#1b1f23}main{max-width:720px;margin:auto;padding:16px}h1{margin:.2em 0}h2{margin:1.4em 0 .4em;font-size:18px;color:#0b72a8}
-.p{background:#fff;border-radius:14px;margin:10px 0;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}.p img{width:100%;display:block}.p div{padding:10px 14px}.m{color:#5f6b76;font-size:13px}</style></head><body><main>
-<h1>${esc(GRP?GRP.name:"Our Puglia trip")}</h1>${(()=>{const pts=trackPts(),S=jStats(pts),stops=items.filter(a=>a.ll);
-  let svg="";const all=pts.map(p=>[p[1],p[2]]).concat(stops.map(a=>a.ll));
-  if(all.length>1){const la=all.map(p=>p[0]),lo=all.map(p=>p[1]),a0=Math.min(...la),a1=Math.max(...la),o0=Math.min(...lo),o1=Math.max(...lo),k=Math.cos(a0*Math.PI/180),W=640,H=Math.max(200,Math.min(560,W*(a1-a0)/Math.max((o1-o0)*k,1e-4)));
-    const X=o=>20+(o-o0)/Math.max(o1-o0,1e-6)*(W-40),Y=a=>H-20-(a-a0)/Math.max(a1-a0,1e-6)*(H-40);
-    svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;background:#e9f2f7;border-radius:14px;margin:10px 0">${pts.length>1?`<polyline points="${pts.map(p=>X(p[2]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="#0b72a8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`:""}
-      ${stops.map(a=>`<circle cx="${X(a.ll[1]).toFixed(1)}" cy="${Y(a.ll[0]).toFixed(1)}" r="7" fill="#e8453c" stroke="#fff" stroke-width="2.5"/>`).join("")}
-      ${[...new Set(S.seq)].map(t=>PT[t]&&PT[t][0]>=a0-.02&&PT[t][0]<=a1+.02&&PT[t][1]>=o0-.02&&PT[t][1]<=o1+.02?`<text x="${X(PT[t][1]).toFixed(1)}" y="${(Y(PT[t][0])-10).toFixed(1)}" font-size="14" font-weight="700" text-anchor="middle" fill="#1b1f23" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(t)}</text>`:"").join("")}</svg>`;}
-  return `<div class="m">${S.days} days · ${S.km<10?S.km.toFixed(1):Math.round(S.km)} km · ${S.towns.length} towns · ${items.length} moments</div>${svg}${S.seq.length?`<div class="m">${esc(S.seq.join(" → "))}</div>`:towns.length?`<div class="m">${esc(towns.join(", "))}</div>`:""}`;})()}`;
-  for(const [d,list] of Object.entries(days)){html+=`<h2>${esc(d)}</h2>`;
-    for(const a of list){let img="";if(a.ty==="photo"&&a.media){const b64=window.AndroidGroup.mediaB64(a.media);if(b64)img=`<img src="data:image/jpeg;base64,${b64}" alt="">`;}
-      if(a.ty==="voice"&&!a.cap)continue;
-      html+=`<div class="p">${img}<div>${a.cap?esc(a.cap):a.ty==="voice"?"🎙 Voice note":""}<div class="m">${esc(a.mine?"Me":a.name)} · ${new Date(a.ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}${a.town?" · "+esc(a.town):""}</div></div></div>`;}}
-  html+=`<p class="m">Made with Out &amp; Back.</p></main></body></html>`;
-  try{window.AndroidGroup.shareFile("puglia-trip.html",html,"text/html");}catch(e){toast("⚠ "+e.message);}
+  if(!ALBUM.length&&!trackPts().length){toast("Add a photo or note, or record your journey first");return;}
+  const html=buildSummary();const ov=document.createElement("div");ov.className="sum-ov";
+  ov.innerHTML=`<iframe title="Trip summary"></iframe><div class="sum-bar"><button class="btn ghost" data-sx="close">Close</button><button class="btn primary" data-sx="share">📤 Share</button></div>`;
+  document.body.appendChild(ov);ov.querySelector("iframe").srcdoc=html;
+  ov.onclick=e=>{const t=e.target.closest("[data-sx]");if(!t)return;if(t.dataset.sx==="close")ov.remove();
+    else{const nm=(GRP?GRP.name:"trip").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"trip";try{window.AndroidGroup.shareFile(nm+".html",html,"text/html");}catch(x){toast("⚠ "+x.message);}}};
 }
 // friends on the map
 /* ---------- JOURNEY (like Polarsteps): your route, photo steps, stats, day by day ---------- */
@@ -3762,8 +3914,10 @@ document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest
   document.querySelectorAll("#v-group [data-pane]").forEach(p=>p.hidden=p.dataset.pane!==s.dataset.gseg);
   if(s.dataset.gseg==="journey")renderJourney();if(s.dataset.gseg==="album")renderAlbum();});
 
-function groupGeo(){if(!GRP)return EMPTY;return {type:"FeatureCollection",features:Object.entries(GRP.members).filter(([i,m])=>m.last&&Date.now()-m.last.ts<24*3600e3).map(([i,m])=>({type:"Feature",
-  properties:{id:i,label:`${m.name} · ${ago(m.last.ts)}`,col:gColor(i),ini:(m.name||"?").slice(0,1).toUpperCase()},geometry:{type:"Point",coordinates:[m.last.lon,m.last.lat]}}))};}
+function groupGeo(){if(!GROUPS.length)return EMPTY;const seen=new Set(),F=[];
+  for(const G of GROUPS)for(const [i,m] of Object.entries(G.members)){if(!m.last||Date.now()-m.last.ts>24*3600e3||seen.has(i))continue;seen.add(i);
+    F.push({type:"Feature",properties:{id:i,label:`${m.name}${GROUPS.length>1?" ("+G.name+")":""} · ${ago(m.last.ts)}`,col:gColor(i),ini:(m.name||"?").slice(0,1).toUpperCase()},geometry:{type:"Point",coordinates:[m.last.lon,m.last.lat]}});}
+  return {type:"FeatureCollection",features:F};}
 
 /* ---------- MAKE YOUR OWN DAY TRIP ---------- */
 let MYTRIPS=[];try{MYTRIPS=JSON.parse(localStorage.getItem("pt-mytrips"))||[];}catch(e){}

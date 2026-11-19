@@ -244,7 +244,7 @@ public class Pmtiles {
                 HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                 c.setConnectTimeout(connectTimeout); c.setReadTimeout(readTimeout);
                 c.setRequestProperty("Range", "bytes=" + off + "-" + (off + len - 1));
-                c.setRequestProperty("User-Agent", "OutAndBack/6.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                c.setRequestProperty("User-Agent", "OutAndBack/6.4 (+https://github.com/jariplayz-source/puglia-transit)");
                 int code = c.getResponseCode();
                 if (code != 206 && code != 200) throw new IOException("HTTP " + code);
                 byte[] b = readAll(c.getInputStream());

@@ -296,14 +296,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.4 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/6.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/6.4 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -329,7 +329,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/6.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/6.4 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -365,7 +365,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     for (int i = 0; i < 6; i++) {
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.2 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/6.4 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -403,10 +403,21 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
             try {
                 JSONObject o = new JSONObject(json);
                 android.content.SharedPreferences.Editor ed = GroupCore.prefs(MainActivity.this).edit();
-                if (o.optBoolean("active")) {
-                    ed.putString("topic", o.getString("topic")).putString("key", o.getString("key")).putString("me", o.getString("me"))
-                      .putString("name", o.getString("name")).putString("gname", o.optString("gname")).putBoolean("notify", o.optBoolean("notify", true));
-                    if (o.has("since")) ed.putString("lastNote", o.getString("since"));
+                JSONArray gs = o.optJSONArray("groups");
+                if (gs == null) gs = new JSONArray();
+                boolean any = gs.length() > 0, anyShare = false;
+                if (any) {
+                    JSONArray store = new JSONArray();
+                    for (int i = 0; i < gs.length(); i++) {
+                        JSONObject g = gs.getJSONObject(i);
+                        if (g.optBoolean("share")) anyShare = true;
+                        if (g.has("since") && g.optString("since").length() > 0) ed.putString("lastNote:" + g.getString("topic"), g.getString("since"));
+                        g.remove("since"); store.put(g);
+                    }
+                    JSONObject first = gs.getJSONObject(0);
+                    ed.putString("groups", store.toString()).putString("topic", first.getString("topic")).putString("key", first.getString("key"))
+                      .putString("me", first.optString("me")).putString("name", first.optString("name")).putString("gname", first.optString("gname"))
+                      .putBoolean("notify", o.optBoolean("notify", true)).putBoolean("sharing", anyShare);
                     if (o.has("places")) ed.putString("places", o.getJSONArray("places").toString());
                     ed.putBoolean("placeAlerts", o.optBoolean("placeAlerts", true));
                 } else {
@@ -414,8 +425,8 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     ed.clear(); ed.putBoolean("tracking", tr);
                 }
                 ed.apply();
-                GroupPollJob.schedule(MainActivity.this, o.optBoolean("active") && o.optBoolean("notify", true));
-                if (!o.optBoolean("active")) restartService();
+                GroupPollJob.schedule(MainActivity.this, any && o.optBoolean("notify", true));
+                restartService();
             } catch (Exception e) { }
         }
         @JavascriptInterface public void share(final boolean on) { GroupCore.prefs(MainActivity.this).edit().putBoolean("sharing", on).apply(); restartService(); }

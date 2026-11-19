@@ -50,7 +50,7 @@ public class LocationShareService extends Service implements LocationListener {
             GroupCore.prefs(this).edit().putBoolean("sharing", false).putBoolean("tracking", false).apply();
             stopSelf(); return START_NOT_STICKY;
         }
-        boolean sharing = GroupCore.prefs(this).getBoolean("sharing", false), tracking = GroupCore.prefs(this).getBoolean("tracking", false);
+        boolean sharing = GroupCore.anySharing(GroupCore.prefs(this)), tracking = GroupCore.prefs(this).getBoolean("tracking", false);
         if (!sharing && !tracking) { stopSelf(); return START_NOT_STICKY; }
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder b;
@@ -61,7 +61,9 @@ public class LocationShareService extends Service implements LocationListener {
         int fl = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
         Intent open = new Intent(this, MainActivity.class); open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         Intent stop = new Intent(this, LocationShareService.class); stop.putExtra("stop", true);
-        String grp = GroupCore.prefs(this).getString("gname", "your travel group");
+        String grp = "";
+        { org.json.JSONArray gs = GroupCore.groups(GroupCore.prefs(this)); for (int i = 0; i < gs.length(); i++) { org.json.JSONObject g = gs.optJSONObject(i); if (g != null && g.optBoolean("share")) grp += (grp.isEmpty() ? "" : ", ") + g.optString("gname", "group"); } }
+        if (grp.isEmpty()) grp = "your travel group";
         String title = sharing && tracking ? "Recording your journey · sharing location" : sharing ? "Sharing your location" : "Recording your journey";
         String text = sharing ? "With " + grp + " (end-to-end encrypted)" : "Your route stays on this phone";
         b.setSmallIcon(android.R.drawable.ic_menu_mylocation).setContentTitle(title).setContentText(text)
@@ -96,7 +98,7 @@ public class LocationShareService extends Service implements LocationListener {
     private void send(final Location l, boolean force) {
         long now = System.currentTimeMillis();
         GroupCore.prefs(this).edit().putString("lastLoc", l.getLatitude() + "," + l.getLongitude() + "," + (l.hasAccuracy() ? l.getAccuracy() : 50) + "," + l.getTime()).apply();
-        if (!GroupCore.prefs(this).getBoolean("sharing", false) || GroupCore.prefs(this).getString("topic", null) == null) return;
+        if (!GroupCore.anySharing(GroupCore.prefs(this))) return;
         if (now - lastSent < (force ? 30000 : 90000)) return;
         lastSent = now;
         final boolean poll = now - lastPoll > 110000; if (poll) lastPoll = now;

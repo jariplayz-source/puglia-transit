@@ -51,7 +51,7 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/6.2 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/6.4 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -88,20 +88,48 @@ public class GroupCore {
               w.write(now + "," + (Math.round(lat * 1e5) / 1e5) + "," + (Math.round(lon * 1e5) / 1e5) + "," + Math.round(acc) + "," + Math.round(spd * 10) / 10.0 + "\n"); w.close(); } catch (Exception e) { }
     }
 
-    /** Sends one encrypted location update (used by the background location service). */
-    static void sendLocation(Context ctx, double lat, double lon, float acc) { sendLocation(ctx, lat, lon, acc, -1); }
-    static void sendLocation(Context ctx, double lat, double lon, float acc, float spd) {
-        SharedPreferences p = prefs(ctx);
-        String topic = p.getString("topic", null), key = p.getString("key", null);
-        if (topic == null || key == null) return;
+    /** All your groups: [{topic,key,me,name,gname,share}]. Older versions stored one group directly. */
+    static JSONArray groups(SharedPreferences p) {
+        try { String g = p.getString("groups", null); if (g != null) return new JSONArray(g); } catch (Exception e) { }
+        JSONArray a = new JSONArray();
         try {
-            JSONObject m = new JSONObject();
-            m.put("v", 1); m.put("ver", "6.3"); m.put("ty", "loc"); m.put("from", p.getString("me", "")); m.put("name", p.getString("name", ""));
-            m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
-            int bat = battery(ctx); if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
-            if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
-            http("POST", RELAY + topic, encrypt(key, m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
+            String topic = p.getString("topic", null), key = p.getString("key", null);
+            if (topic != null && key != null) {
+                JSONObject o = new JSONObject();
+                o.put("topic", topic); o.put("key", key); o.put("me", p.getString("me", "")); o.put("name", p.getString("name", ""));
+                o.put("gname", p.getString("gname", "")); o.put("share", p.getBoolean("sharing", false));
+                a.put(o);
+            }
         } catch (Exception e) { }
+        return a;
+    }
+    static boolean anySharing(SharedPreferences p) {
+        if (!p.getBoolean("sharing", false)) return false;
+        JSONArray g = groups(p);
+        for (int i = 0; i < g.length(); i++) if (g.optJSONObject(i).optBoolean("share")) return true;
+        return false;
+    }
+
+    /** Sends one encrypted location update to every group you share with (used by the background location service). */
+    static void sendLocation(Context ctx, double lat, double lon, float acc) { sendLocation(ctx, lat, lon, acc, -1, null); }
+    static void sendLocation(Context ctx, double lat, double lon, float acc, float spd) { sendLocation(ctx, lat, lon, acc, spd, null); }
+    static void sendLocation(Context ctx, double lat, double lon, float acc, float spd, String onlyTopic) {
+        SharedPreferences p = prefs(ctx);
+        JSONArray gs = groups(p);
+        int bat = battery(ctx);
+        for (int i = 0; i < gs.length(); i++) {
+            JSONObject g = gs.optJSONObject(i);
+            if (g == null || !g.optBoolean("share")) continue;
+            if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
+            try {
+                JSONObject m = new JSONObject();
+                m.put("v", 1); m.put("ver", "6.4"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
+                if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
+                if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
+                http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
+            } catch (Exception e) { }
+        }
     }
 
     /** "Sam arrived at B&B" / "Sam left B&B" for the places you saved (radius ~150 m). */
@@ -128,9 +156,19 @@ public class GroupCore {
     /** Checks the relay for new group messages and shows a notification for each (works while the app is closed). */
     static void pollAndNotify(Context ctx) {
         SharedPreferences p = prefs(ctx);
-        String topic = p.getString("topic", null), key = p.getString("key", null), me = p.getString("me", "");
-        if (topic == null || key == null || !p.getBoolean("notify", true)) return;
-        String since = p.getString("lastNote", "6h");
+        if (!p.getBoolean("notify", true)) return;
+        JSONArray gs = groups(p);
+        for (int i = 0; i < gs.length(); i++) {
+            JSONObject g = gs.optJSONObject(i);
+            if (g != null) pollGroup(ctx, p, g, gs.length() > 1);
+        }
+    }
+
+    static void pollGroup(Context ctx, SharedPreferences p, JSONObject g, boolean many) {
+        String topic = g.optString("topic", null), key = g.optString("key", null), me = g.optString("me", "");
+        if (topic == null || key == null) return;
+        String gl = many && g.optString("gname").length() > 0 ? " (" + g.optString("gname") + ")" : "";
+        String since = p.getString("lastNote:" + topic, p.getString("lastNote", "6h"));
         try {
             String txt = http("GET", RELAY + topic + "/json?poll=1&since=" + since, null, null, 20000);
             String last = null;
@@ -142,14 +180,14 @@ public class GroupCore {
                 try {
                     JSONObject env = new JSONObject(new String(decrypt(key, o.optString("message")), "UTF-8"));
                     if (me.equals(env.optString("from"))) continue;
-                    String ty = env.optString("ty"), name = env.optString("name", "Your group"), cap = env.optString("cap", "");
+                    String ty = env.optString("ty"), name = env.optString("name", "Your group") + gl, cap = env.optString("cap", "");
                     String title = null, text = null;
                     if ("loc".equals(ty)) { placeAlert(ctx, p, env); continue; }
                     if ("locreq".equals(ty)) {
                         if (System.currentTimeMillis() - env.optLong("ts", 0) > 30 * 60000) continue;   // old request
-                        if (p.getBoolean("sharing", false)) {
+                        if (p.getBoolean("sharing", false) && g.optBoolean("share")) {
                             String[] ll = p.getString("lastLoc", "").split(",");
-                            if (ll.length >= 3) try { sendLocation(ctx, Double.parseDouble(ll[0]), Double.parseDouble(ll[1]), Float.parseFloat(ll[2])); } catch (Exception ignored) {}
+                            if (ll.length >= 3) try { sendLocation(ctx, Double.parseDouble(ll[0]), Double.parseDouble(ll[1]), Float.parseFloat(ll[2]), -1, topic); } catch (Exception ignored) {}
                             continue;
                         }
                         title = "📍 " + name + " asks where you are"; text = "Open the app and switch on “Share my live location” in Group.";
@@ -163,7 +201,7 @@ public class GroupCore {
                     if (title != null) AlarmReceiver.show(ctx, "grp:" + o.optString("id"), title, text, true);
                 } catch (Exception notOurs) { }
             }
-            if (last != null) p.edit().putString("lastNote", last).apply();
+            if (last != null) p.edit().putString("lastNote:" + topic, last).apply();
         } catch (Exception e) { }
     }
 }
