@@ -1,4 +1,8 @@
-# Puglia Transit
+<img src="art/logo.svg" width="96" alt="">
+
+# Out & Back
+
+Formerly "Puglia Transit".
 
 A personal, non-commercial Android app (a WebView around one HTML file) for getting around without a car:
 travel mode for Puglia (day trips from Brindisi, last train back, offline maps, shops, weather, travel group)

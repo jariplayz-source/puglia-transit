@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Puglia Transit</title>
+<title>Out &amp; Back</title>
 <script>
 (function(){let t="auto";try{t=localStorage.getItem("pt-theme")||"auto";}catch(e){}
   let night=false;try{night=window.AndroidGPS&&window.AndroidGPS.isNight?window.AndroidGPS.isNight():matchMedia("(prefers-color-scheme: dark)").matches;}catch(e){}
@@ -1183,9 +1183,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="6.1";            // bump on every release
+const APP_VERSION="6.2";            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["6.2","New name and logo: Out & Back. Your data, places and group stay as they are"],
  ["6.1","Home is split into sections (Today · Trains · Day trips, or Now · Transit · Roads at home). Map chips no longer cut off. Sharper GPS: combined location, best fix wins, less jumping, and a hint when the signal is weak or only approximate location is allowed"],
  ["6.0","Country designs (Italian here, Dutch at home) and Home mode for the Netherlands: weather with rain in the next 2 hours, roads near you (jams, accidents, closures), departures near you, trip planner and saved routes"],
  ["5.2","Tidier app: 5 tabs (Home, Map, Trips, Nearby, Group), settings behind the ⚙️ button, strike alerts fold up, Getting back and Next trains at the top. Street map repairs itself when it comes up blank"],
@@ -1234,7 +1235,7 @@ function renderUpdate(){
   const box=document.getElementById("updateBox"); if(!box) return;
   const news=`<div class="small">What's new:</div><ul>${WHATS_NEW.slice(0,3).map(w=>`<li><b>${w[0]}</b> · ${w[1]}</li>`).join("")}</ul>`;
   if(IN_APP){
-    box.innerHTML=`<h3>📲 Puglia Transit v${APP_VERSION}</h3>
+    box.innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2311706a%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230c2b3b%22/%3E%20%3C/linearGradient%3E%20%3CradialGradient%20id%3D%22glow%22%20cx%3D%22.3%22%20cy%3D%22.2%22%20r%3D%22.8%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22/%3E%3C/radialGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23bg%29%22/%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url%28%23glow%29%22/%3E%20%3Cpath%20d%3D%22M256%20404%20L169%20280%20A108%20108%200%201%201%20343%20280%20Z%22%20fill%3D%22none%22%20stroke%3D%22%23f6f1e7%22%20stroke-width%3D%2230%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22/%3E%20%3Cpath%20d%3D%22M238%2092%20L262%20112%20L238%20132%22%20fill%3D%22none%22%20stroke%3D%22%23ffb547%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22404%22%20r%3D%2234%22%20fill%3D%22%23ffb547%22%20stroke%3D%22%230e3a44%22%20stroke-width%3D%2210%22/%3E%20%3Ccircle%20cx%3D%22256%22%20cy%3D%22206%22%20r%3D%2234%22%20fill%3D%22%23f6f1e7%22/%3E%20%3C/svg%3E" width="36" height="36" alt="" style="border-radius:9px">Out &amp; Back <span class="small" style="font-weight:500">v${APP_VERSION}</span></h3>
       <div class="small">Installed on this phone. Checking needs internet.</div>
       <div class="btns"><a class="btn primary" href="${WEB_URL}#update-from-${APP_VERSION.replace(/\./g,"-")}">🔄 Check for updates</a></div>${news}`;
   } else {
@@ -1245,7 +1246,7 @@ function renderUpdate(){
       ? `<p class="ok">✓ You're up to date (v${have}).</p>`
       : `<p class="new">⬆ Update available: v${have} → v${APP_VERSION}</p>`;
     box.innerHTML=`<h3>📲 Android app · latest version v${APP_VERSION}</h3>${status}
-      <div class="small"><b>How to update:</b> in your Claude chat about this app, ask “send me the latest Puglia Transit APK”. Download it and install it over the old one. Your saved places and ticks are kept.</div>${news}`;
+      <div class="small"><b>How to update:</b> in your Claude chat about this app, ask “send me the latest Out & Back APK”. Download it and install it over the old one. Your saved places and ticks are kept.</div>${news}`;
   }
 }
 function routeHash(){ if(/^#update/.test(location.hash||"")){ showTab("tips"); renderUpdate();
@@ -1533,7 +1534,7 @@ function townBox(n,half){const p=T_LL(n);if(!p)return null;const dl=half??AREA_S
   return [p[1]-dn,p[0]-dl,p[1]+dn,p[0]+dl];}
 function setMode(m){try{localStorage.setItem("pt-mode",m);}catch(e){}if(m!=="street"&&headingMode){headingMode=false;}setTimeout(()=>{updateGpsBtn&&updateGpsBtn();},0);
   if(m==="street"&&!HAS_MAPS()){const b=document.getElementById("areasBox");b.style.display="block";
-    b.innerHTML=`<b>🗺️ Street maps work in the Android app.</b><div class="small">Install the latest PugliaTransit.apk, then pick the areas you want to keep offline.</div>`;return;}
+    b.innerHTML=`<b>🗺️ Street maps work in the Android app.</b><div class="small">Install the latest Out & Back app, then pick the areas you want to keep offline.</div>`;return;}
   mode=m;
   {const lb=document.getElementById("m-layer");if(lb){lb.textContent=m==="street"?"🧭":"🗺️";lb.title=m==="street"?"Simple map":"Street map";}}
   document.querySelector(".map-wrap").classList.toggle("street",m==="street");
@@ -3610,7 +3611,7 @@ function renderGroup(){
       <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>
       <div class="btns"><button class="btn ghost" id="gLeave" style="color:var(--warn)">Leave group</button></div></details></div>`;
   b.querySelector("#gShare").onclick=()=>{try{window.AndroidGroup.share(!sharing);}catch(e){}setTimeout(renderGroup,800);};
-  b.querySelector("#gInv").onclick=()=>{try{window.AndroidGroup.shareText(`Join my Puglia Transit travel group “${GRP.name}”. Open the app → Group → paste this code:\n\n${inviteCode()}`);}catch(e){}};
+  b.querySelector("#gInv").onclick=()=>{try{window.AndroidGroup.shareText(`Join my Out & Back travel group “${GRP.name}”. Open the app → Group → paste this code:\n\n${inviteCode()}`);}catch(e){}};
   b.querySelector("#gRef").onclick=()=>gPoll();
   b.querySelector("#gCheck").onclick=checkIn;
   {const s=b.querySelector("#gSOS");let t=null;const go=e=>{e.preventDefault();s.classList.add("hold");t=setTimeout(()=>{s.classList.remove("hold");if(navigator.vibrate)try{navigator.vibrate([300,100,300]);}catch(x){}sendSOS();},2000);};
@@ -3664,7 +3665,7 @@ function shareSummary(){
     for(const a of list){let img="";if(a.ty==="photo"&&a.media){const b64=window.AndroidGroup.mediaB64(a.media);if(b64)img=`<img src="data:image/jpeg;base64,${b64}" alt="">`;}
       if(a.ty==="voice"&&!a.cap)continue;
       html+=`<div class="p">${img}<div>${a.cap?esc(a.cap):a.ty==="voice"?"🎙 Voice note":""}<div class="m">${esc(a.mine?"Me":a.name)} · ${new Date(a.ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}${a.town?" · "+esc(a.town):""}</div></div></div>`;}}
-  html+=`<p class="m">Made with Puglia Transit.</p></main></body></html>`;
+  html+=`<p class="m">Made with Out &amp; Back.</p></main></body></html>`;
   try{window.AndroidGroup.shareFile("puglia-trip.html",html,"text/html");}catch(e){toast("⚠ "+e.message);}
 }
 // friends on the map

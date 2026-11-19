@@ -59,7 +59,7 @@ public class DownloadService extends Service {
         Intent open = new Intent(this, MainActivity.class);
         open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pi = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
-        b.setSmallIcon(android.R.drawable.stat_sys_download).setContentTitle("Puglia Transit").setContentText(text)
+        b.setSmallIcon(android.R.drawable.stat_sys_download).setContentTitle("Out & Back").setContentText(text)
          .setOngoing(true).setOnlyAlertOnce(true).setContentIntent(pi);
         if (max > 0) b.setProgress(max, cur, false); else b.setProgress(0, 0, true);
         return b.build();
