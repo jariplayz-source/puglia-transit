@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Out &amp; Back</title>
 <script>
+/* Typing guard: many parts of the app redraw themselves on timers (departures, group updates, GPS). If a redraw happens
+   while you're typing in a box inside it, put the cursor back in the new box with what you typed, so you aren't thrown out. */
+function typing(){const a=document.activeElement;return !!a&&(a.tagName==="TEXTAREA"||(a.tagName==="INPUT"&&!/^(checkbox|radio|button|submit|range|file|color)$/.test(a.type)));}
+(function(){const D=Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML");if(!D||!D.set)return;
+  const keyOf=a=>a.id?"#"+CSS.escape(a.id):a.name?`${a.tagName}[name="${CSS.escape(a.name)}"]`:a.placeholder?`${a.tagName}[placeholder="${CSS.escape(a.placeholder)}"]`:null;
+  Object.defineProperty(Element.prototype,"innerHTML",{configurable:true,get(){return D.get.call(this);},set(v){
+    const a=document.activeElement;
+    if(!typing()||!this.contains(a)){D.set.call(this,v);return;}
+    const k=keyOf(a),val=a.value,dv=a.defaultValue,s0=a.selectionStart,s1=a.selectionEnd;
+    D.set.call(this,v);if(!k)return;const n=this.querySelector(k);if(!n||n.disabled)return;
+    // keep what was typed, unless the redraw deliberately put a different value in the box
+    if(n.defaultValue===dv&&n.value!==val)n.value=val;
+    try{n.focus({preventScroll:true});n.setSelectionRange(s0,s1);}catch(e){}}});
+})();
+
 (function(){let t="auto";try{t=localStorage.getItem("pt-theme")||"auto";}catch(e){}
   let night=false;try{night=window.AndroidGPS&&window.AndroidGPS.isNight?window.AndroidGPS.isNight():matchMedia("(prefers-color-scheme: dark)").matches;}catch(e){}
   document.documentElement.dataset.theme=(t==="dark"||(t==="auto"&&night))?"dark":"light";})();
@@ -1457,12 +1472,13 @@ function lastWarn(){
   if(wl){wl.className="on lv"+lv;wl.innerHTML=lv===4?"🚫 Last train/bus has probably left":lv===3?`🏃 Last back ${dep.t} — keep going!`:`⏰ Last back ${dep.t} · leave in ${minsLeft} min`;}
 }
 setInterval(lastWarn,30000);
-setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
+setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.13";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.14";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.14","Fix: typing no longer gets interrupted when the screen refreshes itself (departures, group updates, location); the cursor and your text stay where they were. Photos now show when they were taken, not when you posted them, and an older photo is placed on the map and in the trip story where you were at that moment."],
  ["1.13","Survival guides are now sorted on shelves (first aid, emergencies, outdoors, home & no power, food, skills, on the road, just for fun), with search that also finds guides in packs you haven't downloaded, “see also” links, and packs that update themselves. Eight new packs: Grow & keep, Wild food & mushrooms, Knots & rope, Finding your way & weather, Talking without internet, On the road, Fix it at home and Zombie apocalypse (for fun, but real preparation). Trip summary: tap the map to open it full screen and pinch, drag or double-tap to zoom; photos stay the same size, tap one to see it."],
  ["1.12","Trip summary: the street map behind your route is now drawn by the app itself from the same map data as the Map tab (roads, buildings, parks, sea, place names), so it works on every phone and offline for downloaded areas."],
  ["1.11","Trip summary: the street map now waits until the streets have really loaded before it is put behind your route (and tells you if it can't). Updates: the app checks every hour, reads the newest version straight from GitHub, and each update file has its own name, so a new version shows up within minutes and never downloads an old copy."],
@@ -2719,7 +2735,7 @@ document.addEventListener("click",e=>{const ad=e.target.closest&&e.target.closes
   if(t.dataset.shgo){const [la,lo]=t.dataset.shgo.split(",").map(Number);showTab("map");if(mode==="street"&&ml)streetFly([la,lo],17);else{const [x,y]=proj(la,lo);vb=[x-12,y-11,24,22];drawMap();}
     showPlaceCard(null,[la,lo],t.dataset.shname,t.dataset.shkind);}});
 document.addEventListener("change",e=>{if(e.target.id==="shTown"){shTown=e.target.value;shOpenRow=null;renderShops();}});
-setInterval(()=>{if(document.getElementById("v-shops").classList.contains("on"))renderShops();},20000);
+setInterval(()=>{if(document.getElementById("v-shops").classList.contains("on")&&!typing())renderShops();},20000);
 
 /* ---------- KEEP DOWNLOADING IN THE BACKGROUND ---------- */
 let mapBusy=false,bgOn=false,bgLast="";
@@ -3731,7 +3747,7 @@ function renderNlSaved(){const b=document.getElementById("nlSaved");if(!b)return
 setTimeout(applyCountry,0);
 var nlLoadedAt=null;
 function nlMoved(){if(appMode()!=="home"||!me)return;if(!nlLoadedAt||hav([me.lat,me.lon],nlLoadedAt)>3){nlLoadedAt=[me.lat,me.lon];if(nlDep.at)loadNlDep();if(nlRoad.at)loadNlRoad();fetchHereWx(false);placeName(me.lat,me.lon);renderNlSaved();}}
-setInterval(()=>{if(appMode()==="home"&&!document.hidden&&document.body.classList.contains("tab-dest")){if(Date.now()-nlDep.at>3*60e3)loadNlDep();if(Date.now()-nlRoad.at>5*60e3)loadNlRoad();fetchHereWx(false);}
+setInterval(()=>{if(appMode()==="home"&&!document.hidden&&!typing()&&document.body.classList.contains("tab-dest")){if(Date.now()-nlDep.at>3*60e3)loadNlDep();if(Date.now()-nlRoad.at>5*60e3)loadNlRoad();fetchHereWx(false);}
   if(appMode()==="home"&&me&&SHOPS["Near me"]&&SHOPS["Near me"].c&&hav([me.lat,me.lon],SHOPS["Near me"].c)>2&&!shopsBusy.has("Near me"))getShops("Near me");},60e3);
 
 /* ---------- FOOD NEEDS CARD: what you can't eat, in the language(s) of the country you're in ---------- */
@@ -4174,7 +4190,8 @@ async function gPollG(G){
       if(env.ty==="hello"){toast(`👋 ${env.name} joined ${G.name}`);if(MYPHONE)gPublish({ty:"profile",phone:MYPHONE},null,G).catch(()=>{});continue;}
       if(env.ty==="bye"){delete G.members[env.from];continue;}
       if(A.some(a=>a.id===o.id))continue;
-      const it={id:o.id,ty:env.ty,from:env.from,name:env.name,ts:env.ts,cap:env.cap||"",town:env.town||"",ll:env.ll||null,dur:env.dur||0,played:false};
+      const tk=+env.taken>0&&+env.taken<Date.now()+600e3?+env.taken:0;
+      const it={id:o.id,ty:env.ty,from:env.from,name:env.name,ts:tk||env.ts,cap:env.cap||"",town:env.town||"",ll:env.ll||null,dur:env.dur||0,played:false};if(tk)it.posted=env.ts;
       if(o.attachment&&o.attachment.url){
         try{const full=gDec(await netGet(o.attachment.url,60000),G);
           if(full&&env.ty==="photo"&&full.img){it.media=o.id+".jpg";window.AndroidGroup.saveMedia(it.media,full.img);}
@@ -4196,7 +4213,7 @@ function sendMyLoc(force,only){if(!me||navigator.onLine===false)return;if(gNativ
   for(const G of L)gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})},null,G).catch(()=>{});}
 async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;
   if(isOffline()){if(m.phone){try{window.AndroidGroup.askBySms(GRP.topic,m.phone);}catch(e){}m.asked=Date.now();toast(`📱 Asked ${m.name} by text message`);renderGroup();}else toast(`📴 No internet, and no phone number for ${m.name} yet`);return;}try{await gPublish({ty:"locreq",to:id});toast(`📍 Asked ${m.name} for their location`);m.asked=Date.now();renderGroup();setTimeout(gPoll,15000);setTimeout(gPoll,45000);}catch(e){toast("⚠ "+e.message);}}
-setInterval(()=>{if(!GROUPS.length||document.hidden)return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
+setInterval(()=>{if(!GROUPS.length||document.hidden||typing())return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
   if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&GRP)gPoll();});
 window.onAppOpened=()=>{if(GRP)gPoll();};
@@ -4258,15 +4275,42 @@ function pasteLocText(txt){const m=/Out&Back:\s*(.+?)\s+is at\s+(-?\d+\.\d+),\s*
   if(!hit)return toast(`No “${m[1]}” in your groups`);let ts=Date.now();if(m[4]){const d=new Date();d.setHours(+m[4],+m[5],0,0);if(d.getTime()<=Date.now()+60e3)ts=d.getTime();}
   hit[1].last={lat:+m[2],lon:+m[3],acc:50,ts,via:"sms"};saveGrp();renderGroup();drawMap();toast(`📍 ${hit[1].name} is on the map (from the text)`);}
 
-async function addPost(ty,cap,b64,dur){
-  const id=rid(),it={id,ty,from:GRP?GRP.me.id:"me",name:GRP?GRP.me.name:"Me",ts:Date.now(),cap:cap||"",town:hereTown||"",ll:me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,dur:dur||0,played:true,mine:true};
+async function addPost(ty,cap,b64,dur,info){info=info||{};
+  const now=Date.now(),taken=info.ts&&Math.abs(now-info.ts)>60e3?info.ts:0,old=taken&&now-taken>30*60e3;
+  // an older photo is placed where and when it was taken: camera GPS, else my own route at that moment
+  const ll=info.ll||(old?whereAt(taken):null)||(!old&&me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null);
+  const id=rid(),it={id,ty,from:GRP?GRP.me.id:"me",name:GRP?GRP.me.name:"Me",ts:taken||now,cap:cap||"",town:old?"":hereTown||"",ll,dur:dur||0,played:true,mine:true};
+  if(taken)it.posted=now;
   if(b64){it.media=id+(ty==="voice"?".webm":".jpg");if(!window.AndroidGroup.saveMedia(it.media,b64))return toast("⚠ Couldn't save on the phone");}
   ALBUM.push(it);saveAlbum();renderAlbum();
   const send=GRP&&document.getElementById("toGroup")&&document.getElementById("toGroup").checked;
   if(send){it.sending=true;renderAlbum();
-    try{const r=await gSend({ty,cap:it.cap,town:it.town,ll:it.ll,dur:it.dur},it.media||null,GRP,it.id);if(r==="sent")it.sent=true;else{it.queued=true;toast(failWhy("it's"));}}catch(e){it.err=e.message;toast("⚠ Not sent: "+e.message);}
+    try{const r=await gSend({ty,cap:it.cap,town:it.town,ll:it.ll,dur:it.dur,...(it.posted?{taken:it.ts}:{})},it.media||null,GRP,it.id);if(r==="sent")it.sent=true;else{it.queued=true;toast(failWhy("it's"));}}catch(e){it.err=e.message;toast("⚠ Not sent: "+e.message);}
     it.sending=false;saveAlbum();renderAlbum();}
 }
+/* When a photo was really taken: the camera's EXIF date (and GPS if the phone kept it), read before the photo is shrunk
+   (shrinking drops EXIF). Falls back to the file's date. Returns {ts, ll} or {}. */
+async function photoInfo(file){const out={};
+  try{const v=new DataView(await file.slice(0,262144).arrayBuffer());
+    if(v.getUint16(0)===0xFFD8){let o=2;
+      while(o+4<v.byteLength){const mk=v.getUint16(o),len=v.getUint16(o+2);
+        if(mk===0xFFE1&&v.getUint32(o+4)===0x45786966){const T=o+10,le=v.getUint16(T)===0x4949,u16=x=>v.getUint16(x,le),u32=x=>v.getUint32(x,le);
+          const str=(off,n)=>{let r="";for(let i=0;i<n;i++){const c=v.getUint8(off+i);if(!c)break;r+=String.fromCharCode(c);}return r;};
+          const ifd=at=>{const m={};if(at<0||at+2>v.byteLength)return m;const n=u16(at);for(let i=0;i<n;i++){const e=at+2+i*12;if(e+12>v.byteLength)break;m[u16(e)]={t:u16(e+2),c:u32(e+4),p:e+8};}return m;};
+          const val=x=>{if(!x)return null;if(x.t===2)return str(x.c>4?T+u32(x.p):x.p,x.c);if(x.t===5){const a=[];const b=T+u32(x.p);for(let i=0;i<x.c;i++)a.push(u32(b+i*8)/(u32(b+i*8+4)||1));return a;}return null;};
+          const I0=ifd(T+u32(T+4)),EX=I0[0x8769]?ifd(T+u32(I0[0x8769].p)):{},GP=I0[0x8825]?ifd(T+u32(I0[0x8825].p)):{};
+          const d=val(EX[0x9003])||val(EX[0x9004])||val(I0[0x0132]),off=val(EX[0x9011]);
+          const m=d&&d.match(/^(\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):(\d\d)/);
+          if(m&&+m[1]>1990){const iso=`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;const t=off&&/^[+-]\d\d:\d\d$/.test(off)?Date.parse(iso+off):new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime();if(t>0)out.ts=t;}
+          const la=val(GP[2]),lo=val(GP[4]),lr=val(GP[1]),lor=val(GP[3]);
+          if(la&&lo&&la.length===3&&lo.length===3){let y=la[0]+la[1]/60+la[2]/3600,x=lo[0]+lo[1]/60+lo[2]/3600;if(lr==="S")y=-y;if(lor==="W")x=-x;if((y||x)&&Math.abs(y)<=90&&Math.abs(x)<=180)out.ll=[+y.toFixed(5),+x.toFixed(5)];}
+          break;}
+        if((mk&0xFF00)!==0xFF00||mk===0xFFDA)break;o+=2+len;}}}catch(e){}
+  if(!out.ts&&file.lastModified&&file.lastModified<Date.now()-120e3&&file.lastModified>Date.UTC(2000,0,1))out.ts=file.lastModified;
+  if(out.ts&&out.ts>Date.now()+600e3)delete out.ts;   // a camera clock in the future: ignore
+  return out;}
+// where I was at a moment, from my own recorded route (within 15 minutes)
+function whereAt(t){let best=null,bd=15*60e3;for(const p of trackPts()){const d=Math.abs(p[0]-t);if(d<bd){bd=d;best=p;}}return best?[+best[1].toFixed(5),+best[2].toFixed(5)]:null;}
 function shrinkPhoto(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const M=1600,s=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement("canvas");
   c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",0.78).split(",")[1]);};im.onerror=rej;im.src=r.result;};r.onerror=rej;r.readAsDataURL(file);});}
 let rec=null,recChunks=[],recStart=0;
@@ -4387,14 +4431,14 @@ function renderAlbum(){
     ${GRP?`<label class="small" style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="toGroup" checked> Also send to ${GRP.name}</label>`:`<div class="small" style="margin-top:8px">Saved on your phone. Start a group above to share live.</div>`}
     <div class="btns"><button class="btn ghost" id="sumShare" ${items.length?"":"disabled"}>📤 Share trip summary</button></div></div>
     <div class="feed">${items.map(a=>`<div class="post">${a.ty==="photo"?(a.media?`<img loading="lazy" src="https://tiles.local/media/${a.media}" alt="${(a.cap||"Photo").replace(/"/g,"&quot;")}">`:`<div class="pb small">📷 Photo expired before it arrived (the relay keeps them ~3 h)</div>`):""}
-      <div class="pb"><div class="ph"><span class="av" style="width:22px;height:22px;border-radius:50%;background:${gColor(a.from)};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${(a.name||"?").slice(0,1)}</span><b>${a.mine?"You":a.name}</b> · ${new Date(a.ts).toLocaleString("en-GB",{weekday:"short",hour:"2-digit",minute:"2-digit"})}${a.town?" · "+a.town:""}</div>
+      <div class="pb"><div class="ph"><span class="av" style="width:22px;height:22px;border-radius:50%;background:${gColor(a.from)};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${(a.name||"?").slice(0,1)}</span><b>${a.mine?"You":a.name}</b> · ${a.posted?"📷 taken ":""}${new Date(a.ts).toLocaleString("en-GB",Date.now()-a.ts>6*864e5?{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}:{weekday:"short",hour:"2-digit",minute:"2-digit"})}${a.town?" · "+a.town:""}</div>
       ${a.ty==="voice"?(a.media?`<audio controls preload="none" src="https://tiles.local/media/${a.media}"></audio>`:`<div class="small">🎙 Voice note expired before it arrived</div>`):""}
       ${a.cap?`<div class="cap">${a.cap.replace(/</g,"&lt;")}</div>`:""}
       <div class="small">${a.sending?"⏳ Sending…":a.queued?"📴 Waiting for internet, sends by itself":a.err?`⚠ Not sent: ${a.err}`:a.sent?"✓ Sent to group":""}${!a.played&&a.ty==="voice"?" · new":""}</div>
       <div class="acts">${a.ll?`<button class="mini" data-aloc="${a.id}">📍 Where</button>`:""}<button class="mini" data-adel="${a.id}" style="color:var(--warn)">Delete</button></div></div></div>`).join("")}
       ${!items.length?`<div class="card small">Your trip album is empty. Add a photo with a note, or a voice note.</div>`:""}</div>`;
   b.querySelector("#pPick").onchange=async e=>{const fs=[...e.target.files];const cap=b.querySelector("#memo").value.trim();b.querySelector("#memo").value="";
-    for(const f of fs){try{addPost("photo",cap,await shrinkPhoto(f));}catch(x){toast("⚠ Couldn't read that photo");}}};
+    for(const f of fs){try{const info=await photoInfo(f);addPost("photo",cap,await shrinkPhoto(f),0,info);}catch(x){toast("⚠ Couldn't read that photo");}}};
   b.querySelector("#vRec").onclick=e=>toggleRec(e.currentTarget);
   b.querySelector("#tAdd").onclick=()=>{const t=b.querySelector("#memo").value.trim();if(!t)return toast("Write something first");addPost("text",t);};
   b.querySelector("#sumShare").onclick=shareSummary;
