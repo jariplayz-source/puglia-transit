@@ -849,6 +849,35 @@ details.alert{border-radius:14px;margin:8px 0}
 .ska-sh{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));animation:skaU .28s cubic-bezier(.2,.8,.2,1)}
 .ska-t{display:block;font-size:21px;font-weight:700}.ska-p{margin:4px 0 8px;color:var(--muted);font-size:14.5px}
 @keyframes skaF{from{opacity:0}}@keyframes skaU{from{transform:translateY(40px);opacity:0}}
+/* nudges */
+.nu-row{display:flex;gap:8px;overflow-x:auto;margin:12px -4px 0;padding:2px 4px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nu-row::-webkit-scrollbar{display:none}
+.nu-chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 13px 8px 10px;background:var(--chip);color:var(--ink);font:600 14px var(--font,system-ui);white-space:nowrap}
+.nu-chip span{font-size:18px;line-height:1}.nu-chip:active{transform:scale(.94)}.nu-chip.wait{opacity:.4}
+.nu-foot{margin-top:4px}.linkbtn{border:0;background:none;color:var(--accent);font:inherit;padding:0;text-decoration:underline;text-underline-offset:2px}
+#nuFx{position:fixed;inset:0;pointer-events:none;z-index:3000;overflow:hidden}
+#nuFx span{position:absolute;line-height:1;will-change:transform,opacity}
+.nu-p{font-size:calc(30px * var(--s,1))}
+.nu-float .nu-p{left:var(--x);bottom:-50px;animation:nuUp var(--t) cubic-bezier(.3,.6,.4,1) var(--d) both}
+@keyframes nuUp{0%{transform:translate(0,0) rotate(0);opacity:0}12%{opacity:1}50%{transform:translate(var(--w),-55vh) rotate(8deg)}100%{transform:translate(calc(var(--w) * -1),-105vh) rotate(-6deg);opacity:0}}
+.nu-rain .nu-p{left:var(--x);top:-50px;animation:nuDown var(--t) cubic-bezier(.5,0,.8,.6) var(--d) both}
+@keyframes nuDown{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(110vh) rotate(var(--r));opacity:.9}}
+.nu-burst .nu-p{left:50%;top:45%;animation:nuBurst 1.5s cubic-bezier(.15,.8,.3,1) calc(var(--d) / 3) both}
+@keyframes nuBurst{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}15%{opacity:1}80%{opacity:1}100%{transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by) + 8vh)) scale(var(--s)) rotate(var(--r));opacity:0}}
+.nu-big{font-size:110px;left:50%;top:42%}
+.nu-pop .nu-big{animation:nuPop 1.9s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes nuPop{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}25%{transform:translate(-50%,-50%) scale(1.1);opacity:1}70%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-62%) scale(.9);opacity:0}}
+.nu-ring{position:absolute;left:50%;top:42%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:4px solid var(--accent);animation:nuRing 1.1s ease-out both}
+@keyframes nuRing{0%{transform:scale(.3);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+.nu-dash .nu-big{left:0;top:50%;font-size:84px;animation:nuDash 1.8s cubic-bezier(.5,0,.5,1) both}
+@keyframes nuDash{0%{transform:translate(-120px,-50%) scaleX(-1)}100%{transform:translate(110vw,-50%) scaleX(-1)}}
+.nu-dash .nu-p{left:0;top:calc(50% + var(--y));font-size:30px;animation:nuDash2 1.8s cubic-bezier(.5,0,.5,1) calc(var(--d) + 120ms) both}
+@keyframes nuDash2{0%{transform:translate(-160px,0);opacity:0}20%{opacity:.8}100%{transform:translate(100vw,0);opacity:0}}
+#nuBan{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:3001;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:20px;background:var(--card);color:var(--ink);
+  box-shadow:0 14px 34px -12px rgba(0,0,0,.45),0 0 0 1px var(--line);animation:nuBan .45s cubic-bezier(.2,1.3,.4,1) both;max-width:520px;margin:0 auto}
+#nuBan.out{transition:transform .35s,opacity .35s;transform:translateY(-130%);opacity:0}
+@keyframes nuBan{from{transform:translateY(-130%)}}
+.nu-e{font-size:32px;line-height:1}.nu-t{flex:1;min-width:0;display:flex;flex-direction:column;font-size:15px}.nu-t b{font-size:13px;color:var(--muted);font-weight:600}
+#nuBan button{flex:none;border:0;border-radius:50%;width:44px;height:44px;background:var(--chip);font-size:20px}
 /* compact panel under the map */
 .np-go,.np-more{display:none;flex:none;border:0;border-radius:50%;width:44px;height:44px;place-items:center;background:var(--card2);color:var(--ink);font-size:20px;padding:0}
 .np-more{display:grid;transition:transform .2s}.nav-panel:not(.mini) .np-more{transform:rotate(180deg);align-self:flex-start}
@@ -1768,7 +1797,7 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.22";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.23";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
  ["1.20","Guides & tools are now easy to find: a Guides button at the top and a strip on Home with the compass, torch and “Where am I” one tap away. All tools have a new, calmer instrument design. New tool: Emergency supplies, a checklist of what to have at home for 72 hours, following the official Dutch or Italian advice depending on where you are, with the names you'll find in the shop and amounts for your household. Fix: the compass could suddenly spin all the way round; it now always turns the short way and doesn't flip when you tilt the phone."],
@@ -2247,6 +2276,7 @@ function checkBaseMap(){
     const r=d.querySelector("#baseRetry");if(r)r.onclick=()=>{baseFixAt=0;checkBaseMap();};}
 }
 if(window.AndroidMaps&&window.AndroidMaps.resetLive){try{if(localStorage.getItem("pt-tilefix")!=="1"){window.AndroidMaps.resetLive();localStorage.setItem("pt-tilefix","1");}}catch(e){}}
+var STREET_GO=null;   // where the street map should open (e.g. a group member far away), instead of your own position
 async function ensureStreet(){
   if(ml){ml.resize();updateStreet();return;} if(mlLoading)return; mlLoading=true;
   // load the map library only once: loading it again (e.g. after switching light/dark) made a fresh copy
@@ -2261,10 +2291,10 @@ async function ensureStreet(){
   const style=JSON.parse(JSON.stringify(DK()&&window.PT_STYLE_DARK?PT_STYLE_DARK:PT_STYLE));
   style.sources.coast={type:"geojson",data:PT_COAST};
   style.layers.splice(1,0,{id:"coast-land",type:"fill",source:"coast",paint:{"fill-color":DK()?"#1f1f1f":"#f2efe9"}});
-  const t=T_LL(target), c=me?[me.lat,me.lon]:lastMe?[lastMe[0],lastMe[1]]:(t||PT["Brindisi"]);
+  const t=T_LL(target), c=STREET_GO||(me?[me.lat,me.lon]:lastMe?[lastMe[0],lastMe[1]]:(t||PT["Brindisi"]));
   try{
-    ml=new maplibregl.Map({container:"smap",style,center:[c[1],c[0]],zoom:(me||lastMe)?15:12,minZoom:6,maxZoom:19,
-      maxBounds:[[15.0,38.6],[20.0,42.4]],attributionControl:{compact:true},pitchWithRotate:false,dragRotate:true,touchPitch:false});
+    ml=new maplibregl.Map({container:"smap",style,center:[c[1],c[0]],zoom:(me||lastMe)?15:12,minZoom:3,maxZoom:19,
+      attributionControl:{compact:true},pitchWithRotate:false,dragRotate:true,touchPitch:false});
   }catch(e){areasMsg("⚠ This phone can't show the street map (WebGL missing): "+e.message);mlLoading=false;return;}
   ml.touchZoomRotate.enableRotation();
   ml.on("rotate",()=>{updateStreetHeading();updateNorth();});
@@ -2380,6 +2410,8 @@ function updateStreetHeading(){
     cone.style.transform=`rotate(${(headShown-(ml?ml.getBearing():0)).toFixed(1)}deg)`;headAnim=Math.abs(d)>0.4?requestAnimationFrame(step):0;};
   headAnim=requestAnimationFrame(step);
 }
+/* the simple map only covers Puglia: anything outside it is shown on the street map */
+function inPuglia(ll){return !!ll&&ll[0]>38.6&&ll[0]<42.4&&ll[1]>15&&ll[1]<20.2;}
 function streetFly(ll,z){if(ml)ml.flyTo({center:[ll[1],ll[0]],zoom:z,speed:1.6});}
 
 /* ----- My map areas ----- */
@@ -3211,7 +3243,7 @@ function endTripQuiet(){if(activeTrip!=null){activeTrip=null;renderTripBar();}}
 async function doSearch(){
   const q=(document.getElementById("mySearch").value||"").trim();if(!q)return;
   const c=searchCentre();myMsg="🔎 Searching…";myResults=[];renderMyBox();document.getElementById("mySearch").value=q;
-  try{const txt=await netGet(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8&lat=${c[0]}&lon=${c[1]}&bbox=15.3,38.8,19.8,42.2`);
+  try{const txt=await netGet(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8&lat=${c[0]}&lon=${c[1]}${inPuglia(c)?"&bbox=15.3,38.8,19.8,42.2":""}`);
     const j=JSON.parse(txt);myResults=(j.features||[]).map(f=>{const p=f.properties||{};const street=[p.street,p.housenumber].filter(Boolean).join(" ");
       return {name:p.name||street||q,lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0],info:[p.name?street:"",p.city||p.county||"",p.osm_value&&p.osm_value!=="yes"?p.osm_value.replace(/_/g," "):""].filter(Boolean).join(", ")};});
     myMsg=myResults.length?"Tap ＋ to save, 🏠 to make it Home, 🧭 to go there.":"Nothing found. Try adding the town, e.g. “B&B Lucia Brindisi”.";}
@@ -3280,7 +3312,7 @@ async function gmOnline(){
   const q=document.getElementById("gmQ").value.trim(),res=document.getElementById("gmRes");if(!q)return;
   res.innerHTML=`<div class="h">⏳ Searching online…</div>`;
   const c=me?[me.lat,me.lon]:PT[hereTown||"Brindisi"];
-  try{const j=JSON.parse(await netGet(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=12&lat=${c[0]}&lon=${c[1]}&bbox=15.3,39.3,19.2,42.0`,15000));
+  try{const j=JSON.parse(await netGet(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=12&lat=${c[0]}&lon=${c[1]}${inPuglia(c)?"&bbox=15.3,39.3,19.2,42.0":""}`,15000));
     const fs=(j.features||[]).map(f=>{const p=f.properties||{};return {name:p.name||p.street||q,sub:[p.street&&p.housenumber?p.street+" "+p.housenumber:p.street,p.city||p.town||p.village].filter(Boolean).join(", ")||"",ll:[f.geometry.coordinates[1],f.geometry.coordinates[0]]};});
     window._gmOnline=fs;
     res.innerHTML=fs.length?`<div class="h">Online results</div>`+fs.map((r,i)=>`<div class="r" data-gmo="${i}"><span class="i">📍</span><span style="flex:1;min-width:0"><div class="n">${r.name}</div><div class="s">${r.sub}${me?" · "+walkTxt(hav([me.lat,me.lon],r.ll)):""}</div></span></div>`).join(""):`<div class="h">Nothing found online</div>`;
@@ -4478,7 +4510,7 @@ function evText(env,name){const pl=env.place||"",home=env.kind==="home";
 function evShort(env){const pl=env.place||"",home=env.kind==="home";return env.ev==="battery"?"Battery low ("+pl+"%)":env.ev==="drive"?"Started driving":env.ev==="leave"?"Left "+(home?"home":pl):"Arrived "+(home?"home":"at "+pl);}
 const PUSH_DEF=g=>g.kind==="home"?{home:true,places:false,battery:true,drive:false}:{home:false,places:true,battery:true,drive:false};
 const gPush=g=>({...PUSH_DEF(g),...(g.push||{})});
-function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,push:gPush(g),since:g.lastId||"1h",mids:Object.keys(g.members),phones:Object.fromEntries(Object.entries(g.members).filter(([i,m])=>m.phone).map(([i,m])=>[i,m.phone]))})),notify:!!NOTIF.group,places:alertPlaces(),home:NLHOME?{lat:NLHOME.lat,lon:NLHOME.lon}:null,placeAlerts:!!NOTIF.places}));}catch(e){}}
+function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,push:gPush(g),nudgeOff:!!g.nudgeOff,since:g.lastId||"1h",mids:Object.keys(g.members),phones:Object.fromEntries(Object.entries(g.members).filter(([i,m])=>m.phone).map(([i,m])=>[i,m.phone]))})),notify:!!NOTIF.group,places:alertPlaces(),home:NLHOME?{lat:NLHOME.lat,lon:NLHOME.lon}:null,placeAlerts:!!NOTIF.places}));}catch(e){}}
 function placeOf(ll){for(const m of MYP)if(!m.pin&&hav(ll,[m.lat,m.lon])<0.15)return (m.home?"🏠 ":"")+m.name;const t=hereTownOf(ll[0],ll[1]);return t?"in "+t:"";}
 function moveOf(l){if(!l||l.spd==null||l.spd<0)return "";return l.spd>8?"🚆 On the move":l.spd>0.8?"🚶 Walking":"🧍 Still";}
 function batOf(b,chg){if(b==null||b<0)return "";return `${chg?"⚡":b<=20?"🪫":"🔋"} ${b}%`;}
@@ -4525,6 +4557,7 @@ async function gPollG(G){
         continue;}
       if(env.ty==="sos"){SOS={name:env.name+gl,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
       if(env.ty==="checkin"){toast(`✅ ${env.name}${gl}: ${env.cap||"all OK"}`);continue;}
+      if(env.ty==="nudge"){nuGot(G,env,m,gl);continue;}
       if(env.phone)m.phone=env.phone;
       if(env.ty==="profile"&&env.del){albumGone(G,A,env);continue;}
       if(env.ty==="profile")continue;
@@ -4696,6 +4729,56 @@ function renderSOS(){const b=document.getElementById("sosBanner");if(!b)return;i
 async function checkIn(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
   const cap=`I'm OK${where?" · "+where.replace("🏠 ",""):""}`;
   try{const r=await gSend({ty:"checkin",cap,ll});if(r==="sent")toast("✅ Check-in sent");else{toast(failWhy("check-in")+" Opening a text message so it arrives now…");setTimeout(()=>{location.href=smsLink(`✅ ${cap}${ll?` https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`);},900);}}catch(e){toast("⚠ "+e.message);}}
+
+/* ---------- NUDGES: small fun messages to the group with an emoji effect on their screen ----------
+   Not spammable: the same nudge once per 2 min per group, at most 4 per 5 min per group and 25 a day.
+   On the other side: one effect per person per 45 s, never more than 12 an hour, nothing older than 20 min, and they can mute nudges.
+   Nudges only go out with internet (they aren't saved for later: "Coffee?" three hours late is no use). */
+const NUDGES=[["omw","🏃","On my way","dash"],["late","⏰","Running late","pop"],["here","📍","I'm here","pop"],["wait","✋","Wait for me","pop"],
+  ["food","🍕","Food?","rain",["🍕","🍝","🥐","🍦","🧀"]],["coffee","☕","Coffee?","float",["☕","🥐","🤎"]],["drink","🥂","Drinks?","burst",["🥂","🍷","🍹","🎉"]],
+  ["love","❤️","Thinking of you","float",["❤️","💛","💕","🧡"]],["lol","😂","Haha","burst",["😂","🤣","😆"]],["yes","👍","Sounds good","pop"],
+  ["night","🌙","Good night","float",["🌙","✨","⭐","💤"]],["yay","🎉","Yay!","burst",["🎉","🎊","✨","🥳"]]];
+const NU=k=>NUDGES.find(n=>n[0]===k);
+let NULOG=[];try{NULOG=JSON.parse(localStorage.getItem("pt-nulog")||"[]");}catch(e){}
+function nuWait(G,k){const now=Date.now();NULOG=NULOG.filter(x=>now-x[0]<24*3600e3);
+  const same=NULOG.filter(x=>x[1]===G.id&&x[2]===k&&now-x[0]<120e3),grp=NULOG.filter(x=>x[1]===G.id&&now-x[0]<300e3);
+  if(NULOG.length>=25)return {why:"That's today's 25 nudges. Back tomorrow.",until:NULOG[0][0]+24*3600e3};
+  if(grp.length>=4)return {why:"Easy there: 4 nudges in 5 minutes.",until:grp[0][0]+300e3};
+  if(same.length)return {why:"You just sent that one.",until:same[0][0]+120e3};return null;}
+async function sendNudge(k){const G=GRP,n=NU(k);if(!G||!n)return;
+  const w=nuWait(G,k);if(w){toast(`⏳ ${w.why} Try again in ${Math.max(1,Math.ceil((w.until-Date.now())/60e3))} min.`);return;}
+  if(isOffline()){toast("📴 Nudges need internet. For something important use ✅ I'm OK: it's saved and sent later.");return;}
+  if(relayLimited()){toast("⏳ The free message service's daily limit is reached, so nudges are paused.");return;}
+  NULOG.push([Date.now(),G.id,k]);try{localStorage.setItem("pt-nulog",JSON.stringify(NULOG));}catch(e){}
+  nuFx(k,null,true);renderGroup();
+  try{await gPublish({ty:"nudge",k});toast(`${n[1]} Sent to ${G.name}`);}
+  catch(e){NULOG.pop();try{localStorage.setItem("pt-nulog",JSON.stringify(NULOG));}catch(x){}toast("⚠ Nudge not sent: "+(e.message||"no connection"));renderGroup();}}
+let NU_SHOWN=[],NU_QUEUE=[];
+function nuGot(G,env,m,gl){const n=NU(env.k);if(!n||G.nudgeOff)return;const age=Date.now()-(env.ts||0);if(age>20*60e3||age<-300e3)return;
+  m.nu={k:env.k,ts:env.ts};const last=m.nuFx||0;if(env.ts-last<45e3&&Date.now()-last<45e3)return;m.nuFx=Date.now();
+  NU_SHOWN=NU_SHOWN.filter(t=>Date.now()-t<3600e3);if(NU_SHOWN.length>=12)return;NU_SHOWN.push(Date.now());
+  NU_QUEUE.push({k:env.k,name:(env.name||"Someone")+gl,gid:G.id});if(!document.hidden)nuNext();}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(nuNext,400);});
+let nuBusy=false;
+function nuNext(){if(nuBusy||!NU_QUEUE.length||document.hidden)return;const q=NU_QUEUE.shift();if(NU_QUEUE.length>3)NU_QUEUE.splice(0,NU_QUEUE.length-3);nuBusy=true;nuFx(q.k,q);setTimeout(()=>{nuBusy=false;nuNext();},3200);}
+function nuFx(k,from,mine){const n=NU(k);if(!n)return;const calm=(typeof LOWPOWER!=="undefined"&&LOWPOWER)||matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let ov=document.getElementById("nuFx");if(ov)ov.remove();ov=document.createElement("div");ov.id="nuFx";ov.className="nu-"+(calm?"pop":n[3]);
+  const set=n[4]||[n[1]],R=(a,b)=>a+Math.random()*(b-a);let h="";
+  if(!calm&&n[3]==="dash")h=`<span class="nu-big" style="--e:'${n[1]}'">${n[1]}</span>`+Array.from({length:6},(_,i)=>`<span class="nu-p" style="--d:${i*70}ms;--y:${R(-8,8)}vh">💨</span>`).join("");
+  else if(calm||n[3]==="pop")h=`<span class="nu-big">${n[1]}</span><i class="nu-ring"></i>`;
+  else{const N=mine?10:16;for(let i=0;i<N;i++){const a=R(0,6.283),r=R(18,44);
+    h+=`<span class="nu-p" style="--x:${R(4,92)}vw;--d:${Math.round(R(0,700))}ms;--s:${R(.8,1.6).toFixed(2)};--w:${R(-30,30).toFixed(0)}px;--r:${R(-50,50).toFixed(0)}deg;--bx:${(Math.cos(a)*r).toFixed(1)}vw;--by:${(Math.sin(a)*r).toFixed(1)}vh;--t:${R(1.6,2.6).toFixed(2)}s">${set[i%set.length]}</span>`;}}
+  ov.innerHTML=h;document.body.appendChild(ov);setTimeout(()=>ov.remove(),3000);
+  if(from){let b=document.getElementById("nuBan");if(b)b.remove();b=document.createElement("div");b.id="nuBan";
+    b.innerHTML=`<span class="nu-e">${n[1]}</span><span class="nu-t"><b>${escH(from.name)}</b>${escH(n[2])}</span>${k!=="yes"?`<button data-nu-reply="${from.gid}" aria-label="Reply: sounds good">👍</button>`:""}`;
+    document.body.appendChild(b);setTimeout(()=>{b.classList.add("out");setTimeout(()=>b.remove(),400);},5200);
+    if(navigator.vibrate&&!calm)try{navigator.vibrate(40);}catch(e){}}}
+document.addEventListener("click",e=>{const r=e.target.closest&&e.target.closest("[data-nu-reply]");if(r){const G=GROUPS.find(g=>g.id===r.dataset.nuReply);if(G&&G!==GRP)switchGroup(G.id);sendNudge("yes");const b=document.getElementById("nuBan");if(b)b.remove();return;}
+  const t=e.target.closest&&e.target.closest("[data-nudge]");if(t){sendNudge(t.dataset.nudge);return;}
+  const mu=e.target.closest&&e.target.closest("#nuMute");if(mu&&GRP){GRP.nudgeOff=!GRP.nudgeOff;saveGrp();gCfg();renderGroup();toast(GRP.nudgeOff?"🔕 Nudges from this group are muted":"🔔 Nudges from this group are on");}});
+function nuRow(){if(!GRP)return "";const now=Date.now();
+  return `<div class="nu-row" role="group" aria-label="Send a nudge">${NUDGES.map(([k,ic,l])=>{const w=nuWait(GRP,k);return `<button class="nu-chip${w?" wait":""}" data-nudge="${k}"${w?` title="${escH(w.why)}"`:""}><span>${ic}</span>${l}</button>`;}).join("")}</div>
+    <div class="small nu-foot">Pops up on their screen with a little effect. <button class="linkbtn" id="nuMute">${GRP.nudgeOff?"🔕 Muted: turn on":"Mute nudges from them"}</button></div>`;}
 async function sendSOS(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
   const cap=`I need help${where?" · "+where.replace("🏠 ",""):""}${ll?` · https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`;
   let ok=false;try{if(navigator.onLine!==false){await gPublish({ty:"sos",cap,ll});ok=true;}}catch(e){}
@@ -4741,11 +4824,12 @@ function renderGroup(){
     <div class="mem"><span class="av" style="background:${gColor(GRP.me.id)}">${GRP.me.name.slice(0,1).toUpperCase()}</span><span class="w"><b>${GRP.me.name}</b> (you)<small>${sharing?"Sharing location":"Not sharing location"}${me&&placeOf([me.lat,me.lon])?" · "+placeOf([me.lat,me.lon]):""}</small>
       ${(()=>{let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}return bt>=0?`<span class="st"><span>${batOf(bt%1000,bt>=1000)}</span></span>`:"";})()}</span></div>
     ${mem.map(([id,m])=>`<div class="mem"><span class="av" style="background:${gColor(id)}">${(m.name||"?").slice(0,1).toUpperCase()}</span><span class="w"><b>${m.name}</b>
-      <small>${m.ev&&m.ev.s&&Date.now()-m.ev.ts<6*3600e3?`${m.ev.ic} ${escH(m.ev.s)} · ${ago(m.ev.ts)}<br>`:""}${m.last?`${placeOf([m.last.lat,m.last.lon])||"Location shared"} · ${ago(m.last.ts)}${me?" · "+kmTxt(hav([me.lat,me.lon],[m.last.lat,m.last.lon]))+" away":""}${m.last.via==="sms"?" · 📱 by text":m.last.via==="bt"?" · 🔵 nearby":""}${Date.now()-m.last.ts>15*60e3?" · not updated lately":""}`:"Not sharing location yet"}${m.ver?` · app ${m.ver}`:""}</small>
+      <small>${m.nu&&NU(m.nu.k)&&Date.now()-m.nu.ts<3600e3?`${NU(m.nu.k)[1]} ${escH(NU(m.nu.k)[2])} · ${ago(m.nu.ts)}<br>`:""}${m.ev&&m.ev.s&&Date.now()-m.ev.ts<6*3600e3?`${m.ev.ic} ${escH(m.ev.s)} · ${ago(m.ev.ts)}<br>`:""}${m.last?`${placeOf([m.last.lat,m.last.lon])||"Location shared"} · ${ago(m.last.ts)}${me?" · "+kmTxt(hav([me.lat,me.lon],[m.last.lat,m.last.lon]))+" away":""}${m.last.via==="sms"?" · 📱 by text":m.last.via==="bt"?" · 🔵 nearby":""}${Date.now()-m.last.ts>15*60e3?" · not updated lately":""}`:"Not sharing location yet"}${m.ver?` · app ${m.ver}`:""}</small>
       ${m.last?`<span class="st">${batOf(m.last.bat,m.last.chg)?`<span class="${m.last.bat<=20&&!m.last.chg?"low":""}">${batOf(m.last.bat,m.last.chg)}</span>`:""}${moveOf(m.last)?`<span>${moveOf(m.last)}</span>`:""}</span>`:""}</span>
       <span style="display:flex;flex-direction:column;gap:4px;flex:none">${m.last?`<button class="mini" data-gmap="${id}" style="margin:0">Show</button>`:""}${!m.last||Date.now()-m.last.ts>5*60e3?`<button class="mini" data-gask="${id}" style="margin:0">${m.asked&&Date.now()-m.asked<120e3?"Asked ✓":"📍 Ask"}</button>`:""}</span></div>`).join("")}
     ${!mem.length?`<div class="small" style="margin-top:6px">Nobody else yet. Send them the invite below.</div>`:""}
     <div class="ci"><button class="btn ghost" id="gCheck">✅ I'm OK</button><button class="btn sos" id="gSOS"><i></i>🆘 Hold for SOS</button></div>
+    ${mem.length?nuRow():""}
     <div class="small" style="margin-top:6px">Arrive/leave alerts work for your saved places (❤️ My places on the Map tab).</div>
     <div class="btns"><button class="btn primary" id="gInv">📤 Send invite</button><button class="btn ghost" id="gRef">${gBusy?"⏳ Updating…":"🔄 Update locations"}</button></div>
     <div class="small" style="margin-top:4px">${GRP.polled?`Updated ${hmI(new Date(GRP.polled).toISOString())} · `:""}updates by itself every 15 seconds while this screen is open.</div>
@@ -4771,7 +4855,9 @@ function renderGroup(){
    const stop=()=>{clearTimeout(t);s.classList.remove("hold");};s.onpointerdown=go;s.onpointerup=stop;s.onpointerleave=stop;s.onpointercancel=stop;}
   const lv=b.querySelector("#gLeave");lv.onclick=()=>{if(lv.dataset.sure)gLeave();else{lv.dataset.sure=1;lv.textContent="Tap again to leave (your album stays)";}};
   b.querySelectorAll("[data-gmap]").forEach(x=>x.onclick=()=>{const m=GRP.members[x.dataset.gmap];if(!m||!m.last)return;showTab("map");
-    const ll=[m.last.lat,m.last.lon];if(mode==="street"&&ml)streetFly(ll,16);else{const [px,py]=proj(ll[0],ll[1]);vb=[px-20,py-18,40,36];drawMap();}showPlaceCard(null,ll,m.name,`👤 ${m.name} · ${ago(m.last.ts)}`);});
+    const ll=[m.last.lat,m.last.lon];if(mode==="street"&&ml)streetFly(ll,16);
+    else if(!inPuglia(ll)&&HAS_MAPS()){STREET_GO=ll;setMode("street");const go=()=>{if(ml)ml.jumpTo({center:[ll[1],ll[0]],zoom:15});};setTimeout(go,300);setTimeout(()=>{go();STREET_GO=null;},1500);}
+    else{const [px,py]=proj(ll[0],ll[1]);vb=[px-20,py-18,40,36];drawMap();}showPlaceCard(null,ll,m.name,`👤 ${m.name} · ${ago(m.last.ts)}`);});
   renderAlbum();
 }
 function renderAlbum(){

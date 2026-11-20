@@ -51,7 +51,7 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.22 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.23 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -154,7 +154,7 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.20"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.23"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
@@ -224,7 +224,7 @@ public class GroupCore {
             if (push == null || !push.optBoolean(kind)) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.20"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
+                m.put("v", 1); m.put("ver", "1.23"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
                 m.put("from", g.optString("me")); m.put("name", g.optString("name")); m.put("ts", System.currentTimeMillis());
                 http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
             } catch (Exception e) { }
@@ -274,6 +274,24 @@ public class GroupCore {
         }
     }
 
+    static String[] nudgeText(String k) {
+        switch (k) {
+            case "omw": return new String[]{"🏃", "On my way"};
+            case "late": return new String[]{"⏰", "Running late"};
+            case "here": return new String[]{"📍", "I'm here"};
+            case "wait": return new String[]{"✋", "Wait for me"};
+            case "food": return new String[]{"🍕", "Food?"};
+            case "coffee": return new String[]{"☕", "Coffee?"};
+            case "drink": return new String[]{"🥂", "Drinks?"};
+            case "love": return new String[]{"❤️", "Thinking of you"};
+            case "lol": return new String[]{"😂", "Haha"};
+            case "yes": return new String[]{"👍", "Sounds good"};
+            case "night": return new String[]{"🌙", "Good night"};
+            case "yay": return new String[]{"🎉", "Yay!"};
+            default: return null;
+        }
+    }
+
     static void pollGroup(Context ctx, SharedPreferences p, JSONObject g, boolean many) {
         String topic = g.optString("topic", null), key = g.optString("key", null), me = g.optString("me", "");
         if (topic == null || key == null) return;
@@ -298,6 +316,17 @@ public class GroupCore {
                         String[] t = eventText(env, name); if (t == null) continue;
                         p.edit().putLong("evAt:" + env.optString("from"), System.currentTimeMillis()).apply();
                         AlarmReceiver.show(ctx, "ev:" + o.optString("id"), t[0], t[1], true); continue;
+                    }
+                    if ("nudge".equals(ty)) {   // fun nudges: muted per group, nothing old, at most one per person per minute (the newest replaces the last one)
+                        if (g.optBoolean("nudgeOff")) continue;
+                        long age = System.currentTimeMillis() - env.optLong("ts", 0);
+                        if (age > 20 * 60000L || age < -5 * 60000L) continue;
+                        String from = env.optString("from"), k = env.optString("k");
+                        String[] nu = nudgeText(k); if (nu == null) continue;
+                        long lastAt = p.getLong("nuAt:" + from, 0);
+                        if (System.currentTimeMillis() - lastAt < 60000L) continue;
+                        p.edit().putLong("nuAt:" + from, System.currentTimeMillis()).apply();
+                        AlarmReceiver.show(ctx, "nu:" + topic + ":" + from, nu[0] + " " + name, nu[1], true); continue;
                     }
                     if ("locreq".equals(ty)) {
                         if (System.currentTimeMillis() - env.optLong("ts", 0) > 30 * 60000) continue;   // old request
