@@ -849,6 +849,18 @@ details.alert{border-radius:14px;margin:8px 0}
 .ska-sh{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));animation:skaU .28s cubic-bezier(.2,.8,.2,1)}
 .ska-t{display:block;font-size:21px;font-weight:700}.ska-p{margin:4px 0 8px;color:var(--muted);font-size:14.5px}
 @keyframes skaF{from{opacity:0}}@keyframes skaU{from{transform:translateY(40px);opacity:0}}
+/* compact panel under the map */
+.np-go,.np-more{display:none;flex:none;border:0;border-radius:50%;width:44px;height:44px;place-items:center;background:var(--card2);color:var(--ink);font-size:20px;padding:0}
+.np-more{display:grid;transition:transform .2s}.nav-panel:not(.mini) .np-more{transform:rotate(180deg);align-self:flex-start}
+.nav-panel.mini .np-go{display:grid;background:var(--accent);color:var(--accent-ink)}
+.nav-panel.mini{padding:10px 12px!important;cursor:pointer}
+.nav-panel.mini .np-row{gap:10px}
+.nav-panel.mini .np-arrow{width:34px;height:34px}
+.nav-panel.mini #npPick,.nav-panel.mini #npRoute,.nav-panel.mini .btns{display:none!important}
+.nav-panel.mini .np-dist{font-size:17px;margin:0;line-height:1.2}
+.nav-panel.mini #npInfo,.nav-panel.mini #npStep{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nav-panel.mini > .np-row > div{min-width:0}
+body.npmini:not(.walking) #map,body.npmini:not(.walking) #smap{height:calc(100dvh - 215px - env(safe-area-inset-bottom))}
 /* ================= STYLES (skins) =================
    Picked in the welcome quiz and in Settings → Appearance. "Classic" is the original look and has no rules here.
    Each skin first sets the colour variables (light and dark), then reshapes components where the style calls for it.
@@ -967,6 +979,27 @@ html[data-skin="vault"] .tl-act{border-radius:2px;box-shadow:none}html[data-skin
 html[data-skin="vault"] .sv-g{border-radius:2px;border-left-color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
 html[data-skin="vault"] .tl-power.lit,html[data-skin="vault"] .tl-power.on{color:#021006}
 
+
+/* ---------- SOFT versions of Mono and Vault (the default): calmer colours, real-colour pictures, no glow or scanlines ---------- */
+html[data-skin="mono"][data-soft]:not([data-theme="dark"]){--bg:#f5f5f3;--card:#fff;--card2:#efefed;--ink:#222;--muted:#757575;--line:#e6e6e3;--accent:#2e2e2e;--accent-soft:#ececea;--chip:#efefed;--tip:#f0f0ee;--svh:#3a3a3a;--shadow:0 1px 2px rgba(0,0,0,.05)}
+html[data-skin="mono"][data-soft][data-theme="dark"][data-skin]{--bg:#141414;--card:#1c1c1c;--card2:#252525;--ink:#e6e6e6;--muted:#9a9a9a;--line:#2c2c2c;--accent:#d8d8d8;--accent-ink:#141414;--accent-soft:#2a2a2a;--chip:#252525;--tip:#222;--skin-tc:#cfcfcf;--shadow:none}
+html[data-skin="mono"][data-soft] .sv-art,html[data-skin="mono"][data-soft] .tl-tile .tl-ico svg{filter:none}
+html[data-skin="mono"][data-soft] .tl-ico{background:var(--card2)!important;box-shadow:none!important}
+html[data-skin="mono"][data-soft] .tl-face,html[data-skin="mono"][data-soft] .kit{background:#2a2a2a}
+html[data-skin="mono"][data-soft] .kit-q button{box-shadow:none;background:rgba(255,255,255,.12)!important}
+html[data-skin="vault"][data-soft][data-skin]{--bg:#0c1510;--card:#111d17;--card2:#17261e;--ink:#d3eadb;--muted:#83a891;--line:#22382b;--accent:#8edba9;--accent-ink:#0c1510;--accent-soft:#1a3324;
+  --train:#8edba9;--bus:#c9e59a;--ok:#8edba9;--chip:#17261e;--tip:#17261e;--flag:#8edba9;--svh:#bfe6cc;--svp:#3d6a4f;--skin-tc:#8edba9;--font:-apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",system-ui,sans-serif}
+html[data-skin="vault"][data-soft] body,html[data-skin="vault"][data-soft] button,html[data-skin="vault"][data-soft] input,html[data-skin="vault"][data-soft] select,html[data-skin="vault"][data-soft] textarea{font-family:var(--font)!important;text-shadow:none}
+html[data-skin="vault"][data-soft] h1,html[data-skin="vault"][data-soft] h2,html[data-skin="vault"][data-soft] .dest,html[data-skin="vault"][data-soft] .su-page h1,html[data-skin="vault"][data-soft] .tl-head h2{text-transform:none;letter-spacing:-.01em!important}
+html[data-skin="vault"][data-soft] nav button{text-transform:none;letter-spacing:0}
+html[data-skin="vault"][data-soft] body::after{display:none}
+html[data-skin="vault"][data-soft] .sv-art,html[data-skin="vault"][data-soft] .tl-tile .tl-ico svg,html[data-skin="vault"][data-soft] .maplibregl-canvas{filter:none}
+html[data-skin="vault"][data-soft] .btn.primary,html[data-skin="vault"][data-soft] .seg button.on{text-shadow:none}
+html[data-skin="vault"][data-soft] .card,html[data-skin="vault"][data-soft][data-country] .card{border-radius:6px!important}
+html[data-soft] .pv[data-pv="vault"]{--pv-bg:#0c1510;--pv-card:#111d17;--pv-ink:#d3eadb;--pv-acc:#8edba9;--pv-f:system-ui,sans-serif;text-shadow:none}html[data-soft] .pv[data-pv="vault"]::after{display:none}
+html[data-soft]:not([data-theme="dark"]) .pv[data-pv="mono"]{--pv-bg:#f5f5f3;--pv-ink:#222;--pv-acc:#2e2e2e}
+html[data-soft][data-theme="dark"] .pv[data-pv="mono"]{--pv-bg:#141414;--pv-card:#1c1c1c;--pv-acc:#d8d8d8}
+.skin-soft{margin:2px 0 4px}
 /* ---------- style previews (quiz + settings): a mini phone, coloured only by its own variables ---------- */
 .pv{--pv-bg:#f1f3f4;--pv-card:#fff;--pv-ink:#1b1f23;--pv-mut:#9aa4ad;--pv-acc:#0b72a8;--pv-acc2:#e1f0f8;--pv-r:8px;--pv-br:6px;--pv-f:system-ui,sans-serif;--pv-hf:system-ui,sans-serif;--pv-flag:linear-gradient(90deg,#1f9d5c 0 33%,#eee 33% 66%,#e0454f 66%);
   --pv-i1:#e4572e;--pv-i2:#e8b923;--pv-i3:#3d8fd6;--pv-ir:5px;--pv-ib:none;--pv-nav:#fff;--pv-face:#16252c;
@@ -1091,6 +1124,8 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
           <div class="np-route" id="npRoute"></div>
           <div class="small" id="npInfo">Pick a destination, or tap a town on the map.</div>
         </div>
+        <button class="np-go" id="npGoMini" aria-label="Start walking">🚶</button>
+        <button class="np-more" id="npMore" aria-label="Show more" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button>
       </div>
       <div class="btns">
         <button class="btn primary" id="npWalk" style="border:0">🚶 Start walking</button>
@@ -1733,7 +1768,7 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.21";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.22";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
  ["1.20","Guides & tools are now easy to find: a Guides button at the top and a strip on Home with the compass, torch and “Where am I” one tap away. All tools have a new, calmer instrument design. New tool: Emergency supplies, a checklist of what to have at home for 72 hours, following the official Dutch or Italian advice depending on where you are, with the names you'll find in the shop and amounts for your household. Fix: the compass could suddenly spin all the way round; it now always turns the short way and doesn't flip when you tilt the phone."],
@@ -3716,16 +3751,19 @@ function phoneNight(){try{if(window.AndroidGPS&&window.AndroidGPS.isNight)return
 /* STYLES (skins): Classic is the original look. Noir and Vault are always dark. */
 const SKINS=[["classic","Classic","Colourful and friendly"],["mono","Mono","Black, white and greys"],["editorial","Editorial","Like a travel magazine"],["glass","Glass","Frosted glass panels"],["float","Float","Floating panels in your country's colour"],["noir","Noir","Black and gold · always dark"],["vault","Vault","Retro green terminal · always dark"]];
 const SKIN_DARK={noir:1,vault:1};
+let SKIN_SOFT=true;try{SKIN_SOFT=localStorage.getItem("pt-skinsoft")!=="0";}catch(e){}
 let SKIN="classic";try{SKIN=localStorage.getItem("pt-skin")||"classic";if(!SKINS.some(x=>x[0]===SKIN))SKIN="classic";}catch(e){}
-document.documentElement.dataset.skin=SKIN;
+document.documentElement.dataset.skin=SKIN;if(SKIN_SOFT)document.documentElement.dataset.soft="";
 function setSkin(k,save){if(!SKINS.some(x=>x[0]===k))k="classic";SKIN=k;document.documentElement.dataset.skin=k;if(save!==false){try{localStorage.setItem("pt-skin",k);localStorage.setItem("pt-skin-asked","1");}catch(e){}}applyTheme();}
 function pvHue(){try{const c=document.documentElement.dataset.country;return c==="it"?150:c==="nl"?24:215;}catch(e){return 215;}}
 function skinPv(k){return `<span class="pv" data-pv="${k}" style="--pvh:${pvHue()}"><span class="pv-h"><b>Out &amp; Back</b><i></i></span><span class="pv-card"><small>Next train</small><b>14:32</b></span><span class="pv-row"><i></i><i></i></span><span class="pv-face"><i></i><i></i><i></i></span><span class="pv-nav"><i></i><i></i><i></i><i></i></span></span>`;}
-function skinPicker(cur,attr,cls){return `<div class="${cls||"skins"}">${SKINS.map(([k,l,d])=>`<button class="skin${cur===k?" on":""}" ${attr}="${k}" aria-pressed="${cur===k}">${skinPv(k)}${l}<small>${d}</small></button>`).join("")}</div>`;}
+const SKIN_SOFTABLE={mono:1,vault:1};
+function skinPicker(cur,attr,cls){return `<div class="${cls||"skins"}">${SKINS.map(([k,l,d])=>`<button class="skin${cur===k?" on":""}" ${attr}="${k}" aria-pressed="${cur===k}">${skinPv(k)}${l}<small>${d}</small></button>`).join("")}</div>${SKIN_SOFTABLE[cur]?`<div class="seg skin-soft">${[[1,"Soft"],[0,"Strong"]].map(([v,l])=>`<button data-skin-soft="${v}" class="${(SKIN_SOFT?1:0)===v?"on":""}">${l}</button>`).join("")}</div>`:""}`;}
 function skinCenter(root){try{const on=root&&root.querySelector(".skins .skin.on");if(!on)return;const sc=on.parentNode;if(sc.scrollWidth>sc.clientWidth)sc.scrollLeft=on.offsetLeft-sc.offsetLeft-sc.clientWidth/2+on.offsetWidth/2;}catch(e){}}
 function applyTheme(){
   const dark=!!SKIN_DARK[SKIN]||THEME==="dark"||(THEME==="auto"&&phoneNight()),was=DK();
   document.documentElement.dataset.skin=SKIN;
+  if(SKIN_SOFT)document.documentElement.dataset.soft="";else delete document.documentElement.dataset.soft;
   document.documentElement.dataset.theme=dark?"dark":"light";
   let bar=dark?"#0f1317":"#f1f3f4";try{const v=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();if(/^#[0-9a-f]{3,8}$/i.test(v))bar=v;else if(v.startsWith("hsl")||v.startsWith("rgb")){const t=document.createElement("i");t.style.color=v;document.body.appendChild(t);const m=getComputedStyle(t).color.match(/\d+/g);t.remove();if(m)bar="#"+m.slice(0,3).map(n=>(+n).toString(16).padStart(2,"0")).join("");}}catch(e){}
   try{window.AndroidGPS&&window.AndroidGPS.setBars&&window.AndroidGPS.setBars(bar,!dark);}catch(e){}
@@ -3738,6 +3776,10 @@ function renderSet(){const b=document.getElementById("setBox");if(!b)return;
   b.innerHTML=`<div class="dest">Appearance</div><div class="seg"${lock?' style="opacity:.45;pointer-events:none" aria-disabled="true"':""}>${[["auto","Auto"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button data-theme-set="${k}" class="${THEME===k&&!lock?"on":""}">${l}</button>`).join("")}</div>
     <div class="small" style="margin-top:6px">${lock?"This style is always dark.":"Auto follows your phone's dark mode."}</div>
     <div class="dest" style="margin-top:16px">Style</div>${skinPicker(SKIN,"data-skin-set")}${countrySet()}<button class="btn ghost" id="suAgain" style="display:block;width:100%;margin-top:14px">Run the welcome setup again</button>`;skinCenter(b);}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-skin-soft]");if(!b)return;SKIN_SOFT=b.dataset.skinSoft==="1";try{localStorage.setItem("pt-skinsoft",SKIN_SOFT?"1":"0");}catch(x){}
+  const sc=document.querySelector("#setBox .skins"),x=sc?sc.scrollLeft:0;applyTheme();const n=document.querySelector("#setBox .skins");if(n)n.scrollLeft=x;
+  if(document.getElementById("setup")&&typeof suRender==="function"){const g=document.querySelector("#setup .su-page"),y=g?g.scrollTop:0;suRender(0);const g2=document.querySelector("#setup .su-page");if(g2){g2.classList.remove("in-l","in-r");g2.scrollTop=y;}}
+  const ska=document.querySelector("#skinAsk .ska-sh");if(ska){const k=ska.querySelector(".skins"),kx=k.scrollLeft;ska.querySelectorAll(".skins,.skin-soft").forEach(z=>z.remove());ska.querySelector("[data-ska-done]").insertAdjacentHTML("beforebegin",skinPicker(SKIN,"data-ska"));ska.querySelector(".skins").scrollLeft=kx;}});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-skin-set]");if(!b)return;const sc=b.closest(".skins"),x=sc?sc.scrollLeft:0;setSkin(b.dataset.skinSet);const n=document.querySelector("#setBox .skins");if(n)n.scrollLeft=x;});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-theme-set]");if(!b)return;THEME=b.dataset.themeSet;try{localStorage.setItem("pt-theme",THEME);}catch(e){}applyTheme();});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&THEME==="auto")applyTheme();});
@@ -5310,7 +5352,17 @@ if(HAS_MAPS()){let m0="street";try{m0=localStorage.getItem("pt-mode")||"street";
 if(window.AndroidGPS&&!gpsOn)startGPS();   // needed for the last-train warning
 renderPosBox();
 if(window.AndroidNet){const age=POSFIX.at?(Date.now()-new Date(POSFIX.at).getTime())/864e5:999;setTimeout(async()=>{await downloadAllPlaces();if(!POSFIX.at||age>30)fixPositions(false);},1500);}
-(function(){const wb=document.getElementById("npWalk");if(!IN_APP){wb.style.display="none";return;}wb.onclick=startWalking;})();
+(function(){const wb=document.getElementById("npWalk"),wm=document.getElementById("npGoMini");if(!IN_APP){wb.style.display="none";if(wm)wm.style.display="none";return;}wb.onclick=startWalking;if(wm)wm.onclick=startWalking;})();
+/* the panel under the map: small by default so the map gets the room; tap it (or the arrow) for the place pickers and buttons */
+(function(){const np=document.getElementById("navPanel"),mb=document.getElementById("npMore");if(!np||!mb)return;
+  let full=false;try{full=localStorage.getItem("pt-npfull")==="1";}catch(e){}
+  function set(f,save){full=f;np.classList.toggle("mini",!f);document.body.classList.toggle("npmini",!f);mb.setAttribute("aria-expanded",f);mb.setAttribute("aria-label",f?"Show less":"Show more");
+    if(save)try{localStorage.setItem("pt-npfull",f?"1":"0");}catch(e){}
+    setTimeout(()=>{try{if(typeof ml!=="undefined"&&ml)ml.resize();}catch(e){}try{drawMap();}catch(e){}},30);}
+  set(full,false);window.npExpand=()=>{if(!full)set(true,false);};
+  np.addEventListener("click",e=>{if(e.target.closest("#npMore")){set(!full,true);return;}
+    if(!full&&!e.target.closest("button,select,a,input"))set(true,true);});
+  ["npTown","npPlace"].forEach(id=>{const x=document.getElementById(id);if(x)x.addEventListener("focus",()=>{if(!full)set(true,false);});});})();
 document.getElementById("leaveTime").onchange=e=>{if(e.target.value)setLeave(e.target.value);};
 document.getElementById("leaveNow").onclick=()=>{const d=new Date();const m=Math.ceil((d.getHours()*60+d.getMinutes())/5)*5;setLeave(fmt(m));};
 document.getElementById("backBox").addEventListener("click",e=>{const lv=e.target.dataset.live;if(lv)liveCheck(lv);});
@@ -5536,7 +5588,7 @@ function skinAsk(){if(document.getElementById("skinAsk")||document.getElementByI
   ov.innerHTML=`<div class="ska-sh" role="dialog" aria-label="Pick a style"><b class="ska-t">New: pick a style</b><p class="ska-p">Tap one to try it on. You can change it later in ⚙️ Settings.</p>${skinPicker(SKIN,"data-ska")}<button class="btn primary" data-ska-done style="width:100%;margin-top:6px">Done</button></div>`;
   document.body.appendChild(ov);skinCenter(ov);}
 document.addEventListener("click",e=>{const t=e.target&&e.target.id==="skinAsk"?e.target:e.target.closest&&e.target.closest("#skinAsk [data-ska],#skinAsk [data-ska-done]");if(!t)return;
-  if(t.matches("[data-ska]")){const sc=t.closest(".skins"),x=sc.scrollLeft;setSkin(t.dataset.ska);const sh=document.querySelector("#skinAsk .ska-sh");sh.querySelector(".skins").outerHTML=skinPicker(SKIN,"data-ska");document.querySelector("#skinAsk .skins").scrollLeft=x;return;}
+  if(t.matches("[data-ska]")){const sc=t.closest(".skins"),x=sc.scrollLeft;setSkin(t.dataset.ska);const sh=document.querySelector("#skinAsk .ska-sh");sh.querySelectorAll(".skins,.skin-soft").forEach(z=>z.remove());sh.querySelector("[data-ska-done]").insertAdjacentHTML("beforebegin",skinPicker(SKIN,"data-ska"));document.querySelector("#skinAsk .skins").scrollLeft=x;return;}
   if(t.matches("[data-ska-done]")||t.id==="skinAsk"){try{localStorage.setItem("pt-skin-asked","1");}catch(x){}const o=document.getElementById("skinAsk");if(o)o.remove();}});
 try{if(setupDone()&&!localStorage.getItem("pt-skin-asked"))setTimeout(skinAsk,2500);}catch(e){}
 
