@@ -1435,9 +1435,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.5";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.6";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.6","Fix: group messages (I'm OK, locations, photos) stopped working after a while. The free message service allows about 250 messages a day per phone, and the app was sending your location every minute or two. Now it sends when you've moved 150 m or more (at most every 4 minutes) and otherwise every 45 minutes, keeps room for SOS and check-ins, shows how many messages you've used today, and says what really went wrong instead of “No internet”."],
  ["1.5","Buses too: Home → “Trains & buses” now has Train · Bus · All. Train keeps the Trenitalia search in Italy; Bus and All plan with open timetable data from Transitous, which works in the Netherlands, Italy and most of Europe. Pick any start (not just your location), tap a day-trip town to plan in one tap, and the last results stay available offline. The planner at home (Transit) has the same Train · Bus · All switch. Journey on the map is much cleaner: full-screen, one smooth line per person with an outline, everything else hidden, filters for Everyone / Me / each friend and per day, and a replay that draws the trip from start to finish. New in Group: “Tell … when I…”: per circle, choose whether they get a notification when you leave or arrive home, arrive at or leave your saved places, your battery gets low, or you start driving. Your phone notices this itself in the background (with location sharing on), also when the app is closed."],
  ["1.4","All guide pictures redrawn in a retro safety-poster style: real cartoon characters (the hiker mascot, the person being helped, a second helper) with faces, clothes, hands and boots, bold outlines on everything. The new mascot waves on the guides page and gives a thumbs-up at the end of every guide."],
  ["1.3","Cleaner, calmer design: one clean font, simpler cards and tabs, day-trip ideas moved to Trips (Explore · Plan a day · Flights), strikes grouped in one line. The journey route is cleaned up (no more zigzags from bad GPS or lines across town after a gap). Fix: turning on live location in a second group no longer crashes the app. The Update button now downloads and installs right away. Stopping location sharing from the notification now stays off; the journey shows gaps as a dotted line instead of a straight line across town; the offline cities list in settings is short again. Survival guides: characters with faces and a mascot, plus 8 new first-aid guides (nosebleed, fainting, low blood sugar, seizure, sprain, tick bite, something in the eye, arm sling)."],
@@ -4129,7 +4130,7 @@ async function gPollG(G){
 /* while the app is open: send my own position too (the background service does it when the app is closed), and look for updates often */
 let LOCREQ=null,lastMySend=0,gPolledAt=0;
 function gSharing(){return !!(GRP&&GRP.sharing);}
-function sendMyLoc(force,only){if(!me||navigator.onLine===false)return;const L=GROUPS.filter(g=>g.sharing&&(!only||g===only));if(!L.length)return;
+function sendMyLoc(force,only){if(!me||navigator.onLine===false)return;if(gNative()&&!force)return;const L=GROUPS.filter(g=>g.sharing&&(!only||g===only));if(!L.length)return;
   if(!force&&Date.now()-lastMySend<60e3)return;if(!only)lastMySend=Date.now();
   let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}
   for(const G of L)gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})},null,G).catch(()=>{});}
@@ -4149,9 +4150,16 @@ function nextVoice(){if(voicePlaying||!voiceQ.length||document.hidden)return;con
 /* ---------- OUTBOX: posts made without internet are kept and sent automatically when you're back online ---------- */
 var OUTBOX=[];try{OUTBOX=JSON.parse(localStorage.getItem("pt-outbox"))||[];}catch(e){}
 const saveOutbox=()=>{try{localStorage.setItem("pt-outbox",JSON.stringify(OUTBOX));}catch(e){}};
+let SEND_ERR="";
+function relayInfo(){try{return JSON.parse(window.AndroidGroup.relayStatus())||{};}catch(e){return {};}}
+function relayLimited(){const r=relayInfo();return /429/.test(SEND_ERR)||(r.limitedUntil&&Date.now()<r.limitedUntil);}
+/* why a message couldn't go out, in plain words */
+function failWhy(what){if(isOffline())return `📴 No internet: ${what} saved and sent automatically later.`;
+  if(relayLimited()){const r=relayInfo();const t=r.limitedUntil||r.reset;return `⏳ The free message service's daily limit is reached: ${what} saved and sent${t?" after "+new Date(t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}):" later"}.`;}
+  return `⚠️ Couldn't reach the message service${SEND_ERR?" ("+SEND_ERR+")":""}: ${what} saved and sent later.`;}
 async function gSend(env,media,G=GRP,itemId){
   const full=media?(()=>{const b=window.AndroidGroup.mediaB64(media);return b?(/\.webm$/.test(media)?{au:b}:{img:b}):null;})():null;
-  if(navigator.onLine!==false){try{await gPublish(env,full,G);return "sent";}catch(e){if(/413|too big|key/i.test(e.message))throw e;}}
+  SEND_ERR="";if(navigator.onLine!==false){try{await gPublish(env,full,G);return "sent";}catch(e){if(/413|too big|key/i.test(e.message))throw e;SEND_ERR=e.message||"";}}
   OUTBOX.push({gid:G.id,env:{...env,ts0:Date.now()},media:media||null,item:itemId||null});saveOutbox();return "queued";}
 var flushing=false;
 async function flushOutbox(){if(flushing||!OUTBOX.length||navigator.onLine===false||!gNative())return;flushing=true;let n=0;
@@ -4196,7 +4204,7 @@ async function addPost(ty,cap,b64,dur){
   ALBUM.push(it);saveAlbum();renderAlbum();
   const send=GRP&&document.getElementById("toGroup")&&document.getElementById("toGroup").checked;
   if(send){it.sending=true;renderAlbum();
-    try{const r=await gSend({ty,cap:it.cap,town:it.town,ll:it.ll,dur:it.dur},it.media||null,GRP,it.id);if(r==="sent")it.sent=true;else{it.queued=true;toast("📴 No internet: saved, it's sent automatically when you're back online");}}catch(e){it.err=e.message;toast("⚠ Not sent: "+e.message);}
+    try{const r=await gSend({ty,cap:it.cap,town:it.town,ll:it.ll,dur:it.dur},it.media||null,GRP,it.id);if(r==="sent")it.sent=true;else{it.queued=true;toast(failWhy("it's"));}}catch(e){it.err=e.message;toast("⚠ Not sent: "+e.message);}
     it.sending=false;saveAlbum();renderAlbum();}
 }
 function shrinkPhoto(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const M=1600,s=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement("canvas");
@@ -4230,7 +4238,7 @@ function renderSOS(){const b=document.getElementById("sosBanner");if(!b)return;i
   if(document.getElementById("v-group").classList.contains("on")===false)toast(`🆘 ${SOS.name} needs help: open the Group tab`);}
 async function checkIn(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
   const cap=`I'm OK${where?" · "+where.replace("🏠 ",""):""}`;
-  try{const r=await gSend({ty:"checkin",cap,ll});if(r==="sent")toast("✅ Check-in sent");else{toast("📴 No internet: check-in saved and sent later. Opening a text message as well…");setTimeout(()=>{location.href=smsLink(`✅ ${cap}${ll?` https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`);},900);}}catch(e){toast("⚠ "+e.message);}}
+  try{const r=await gSend({ty:"checkin",cap,ll});if(r==="sent")toast("✅ Check-in sent");else{toast(failWhy("check-in")+" Opening a text message so it arrives now…");setTimeout(()=>{location.href=smsLink(`✅ ${cap}${ll?` https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`);},900);}}catch(e){toast("⚠ "+e.message);}}
 async function sendSOS(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
   const cap=`I need help${where?" · "+where.replace("🏠 ",""):""}${ll?` · https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`;
   let ok=false;try{if(navigator.onLine!==false){await gPublish({ty:"sos",cap,ll});ok=true;}}catch(e){}
@@ -4283,6 +4291,8 @@ function renderGroup(){
     <div class="small" style="margin-top:6px">Arrive/leave alerts work for your saved places (❤️ My places on the Map tab).</div>
     <div class="btns"><button class="btn primary" id="gInv">📤 Send invite</button><button class="btn ghost" id="gRef">${gBusy?"⏳ Updating…":"🔄 Update locations"}</button></div>
     <div class="small" style="margin-top:4px">${GRP.polled?`Updated ${hmI(new Date(GRP.polled).toISOString())} · `:""}updates by itself every 15 seconds while this screen is open.</div>
+    ${gNative()?(()=>{const r=relayInfo();if(r.n==null)return "";const lim=r.limitedUntil&&Date.now()<r.limitedUntil;
+      return `<div class="small" style="margin-top:4px${lim?";color:var(--warn)":""}">${lim?`⏳ Daily limit of the free message service reached. Locations pause until ${new Date(r.limitedUntil).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}; SOS and check-ins still try, and text messages work.`:`📨 ${r.n} of about ${r.limit} messages used today (free message service). Your location is sent when you move and every 45 min when you're still.`}</div>`;})():""}
     ${gErr?`<div class="live-err">Last check: ${gErr}</div>`:""}
     <details class="adv"><summary>Invite code & privacy ▸</summary><div class="code">${inviteCode()}</div>
       <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>

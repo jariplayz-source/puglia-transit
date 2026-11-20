@@ -21,6 +21,7 @@ public class LocationShareService extends Service implements LocationListener {
     static final int ID = 9;
     private LocationManager lm;
     private long lastSent = 0, lastPoll = 0;
+    private double sentLat = 999, sentLon = 999;
     private Location lastLoc = null;
     /** Every 30 s: without internet, keep the group in touch by Bluetooth (nearby) and text messages. */
     private final Runnable offline = new Runnable() { public void run() {
@@ -117,8 +118,11 @@ public class LocationShareService extends Service implements LocationListener {
         long now = System.currentTimeMillis();
         GroupCore.prefs(this).edit().putString("lastLoc", l.getLatitude() + "," + l.getLongitude() + "," + (l.hasAccuracy() ? l.getAccuracy() : 50) + "," + l.getTime()).apply();
         if (!GroupCore.anySharing(GroupCore.prefs(this))) return;
-        if (now - lastSent < (force ? 30000 : 90000)) return;
-        lastSent = now;
+        // Budget-friendly: send when you moved 150 m+ (at most every 4 min), otherwise a heartbeat every 45 min.
+        double moved = sentLat == 999 ? 1e9 : Math.hypot((l.getLatitude() - sentLat) * 111320, (l.getLongitude() - sentLon) * 111320 * Math.cos(Math.toRadians(l.getLatitude())));
+        if (force) { if (now - lastSent < 30000) return; }
+        else if (!(moved >= 150 && now - lastSent >= 4 * 60000) && now - lastSent < 45 * 60000) return;
+        lastSent = now; sentLat = l.getLatitude(); sentLon = l.getLongitude();
         final boolean poll = now - lastPoll > 110000; if (poll) lastPoll = now;
         new Thread(new Runnable() { public void run() {
             GroupCore.sendLocation(LocationShareService.this, l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 50, l.hasSpeed() ? l.getSpeed() : -1);

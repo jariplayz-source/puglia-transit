@@ -51,16 +51,43 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.5 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.6 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
+        boolean relayPost = !"GET".equals(method) && url.startsWith(RELAY) && sCtx != null;
+        if (relayPost && code < 400) countSent(sCtx);
+        if (relayPost && code == 429) {
+            long wait = -1; try { wait = Long.parseLong(c.getHeaderField("Retry-After")) * 1000L; } catch (Exception e) { }
+            long until = wait > 0 ? System.currentTimeMillis() + wait : nextUtcMidnight();
+            prefs(sCtx).edit().putLong("limitedUntil", until).apply();
+        }
         InputStream in = code >= 400 ? c.getErrorStream() : c.getInputStream();
         ByteArrayOutputStream bo = new ByteArrayOutputStream(); byte[] b = new byte[16384]; int n;
         if (in != null) { while ((n = in.read(b)) > 0) bo.write(b, 0, n); in.close(); }
         c.disconnect();
         if (code >= 400) throw new Exception("relay said " + code + (code == 429 ? " (too many messages, wait a minute)" : code == 413 ? " (file too big)" : ""));
         return bo.toString("UTF-8");
+    }
+
+    /* ---------- message budget: the free relay (ntfy.sh) accepts ~250 messages a day per internet connection ---------- */
+    static final int DAY_LIMIT = 250;
+    static Context sCtx;                                   // set once by the app/service so http() can count
+    static void init(Context c) { if (sCtx == null) sCtx = c.getApplicationContext(); }
+    static String utcDay() { java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US); f.setTimeZone(java.util.TimeZone.getTimeZone("UTC")); return f.format(new java.util.Date()); }
+    static long nextUtcMidnight() { java.util.Calendar k = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")); k.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        k.set(java.util.Calendar.HOUR_OF_DAY, 0); k.set(java.util.Calendar.MINUTE, 2); k.set(java.util.Calendar.SECOND, 0); return k.getTimeInMillis(); }
+    static synchronized int sentToday(Context c) { SharedPreferences p = prefs(c); return utcDay().equals(p.getString("msgDay", "")) ? p.getInt("msgN", 0) : 0; }
+    static synchronized void countSent(Context c) { SharedPreferences p = prefs(c); String d = utcDay(); int n = d.equals(p.getString("msgDay", "")) ? p.getInt("msgN", 0) : 0; p.edit().putString("msgDay", d).putInt("msgN", n + 1).apply(); }
+    /** May we send now? Routine updates stop first, so SOS, check-ins and photos always have room left. */
+    static boolean allow(Context c, int upTo) {
+        init(c);
+        if (System.currentTimeMillis() < prefs(c).getLong("limitedUntil", 0)) return false;
+        return sentToday(c) < upTo;
+    }
+    static String relayStatus(Context c) {
+        init(c);
+        try { JSONObject o = new JSONObject(); o.put("n", sentToday(c)); o.put("limit", DAY_LIMIT); o.put("limitedUntil", prefs(c).getLong("limitedUntil", 0)); o.put("reset", nextUtcMidnight()); return o.toString(); } catch (Exception e) { return "{}"; }
     }
 
     /** Battery level 0-100 (and +1000 when charging), or -1. */
@@ -119,6 +146,7 @@ public class GroupCore {
     static void sendLocation(Context ctx, double lat, double lon, float acc, float spd, String onlyTopic) {
         SharedPreferences p = prefs(ctx);
         JSONArray gs = groups(p);
+        if (!allow(ctx, onlyTopic != null ? 235 : 170)) return;     // routine location: keep ~80 messages a day for everything else
         int bat = battery(ctx);
         for (int i = 0; i < gs.length(); i++) {
             JSONObject g = gs.optJSONObject(i);
@@ -126,7 +154,7 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.5"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.6"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
@@ -187,6 +215,7 @@ public class GroupCore {
     }
 
     static void pushEvent(Context ctx, SharedPreferences p, String kind, String ev, String place) {
+        if (!allow(ctx, 225)) return;
         JSONArray gs = groups(p);
         for (int i = 0; i < gs.length(); i++) {
             JSONObject g = gs.optJSONObject(i);
@@ -195,7 +224,7 @@ public class GroupCore {
             if (push == null || !push.optBoolean(kind)) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.5"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
+                m.put("v", 1); m.put("ver", "1.6"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
                 m.put("from", g.optString("me")); m.put("name", g.optString("name")); m.put("ts", System.currentTimeMillis());
                 http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
             } catch (Exception e) { }
