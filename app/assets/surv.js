@@ -307,35 +307,56 @@ function svToggleBeat(){const b=document.getElementById("svBeatBtn"),d=document.
     try{navigator.vibrate&&navigator.vibrate(30);}catch(e){}};
   svBeat={ac,t:setInterval(tick,545)};tick();if(b)b.textContent="Stop";}
 /* ---------- TOOLS: the phone as a survival kit ----------
+   Designed like instruments: a dark face with one accent colour per tool, thin numerals, fine ticks.
    Each tool only switches its sensor on while it's on screen, and off again when you leave it. */
+const TL_ICONS={
+ compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2.2 5-4.8 2 2.2-5z"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>',
+ where:'<path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/>',
+ torch:'<path d="M8 3h8l-1.5 5h-5zM9.5 8h5v11.5a1.5 1.5 0 0 1-1.5 1.5h-2a1.5 1.5 0 0 1-1.5-1.5z"/><path d="M12 12.5v2"/>',
+ thunder:'<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/>',
+ baro:'<path d="M4.5 16a8 8 0 1 1 15 0"/><path d="M12 16l3.5-5.5"/><circle cx="12" cy="16" r="1.2"/><path d="M4 19.5h16"/>',
+ pace:'<path d="M8.5 3.5c1.6 0 2.5 1.6 2.5 3.6s-1 4.4-2.6 4.4S6 9.7 6 7.4 6.9 3.5 8.5 3.5zM15.5 9.5c1.6 0 2.5 1.6 2.5 3.6s-1 4.4-2.6 4.4-2.4-1.8-2.4-4.1.9-3.9 2.5-3.9z"/><path d="M7.4 14.5l1.8.3-.3 2.4-1.8-.3zM14.4 20.5l1.8.3"/>',
+ level:'<rect x="2.5" y="8.5" width="19" height="7" rx="3.5"/><rect x="9.5" y="10.3" width="5" height="3.4" rx="1.7"/><path d="M8 8.5v7M16 8.5v7"/>',
+ timer:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M18.5 6l1.3-1.3"/>',
+ card:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/>',
+ phrases:'<path d="M4 5.5h11a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H9l-4 3.5V14.5H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2z"/><path d="M18.5 9.5H20a2 2 0 0 1 2 2v4.5a2 2 0 0 1-2 2h-1v2.5l-3-2.5h-3.5"/>',
+ saver:'<rect x="3" y="7" width="16" height="10" rx="2.5"/><path d="M21.5 10.5v3"/><path d="M11.5 9l-2.5 3.5h3.5L10 16"/>',
+ supplies:'<path d="M4.5 8.5h15l-1.3 10.6a1.8 1.8 0 0 1-1.8 1.4H7.6a1.8 1.8 0 0 1-1.8-1.4z"/><path d="M8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5M9.5 13.5l2 2 3.5-3.5"/>',
+};
+const tlIcon=(id,size)=>`<svg viewBox="0 0 24 24" width="${size||24}" height="${size||24}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TL_ICONS[id]||""}</svg>`;
 const TOOLS=[
- {id:"compass",ic:"🧭",t:"Compass",w:"Live direction, and keep a bearing"},
- {id:"sun",ic:"☀️",t:"Sun & daylight",w:"Where the sun is, sunset, daylight left"},
- {id:"where",ic:"📍",t:"Where am I",w:"Coordinates to read out to 112"},
- {id:"torch",ic:"🔦",t:"Torch & SOS",w:"Light, or flash SOS in Morse"},
- {id:"thunder",ic:"⚡",t:"Thunder counter",w:"How far away is the storm?"},
- {id:"baro",ic:"🌡️",t:"Barometer",w:"Pressure trend and bad-weather warning",need:()=>tlTry(t=>t.hasPressure(),false)},
- {id:"pace",ic:"👣",t:"Pace counter",w:"Steps and distance walked"},
- {id:"level",ic:"📐",t:"Spirit level",w:"Is it flat?"},
- {id:"timer",ic:"⏱️",t:"Timers",w:"Boiling water, cooling a burn, a nosebleed…"},
- {id:"card",ic:"🆔",t:"Emergency card",w:"Your medical info for rescuers"},
- {id:"phrases",ic:"💬",t:"Phrasebook",w:"Italian and Dutch for emergencies"},
- {id:"saver",ic:"🔋",t:"Battery saver",w:"Make the battery last longer"},
+ {id:"compass",c:"#e4572e",t:"Compass",w:"Live direction, and keep a bearing"},
+ {id:"sun",c:"#f0a828",t:"Sun & daylight",w:"Where the sun is, sunset, daylight left"},
+ {id:"where",c:"#3d8fd6",t:"Where am I",w:"Coordinates to read out to 112"},
+ {id:"supplies",c:"#b0864c",t:"Emergency supplies",w:"What to have at home for 72 hours"},
+ {id:"torch",c:"#e8b923",t:"Torch & SOS",w:"Light, or flash SOS in Morse"},
+ {id:"thunder",c:"#7d6be0",t:"Thunder counter",w:"How far away is the storm?"},
+ {id:"baro",c:"#2ea597",t:"Barometer",w:"Pressure trend and bad-weather warning",need:()=>tlTry(t=>t.hasPressure(),false)},
+ {id:"pace",c:"#5aa95a",t:"Pace counter",w:"Steps and distance walked"},
+ {id:"level",c:"#8bb83c",t:"Spirit level",w:"Is it flat?"},
+ {id:"timer",c:"#e0703f",t:"Timers",w:"Boiling water, cooling a burn, a nosebleed…"},
+ {id:"card",c:"#d6404a",t:"Emergency card",w:"Your medical info for rescuers"},
+ {id:"phrases",c:"#4f7fe0",t:"Phrasebook",w:"Italian and Dutch for emergencies"},
+ {id:"saver",c:"#33a873",t:"Battery saver",w:"Make the battery last longer"},
 ];
 // which guides open which tool
 const SV_TOOLS_FOR={north:["compass","sun"],compass:["compass"],papermap:["compass"],nophone:["compass","sun"],lost:["where","compass"],daylight:["sun"],dark:["sun","torch"],
   thunder:["thunder"],storm:["thunder","baro"],clouds:["baro"],wind:["baro"],morse:["torch"],signal:["torch","where"],call:["where"],distance:["pace"],
-  burns:["timer"],nosebleed:["timer"],water:["timer"],filter:["timer"],rinseeye:["timer"],shelter:["level"],tautline:["level"],longout:["saver","torch"],
-  nonet:["saver","where"],contactplan:["card"],zgobag:["card"],kit:["card"],doctor:["phrases","card"],medical:["phrases","card"],allergy:["card"]};
+  burns:["timer"],nosebleed:["timer"],water:["timer","supplies"],filter:["timer"],rinseeye:["timer"],shelter:["level"],tautline:["level"],longout:["supplies","saver","torch"],
+  nonet:["saver","where"],contactplan:["card"],zgobag:["supplies","card"],kit:["supplies","card"],doctor:["phrases","card"],medical:["phrases","card"],allergy:["card"],
+  dike:["supplies"],evac:["supplies"],zday0:["supplies"],storing:["supplies"]};
 function tlAvail(){return TOOLS.filter(x=>!x.need||x.need());}
-function tlTiles(){return `<div class="tl-grid">${tlAvail().map(x=>`<button class="tl-tile" data-tool="${x.id}"><span>${x.ic}</span><b>${x.t}</b></button>`).join("")}</div>`;}
+const tlTile=x=>`<button class="tl-tile" data-tool="${x.id}" style="--tc:${x.c}"><span class="tl-ico">${tlIcon(x.id)}</span><b>${x.t}</b></button>`;
+function tlTiles(){return `<div class="tl-grid">${tlAvail().map(tlTile).join("")}</div>`;}
 function tlLinks(gid){const ids=(SV_TOOLS_FOR[gid]||[]).filter(id=>tlAvail().some(x=>x.id===id));
-  return ids.length?`<div class="tl-links">${ids.map(id=>{const x=TOOLS.find(t=>t.id===id);return `<button data-tool="${id}">${x.ic} Open ${x.t.toLowerCase()}</button>`;}).join("")}</div>`:"";}
+  return ids.length?`<div class="tl-links">${ids.map(id=>{const x=TOOLS.find(t=>t.id===id);return `<button data-tool="${id}" style="--tc:${x.c}">${tlIcon(id,18)} ${x.t}</button>`;}).join("")}</div>`:"";}
+const tap=()=>{try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}};
 
-let TOOL=null;   // {id, stop()}
+let TOOL=null;   // {id, stops[]}
 function openTool(id){const x=TOOLS.find(t=>t.id===id);if(!x)return;closeTool();
-  const ov=document.createElement("div");ov.className="sv-ov tl-ov";ov.id="tlOv";
-  ov.innerHTML=`<div class="sv-top"><button data-tlclose>‹ Back</button></div><div class="tl-head"><span>${x.ic}</span><div><h2>${x.t}</h2><p>${x.w}</p></div></div><div class="tl-body" id="tlBody"></div>`;
+  const ov=document.createElement("div");ov.className="sv-ov tl-ov";ov.id="tlOv";ov.style.setProperty("--tc",x.c);
+  ov.innerHTML=`<div class="sv-top"><button data-tlclose>‹ Back</button></div><div class="tl-head"><span class="tl-ico big">${tlIcon(id,30)}</span><div><h2>${x.t}</h2><p>${x.w}</p></div></div><div class="tl-body" id="tlBody"></div>`;
   document.body.appendChild(ov);history.pushState&&history.pushState({tl:1},"");
   TOOL={id,stops:[]};try{TL_RUN[id](document.getElementById("tlBody"),TOOL);}catch(e){document.getElementById("tlBody").innerHTML=`<p class="sv-note">This tool couldn't start: ${svEsc(e.message||String(e))}</p>`;}}
 function closeTool(){if(TOOL){for(const f of TOOL.stops)try{f();}catch(e){}TOOL=null;}const o=document.getElementById("tlOv");if(o)o.remove();headSync();}
@@ -348,12 +369,18 @@ function tlHeading(T,cb){let got=false;TL_HEAD=d=>{got=true;cb(d);};headSync();
   if(!window.AndroidGPS){addEventListener("deviceorientationabsolute",web);addEventListener("deviceorientation",web);}
   tlStop(T,()=>{TL_HEAD=null;removeEventListener("deviceorientationabsolute",web);removeEventListener("deviceorientation",web);});
   return ()=>got;}
+/* Turns a dial smoothly to a heading, always the short way round: it keeps counting past 360 instead of
+   jumping back to 0 (that jump was the "full spin"). */
+function tlSpinner(T,apply){let target=null,shown=null,raf=0;
+  const step=()=>{const d=((target-shown)%360+540)%360-180;shown+=d*0.2;apply(shown);raf=Math.abs(d)>0.15?requestAnimationFrame(step):0;};
+  tlStop(T,()=>cancelAnimationFrame(raf));
+  return d=>{target=d;if(shown==null){shown=d;apply(d);return;}if(!raf)raf=requestAnimationFrame(step);};}
 const CARD16=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"],CARD8=["north","north-east","east","south-east","south","south-west","west","north-west"];
-const cardOf=d=>CARD16[Math.round(((d%360)+360)%360/22.5)%16],card8=d=>CARD8[Math.round(((d%360)+360)%360/45)%8];
-function dialSvg(extra){let t="";for(let i=0;i<72;i++){const a=i*5,l=i%18===0?14:i%6===0?9:5;t+=`<line x1="0" y1="-96" x2="0" y2="${-96+l}" transform="rotate(${a})" stroke="var(--ink,#1d2a30)" stroke-width="${i%6===0?2.4:1.2}"/>`;}
-  const L=["N","E","S","W"].map((c,i)=>`<text transform="rotate(${i*90}) translate(0 -66)" text-anchor="middle" font-size="18" font-weight="800" fill="${i?"var(--ink,#1d2a30)":"#d6452f"}" dy="6">${c}</text>`).join("");
-  const n=[30,60,120,150,210,240,300,330].map(a=>`<text transform="rotate(${a}) translate(0 -70)" text-anchor="middle" font-size="10" fill="var(--muted)" dy="4">${a}</text>`).join("");
-  return `<circle r="100" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>${t}${L}${n}${extra||""}`;}
+const norm=d=>((d%360)+360)%360,cardOf=d=>CARD16[Math.round(norm(d)/22.5)%16],card8=d=>CARD8[Math.round(norm(d)/45)%8];
+function dialSvg(extra){let t="";for(let i=0;i<120;i++){const a=i*3,major=i%10===0,mid=i%5===0;t+=`<line x1="0" y1="-100" x2="0" y2="${major?-88:mid?-92:-95}" transform="rotate(${a})" stroke="${major?"#f4f1e8":"rgba(244,241,232,.45)"}" stroke-width="${major?1.8:1}"/>`;}
+  const L=["N","E","S","W"].map((c,i)=>`<text transform="rotate(${i*90}) translate(0 -70)" text-anchor="middle" font-size="17" font-weight="600" fill="${i?"#f4f1e8":"var(--tc)"}" dy="6">${c}</text>`).join("");
+  const n=[30,60,120,150,210,240,300,330].map(a=>`<text transform="rotate(${a}) translate(0 -74)" text-anchor="middle" font-size="9" fill="rgba(244,241,232,.55)" dy="3">${a}</text>`).join("");
+  return `<circle r="104" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="6"/>${t}${L}${n}<circle r="52" fill="none" stroke="rgba(255,255,255,.08)"/>${extra||""}`;}
 
 /* ---------- sun position and times (NOAA / suncalc formulas), all offline ---------- */
 const SUN=(()=>{const rad=Math.PI/180,J1970=2440588,J2000=2451545,dayMs=864e5,e=rad*23.4397;
@@ -376,109 +403,123 @@ function tlWhere(){if(typeof me!=="undefined"&&me&&me.lat)return [me.lat,me.lon,
 function tlNeedGps(){if(typeof gpsOn!=="undefined"&&!gpsOn&&typeof startGPS==="function")try{startGPS();}catch(e){}}
 const tlHM=d=>d?d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"–";
 const tlDur=ms=>{const m=Math.max(0,Math.round(ms/60e3));return m>=60?`${Math.floor(m/60)} h ${m%60} min`:`${m} min`;};
+const tlDurBig=ms=>{const m=Math.max(0,Math.round(ms/60e3));return m>=60?`${Math.floor(m/60)}<small>h</small> ${String(m%60).padStart(2,"0")}<small>m</small>`:`${m}<small>min</small>`;};
 
 /* ---------- Open Location Code (plus code), the short code 112 operators and maps understand ---------- */
 function plusCode(lat,lng){const A="23456789CFGHJMPQRVWX";lat=Math.min(89.999999,Math.max(-90,lat))+90;lng=((lng+180)%360+360)%360;
   let c="",r=20;for(let i=0;i<5;i++){const la=Math.floor(lat/r),lo=Math.floor(lng/r);lat-=la*r;lng-=lo*r;c+=A[la]+A[lo];if(i===3)c+="+";r/=20;}return c;}
 function dms(v,p,n){const a=Math.abs(v),d=Math.floor(a),m=Math.floor((a-d)*60),s=((a-d)*60-m)*60;return `${d}°${String(m).padStart(2,"0")}′${s.toFixed(1).padStart(4,"0")}″ ${v>=0?p:n}`;}
+const ring=(pct,r,w)=>{const C=2*Math.PI*r;return `<circle r="${r}" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="${w}"/><circle r="${r}" fill="none" stroke="var(--tc)" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${(C*Math.max(0,Math.min(1,pct))).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90)"/>`;};
 
 const TL_RUN={
  compass(el,T){let target=null;try{target=JSON.parse(localStorage.getItem("pt-bearing")||"null");}catch(e){}
-  el.innerHTML=`<div class="tl-dialwrap"><svg viewBox="-110 -118 220 228" class="tl-dial"><g id="tlRose">${dialSvg(`<g id="tlSun"></g><g id="tlTgt"></g>`)}</g>
-     <path d="M0 -112l9 16h-18z" fill="#d6452f"/><line x1="0" y1="-96" x2="0" y2="-40" stroke="#d6452f" stroke-width="3"/></svg>
-     <div class="tl-big" id="tlDeg">–</div><div class="tl-sub" id="tlCard">Hold the phone flat</div></div>
-   <div class="tl-card" id="tlCourse"></div>
-   <div class="tl-row"><button class="tl-btn" id="tlSet">🎯 Keep this direction</button><button class="tl-btn ghost" id="tlClr">Clear</button></div>
-   <p class="sv-note">Hold the phone flat, away from metal, magnets and speakers. If the direction seems off, move the phone in a figure 8 a few times. ☀️ shows where the sun is.</p>`;
-  let cur=null,shown=null;const rose=el.querySelector("#tlRose");
+  el.innerHTML=`<div class="tl-face"><svg viewBox="-112 -122 224 236" class="tl-dial"><g id="tlRose">${dialSvg(`<g id="tlSun"></g><g id="tlTgt"></g>`)}</g>
+      <path d="M0 -116l7 12h-14z" fill="var(--tc)"/><circle r="3" fill="var(--tc)"/></svg>
+     <div class="tl-read"><span class="tl-num" id="tlDeg">–</span><span class="tl-cap" id="tlCard">Hold the phone flat or upright</span></div></div>
+   <div class="tl-pill" id="tlCourse"></div>
+   <div class="tl-row"><button class="tl-act" id="tlSet">Keep direction</button><button class="tl-act ghost" id="tlClr">Clear</button></div>
+   <p class="sv-note">Keep it away from metal, magnets and speakers. If it seems off, move the phone in a figure 8 a few times. The amber dot is the sun.</p>`;
+  let cur=null;const rose=el.querySelector("#tlRose");
   const sun=()=>{const w=tlWhere();const g=el.querySelector("#tlSun");if(!w||!g)return;const p=SUN.pos(new Date(),w[0],w[1]);
-    g.innerHTML=p.alt>-2?`<g transform="rotate(${p.az.toFixed(1)}) translate(0 -84)"><circle r="8" fill="#f2b632"/></g>`:"";};
+    g.innerHTML=p.alt>-2?`<g transform="rotate(${p.az.toFixed(1)}) translate(0 -52)"><circle r="6" fill="#f0a828"/><circle r="10" fill="#f0a828" opacity=".2"/></g>`:"";};
   const course=()=>{const c=el.querySelector("#tlCourse"),g=el.querySelector("#tlTgt");
-    if(target==null){c.innerHTML=`<b>No bearing set.</b> Point the top of the phone where you want to go and tap “Keep this direction”.`;g.innerHTML="";return;}
-    g.innerHTML=`<g transform="rotate(${target})"><path d="M0 -100l-7 -12h14z" fill="#1e8e3e"/><line x1="0" y1="-96" x2="0" y2="-20" stroke="#1e8e3e" stroke-width="3" stroke-dasharray="5 4"/></g>`;
-    if(cur==null){c.textContent=`Bearing ${Math.round(target)}° (${cardOf(target)})`;return;}
-    const diff=((target-cur+540)%360)-180,a=Math.abs(diff);
-    c.innerHTML=a<6?`<b class="ok">✓ On course</b> · bearing ${Math.round(target)}° ${cardOf(target)}`:`Turn <b>${diff>0?"right":"left"} ${Math.round(a)}°</b> · bearing ${Math.round(target)}° ${cardOf(target)}`;
-    c.classList.toggle("good",a<6);};
-  const draw=()=>{if(cur==null)return;if(shown!=null&&Math.abs(((cur-shown+540)%360)-180)<0.6)return;shown=cur;
-    rose.setAttribute("transform",`rotate(${(-cur).toFixed(1)})`);el.querySelector("#tlDeg").textContent=Math.round(cur)+"°";el.querySelector("#tlCard").textContent=cardOf(cur)+" · "+card8(cur);course();};
-  const got=tlHeading(T,d=>{if(cur==null)cur=d;else{const df=((d-cur+540)%360)-180;cur=(cur+df*0.25+360)%360;}requestAnimationFrame(draw);});
-  el.querySelector("#tlSet").onclick=()=>{if(cur==null)return toast("Waiting for the compass…");target=Math.round(cur);localStorage.setItem("pt-bearing",JSON.stringify(target));course();toast(`🎯 Keeping ${target}° ${cardOf(target)}`);};
-  el.querySelector("#tlClr").onclick=()=>{target=null;localStorage.removeItem("pt-bearing");course();};
+    if(target==null){c.innerHTML=`Point the top of the phone where you want to go, then tap <b>Keep direction</b>.`;c.className="tl-pill";g.innerHTML="";return;}
+    g.innerHTML=`<g transform="rotate(${target})"><path d="M0 -104l-6 -10h12z" fill="#4cc38a"/><line x1="0" y1="-86" x2="0" y2="-56" stroke="#4cc38a" stroke-width="2.4" stroke-linecap="round"/></g>`;
+    if(cur==null){c.textContent=`Bearing ${Math.round(target)}° ${cardOf(target)}`;return;}
+    const diff=((target-cur)%360+540)%360-180,a=Math.abs(diff);
+    c.className="tl-pill"+(a<6?" good":"");
+    c.innerHTML=a<6?`<b>On course</b> · ${Math.round(target)}° ${cardOf(target)}`:`Turn <b>${diff>0?"right":"left"} ${Math.round(a)}°</b> · bearing ${Math.round(target)}° ${cardOf(target)}`;};
+  let lastTxt=-1;
+  const spin=tlSpinner(T,v=>{rose.setAttribute("transform",`rotate(${(-v).toFixed(2)})`);const r=Math.round(norm(v));if(r!==lastTxt){lastTxt=r;el.querySelector("#tlDeg").textContent=r+"°";el.querySelector("#tlCard").textContent=card8(r);course();}});
+  const got=tlHeading(T,d=>{cur=norm(d);spin(cur);});
+  el.querySelector("#tlSet").onclick=()=>{tap();if(cur==null)return toast("Waiting for the compass…");target=Math.round(cur);localStorage.setItem("pt-bearing",JSON.stringify(target));course();toast(`Keeping ${target}° ${cardOf(target)}`);};
+  el.querySelector("#tlClr").onclick=()=>{tap();target=null;localStorage.removeItem("pt-bearing");course();};
   sun();course();tlEvery(T,60e3,sun);
-  setTimeout(()=>{if(!got()&&document.getElementById("tlDeg"))el.querySelector("#tlCard").textContent="No compass sensor found on this phone. Use the sun or the stars (see “Finding north”).";},3000);},
+  setTimeout(()=>{if(!got()&&document.getElementById("tlDeg"))el.querySelector("#tlCard").textContent="No compass sensor found: use the sun or the stars (see “Finding north”)";},3000);},
 
  sun(el,T){tlNeedGps();
-  const draw=()=>{const w=tlWhere();if(!w){el.innerHTML=`<p class="sv-note">Waiting for your location… (works without internet, it only needs GPS)</p>`;return;}
+  const draw=()=>{const w=tlWhere();if(!w){el.innerHTML=`<div class="tl-face"><div class="tl-read"><span class="tl-num sm">Finding you…</span><span class="tl-cap">Works without internet, it only needs GPS</span></div></div>`;return;}
     const now=new Date(),p=SUN.pos(now,w[0],w[1]),t=SUN.times(now,w[0],w[1]),tm=SUN.times(new Date(+now+864e5),w[0],w[1]),mo=SUN.moon(now);
     let big,sub;
-    if(!t.rise){big=p.alt>0?"Sun all day":"No sunrise today";sub="";}
-    else if(now<t.dawn){big="Dark";sub=`First light ${tlHM(t.dawn)} · sunrise ${tlHM(t.rise)}`;}
-    else if(now<t.rise){big=`Sunrise in ${tlDur(t.rise-now)}`;sub=`It's getting light · sunrise ${tlHM(t.rise)}`;}
-    else if(now<t.set){big=`${tlDur(t.set-now)} of daylight left`;sub=`Sunset ${tlHM(t.set)} · dark by ${tlHM(t.dusk)}`;}
-    else if(now<t.dusk){big=`Dark in ${tlDur(t.dusk-now)}`;sub=`The sun has set · dark by ${tlHM(t.dusk)}`;}
-    else {big="Dark";sub=`Sunrise tomorrow ${tlHM(tm.rise)}`;}
-    el.innerHTML=`<div class="tl-hero"><div class="tl-big">${big}</div><div class="tl-sub">${sub}</div></div>
-     <div class="tl-dialwrap"><svg viewBox="-110 -110 220 220" class="tl-dial small"><g id="tlRose">${dialSvg(p.alt>-2?`<g transform="rotate(${p.az.toFixed(1)})"><line x1="0" y1="0" x2="0" y2="-80" stroke="#f2b632" stroke-width="4" stroke-dasharray="6 5"/><circle cy="-84" r="10" fill="#f2b632"/></g>`:"")}</g></svg></div>
+    if(!t.rise){big=p.alt>0?"Sun all day":"No sunrise";sub="";}
+    else if(now<t.dawn){big="Night";sub=`First light ${tlHM(t.dawn)} · sunrise ${tlHM(t.rise)}`;}
+    else if(now<t.rise){big=tlDurBig(t.rise-now);sub=`until sunrise at ${tlHM(t.rise)}`;}
+    else if(now<t.set){big=tlDurBig(t.set-now);sub=`of daylight left · sunset ${tlHM(t.set)}`;}
+    else if(now<t.dusk){big=tlDurBig(t.dusk-now);sub=`until dark · the sun set at ${tlHM(t.set)}`;}
+    else {big="Night";sub=`Sunrise tomorrow ${tlHM(tm.rise)}`;}
+    // the day as an arc: sunrise on the left, sunset on the right, the sun where it is now
+    let arc="";if(t.rise&&t.set){const f=Math.max(-0.08,Math.min(1.08,(now-t.rise)/(t.set-t.rise))),ang=Math.PI*(1-f),x=Math.cos(ang)*120,y=-Math.sin(ang)*100;
+      arc=`<svg viewBox="-140 -118 280 140" class="tl-arc"><path d="M-130 0H130" stroke="rgba(244,241,232,.25)" stroke-width="1"/>
+        <path d="M-120 0A120 100 0 0 1 120 0" fill="none" stroke="rgba(244,241,232,.18)" stroke-width="1.5" stroke-dasharray="3 5"/>
+        ${f>0&&f<1?`<path d="M-120 0A120 100 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="var(--tc)" stroke-width="2.5" stroke-linecap="round"/>`:""}
+        <circle cx="${x.toFixed(1)}" cy="${Math.min(10,y).toFixed(1)}" r="18" fill="var(--tc)" opacity="${f>0&&f<1?.18:.06}"/><circle cx="${x.toFixed(1)}" cy="${Math.min(10,y).toFixed(1)}" r="8" fill="${f>0&&f<1?"var(--tc)":"rgba(244,241,232,.35)"}"/>
+        <text x="-120" y="16" text-anchor="middle" font-size="10" fill="rgba(244,241,232,.6)">${tlHM(t.rise)}</text><text x="120" y="16" text-anchor="middle" font-size="10" fill="rgba(244,241,232,.6)">${tlHM(t.set)}</text></svg>`;}
+    el.innerHTML=`<div class="tl-face">${arc}<div class="tl-read"><span class="tl-num">${big}</span><span class="tl-cap">${sub}</span></div></div>
      <div class="tl-list">
-      <div><span>Sun now</span><b>${p.alt>-0.8?`${card8(p.az)} (${Math.round(p.az)}°), ${Math.round(p.alt)}° high`:"below the horizon"}</b></div>
+      <div><span>Sun now</span><b>${p.alt>-0.8?`${card8(p.az)}, ${Math.round(p.alt)}° high`:"below the horizon"}</b></div>
       <div><span>First light</span><b>${tlHM(t.dawn)}</b></div><div><span>Sunrise</span><b>${tlHM(t.rise)}</b></div>
-      <div><span>Highest (south)</span><b>${tlHM(t.noon)}</b></div><div><span>Sunset</span><b>${tlHM(t.set)}</b></div><div><span>Dark</span><b>${tlHM(t.dusk)}</b></div>
+      <div><span>Sun highest (due south)</span><b>${tlHM(t.noon)}</b></div><div><span>Sunset</span><b>${tlHM(t.set)}</b></div><div><span>Dark</span><b>${tlHM(t.dusk)}</b></div>
       <div><span>Moon</span><b>${mo.name}</b></div></div>
-     <p class="sv-note">Hand trick: hold your arm out, fingers sideways under the sun. Each finger to the horizon is about 15 minutes of sun left. ${w[2]>2000?"(Location is approximate: times can be a few minutes off.)":""}</p>`;
-    const rose=el.querySelector("#tlRose");if(rose&&TL_LAST!=null)rose.setAttribute("transform",`rotate(${-TL_LAST})`);};
-  let TL_LAST=null;tlHeading(T,d=>{TL_LAST=d;const r=el.querySelector("#tlRose");if(r)r.setAttribute("transform",`rotate(${(-d).toFixed(0)})`);});
+     <p class="sv-note">Hand trick: hold your arm out with your fingers sideways under the sun. Each finger to the horizon is about 15 minutes of sun left.${w[2]>2000?" Location is approximate, so times can be a few minutes off.":""}</p>`;};
   tlEvery(T,30e3,draw);},
 
  where(el,T){tlNeedGps();
   const draw=()=>{const w=(typeof me!=="undefined"&&me&&me.lat)?[me.lat,me.lon,me.acc||0]:null;
-    if(!w){el.innerHTML=`<div class="tl-hero"><div class="tl-big">Finding you…</div><div class="tl-sub">Go outside or near a window. GPS works without internet.</div></div><a class="tl-btn red" href="tel:112">📞 Call 112</a>`;return;}
+    if(!w){el.innerHTML=`<div class="tl-face"><div class="tl-read"><span class="tl-num sm">Finding you…</span><span class="tl-cap">Go outside or near a window. GPS works without internet.</span></div></div><div class="tl-row"><a class="tl-act red" href="tel:112">Call 112</a></div>`;return;}
     const pc=plusCode(w[0],w[1]),txt=`My location: ${w[0].toFixed(5)}, ${w[1].toFixed(5)} (plus code ${pc}, accuracy ${Math.round(w[2])} m) https://maps.google.com/?q=${w[0].toFixed(5)},${w[1].toFixed(5)}`;
-    el.innerHTML=`<div class="tl-where"><small>Latitude, longitude</small><div class="tl-coord">${w[0].toFixed(5)}<br>${w[1].toFixed(5)}</div>
-      <small>Plus code</small><div class="tl-coord sm">${pc}</div>
-      <small>Degrees, minutes, seconds</small><div class="tl-dms">${dms(w[0],"N","S")}<br>${dms(w[1],"E","W")}</div>
-      <div class="tl-sub">Accurate to about ${Math.round(w[2])} m${w[2]>100?" · wait a moment outside for a better fix":""}${typeof hereTown!=="undefined"&&hereTown?` · near ${svEsc(hereTown)}`:""}</div></div>
-     <div class="tl-row"><a class="tl-btn red" href="tel:112">📞 Call 112</a><a class="tl-btn" href="sms:?body=${encodeURIComponent(txt)}">💬 Text it</a></div>
-     <p class="sv-note">On the phone with 112, read out the two numbers slowly, digit by digit (“forty point six three eight…”). 112 calls in Europe usually also send your location automatically.</p>`;};
+    const q=Math.max(0,Math.min(1,1-(w[2]-5)/95));
+    el.innerHTML=`<div class="tl-face left"><span class="tl-cap">Latitude</span><span class="tl-coord">${w[0].toFixed(5)}</span><span class="tl-cap">Longitude</span><span class="tl-coord">${w[1].toFixed(5)}</span>
+      <div class="tl-facerow"><div><span class="tl-cap">Plus code</span><b class="tl-mono">${pc}</b></div><div><span class="tl-cap">Degrees</span><b class="tl-mono sm">${dms(w[0],"N","S")}<br>${dms(w[1],"E","W")}</b></div></div>
+      <div class="tl-acc"><i style="width:${(q*100).toFixed(0)}%"></i></div><span class="tl-cap">Accurate to about ${Math.round(w[2])} m${w[2]>100?" · wait a moment outside for a better fix":""}${typeof hereTown!=="undefined"&&hereTown?` · near ${svEsc(hereTown)}`:""}</span></div>
+     <div class="tl-row"><a class="tl-act red" href="tel:112">Call 112</a><a class="tl-act" href="sms:?body=${encodeURIComponent(txt)}">Text my location</a></div>
+     <p class="sv-note">On the phone with 112, read the two numbers slowly, digit by digit. 112 calls in Europe usually also send your location automatically.</p>`;};
   tlEvery(T,4000,draw);},
 
  torch(el,T){const has=tlTry(t=>t.hasTorch(),false);let mode="off",tmr=null;
-  const set=on=>{if(has)tlTry(t=>t.torch(on));const s=el.querySelector("#tlScreen");if(s)s.classList.toggle("on",on&&!has);};
+  const set=on=>{if(has)tlTry(t=>t.torch(on));const s=el.querySelector("#tlScreen");if(s)s.classList.toggle("on",on&&!has);const b=el.querySelector(".tl-power");if(b)b.classList.toggle("lit",on);};
   const stop=()=>{clearTimeout(tmr);tmr=null;set(false);mode="off";paint();};
   const U=220,seq=[];for(const L of ["...","---","..."]){for(const c of L)seq.push([true,c==="."?U:3*U],[false,U]);seq[seq.length-1][1]=3*U;}seq[seq.length-1][1]=7*U;
   const sos=()=>{let i=0;const step=()=>{if(mode!=="sos")return;const [on,ms]=seq[i++%seq.length];set(on);tmr=setTimeout(step,ms);};step();};
-  const paint=()=>{el.querySelector("#tlOn").classList.toggle("act",mode==="on");el.querySelector("#tlSos").classList.toggle("act",mode==="sos");
-    el.querySelector("#tlState").textContent=mode==="on"?"Torch on":mode==="sos"?"Flashing SOS: · · · — — — · · ·":"Off";};
-  el.innerHTML=`<div class="tl-screen" id="tlScreen"></div><div class="tl-hero"><div class="tl-big" id="tlState">Off</div><div class="tl-sub">${has?"Uses the camera light":"No camera light found: the screen lights up instead"}</div></div>
-   <div class="tl-row"><button class="tl-btn" id="tlOn">🔦 Torch</button><button class="tl-btn red" id="tlSos">🆘 SOS</button></div>
-   <p class="sv-note">SOS is three short, three long, three short. Point it at a rescuer, a boat, a helicopter or a window. The light goes off when you leave this screen. It uses battery: switch it off when you don't need it.</p>`;
-  el.querySelector("#tlOn").onclick=()=>{if(mode==="on")return stop();stop();mode="on";set(true);paint();};
-  el.querySelector("#tlSos").onclick=()=>{if(mode==="sos")return stop();stop();mode="sos";sos();paint();};
-  tlStop(T,stop);},
+  const paint=()=>{el.querySelector("#tlOn").classList.toggle("on",mode==="on");el.querySelector("#tlSos").classList.toggle("on",mode==="sos");
+    el.querySelector("#tlState").textContent=mode==="on"?"On":mode==="sos"?"SOS":"Off";el.querySelector("#tlStateSub").textContent=mode==="sos"?"· · ·  — — —  · · ·":has?"Camera light":"Screen light (no camera light found)";};
+  el.innerHTML=`<div class="tl-screen" id="tlScreen"></div>
+   <div class="tl-face"><button class="tl-power" id="tlOn" aria-label="Torch on or off">${tlIcon("torch",44)}</button>
+    <div class="tl-read"><span class="tl-num" id="tlState">Off</span><span class="tl-cap" id="tlStateSub"></span></div></div>
+   <div class="tl-row"><button class="tl-act red" id="tlSos">Flash SOS</button></div>
+   <p class="sv-note">SOS is three short, three long, three short. Point it at a rescuer, a boat, a helicopter or a window. The light goes off when you leave this screen.</p>`;
+  el.querySelector("#tlOn").onclick=()=>{tap();if(mode==="on")return stop();stop();mode="on";set(true);paint();};
+  el.querySelector("#tlSos").onclick=()=>{tap();if(mode==="sos")return stop();stop();mode="sos";sos();paint();};
+  paint();tlStop(T,stop);},
 
  thunder(el,T){let t0=null,hist=[],raf=0;
-  const ui=()=>{const r=hist[0];el.innerHTML=`<div class="tl-hero"><div class="tl-big" id="tlT">${t0?"0.0 s":r?`${r.km.toFixed(1)} km away`:"Ready"}</div>
-     <div class="tl-sub">${t0?"Counting… tap when you hear the thunder":r?(r.s<30?"⚠️ Close: get inside a building or a car now":"Further than 10 km, but keep an eye on it"):"Tap when you see the lightning"}</div></div>
-    <button class="tl-btn huge ${t0?"thunder":""}" id="tlTap">${t0?"🔊 Thunder!":"⚡ Flash!"}</button>
-    ${hist.length>1?`<div class="tl-card">${hist[0].km<hist[1].km-0.3?"⬆️ <b>Coming closer</b>":hist[0].km>hist[1].km+0.3?"⬇️ Moving away":"↔️ About the same distance"} · last: ${hist.slice(0,4).map(h=>h.km.toFixed(1)+" km").join(", ")}</div>`:""}
+  const ui=()=>{const r=hist[0];
+   el.innerHTML=`<div class="tl-face"><button class="tl-power ${t0?"lit":""}" id="tlTap">${t0?"Thunder":"Flash"}</button>
+     <div class="tl-read"><span class="tl-num" id="tlT">${t0?"0.0<small>s</small>":r?`${r.km.toFixed(1)}<small>km</small>`:"Ready"}</span>
+     <span class="tl-cap">${t0?"Counting… tap when you hear the thunder":r?(r.s<30?"Close: get inside a building or a car now":"Further than 10 km, keep an eye on it"):"Tap when you see the lightning"}</span></div></div>
+    ${hist.length>1?`<div class="tl-pill${hist[0].km<hist[1].km-0.3?" warn":""}">${hist[0].km<hist[1].km-0.3?"<b>Coming closer</b>":hist[0].km>hist[1].km+0.3?"Moving away":"About the same distance"} · ${hist.slice(0,4).map(h=>h.km.toFixed(1)+" km").join(" · ")}</div>`:""}
     <p class="sv-note">Sound travels about 1 km in 3 seconds. Under 30 seconds (10 km) you're in reach of lightning: go inside, and wait 30 minutes after the last thunder.</p>`;
-   el.querySelector("#tlTap").onclick=()=>{if(!t0){t0=performance.now();ui();tick();}else{const s=(performance.now()-t0)/1000;t0=null;cancelAnimationFrame(raf);hist.unshift({s,km:s*0.343});ui();}};};
-  const tick=()=>{const e=el.querySelector("#tlT");if(!t0||!e)return;e.textContent=((performance.now()-t0)/1000).toFixed(1)+" s";raf=requestAnimationFrame(tick);};
+   el.querySelector("#tlTap").onclick=()=>{tap();if(!t0){t0=performance.now();ui();tick();}else{const s=(performance.now()-t0)/1000;t0=null;cancelAnimationFrame(raf);hist.unshift({s,km:s*0.343});ui();}};};
+  const tick=()=>{const e=el.querySelector("#tlT");if(!t0||!e)return;e.innerHTML=((performance.now()-t0)/1000).toFixed(1)+"<small>s</small>";raf=requestAnimationFrame(tick);};
   ui();tlStop(T,()=>cancelAnimationFrame(raf));},
 
  baro(el,T){let watch=tlTry(t=>t.baroWatching(),false);
   const draw=()=>{const now=tlTry(t=>t.pressure(),-1);let log=[];try{log=JSON.parse(tlTry(t=>t.baroLog(),"[]"));}catch(e){}
     const ago=h=>{let b=null;for(const x of log){if(Math.abs(Date.now()-x[0]-h*3600e3)<40*60e3)b=x[1];}return b;};
     const p3=ago(3),d=now>0&&p3?now-p3:null;
-    const trend=d==null?["Not enough readings yet","Leave the warning on: after 3 hours the app can tell the trend."]:d<=-3?["⬇️ Falling fast","Wind and rain likely within hours."]:d<=-1?["↘️ Falling","Weather may get worse."]:d>=3?["⬆️ Rising fast","Clearing up, often windy at first."]:d>=1?["↗️ Rising","Weather getting better."]:["➡️ Steady","No big change coming."];
+    const trend=d==null?["Learning","After 3 hours of readings the app can tell the trend. Leave the warning on."]:d<=-3?["Falling fast","Wind and rain likely within hours."]:d<=-1?["Falling","Weather may get worse."]:d>=3?["Rising fast","Clearing up, often windy at first."]:d>=1?["Rising","Weather getting better."]:["Steady","No big change coming."];
+    const a=now>0?Math.max(-120,Math.min(120,(now-1013)/40*120)):-120;   // 973–1053 hPa across the gauge
+    let ticks="";for(let i=0;i<=16;i++){const r=-120+i*15;ticks+=`<line x1="0" y1="-100" x2="0" y2="${i%4===0?-88:-94}" transform="rotate(${r})" stroke="${i%4===0?"#f4f1e8":"rgba(244,241,232,.4)"}" stroke-width="${i%4===0?1.8:1}"/>`;}
+    const lbl=[[-120,"973"],[-60,"993"],[0,"1013"],[60,"1033"],[120,"1053"]].map(([r,t])=>`<text transform="rotate(${r}) translate(0 -74) rotate(${-r})" text-anchor="middle" font-size="9" fill="rgba(244,241,232,.55)" dy="3">${t}</text>`).join("");
     const pts=log.filter(x=>Date.now()-x[0]<24*3600e3);let spark="";
     if(pts.length>2){const lo=Math.min(...pts.map(x=>x[1]))-0.5,hi=Math.max(...pts.map(x=>x[1]))+0.5,t0=Date.now()-24*3600e3;
-      spark=`<svg viewBox="0 0 300 80" class="tl-spark"><polyline fill="none" stroke="var(--accent,#11706a)" stroke-width="2.5" points="${pts.map(x=>`${((x[0]-t0)/864e5*300).toFixed(1)},${(75-(x[1]-lo)/(hi-lo)*70).toFixed(1)}`).join(" ")}"/></svg><div class="tl-sub">Last 24 hours · ${lo.toFixed(0)}–${hi.toFixed(0)} hPa</div>`;}
-    el.innerHTML=`<div class="tl-hero"><div class="tl-big">${now>0?now.toFixed(1)+" hPa":"–"}</div><div class="tl-sub">${d!=null?`${d>0?"+":""}${d.toFixed(1)} hPa in 3 hours`:""}</div></div>
-     <div class="tl-card"><b>${trend[0]}</b><br>${trend[1]}</div>${spark}
-     <label class="tl-switch"><input type="checkbox" id="tlW" ${watch?"checked":""}> Warn me when pressure falls fast</label>
-     <p class="sv-note">The warning reads the sensor about every 30 minutes, only when the phone is awake anyway: it uses almost no battery. Going up or down a hill also changes the pressure (about 1 hPa per 8 m).</p>`;
-    el.querySelector("#tlW").onchange=e=>{watch=e.target.checked;tlTry(t=>t.baroWatch(watch));toast(watch?"🌡️ Pressure warning on":"Pressure warning off");};};
+      spark=`<svg viewBox="0 0 300 60" class="tl-spark"><polyline fill="none" stroke="var(--tc)" stroke-width="2" stroke-linejoin="round" points="${pts.map(x=>`${((x[0]-t0)/864e5*300).toFixed(1)},${(55-(x[1]-lo)/(hi-lo)*50).toFixed(1)}`).join(" ")}"/></svg><span class="tl-cap">Last 24 hours · ${lo.toFixed(0)}–${hi.toFixed(0)} hPa</span>`;}
+    el.innerHTML=`<div class="tl-face"><svg viewBox="-110 -112 220 150" class="tl-gauge"><path d="M-86.6 50A100 100 0 1 1 86.6 50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="6"/>${ticks}${lbl}
+       <g transform="rotate(${a.toFixed(1)})"><path d="M-3 0L0 -84L3 0z" fill="var(--tc)"/></g><circle r="6" fill="var(--tc)"/></svg>
+      <div class="tl-read"><span class="tl-num">${now>0?now.toFixed(1)+"<small>hPa</small>":"–"}</span><span class="tl-cap">${trend[0]}${d!=null?` · ${d>0?"+":""}${d.toFixed(1)} hPa in 3 h`:""}</span></div>${spark}</div>
+     <div class="tl-pill${d!=null&&d<=-3?" warn":""}">${trend[1]}</div>
+     <label class="tl-switch"><span>Warn me when pressure falls fast</span><input type="checkbox" id="tlW" ${watch?"checked":""}><i></i></label>
+     <p class="sv-note">The warning reads the sensor about every 30 minutes, only when the phone is awake anyway, so it uses almost no battery. Going up or down a hill also changes the pressure (about 1 hPa per 8 m).</p>`;
+    el.querySelector("#tlW").onchange=e=>{tap();watch=e.target.checked;tlTry(t=>t.baroWatch(watch));toast(watch?"Pressure warning on":"Pressure warning off");};};
   tlEvery(T,5*60e3,draw);},
 
  pace(el,T){const nat=tlTry(t=>t.hasSteps(),false);let st={};try{st=JSON.parse(localStorage.getItem("pt-pace")||"{}");}catch(e){}st.stride=st.stride||75;
@@ -486,79 +527,123 @@ const TL_RUN={
   const read=()=>nat&&tlTry(t=>t.stepsAllowed(),false)?tlTry(t=>t.steps(),-1):-1;
   const draw=()=>{let n=0;if(st.on){if(nat&&st.base!=null){const v=read();if(v>=0)n=Math.max(0,v-st.base);}else n=st.js||0;}
     const m=n*st.stride/100,el2=st.on?Date.now()-st.t:0;
-    el.innerHTML=`<div class="tl-hero"><div class="tl-big">${st.on?(m>=1000?(m/1000).toFixed(2)+" km":Math.round(m)+" m"):"Not counting"}</div>
-      <div class="tl-sub">${st.on?`${n} steps · ${tlDur(el2)}${el2>60e3&&m>20?` · ${(m/1000/(el2/3600e3)).toFixed(1)} km/h`:""}`:"Tap start, then walk"}</div></div>
-     <div class="tl-row"><button class="tl-btn" id="tlGo">${st.on?"↺ Start again":"▶ Start"}</button>${st.on?`<button class="tl-btn ghost" id="tlEnd">Stop</button>`:""}</div>
-     <label class="tl-switch">Step length <input type="number" id="tlStride" value="${st.stride}" min="40" max="120" style="width:70px"> cm</label>
-     <p class="sv-note">${nat?"Uses the phone's step counter: it keeps counting with the screen off and uses almost no battery.":"Keep this screen open while walking (this phone has no separate step counter)."} To find your step length: walk 10 steps, measure, divide by 10.</p>`;
-    el.querySelector("#tlGo").onclick=()=>{if(nat&&!tlTry(t=>t.stepsAllowed(),true)){tlTry(t=>t.askSteps());window.onStepsPerm=ok=>{if(ok)el.querySelector("#tlGo").click();else toast("Without that permission the screen has to stay open");};return;}
+    el.innerHTML=`<div class="tl-face"><svg viewBox="-110 -110 220 220" class="tl-dial sm">${ring((m%1000)/1000,92,8)}</svg>
+      <div class="tl-read over"><span class="tl-num">${st.on?(m>=1000?(m/1000).toFixed(2)+"<small>km</small>":Math.round(m)+"<small>m</small>"):"0<small>m</small>"}</span>
+      <span class="tl-cap">${st.on?`${n} steps · ${tlDur(el2)}${el2>60e3&&m>20?` · ${(m/1000/(el2/3600e3)).toFixed(1)} km/h`:""}`:"Tap start, then walk"}</span></div></div>
+     <div class="tl-row"><button class="tl-act" id="tlGo">${st.on?"Start again":"Start"}</button>${st.on?`<button class="tl-act ghost" id="tlEnd">Stop</button>`:""}</div>
+     <label class="tl-switch"><span>Step length</span><span class="tl-stepper"><input type="number" id="tlStride" value="${st.stride}" min="40" max="120"> cm</span></label>
+     <p class="sv-note">${nat?"Uses the phone's step counter: it keeps counting with the screen off and uses almost no battery.":"Keep this screen open while walking (this phone has no separate step counter)."} To find your step length: walk 10 steps, measure, divide by 10. The ring fills every kilometre.</p>`;
+    el.querySelector("#tlGo").onclick=()=>{tap();if(nat&&!tlTry(t=>t.stepsAllowed(),true)){tlTry(t=>t.askSteps());window.onStepsPerm=ok=>{if(ok)el.querySelector("#tlGo").click();else toast("Without that permission the screen has to stay open");};return;}
       st={on:true,t:Date.now(),stride:st.stride,base:nat?read():null,js:0};if(nat&&st.base<0){st.base=null;}save();draw();};
-    const e=el.querySelector("#tlEnd");if(e)e.onclick=()=>{st.on=false;save();draw();};
+    const e=el.querySelector("#tlEnd");if(e)e.onclick=()=>{tap();st.on=false;save();draw();};
     el.querySelector("#tlStride").onchange=e=>{st.stride=Math.max(40,Math.min(120,+e.target.value||75));save();draw();};};
-  // phones without a step chip: count steps from movement, only while this screen is open
-  if(!nat){let last=0,hi=false;acc=e=>{const a=e.accelerationIncludingGravity;if(!a||!st.on||(nat&&st.base!=null))return;const g=Math.hypot(a.x||0,a.y||0,a.z||0);
+  if(!nat){let last=0,hi=false;acc=e=>{const a=e.accelerationIncludingGravity;if(!a||!st.on)return;const g=Math.hypot(a.x||0,a.y||0,a.z||0);
       if(!hi&&g>11.5&&performance.now()-last>300){hi=true;last=performance.now();st.js=(st.js||0)+1;}else if(hi&&g<10)hi=false;};
     addEventListener("devicemotion",acc);tlStop(T,()=>{removeEventListener("devicemotion",acc);save();});}
-  tlEvery(T,3000,draw);},
+  tlEvery(T,3000,()=>{if(!typing())draw();});},
 
- level(el,T){el.innerHTML=`<div class="tl-level"><svg viewBox="-100 -100 200 200"><circle r="92" fill="var(--card)" stroke="var(--line)" stroke-width="2"/><circle r="30" fill="none" stroke="var(--line)" stroke-width="2"/><circle r="6" fill="none" stroke="var(--muted)"/><line x1="-92" y1="0" x2="92" y2="0" stroke="var(--line)"/><line x1="0" y1="-92" x2="0" y2="92" stroke="var(--line)"/><circle id="tlBub" r="16" fill="#9cc56a" stroke="#4f8a2a" stroke-width="2"/></svg></div>
-   <div class="tl-hero"><div class="tl-big" id="tlLv">–</div><div class="tl-sub">Lay the phone on the surface</div></div>`;
-  let got=false;const f=e=>{if(e.beta==null)return;got=true;const b=e.beta,g=e.gamma;const x=Math.max(-76,Math.min(76,-g*4)),y=Math.max(-76,Math.min(76,-b*4));
-    requestAnimationFrame(()=>{const bub=el.querySelector("#tlBub");if(!bub)return;bub.setAttribute("cx",x.toFixed(1));bub.setAttribute("cy",y.toFixed(1));
-      const t=Math.hypot(b,g);el.querySelector("#tlLv").textContent=t<1?"✓ Level":`${t.toFixed(1)}° off`;bub.setAttribute("fill",t<1?"#4fbf5a":"#9cc56a");});};
-  addEventListener("deviceorientation",f);tlStop(T,()=>removeEventListener("deviceorientation",f));
-  setTimeout(()=>{if(!got&&el.querySelector("#tlLv"))el.querySelector("#tlLv").textContent="No tilt sensor found";},2500);},
+ level(el,T){let ticks="";for(let i=0;i<72;i++)ticks+=`<line x1="0" y1="-96" x2="0" y2="${i%9===0?-86:-91}" transform="rotate(${i*5})" stroke="rgba(244,241,232,${i%9===0?.6:.25})" stroke-width="1"/>`;
+  el.innerHTML=`<div class="tl-face"><svg viewBox="-104 -104 208 208" class="tl-dial">${ticks}<circle r="30" fill="none" stroke="rgba(244,241,232,.35)" stroke-width="1.2"/><circle r="6" fill="none" stroke="rgba(244,241,232,.5)"/>
+     <line x1="-96" y1="0" x2="96" y2="0" stroke="rgba(244,241,232,.12)"/><line x1="0" y1="-96" x2="0" y2="96" stroke="rgba(244,241,232,.12)"/>
+     <g id="tlBub"><circle r="22" fill="var(--tc)" opacity=".18"/><circle r="15" fill="var(--tc)"/><circle cx="-5" cy="-5" r="4" fill="#fff" opacity=".45"/></g></svg>
+    <div class="tl-read"><span class="tl-num" id="tlLv">–</span><span class="tl-cap">Lay the phone on the surface</span></div></div>`;
+  let got=false,x=0,y=0,raf=0;const f=e=>{if(e.beta==null)return;got=true;const b=e.beta,g=e.gamma;x=Math.max(-74,Math.min(74,-g*4));y=Math.max(-74,Math.min(74,-b*4));
+    if(!raf)raf=requestAnimationFrame(()=>{raf=0;const bub=el.querySelector("#tlBub");if(!bub)return;bub.setAttribute("transform",`translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      const t=Math.hypot(b,g);el.querySelector("#tlLv").innerHTML=t<1?"Level":`${t.toFixed(1)}<small>°</small>`;el.querySelector(".tl-face").classList.toggle("ok",t<1);});};
+  addEventListener("deviceorientation",f);tlStop(T,()=>{removeEventListener("deviceorientation",f);cancelAnimationFrame(raf);});
+  setTimeout(()=>{if(!got&&el.querySelector("#tlLv"))el.querySelector("#tlLv").textContent="No tilt sensor";},2500);},
 
- timer(el,T){const P=[["💧","Boil drinking water",1,"Rolling boil for 1 minute (3 minutes above 2,000 m)."],["🔥","Cool a burn",20,"Under cool running water."],["🩸","Nosebleed",10,"Lean forward, pinch the soft part of the nose."],["👁️","Rinse an eye",15,"Keep rinsing with clean water."],["🩹","Press on a wound",10,"Firm, steady pressure."],["🍝","Pasta / rice",10,""]];
+ timer(el,T){const P=[["Boil drinking water",1,"Rolling boil for 1 minute (3 minutes above 2,000 m)."],["Cool a burn",20,"Under cool running water."],["Nosebleed",10,"Lean forward, pinch the soft part of the nose."],["Rinse an eye",15,"Keep rinsing with clean water."],["Press on a wound",10,"Firm, steady pressure."],["Pasta or rice",10,""]];
   let L=[];try{L=JSON.parse(localStorage.getItem("pt-timers")||"[]");}catch(e){}
   const save=()=>localStorage.setItem("pt-timers",JSON.stringify(L));
-  const add=(ic,t,min,tip)=>{const end=Date.now()+min*60e3,id="tm"+Date.now();L.push({id,ic,t,end,tip});save();
-    try{window.AndroidNotify&&window.AndroidNotify.schedule(id,end,`${ic} ${t}: time's up`,tip||"Your timer has finished.");}catch(e){}draw();};
+  const add=(t,min,tip)=>{tap();const end=Date.now()+min*60e3,id="tm"+Date.now();L.push({id,t,end,tip,len:min*60e3});save();
+    try{window.AndroidNotify&&window.AndroidNotify.schedule(id,end,`⏱️ ${t}: time's up`,tip||"Your timer has finished.");}catch(e){}draw();};
+  const fmt=r=>`${Math.floor(r/60e3)}:${String(Math.floor(r%60e3/1000)).padStart(2,"0")}`;
   const draw=()=>{const now=Date.now();L=L.filter(x=>now-x.end<10*60e3);
-    el.innerHTML=`${L.length?`<div class="tl-timers">${L.map(x=>{const r=x.end-now;return `<div class="tl-tm ${r<=0?"done":""}"><span>${x.ic}</span><div><b>${svEsc(x.t)}</b><small>${svEsc(x.tip||"")}</small></div><div class="tl-left">${r>0?`${Math.floor(r/60e3)}:${String(Math.floor(r%60e3/1000)).padStart(2,"0")}`:"Done ✓"}</div><button data-tmx="${x.id}">✕</button></div>`;}).join("")}</div>`:""}
-     <div class="tl-presets">${P.map((p,i)=>`<button data-tmp="${i}"><span>${p[0]}</span><b>${p[1]}</b><small>${p[2]} min</small></button>`).join("")}</div>
-     <div class="tl-row"><input type="number" id="tlMin" min="1" max="600" placeholder="Minutes" style="flex:1"><button class="tl-btn" id="tlAdd">Start</button></div>
+    el.innerHTML=`${L.length?`<div class="tl-timers">${L.map(x=>{const r=x.end-now,len=x.len||Math.max(r,1);return `<div class="tl-face tl-tm ${r<=0?"done":""}"><svg viewBox="-30 -30 60 60" class="tl-mini">${ring(r>0?r/len:1,24,5)}</svg>
+        <div><b>${svEsc(x.t)}</b><small>${svEsc(x.tip||"")}</small></div><div class="tl-left">${r>0?fmt(r):"Done"}</div><button data-tmx="${x.id}" aria-label="Stop timer">✕</button></div>`;}).join("")}</div>`:""}
+     <div class="tl-presets">${P.map((p,i)=>`<button data-tmp="${i}"><b>${p[1]}<small>min</small></b><span>${p[0]}</span></button>`).join("")}</div>
+     <div class="tl-row"><input type="number" class="tl-in" id="tlMin" min="1" max="600" placeholder="Minutes"><button class="tl-act" id="tlAdd">Start</button></div>
      <p class="sv-note">You get a notification when time is up, also with the screen off or another app open.</p>`;
-    el.querySelectorAll("[data-tmp]").forEach(b=>b.onclick=()=>{const p=P[+b.dataset.tmp];add(p[0],p[1],p[2],p[3]);});
-    el.querySelectorAll("[data-tmx]").forEach(b=>b.onclick=()=>{L=L.filter(x=>x.id!==b.dataset.tmx);save();try{window.AndroidNotify&&window.AndroidNotify.cancelPrefix(b.dataset.tmx);}catch(e){}draw();});
-    el.querySelector("#tlAdd").onclick=()=>{const m=+el.querySelector("#tlMin").value;if(!(m>0))return toast("Type the minutes first");add("⏱️","Timer",m,"");};};
+    el.querySelectorAll("[data-tmp]").forEach(b=>b.onclick=()=>{const p=P[+b.dataset.tmp];add(p[0],p[1],p[2]);});
+    el.querySelectorAll("[data-tmx]").forEach(b=>b.onclick=()=>{tap();L=L.filter(x=>x.id!==b.dataset.tmx);save();try{window.AndroidNotify&&window.AndroidNotify.cancelPrefix(b.dataset.tmx);}catch(e){}draw();});
+    el.querySelector("#tlAdd").onclick=()=>{const m=+el.querySelector("#tlMin").value;if(!(m>0))return toast("Type the minutes first");add("Timer",m,"");};};
   tlEvery(T,1000,()=>{if(!typing())draw();});},
 
  card(el,T){let C={};try{C=JSON.parse(localStorage.getItem("pt-card")||"{}");}catch(e){}
   const F=[["name","Name",""],["born","Date of birth","e.g. 12 March 1995"],["blood","Blood type","e.g. A+"],["allergies","Allergies","Medicines, food, insects…"],["conditions","Medical conditions","e.g. asthma, diabetes"],["meds","Medicines I take",""],["ice1","Emergency contact 1","Name and phone number"],["ice2","Emergency contact 2",""],["notes","Other notes","e.g. organ donor, language"]];
   const text=()=>F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`${f[1]}: ${C[f[0]]}`).join("\n");
   const view=()=>{const has=F.some(f=>C[f[0]]);
-    el.innerHTML=has?`<div class="tl-ice"><div class="tl-ice-h">EMERGENCY · ${svEsc(C.name||"")}</div>${F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`<div><small>${f[1]}</small><b>${svEsc(C[f[0]])}</b></div>`).join("")}</div>
-      <label class="tl-switch"><input type="checkbox" id="tlLock" ${C.lock?"checked":""}> Show on the lock screen</label>
-      <div class="tl-row"><button class="tl-btn ghost" id="tlEdit">✏️ Edit</button></div>
-      <p class="sv-note">Stays on this phone only. On the lock screen anyone can read it (that's the point: a rescuer can see it without unlocking).</p>`:
-      `<p class="sv-note">Fill this in once. In an emergency, rescuers can read your allergies, medicines and who to call, even from the lock screen.</p><div class="tl-row"><button class="tl-btn" id="tlEdit">Fill in my card</button></div>`;
-    el.querySelector("#tlEdit").onclick=edit;const lk=el.querySelector("#tlLock");
-    if(lk)lk.onchange=e=>{C.lock=e.target.checked;localStorage.setItem("pt-card",JSON.stringify(C));tlTry(t=>t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),C.lock?text():""));if(C.lock)tlTry(t=>{try{window.AndroidNotify.askPermission();}catch(e){}});};};
-  const edit=()=>{el.innerHTML=`<div class="tl-form">${F.map(f=>`<label>${f[1]}<input data-cf="${f[0]}" value="${svEsc(C[f[0]]||"")}" placeholder="${f[2]}"></label>`).join("")}</div><div class="tl-row"><button class="tl-btn" id="tlSave">Save</button></div>`;
-    el.querySelector("#tlSave").onclick=()=>{el.querySelectorAll("[data-cf]").forEach(i=>C[i.dataset.cf]=i.value.trim());localStorage.setItem("pt-card",JSON.stringify(C));
+    el.innerHTML=has?`<div class="tl-ice"><div class="tl-ice-h"><span>${tlIcon("card",22)}</span><div><small>Emergency information</small><b>${svEsc(C.name||"")}</b></div></div>${F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`<div class="tl-ice-r"><small>${f[1]}</small><b>${svEsc(C[f[0]])}</b></div>`).join("")}</div>
+      <label class="tl-switch"><span>Show on the lock screen</span><input type="checkbox" id="tlLock" ${C.lock?"checked":""}><i></i></label>
+      <div class="tl-row"><button class="tl-act ghost" id="tlEdit">Edit</button></div>
+      <p class="sv-note">Stays on this phone only. On the lock screen anyone can read it: that's the point, so a rescuer can see it without unlocking.</p>`:
+      `<div class="tl-face"><div class="tl-read"><span class="tl-num sm">Not filled in yet</span><span class="tl-cap">In an emergency, rescuers can read your allergies, medicines and who to call, even from the lock screen.</span></div></div><div class="tl-row"><button class="tl-act" id="tlEdit">Fill in my card</button></div>`;
+    el.querySelector("#tlEdit").onclick=()=>{tap();edit();};const lk=el.querySelector("#tlLock");
+    if(lk)lk.onchange=e=>{tap();C.lock=e.target.checked;localStorage.setItem("pt-card",JSON.stringify(C));tlTry(t=>t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),C.lock?text():""));if(C.lock)tlTry(t=>{try{window.AndroidNotify.askPermission();}catch(e){}});};};
+  const edit=()=>{el.innerHTML=`<div class="tl-form">${F.map(f=>`<label>${f[1]}<input data-cf="${f[0]}" value="${svEsc(C[f[0]]||"")}" placeholder="${f[2]}"></label>`).join("")}</div><div class="tl-row"><button class="tl-act" id="tlSave">Save</button></div>`;
+    el.querySelector("#tlSave").onclick=()=>{tap();el.querySelectorAll("[data-cf]").forEach(i=>C[i.dataset.cf]=i.value.trim());localStorage.setItem("pt-card",JSON.stringify(C));
       if(C.lock)tlTry(t=>t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),text()));view();toast("Saved");};};
   view();},
 
  phrases(el,T){let lang=localStorage.getItem("pt-phl")||(typeof curCountry==="function"&&curCountry()==="nl"?"nl":"it");
-  const draw=()=>{el.innerHTML=`<div class="tl-seg"><button data-pl="it" class="${lang==="it"?"on":""}">🇮🇹 Italiano</button><button data-pl="nl" class="${lang==="nl"?"on":""}">🇳🇱 Nederlands</button></div>
-    ${PHRASES.map(([cat,list])=>`<div class="sv-h">${cat}</div><div class="tl-phr">${list.map((p,i)=>`<button data-say="${svEsc(p[lang==="it"?1:3])}"><small>${svEsc(p[0])}</small><b>${svEsc(p[lang==="it"?1:3])}</b><i>${svEsc(p[lang==="it"?2:4])}</i><span>🔊</span></button>`).join("")}</div>`).join("")}
-    <p class="sv-note">Tap a phrase to hear it (uses your phone's own voices, works offline if the language is installed). Or just show the screen.</p>`;
-   el.querySelectorAll("[data-pl]").forEach(b=>b.onclick=()=>{lang=b.dataset.pl;localStorage.setItem("pt-phl",lang);draw();});
-   el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>{const t=b.dataset.say,lg=lang==="it"?"it-IT":"nl-NL";
+  const draw=()=>{el.innerHTML=`<div class="tl-seg"><button data-pl="it" class="${lang==="it"?"on":""}">Italiano</button><button data-pl="nl" class="${lang==="nl"?"on":""}">Nederlands</button></div>
+    ${PHRASES.map(([cat,list])=>`<div class="tl-sec">${cat.replace(/^\S+\s/,"")}</div><div class="tl-phr">${list.map(p=>`<button data-say="${svEsc(p[lang==="it"?1:3])}"><small>${svEsc(p[0])}</small><b>${svEsc(p[lang==="it"?1:3])}</b><i>${svEsc(p[lang==="it"?2:4])}</i><span class="tl-spk"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg></span></button>`).join("")}</div>`).join("")}
+    <p class="sv-note">Tap a phrase to hear it. It uses your phone's own voices and works offline if the language is installed. Or just show the screen.</p>`;
+   el.querySelectorAll("[data-pl]").forEach(b=>b.onclick=()=>{tap();lang=b.dataset.pl;localStorage.setItem("pt-phl",lang);draw();});
+   el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>{tap();const t=b.dataset.say,lg=lang==="it"?"it-IT":"nl-NL";
      if(TL())tlTry(x=>x.speak(t,lg));else if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(t);u.lang=lg;u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}
      b.classList.add("say");setTimeout(()=>b.classList.remove("say"),900);});};
   draw();},
 
- saver(el,T){const draw=()=>{const b=batt();
-   el.innerHTML=`<div class="tl-hero"><div class="tl-big">${LOWPOWER?"🔋 Saver on":"Saver off"}</div><div class="tl-sub">${b.pct!=null?`Battery ${b.pct}%${b.chg?" · charging":""}`:""}</div></div>
-    <div class="tl-row"><button class="tl-btn ${LOWPOWER?"ghost":""}" id="tlLp">${LOWPOWER?"Switch off":"Switch on now"}</button></div>
-    <label class="tl-switch"><input type="checkbox" id="tlAuto" ${SAVER_AUTO?"checked":""}> Switch on by itself below 20%</label>
-    <div class="tl-card"><b>What it does</b><br>• GPS updates less often, and location sharing slows down (and only uses GPS while you move)<br>• No automatic refreshing of departures, shops and weather: pull or tap to refresh<br>• Animations off<br>Everything still works, a bit slower to update.</div>
-    <div class="tl-card"><b>Also helps</b><br>• Lower the screen brightness: the screen uses the most power<br>• Download maps and guides at home, then use them offline<br>• Switch off live location when you're together anyway</div>`;
-   el.querySelector("#tlLp").onclick=()=>{setLowPower(!LOWPOWER,true);draw();};
-   el.querySelector("#tlAuto").onchange=e=>{SAVER_AUTO=e.target.checked;localStorage.setItem("pt-saverauto",SAVER_AUTO?"1":"0");};};
+ saver(el,T){const draw=()=>{const b=batt(),pct=b.pct!=null?b.pct:null;
+   el.innerHTML=`<div class="tl-face"><svg viewBox="-110 -110 220 220" class="tl-dial sm">${ring(pct!=null?pct/100:0,92,8)}</svg>
+     <div class="tl-read over"><span class="tl-num">${pct!=null?pct+"<small>%</small>":"–"}</span><span class="tl-cap">${LOWPOWER?"Battery saver is on":"Battery saver is off"}${b.chg?" · charging":""}</span></div></div>
+    <div class="tl-row"><button class="tl-act ${LOWPOWER?"ghost":""}" id="tlLp">${LOWPOWER?"Switch off":"Switch on now"}</button></div>
+    <label class="tl-switch"><span>Switch on by itself below 20%</span><input type="checkbox" id="tlAuto" ${SAVER_AUTO?"checked":""}><i></i></label>
+    <div class="tl-list"><div class="tl-li">GPS updates less often, and location sharing only uses GPS while you move</div><div class="tl-li">No automatic refreshing of departures, shops and weather</div><div class="tl-li">Animations off</div></div>
+    <p class="sv-note">Everything still works, it just updates a bit less often. Lowering the screen brightness saves the most of all.</p>`;
+   el.querySelector("#tlLp").onclick=()=>{tap();setLowPower(!LOWPOWER,true);draw();};
+   el.querySelector("#tlAuto").onchange=e=>{tap();SAVER_AUTO=e.target.checked;localStorage.setItem("pt-saverauto",SAVER_AUTO?"1":"0");};};
   draw();tlEvery(T,60e3,draw);},
+
+ supplies(el,T){let S={};try{S=JSON.parse(localStorage.getItem("pt-supplies")||"{}");}catch(e){}S.n=S.n||2;S.got=S.got||{};
+  const auto=(typeof curCountry==="function"&&curCountry())||"nl";let cc=S.cc||(SUPPLIES[auto]?auto:"eu");
+  const save=()=>localStorage.setItem("pt-supplies",JSON.stringify(S));
+  const draw=()=>{const L=SUPPLIES[cc],items=L.groups.flatMap(g=>g[1]),done=items.filter(i=>S.got[i[0]]).length;
+    el.innerHTML=`<div class="tl-seg">${Object.entries(SUPPLIES).map(([k,v])=>`<button data-cc="${k}" class="${cc===k?"on":""}">${v.name}${k===auto?" · here":""}</button>`).join("")}</div>
+     <div class="tl-face left"><div class="tl-facerow top"><div><span class="tl-cap">Ready for 72 hours</span><span class="tl-num">${done}<small>/ ${items.length}</small></span></div>
+       <svg viewBox="-34 -34 68 68" class="tl-mini big">${ring(done/items.length,28,6)}</svg></div>
+      <div class="tl-hh"><span class="tl-cap">People at home</span><span class="tl-stepper"><button data-hh="-1" aria-label="Fewer">−</button><b>${S.n}</b><button data-hh="1" aria-label="More">+</button></span></div></div>
+     ${L.groups.map(([gname,list])=>`<div class="tl-sec">${gname}</div><div class="tl-check">${list.map(([id,en,loc,q,note])=>{const qty=typeof q==="function"?q(S.n):q;
+        return `<label class="${S.got[id]?"got":""}"><input type="checkbox" data-sp="${id}" ${S.got[id]?"checked":""}><i></i><div><b>${en}${qty?` <em>${qty}</em>`:""}</b>${loc&&loc!==en?`<span class="tl-loc">${loc}</span>`:""}${note?`<small>${note}</small>`:""}</div></label>`;}).join("")}</div>`).join("")}
+     <div class="tl-row"><button class="tl-act ghost" id="tlSpReset">Uncheck all</button></div>
+     <p class="sv-note">${L.src} Check your stock twice a year, for example when the clocks change: replace water and food before the date, and test the batteries.</p>`;
+    el.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>{tap();cc=b.dataset.cc;S.cc=cc===auto?undefined:cc;save();draw();});
+    el.querySelectorAll("[data-hh]").forEach(b=>b.onclick=()=>{tap();S.n=Math.max(1,Math.min(12,S.n+ +b.dataset.hh));save();draw();});
+    el.querySelectorAll("[data-sp]").forEach(c=>c.onchange=()=>{tap();S.got[c.dataset.sp]=c.checked;save();draw();});
+    el.querySelector("#tlSpReset").onclick=()=>{tap();S.got={};save();draw();};};
+  draw();},
+};
+
+/* What to keep at home for 72 hours, per country, with the names you'll find on the shelf. Quantities follow the household size. */
+const L3=n=>`${n*9} L`,FOOD=n=>`${n*3} days`;
+const SUPPLIES={
+ nl:{name:"Nederland",src:"Based on the Dutch government's “Denk vooruit” emergency kit (denkvooruit.nl): be able to manage on your own for 72 hours.",groups:[
+  ["Water & food",[["water","Drinking water","Drinkwater (flessen)",L3,"3 litres per person per day"],["food","Food that keeps, no cooking needed","Houdbaar eten: blikken, crackers, noten",FOOD,""],["opener","Tin opener","Blikopener","",""],["petfood","Pet food, if you have pets","Dierenvoer","",""]]],
+  ["Light & information",[["radio","Radio on batteries or wind-up","Noodradio / radio op batterijen","","Listen to the regional broadcaster for official news"],["torch","Torch","Zaklamp",n=>`${Math.max(1,Math.ceil(n/2))}`,""],["batt","Spare batteries","Batterijen","",""],["powerbank","Power bank, charged","Powerbank","",""],["candles","Candles and matches or a lighter","Kaarsen en lucifers / aansteker","","Never leave them burning alone"]]],
+  ["Health & hygiene",[["firstaid","First-aid kit","EHBO-doos / verbandtrommel","",""],["meds","Your own medicines","Medicijnen","for a week",""],["toilet","Toilet paper and wet wipes","Toiletpapier en vochtige doekjes","",""],["bags","Bin bags","Vuilniszakken","",""]]],
+  ["Warmth & documents",[["blankets","Blankets or sleeping bags","Dekens / slaapzakken",n=>`${n}`,""],["cash","Cash in small notes","Contant geld","","Card machines don't work without power"],["docs","Copies of ID and important papers","Kopieën van identiteitsbewijs en papieren","","In a waterproof bag"],["whistle","Whistle","Fluitje","","To be heard when you need help"],["multitool","Multitool or pocket knife","Multitool / zakmes","",""]]]]},
+ it:{name:"Italia",src:"Based on the Italian Civil Protection's emergency kit (Protezione Civile, “Io non rischio”).",groups:[
+  ["Water & food",[["water","Drinking water","Acqua in bottiglia",L3,"3 litres per person per day"],["food","Food that keeps, no cooking needed","Cibo a lunga conservazione: scatolette, crackers, frutta secca",FOOD,""],["opener","Tin opener","Apriscatole","",""],["petfood","Pet food, if you have pets","Cibo per animali","",""]]],
+  ["Light & information",[["radio","Radio on batteries or wind-up","Radio a pile / a manovella","","Listen to RAI radio for official news"],["torch","Torch","Torcia",n=>`${Math.max(1,Math.ceil(n/2))}`,""],["batt","Spare batteries","Pile di ricambio","",""],["powerbank","Power bank, charged","Power bank / caricabatterie portatile","",""],["candles","Candles and matches or a lighter","Candele e fiammiferi / accendino","","Never leave them burning alone"]]],
+  ["Health & hygiene",[["firstaid","First-aid kit","Kit di pronto soccorso","",""],["meds","Your own medicines","Medicinali","for a week",""],["toilet","Toilet paper and wet wipes","Carta igienica e salviette umide","",""],["bags","Bin bags","Sacchi per la spazzatura","",""]]],
+  ["Warmth & documents",[["blankets","Blankets and warm clothes, a rain jacket","Coperte, vestiti pesanti, impermeabile",n=>`${n}`,""],["cash","Cash in small notes","Contanti","","Card machines don't work without power"],["docs","Copies of ID and important papers","Copia dei documenti","","In a waterproof bag"],["whistle","Whistle","Fischietto","","To be heard when you need help"],["multitool","Multitool or pocket knife","Coltellino multiuso","",""]]]]},
+ eu:{name:"Other",src:"Based on the EU's advice to be able to manage on your own for 72 hours in an emergency.",groups:[
+  ["Water & food",[["water","Drinking water","",L3,"3 litres per person per day"],["food","Food that keeps, no cooking needed","",FOOD,""],["opener","Tin opener","","",""]]],
+  ["Light & information",[["radio","Radio on batteries or wind-up","","",""],["torch","Torch and spare batteries","",n=>`${Math.max(1,Math.ceil(n/2))}`,""],["powerbank","Power bank, charged","","",""]]],
+  ["Health & hygiene",[["firstaid","First-aid kit","","",""],["meds","Your own medicines","","for a week",""],["toilet","Toilet paper and wet wipes","","",""]]],
+  ["Warmth & documents",[["blankets","Blankets or sleeping bags","",n=>`${n}`,""],["cash","Cash in small notes","","",""],["docs","Copies of ID and important papers","","",""],["whistle","Whistle","","",""]]]]},
 };
 
 const PHRASES=[
@@ -627,5 +712,5 @@ document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(
   const dl=t.closest("[data-svdl]");if(dl){svDownload(dl.dataset.svdl);return;}
   const dg=t.closest("[data-svdlgo]");if(dg){svDownload(dg.dataset.svdlgo).then(()=>{if(svAll().some(x=>x.id===dg.dataset.id))openSurvGuide(dg.dataset.id);});return;}
   const rm=t.closest("[data-svrm]");if(rm){svRemove(rm.dataset.svrm);return;}
-  if(t.closest("#svCopy")&&typeof me!=="undefined"&&me){const s=me.lat.toFixed(5)+", "+me.lon.toFixed(5);try{navigator.clipboard.writeText(s);}catch(err){}t.closest("#svCopy").textContent="Copied";}
+  if(t.closest("#svCopy")&&typeof me!=="undefined"&&me){const s=me.lat.toFixed(5)+", "+me.lon.toFixed(5);copyText(s);t.closest("#svCopy").textContent="Copied";}
 });
