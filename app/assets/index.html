@@ -1455,9 +1455,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.8";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.9";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.9","The journey line now follows the streets you actually took: GPS pieces are matched to the road and footpath map (OpenStreetMap, via the free Valhalla server) once, then kept on your phone so it also works offline. Train and plane legs stay as straight dotted links."],
  ["1.8","Fix: the welcome questions sometimes came back although you had already answered them; the app now also remembers this in Android itself. Fix: the start-up animation now plays smoothly and completely every time, also while the app is still loading. Home → Transit is tidier: “Where to?” first with your saved routes as one-tap buttons, and “Leaving nearby” grouped per stop (distance and walking time) with each line's next two departures, instead of one long mixed list."],
  ["1.7","Outbox: tap “📤 … waiting to be sent” in Group to see every message that hasn't gone out yet (what, which group, since when), send them now, cancel one, or cancel them all."],
  ["1.6","Fix: group messages (I'm OK, locations, photos) stopped working after a while. The free message service allows about 250 messages a day per phone, and the app was sending your location every minute or two. Now it sends when you've moved 150 m or more (at most every 4 minutes) and otherwise every 45 minutes, keeps room for SOS and check-ins, shows how many messages you've used today, and says what really went wrong instead of “No internet”."],
@@ -4549,6 +4550,42 @@ function stepSheet(id){const a=ALBUM.find(x=>x.id===id);if(!a)return;
     <div class="btns">${a.ll?`<button class="btn ghost" data-sx="map">📍 Show on map</button>`:""}<button class="btn ghost" data-sx="close">Close</button></div></div>`;
   document.body.appendChild(bg);bg.onclick=e=>{const t=e.target.closest("[data-sx]");if(e.target===bg||(t&&t.dataset.sx==="close"))return bg.remove();
     if(t&&t.dataset.sx==="map"){bg.remove();showJourney(true);setTimeout(()=>{if(mode==="street"&&ml)streetFly(a.ll,16);else{const [x,y]=proj(a.ll[0],a.ll[1]);vb=[x-20,y-18,40,36];drawMap();}},300);}};}
+
+/* ---------- Route follows the streets: GPS pieces are map-matched once with the open Valhalla server (FOSSGIS),
+   max one request per second, results kept on the phone (works offline afterwards) ---------- */
+let MATCHC={};try{MATCHC=JSON.parse(localStorage.getItem("pt-match"))||{};}catch(e){}
+const MQ=[];let mBusy=false,mDone=0;
+function poly6(ll){let o="",pl=0,pn=0;const enc=v=>{v=v<0?~(v<<1):v<<1;let s="";while(v>=32){s+=String.fromCharCode((32|(v&31))+63);v>>=5;}return s+String.fromCharCode(v+63);};
+  for(const [la,lo] of ll){const a=Math.round(la*1e6),b=Math.round(lo*1e6);o+=enc(a-pl)+enc(b-pn);pl=a;pn=b;}return o;}
+function unpoly6(s){const out=[];let i=0,la=0,lo=0;const dec=()=>{let r=0,sh=0,b;do{b=s.charCodeAt(i++)-63;r|=(b&31)<<sh;sh+=5;}while(b>=32);return r&1?~(r>>1):r>>1;};
+  while(i<s.length){la+=dec();lo+=dec();out.push([la/1e6,lo/1e6]);}return out;}
+function segLen(ll){let d=0;for(let i=1;i<ll.length;i++)d+=hav(ll[i-1],ll[i]);return d;}
+function matchKey(pid,s){return pid+"|"+s.t0+"|"+s.t1+"|"+s.ll.length;}
+// what to use as the drawn line for a piece: matched streets if we have them, else the smoothed GPS line
+function jMatchedLL(pid,s){if(s.ll.length<3)return null;const k=matchKey(pid,s),c=MATCHC[k];
+  if(c&&c.ll)return unpoly6(c.ll);
+  if(!c&&!MQ.some(q=>q.k===k)){const km=segLen(s.ll),h=Math.max(1/60,(s.t1-s.t0)/3600e3),v=km/h;
+    if(km>0.08&&v<=90)MQ.push({k,ll:s.ll,costing:v<=9?"pedestrian":"auto",km});}   // trains/planes: no streets to follow
+  return null;}
+async function runMatch(){if(mBusy||!MQ.length||navigator.onLine===false||!journeyOn)return;mBusy=true;
+  while(MQ.length&&journeyOn&&navigator.onLine!==false){const q=MQ.shift();
+    try{const parts=[];for(let i=0;i<q.ll.length-1;i+=110)parts.push(q.ll.slice(i,i+111));
+      let all=[];for(const pt of parts){const body={encoded_polyline:poly6(pt),costing:q.costing,shape_match:"map_snap",trace_options:{search_radius:40,gps_accuracy:25,breakage_distance:3000},directions_options:{directions_type:"none"}};
+        const j=JSON.parse(await netGet("https://valhalla1.openstreetmap.de/trace_route?json="+encodeURIComponent(JSON.stringify(body)),25000));
+        for(const L of ((j.trip||{}).legs||[]))all=all.concat(unpoly6(L.shape||""));
+        await new Promise(r=>setTimeout(r,1200));}                                    // fair use: at most one request per second
+      const r=segLen(all)/Math.max(0.01,q.km);
+      MATCHC[q.k]=all.length>1&&r>0.6&&r<1.9?{ll:poly6(dp(all,4)),at:Date.now()}:{fail:1,at:Date.now()};}
+    catch(e){if(/429|busy/.test(e.message)){MQ.unshift(q);await new Promise(r=>setTimeout(r,20000));}else MATCHC[q.k]={fail:1,at:Date.now()};}
+    const ks=Object.keys(MATCHC);if(ks.length>400)ks.sort((a,b)=>MATCHC[a].at-MATCHC[b].at).slice(0,ks.length-400).forEach(k=>delete MATCHC[k]);
+    try{localStorage.setItem("pt-match",JSON.stringify(MATCHC));}catch(e){}
+    mDone++;jFull=null;if(!jAnim)jRender();renderJBar();}
+  mBusy=false;renderJBar();}
+// small line simplifier (Douglas-Peucker, metres)
+function dp(ll,tol){if(ll.length<3)return ll;const keep=new Array(ll.length).fill(false);keep[0]=keep[ll.length-1]=true;const st=[[0,ll.length-1]];
+  while(st.length){const [a,b]=st.pop();let md=0,mi=-1;const A=ll[a],B=ll[b],k=Math.cos(A[0]*Math.PI/180);
+    for(let i=a+1;i<b;i++){const P=ll[i],ax=(B[1]-A[1])*k,ay=B[0]-A[0],px=(P[1]-A[1])*k,py=P[0]-A[0],L2=ax*ax+ay*ay,t=L2?Math.max(0,Math.min(1,(px*ax+py*ay)/L2)):0,dx=px-t*ax,dy=py-t*ay,dd=Math.sqrt(dx*dx+dy*dy)*111320;if(dd>md){md=dd;mi=i;}}
+    if(md>tol&&mi>0){keep[mi]=true;st.push([a,mi],[mi,b]);}}return ll.filter((_,i)=>keep[i]);}
 /* Journey view: one smooth line per person, filter by person and day, and a replay that draws the trip step by step */
 let JF={who:"all",day:"all"},jProg=1,jAnim=null,jFull=null;
 const jDayKey=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();};
@@ -4566,12 +4603,13 @@ function chaikin(ll,n){let a=ll;for(let k=0;k<n;k++){if(a.length<3)return a;cons
 function jBuild(){const ppl=jPeople().filter(p=>JF.who==="all"||p.id===JF.who);const key=JSON.stringify([JF,ppl.map(p=>p.id+":"+jRaw(p.id).length),ALBUM.length]);
   if(jFull&&jFull.key===key)return jFull;
   const people=ppl.map(p=>{let raw=jRaw(p.id);if(JF.day!=="all")raw=raw.filter(q=>jDayKey(q[0])===JF.day);
-    const segs=cleanTrack(raw).map(s=>({...s,ll:chaikin(s.ll,3)}));
+    const segs=cleanTrack(raw).map(s=>{const m=jMatchedLL(p.id,s);return {...s,ll:m||chaikin(s.ll,3),street:!!m};});
     // one route: pieces joined by dotted "route unknown" links, with running length for the replay
     const parts=[];let len=0;segs.forEach((s,j)=>{if(j){const a=segs[j-1].ll[segs[j-1].ll.length-1],b=s.ll[0];if(hav(a,b)>0.05){parts.push({ll:[a,b],dash:1,l0:len});len+=hav(a,b);}}
       if(s.ll.length>1){const st=len;for(let i=1;i<s.ll.length;i++)len+=hav(s.ll[i-1],s.ll[i]);parts.push({ll:s.ll,dash:0,l0:st});}});
     return {...p,parts,len};});
   const steps=ALBUM.filter(a=>a.ll&&(JF.day==="all"||jDayKey(a.ts)===JF.day)&&ppl.some(p=>p.from===a.from));
+  setTimeout(runMatch,300);
   return jFull={key,people,steps};}
 function jSlice(ll,l0,lim){if(lim<=l0)return null;const out=[ll[0]];let L=l0;for(let i=1;i<ll.length;i++){const d=hav(ll[i-1],ll[i]);if(L+d<=lim){out.push(ll[i]);L+=d;}else{const f=(lim-L)/d;out.push([ll[i-1][0]+(ll[i][0]-ll[i-1][0])*f,ll[i-1][1]+(ll[i][1]-ll[i-1][1])*f]);break;}}return out.length>1?out:null;}
 function journeyGeo(){const lines=[],steps=[];if(!journeyOn)return [EMPTY,EMPTY];
@@ -4597,7 +4635,7 @@ function jReplay(){if(jAnim)cancelAnimationFrame(jAnim);const B=jBuild(),tot=Mat
 function renderJBar(){const b=document.getElementById("jBar");if(!b)return;if(!journeyOn){b.innerHTML="";return;}
   const ppl=jPeople(),days=jDays();if(JF.who!=="all"&&!ppl.some(p=>p.id===JF.who))JF.who="all";if(JF.day!=="all"&&!days.includes(JF.day))JF.day="all";
   const B=jBuild(),km=B.people.reduce((s,p)=>s+p.len,0);
-  b.innerHTML=`<div class="jb-top"><b>Journey</b><span class="jb-km">${km<10?km.toFixed(1):Math.round(km)} km${jProg<1?` · ${Math.round(jProg*100)}%`:""}</span><button class="jb-play" data-jb="play" aria-label="Replay">${jAnim?"⏸":"▶"}</button><button class="jb-x" data-jb="close" aria-label="Close">✕</button></div>
+  b.innerHTML=`<div class="jb-top"><b>Journey</b><span class="jb-km">${km<10?km.toFixed(1):Math.round(km)} km${jProg<1?` · ${Math.round(jProg*100)}%`:MQ.length||mBusy?` · 🛣️ matching streets…`:""}</span><button class="jb-play" data-jb="play" aria-label="Replay">${jAnim?"⏸":"▶"}</button><button class="jb-x" data-jb="close" aria-label="Close">✕</button></div>
     <div class="jb-row">${[{id:"all",name:"Everyone"},...ppl].map(p=>`<button class="jb-chip ${JF.who===p.id?"on":""}" data-jwho="${p.id}">${p.col?`<i style="background:${p.col}"></i>`:""}${escH(p.name)}</button>`).join("")}</div>
     ${days.length>1?`<div class="jb-row">${[["all","All days"],...days.map(d=>[d,jDayName(d)])].map(([k,n])=>`<button class="jb-chip ${JF.day===k?"on":""}" data-jday="${k}">${n}</button>`).join("")}</div>`:""}`;}
 document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("#jBar [data-jb],#jBar [data-jwho],#jBar [data-jday]");if(!t)return;
