@@ -28,6 +28,8 @@ public class Pmtiles {
     public interface Progress { void update(int done, int total, long bytes); }
 
     public static final String BUILDS = "https://build.protomaps.com/";
+    /** Second source: an official mirror of the newest daily build (same format), used when the build server can't be reached. */
+    public static final String MIRROR = "https://data.source.coop/protomaps/openstreetmap/v4.pmtiles";
 
     private final String url;
     private Header h;
@@ -244,7 +246,7 @@ public class Pmtiles {
                 HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                 c.setConnectTimeout(connectTimeout); c.setReadTimeout(readTimeout);
                 c.setRequestProperty("Range", "bytes=" + off + "-" + (off + len - 1));
-                c.setRequestProperty("User-Agent", "OutAndBack/1.17 (+https://github.com/jariplayz-source/puglia-transit)");
+                c.setRequestProperty("User-Agent", "OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
                 int code = c.getResponseCode();
                 if (code != 206 && code != 200) throw new IOException("HTTP " + code);
                 byte[] b = readAll(c.getInputStream());
@@ -263,7 +265,7 @@ public class Pmtiles {
             HttpURLConnection h = (HttpURLConnection) new URL(u).openConnection();
             h.setConnectTimeout(8000); h.setReadTimeout(8000);
             h.setRequestProperty("Range", "bytes=0-6");
-            h.setRequestProperty("User-Agent", "OutAndBack/1.17 (+https://github.com/jariplayz-source/puglia-transit)");
+            h.setRequestProperty("User-Agent", "OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
             int code = h.getResponseCode();
             if (code != 206 && code != 200) { h.disconnect(); return "HTTP " + code; }
             byte[] b = new byte[7]; java.io.InputStream in = h.getInputStream(); int off = 0, n;
@@ -292,6 +294,12 @@ public class Pmtiles {
             if (r == null) { lastProblem = ""; return BUILDS + name; }
             why = r;
             if (r.startsWith("no internet") || r.startsWith("not map data")) break;   // no point trying older days
+            if (i >= 3 && (r.startsWith("map server too slow") || r.startsWith("HTTP 5") || r.contains("Exception"))) break;   // the build server itself is having trouble
+        }
+        if (!why.startsWith("no internet") && !why.startsWith("not map data")) {
+            String m = probe(MIRROR);
+            if (m == null) { lastProblem = "build server: " + why + " (using the mirror)"; return MIRROR; }
+            why = why + "; mirror: " + m;
         }
         lastProblem = why;
         throw new IOException("Couldn't find the map data online (" + why + ")");

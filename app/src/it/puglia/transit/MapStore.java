@@ -67,13 +67,15 @@ public class MapStore {
             Pmtiles p = liveArchive();
             if (p == null) return null;
             byte[] data = p.getTile(z, x, y);
-            if (data == null || data.length == 0) return new byte[0];   // never cache empty answers
+            if (data == null || data.length == 0) { liveEmpty++; return new byte[0]; }   // never cache empty answers
+            liveOk++;
             lastError = "";
             c.getParentFile().mkdirs();
             FileOutputStream o = new FileOutputStream(c); o.write(data); o.close();
             if (++cacheWrites % 200 == 0 && dirSize(cache) > 150L * 1024 * 1024) { deleteTree(cache); cache.mkdirs(); }
             return data;
         } catch (Exception e) {
+            liveErr++;
             lastError = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             if (e instanceof java.net.UnknownHostException) lastError = "no internet";
             liveFailUntil = System.currentTimeMillis() + 20000;   // offline: don't keep trying for a bit
@@ -88,6 +90,13 @@ public class MapStore {
     }
 
     public String liveStatus() { return lastError == null ? "" : lastError; }
+    private volatile int liveOk = 0, liveEmpty = 0, liveErr = 0;
+    /** For Diagnostics: which online map build is used and how the live tiles are doing. */
+    public String liveInfo() {
+        String b = buildUrl != null ? buildUrl : rememberedBuild();
+        return "{\"build\":" + org.json.JSONObject.quote(b == null ? "" : b.replace("https://", "")) + ",\"ok\":" + liveOk + ",\"empty\":" + liveEmpty + ",\"err\":" + liveErr
+            + ",\"error\":" + org.json.JSONObject.quote(lastError == null ? "" : lastError) + ",\"problem\":" + org.json.JSONObject.quote(Pmtiles.lastProblem == null ? "" : Pmtiles.lastProblem) + "}";
+    }
 
     private synchronized Pmtiles liveArchive() throws IOException {
         if (live != null) return live;

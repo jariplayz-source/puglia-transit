@@ -1527,9 +1527,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.17";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.18";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.18","Street map: when the map server can't be reached the app now switches to an official mirror of the same map, and the “isn't loading” message tells you why. Settings → Diagnostics shows how the street map is doing."],
  ["1.17","Faster and lighter: the app starts quicker (survival guides and tools load when you need them), screens that refresh themselves now only update what changed (smoother, less battery, photos don't flicker), the trip summary opens faster, and photos sent to the group are a bit smaller. New in Settings: Storage (what uses space, with buttons to free it up; old caches are tidied automatically) with a choice to do automatic downloads only on wifi, and Diagnostics (how GPS, messages, battery and sensors are doing, with a report you can copy when something isn't working)."],
  ["1.16","New: Tools in the survival section, and inside the guides where you need them: a live compass that keeps a bearing, sun & daylight left, “Where am I” with coordinates to read out to 112, torch & automatic SOS flashing, thunder counter, barometer with a bad-weather warning, pace counter, spirit level, timers (boiling water, cooling a burn…), an emergency card that can show on the lock screen, and an Italian/Dutch phrasebook that speaks. Battery: the app now pauses completely in the background, GPS runs slower when you don't need it, location sharing switches GPS off while you stand still, the compass sensor only runs when something on screen uses it, and a battery saver switches on by itself below 20%."],
  ["1.15","You can delete your own photos, voice notes and notes from the group album: they disappear for everyone in the group (if it hadn't gone out yet, it's simply not sent). Posts from others can only be deleted by whoever sent them."],
@@ -1996,9 +1997,11 @@ function checkBaseMap(){
   if(Date.now()-baseFixAt<60000)return;baseFixAt=Date.now();baseFixN++;
   try{window.AndroidMaps&&window.AndroidMaps.resetLive&&window.AndroidMaps.resetLive();}catch(e){}
   setTimeout(()=>{try{ml.getSource("protomaps").setTiles(["pt://t/{z}/{x}/{y}?r="+Date.now()]);}catch(e){}},300);
-  if(baseFixN>=2&&!bar){const d=document.createElement("div");d.id="baseMsg";d.className="base-msg";
-    d.innerHTML=navigator.onLine===false?"📴 No street data here offline. Download this area (Map → Offline maps) or go online.":"⏳ Street map data isn't loading. Retrying… <button id='baseRetry'>Retry now</button>"+(()=>{let w="";try{w=window.AndroidMaps.liveStatus()||"";}catch(e){}return w?`<div class="small" style="margin-top:4px;opacity:.75">Reason: ${escH(w)}</div>`:"";})();
-    document.querySelector(".map-wrap").appendChild(d);const r=d.querySelector("#baseRetry");if(r)r.onclick=()=>{baseFixAt=0;checkBaseMap();};}
+  if(baseFixN>=2){let d=bar;if(!d){d=document.createElement("div");d.id="baseMsg";d.className="base-msg";document.querySelector(".map-wrap").appendChild(d);}
+    let w="",I={};try{w=window.AndroidMaps.liveStatus()||"";}catch(e){}try{I=JSON.parse(window.AndroidMaps.liveInfo())||{};}catch(e){}
+    if(!w&&I.ok===0&&I.empty>0)w=`the online map sent no data for this spot (${I.empty} empty tiles)`;
+    d.innerHTML=navigator.onLine===false?"📴 No street data here offline. Download this area (Map → Offline maps) or go online.":"⏳ Street map data isn't loading. Retrying… <button id='baseRetry'>Retry now</button>"+(w?`<div class="small" style="margin-top:4px;opacity:.75">Reason: ${escH(w)}</div>`:"");
+    const r=d.querySelector("#baseRetry");if(r)r.onclick=()=>{baseFixAt=0;checkBaseMap();};}
 }
 if(window.AndroidMaps&&window.AndroidMaps.resetLive){try{if(localStorage.getItem("pt-tilefix")!=="1"){window.AndroidMaps.resetLive();localStorage.setItem("pt-tilefix","1");}}catch(e){}}
 async function ensureStreet(){
@@ -5167,6 +5170,9 @@ function diagData(){const D=[],ok=(b,t,v)=>D.push([b?"✅":"⚠️",t,v]);
   let r={};try{r=JSON.parse(window.AndroidGroup.relayStatus())||{};}catch(e){}
   ok(!(r.limitedUntil&&Date.now()<r.limitedUntil),"Message service",r.sent!=null?`${r.sent} sent today of ~${r.limit||250}${r.limitedUntil&&Date.now()<r.limitedUntil?` · paused until ${new Date(r.limitedUntil).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`:""}`:"n/a");
   let ob=0;try{ob=OUTBOX.length;}catch(e){}ok(!ob,"Outbox",ob?`${ob} waiting`:"empty");
+  try{const I=JSON.parse(window.AndroidMaps.liveInfo());const off=(()=>{try{return JSON.parse(window.AndroidMaps.summary()).areas.length}catch(e){return 0}})();
+    if(window.DIAG_TILE)D.push([window.DIAG_TILE.n>0?"✅":"⚠️","Map tile at your spot",window.DIAG_TILE.txt]);
+    ok(!I.error&&!(I.ok===0&&(I.empty||I.err)),"Street map",`${I.build||"no online map found yet"} · tiles ${I.ok} ok, ${I.empty} empty, ${I.err} failed${I.error?" · "+I.error:""}${I.problem?" · "+I.problem:""} · ${off} offline area${off===1?"":"s"}`);}catch(e){}
   ok(navigator.onLine!==false,"Internet",`${navigator.onLine===false?"offline":"online"} · ${netKind()}`);
   try{D.push(["👥","Groups",GROUPS.map(g=>`${g.name}${g.sharing?" (sharing)":""}`).join(", ")||"none"]);}catch(e){}
   const bt=batt();D.push(["🔋","Battery",`${bt.pct!=null?bt.pct+"%":"?"}${bt.chg?" charging":""} · saver ${LOWPOWER?"on":"off"} · downloads: ${DLRULE}`]);
@@ -5176,7 +5182,12 @@ function diagData(){const D=[],ok=(b,t,v)=>D.push([b?"✅":"⚠️",t,v]);
   const cr=tlTry(t=>t.lastCrash(),"");ok(!cr,"Last crash",cr?cr.split("\n")[0].slice(0,120):"none");
   ok(!ERRLOG.length,"Recent errors",ERRLOG.length?`${ERRLOG.length} (last: ${ERRLOG[ERRLOG.length-1][1].slice(0,80)})`:"none");
   return {D,cr};}
-function renderDiag(){const b=document.getElementById("diagBox");if(!b)return;const {D,cr}=diagData();
+// test one street-map tile where you are (z14): tells whether map data reaches the map at all
+function diagTile(){const p=(typeof me!=="undefined"&&me&&me.lat)?[me.lat,me.lon]:(typeof lastMe!=="undefined"&&lastMe)?lastMe:null;if(!p||!window.AndroidMaps)return;
+  const z=14,n=1<<z,x=Math.floor((p[1]+180)/360*n),r=p[0]*Math.PI/180,y=Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n),t0=Date.now();
+  fetch(`https://tiles.local/t/${z}/${x}/${y}`).then(r=>r.arrayBuffer()).then(b=>{window.DIAG_TILE={n:b.byteLength,txt:b.byteLength?`${fmtB(b.byteLength)} in ${Date.now()-t0} ms (z${z}/${x}/${y})`:`empty (z${z}/${x}/${y})`};renderDiag();})
+    .catch(e=>{window.DIAG_TILE={n:0,txt:"failed: "+e.message};renderDiag();});}
+function renderDiag(){const b=document.getElementById("diagBox");if(!b)return;if(!window.DIAG_TILE&&!window.DIAG_TRY){window.DIAG_TRY=1;setTimeout(()=>{window.DIAG_TRY=0;},30000);diagTile();}const {D,cr}=diagData();
   b.innerHTML=`<details${b.dataset.open?" open":""} id="dgDet"><summary><b>🩺 Diagnostics</b> <span class="small">${D.filter(x=>x[0]==="⚠️").length?D.filter(x=>x[0]==="⚠️").length+" to look at":"all fine"}</span></summary>
     <div class="dg">${D.map(([i,t,v])=>`<div><span>${i}</span><b>${t}</b><small>${svEsc(String(v))}</small></div>`).join("")}</div>
     <div class="btns"><button class="btn primary" id="dgCopy">📋 Copy report</button>${ERRLOG.length||cr?`<button class="btn ghost" id="dgClr">Clear errors</button>`:""}</div>
