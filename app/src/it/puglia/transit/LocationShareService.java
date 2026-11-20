@@ -41,7 +41,7 @@ public class LocationShareService extends Service implements LocationListener {
     private final Runnable beat = new Runnable() { public void run() {
         Location l = lastLoc;
         if (l == null) l = lastKnown();
-        if (l != null) send(l, true);
+        if (l != null) send(l, false);   // the normal rules decide (moved, or the 45-minute heartbeat)
         h.postDelayed(this, 120000);
     }};
 
@@ -90,12 +90,9 @@ public class LocationShareService extends Service implements LocationListener {
         } catch (Exception e) { try { stopSelf(); } catch (Exception x) { } return START_NOT_STICKY; }
         if (!sharing && !tracking) { try { stopForeground(true); } catch (Exception e) { } stopSelf(); return START_NOT_STICKY; }
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        try { lm.removeUpdates(this); } catch (Exception e) { }
-        try {
-            for (String p : new String[]{"fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
-                if (lm.getAllProviders().contains(p) && lm.isProviderEnabled(p)) lm.requestLocationUpdates(p, 20000, 0, this);
-            }
-        } catch (SecurityException e) { stopSelf(); return START_NOT_STICKY; } catch (Exception e) { }
+        if (intent != null && intent.getBooleanExtra("reprov", false) && lastLoc != null) { providers(!still); return START_STICKY; }
+        still = false; ancT = System.currentTimeMillis();
+        if (!providers(true)) { stopSelf(); return START_NOT_STICKY; }
         h.removeCallbacks(beat); h.removeCallbacks(offline); OfflineLink.btStop(this);
         Location k = lastKnown();
         if (k != null && System.currentTimeMillis() - k.getTime() < 15 * 60000) { lastLoc = k; send(k, true); }
@@ -104,7 +101,34 @@ public class LocationShareService extends Service implements LocationListener {
         return START_STICKY;
     }
 
+    /* Battery: GPS only while you move. After 5 minutes in the same spot it switches to the phone network's location
+       (cell towers / wifi, almost free) and wakes GPS again as soon as you've moved. Battery saver makes it all slower. */
+    private boolean still = false; private double ancLat = 999, ancLon = 999; private float ancAcc = 50; private long ancT = 0;
+    private boolean providers(boolean moving) {
+        boolean lp = GroupCore.prefs(this).getBoolean("lowpower", false);
+        try { lm.removeUpdates(this); } catch (Exception e) { }
+        try {
+            for (String p : new String[]{"fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER}) {
+                if (!lm.getAllProviders().contains(p) || !lm.isProviderEnabled(p)) continue;
+                boolean net = LocationManager.NETWORK_PROVIDER.equals(p), pas = LocationManager.PASSIVE_PROVIDER.equals(p);
+                if (!moving && !net && !pas) continue;
+                long every = pas ? 30000 : net ? (moving ? 60000 : lp ? 300000 : 120000) : (lp ? 60000 : 20000);
+                lm.requestLocationUpdates(p, every, pas ? 0 : moving ? (lp ? 30 : 10) : 50, this);
+            }
+            return true;
+        } catch (SecurityException e) { return false; } catch (Exception e) { return true; }
+    }
+    private void motion(Location l) {
+        long now = System.currentTimeMillis();
+        double d = ancLat == 999 ? 1e9 : Math.hypot((l.getLatitude() - ancLat) * 111320, (l.getLongitude() - ancLon) * 111320 * Math.cos(Math.toRadians(l.getLatitude())));
+        float acc = l.hasAccuracy() ? l.getAccuracy() : 50;
+        boolean moved = d > Math.max(still ? 150 : 80, acc + ancAcc) || (l.hasSpeed() && l.getSpeed() > 1.5f && acc < 40);
+        if (moved) { ancLat = l.getLatitude(); ancLon = l.getLongitude(); ancAcc = Math.min(acc, 100); ancT = now; if (still) { still = false; providers(true); } }
+        else if (!still && now - ancT > 5 * 60000) { still = true; providers(false); }
+    }
+
     @Override public void onLocationChanged(final Location l) {
+        motion(l);
         if (GroupCore.prefs(this).getBoolean("tracking", false))
             GroupCore.recordPoint(this, l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 50, l.hasSpeed() ? l.getSpeed() : -1);
         final double la = l.getLatitude(), lo = l.getLongitude(); final float ac = l.hasAccuracy() ? l.getAccuracy() : 50, sp = l.hasSpeed() ? l.getSpeed() : -1;

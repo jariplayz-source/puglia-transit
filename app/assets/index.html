@@ -551,6 +551,36 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
 .sv-g .e{font-size:22px;line-height:1}.sv-g>span:last-child{display:flex;flex-direction:column;gap:3px}.sv-g b{font-size:14px;line-height:1.25}.sv-g small{font-size:11.5px;color:var(--muted);line-height:1.3}
 .sv-g.wide{grid-column:1/-1;flex-direction:row;align-items:center;min-height:0;gap:12px}
 .sv-more{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}.sv-more span{background:var(--card2);border-radius:999px;padding:4px 10px;font-size:13px}
+/* ---------- tools ---------- */
+.tl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 10px}
+.tl-tile{border:0;background:var(--card);border-radius:16px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;color:inherit;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tl-tile span{font-size:24px}.tl-tile b{font-size:11.5px;line-height:1.2;text-align:center;font-weight:600}
+.tl-links{display:flex;flex-wrap:wrap;gap:8px;margin:12px 16px 0}.tl-links button{border:0;border-radius:999px;padding:9px 14px;background:var(--sc,#455a64);color:#fff;font:600 14px system-ui,sans-serif}
+.tl-ov{background:var(--bg)}.tl-head{display:flex;gap:12px;align-items:center;padding:4px 18px 8px}.tl-head span{font-size:34px}.tl-head h2{margin:0;font-size:24px}.tl-head p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.tl-body{padding:6px 16px 40px;max-width:560px;margin:0 auto}
+.tl-hero{text-align:center;margin:10px 0 14px}.tl-big{font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1.15}.tl-sub{color:var(--muted);font-size:15px;margin-top:4px}
+.tl-dialwrap{text-align:center}.tl-dial{width:min(78vw,320px);height:auto;display:block;margin:0 auto}.tl-dial.small{width:min(56vw,220px)}
+#tlRose{transition:transform .12s linear}
+.tl-card{background:var(--card);border-radius:16px;padding:12px 14px;margin:10px 0;font-size:15px;line-height:1.45}.tl-card.good{background:#e3f4e5}.tl-card .ok{color:#1e8e3e}
+.tl-row{display:flex;gap:10px;margin:12px 0}.tl-btn{flex:1;border:0;border-radius:14px;padding:14px;background:var(--accent,#11706a);color:#fff;font:700 16px system-ui,sans-serif;text-align:center;text-decoration:none}
+.tl-btn.ghost{background:var(--card2);color:inherit}.tl-btn.red{background:#c5221f}.tl-btn.act{box-shadow:0 0 0 3px #f2b632 inset}
+.tl-btn.huge{display:block;width:100%;padding:44px 10px;font-size:28px;border-radius:24px;background:#3b4a6b}.tl-btn.huge.thunder{background:#c45a10}
+.tl-list{background:var(--card);border-radius:16px;padding:4px 14px;margin:12px 0}.tl-list div{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}.tl-list div:last-child{border:0}.tl-list span{color:var(--muted)}
+.tl-where{background:var(--card);border-radius:20px;padding:16px;text-align:center}.tl-where small{display:block;color:var(--muted);margin-top:8px}.tl-coord{font:800 34px/1.15 ui-monospace,monospace;letter-spacing:.5px}.tl-coord.sm{font-size:26px}.tl-dms{font:600 17px ui-monospace,monospace}
+.tl-screen{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:60}.tl-screen.on{opacity:1}
+.tl-switch{display:flex;align-items:center;gap:10px;margin:12px 2px;font-size:15px}
+.tl-spark{width:100%;height:80px;background:var(--card);border-radius:12px;margin-top:6px}
+.tl-level{text-align:center}.tl-level svg{width:min(70vw,280px)}#tlBub{transition:cx .1s,cy .1s}
+.tl-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.tl-presets button{border:0;background:var(--card);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;color:inherit}
+.tl-presets span{font-size:22px}.tl-presets b{font-size:13px;text-align:center}.tl-presets small{color:var(--muted);font-size:12px}
+.tl-timers{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}.tl-tm{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:10px 12px}.tl-tm>span{font-size:24px}.tl-tm>div:nth-child(2){flex:1;min-width:0}.tl-tm small{display:block;color:var(--muted);font-size:12.5px}
+.tl-left{font:800 24px ui-monospace,monospace}.tl-tm.done{background:#e3f4e5}.tl-tm button{border:0;background:none;font-size:18px;color:var(--muted)}
+.tl-ice{background:#fff;border:3px solid #c5221f;border-radius:18px;overflow:hidden;color:#1d2a30}.tl-ice-h{background:#c5221f;color:#fff;font-weight:800;padding:10px 14px;letter-spacing:.5px}.tl-ice div:not(.tl-ice-h){padding:8px 14px;border-bottom:1px solid #f0d4d2}.tl-ice small{display:block;color:#8a5a58;font-size:12px}.tl-ice b{font-size:17px}
+.tl-form{display:flex;flex-direction:column;gap:10px}.tl-form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.tl-form input{font:inherit;font-size:16px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink,inherit)}
+.tl-seg{display:flex;background:var(--card2);border-radius:12px;padding:3px;margin-bottom:6px}.tl-seg button{flex:1;border:0;background:none;padding:9px;border-radius:10px;font:600 14px system-ui,sans-serif;color:inherit}.tl-seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tl-phr{display:flex;flex-direction:column;gap:6px}.tl-phr button{position:relative;text-align:left;border:0;background:var(--card);border-radius:14px;padding:10px 40px 10px 14px;font:inherit;color:inherit}
+.tl-phr small{display:block;color:var(--muted);font-size:12.5px}.tl-phr b{display:block;font-size:17px}.tl-phr i{display:block;font-size:13px;color:var(--muted)}.tl-phr span{position:absolute;right:12px;top:50%;transform:translateY(-50%)}.tl-phr button.say{background:#e3f4e5}
+body.lowpower *,body.lowpower *::before,body.lowpower *::after{animation:none!important;transition:none!important}
 .sv-moreb{display:block;width:100%;margin:2px 0 8px;border:0;background:var(--card2);color:var(--ink,inherit);border-radius:12px;padding:11px;font:600 14px system-ui,sans-serif}
 .sv-all{margin:18px 0 4px}.sv-all summary{font-weight:700;padding:10px 2px;cursor:pointer;color:var(--muted)}
 .sv-see{margin:14px 16px;display:flex;flex-direction:column;gap:8px}.sv-see b{font-size:13px;color:var(--muted)}.sv-see button{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;font:inherit;color:inherit}.sv-see small{color:var(--muted)}
@@ -1475,9 +1505,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.15";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.16";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.16","New: Tools in the survival section, and inside the guides where you need them: a live compass that keeps a bearing, sun & daylight left, “Where am I” with coordinates to read out to 112, torch & automatic SOS flashing, thunder counter, barometer with a bad-weather warning, pace counter, spirit level, timers (boiling water, cooling a burn…), an emergency card that can show on the lock screen, and an Italian/Dutch phrasebook that speaks. Battery: the app now pauses completely in the background, GPS runs slower when you don't need it, location sharing switches GPS off while you stand still, the compass sensor only runs when something on screen uses it, and a battery saver switches on by itself below 20%."],
  ["1.15","You can delete your own photos, voice notes and notes from the group album: they disappear for everyone in the group (if it hadn't gone out yet, it's simply not sent). Posts from others can only be deleted by whoever sent them."],
  ["1.14","Fix: typing no longer gets interrupted when the screen refreshes itself (departures, group updates, location); the cursor and your text stay where they were. Photos now show when they were taken, not when you posted them, and an older photo is placed on the map and in the trip story where you were at that moment."],
  ["1.13","Survival guides are now sorted on shelves (first aid, emergencies, outdoors, home & no power, food, skills, on the road, just for fun), with search that also finds guides in packs you haven't downloaded, “see also” links, and packs that update themselves. Eight new packs: Grow & keep, Wild food & mushrooms, Knots & rope, Finding your way & weather, Talking without internet, On the road, Fix it at home and Zombie apocalypse (for fun, but real preparation). Trip summary: tap the map to open it full screen and pinch, drag or double-tap to zoom; photos stay the same size, tap one to see it."],
@@ -1820,8 +1851,9 @@ function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTim
   if(mode==="street"&&mlReady&&route&&route.ok){try{ml.getSource("route").setData({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:snapRoute().ahead}});}catch(e){}}
   if(!route||!routeFor||!routeFor.startsWith(target+"|"))computeRoute();
   else if(offRoute()&&!routeBusy&&Date.now()-lastReroute>(walking?4000:8000)){lastReroute=Date.now();computeRoute(true);}}
-window.onNativeLocation=(lat,lon,acc,b)=>{gpsBearing=(b!=null&&b>=0)?b:null;onLocation(lat,lon,acc);if(walking)walkUpdate();lastWarn();};
-window.onNativeHeading=deg=>{heading=deg;updatePanel();if(mode==="street"){updateStreetHeading();headingTick();}if(walking)walkUpdate();};
+let lastLLsave=0;function saveLastLL(lat,lon,acc){if(Date.now()-lastLLsave<10*60e3)return;lastLLsave=Date.now();try{localStorage.setItem("pt-lastll",JSON.stringify([+lat.toFixed(4),+lon.toFixed(4),Math.max(acc||0,200),Date.now()]));}catch(e){}}
+window.onNativeLocation=(lat,lon,acc,b)=>{saveLastLL(lat,lon,acc);gpsBearing=(b!=null&&b>=0)?b:null;onLocation(lat,lon,acc);if(walking)walkUpdate();lastWarn();};
+window.onNativeHeading=deg=>{if(TL_HEAD)TL_HEAD(deg);heading=deg;updatePanel();if(mode==="street"){updateStreetHeading();headingTick();}if(walking)walkUpdate();};
 function startGPS(){
   gpsOn=true;document.getElementById("m-gps").classList.add("on");updatePanel();
   if(window.AndroidGPS){try{window.AndroidGPS.start();}catch(e){}}
@@ -1884,7 +1916,7 @@ document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#hd
 function showTab(v){if(v==="trips"&&typeof appMode==="function"&&appMode()==="home"){setTimeout(()=>{const f=document.querySelector('[data-tseg="flights"]');if(f)f.click();},0);}if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips"&&v!=="surv")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}document.body.classList.toggle("tab-map",v==="map");document.body.classList.toggle("tab-dest",v==="dest");
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));
-  window.scrollTo(0,0); if(v==="map"){drawMap();if(mode==="street"&&ml)setTimeout(()=>ml.resize(),50);}
+  window.scrollTo(0,0);setTimeout(headSync,0); if(v==="map"){drawMap();if(mode==="street"&&ml)setTimeout(()=>ml.resize(),50);}
 }
 function openOnMap(n){const ll=T_LL(n);if(ll){target=n;routeFor=null;syncPicker();
   const [x,y]=proj(...ll);const w=POIMAP[n]?18:40;vb=[x-w/2,y-w*0.44,w,w*0.88];}showTab("map");updatePanel();
@@ -2479,7 +2511,7 @@ async function downloadAllPlaces(manual){
 }
 setInterval(()=>{if(navigator.onLine!==false)downloadAllPlaces(false);},10*60*1000);
 async function refreshShops(){if(!window.AndroidNet||navigator.onLine===false)return;for(const t of new Set([...OFFL,...Object.keys(SHOPS)])){const s=SHOPS[t];if(s&&s.src!=="map"&&Date.now()-s.ts<24*3600e3)continue;await getShops(t);await nap(1500);}}
-setInterval(refreshShops,15*60*1000);window.addEventListener("online",()=>setTimeout(refreshShops,5000));setTimeout(refreshShops,20000);
+setInterval(()=>{if(!lowPower())refreshShops();},15*60*1000);window.addEventListener("online",()=>setTimeout(refreshShops,5000));setTimeout(refreshShops,20000);
 window.addEventListener("online",()=>setTimeout(()=>downloadAllPlaces(false),3000));
 
 /* ---------- OFFLINE CITIES: download / remove everything for a city ---------- */
@@ -2736,7 +2768,7 @@ document.addEventListener("click",e=>{const ad=e.target.closest&&e.target.closes
   if(t.dataset.shgo){const [la,lo]=t.dataset.shgo.split(",").map(Number);showTab("map");if(mode==="street"&&ml)streetFly([la,lo],17);else{const [x,y]=proj(la,lo);vb=[x-12,y-11,24,22];drawMap();}
     showPlaceCard(null,[la,lo],t.dataset.shname,t.dataset.shkind);}});
 document.addEventListener("change",e=>{if(e.target.id==="shTown"){shTown=e.target.value;shOpenRow=null;renderShops();}});
-setInterval(()=>{if(document.getElementById("v-shops").classList.contains("on")&&!typing())renderShops();},20000);
+setInterval(()=>{if(document.getElementById("v-shops").classList.contains("on")&&!typing()&&!lowPower())renderShops();},20000);
 
 /* ---------- KEEP DOWNLOADING IN THE BACKGROUND ---------- */
 let mapBusy=false,bgOn=false,bgLast="";
@@ -3135,7 +3167,7 @@ function startWalking(){if(!target||!T_LL(target)){toast("Tap a place on the map
   walking=true;follow=true;
   if(HAS_MAPS()&&mode!=="street")setMode("street");
   document.body.classList.add("walking");
-  try{window.AndroidGPS&&window.AndroidGPS.walking&&window.AndroidGPS.walking(true);}catch(e){}
+  try{window.AndroidGPS&&window.AndroidGPS.walking&&window.AndroidGPS.walking(true);}catch(e){}setTimeout(headSync,0);
   if(!gpsOn)startGPS();
   document.getElementById("walkBanner").style.display="flex";document.getElementById("walkBar").style.display="flex";
   routeFor=null;computeRoute(true);
@@ -3143,7 +3175,7 @@ function startWalking(){if(!target||!T_LL(target)){toast("Tap a place on the map
 }
 function stopWalking(){document.querySelector(".map-wrap").classList.remove("walking");
   walking=false;document.body.classList.remove("walking");
-  try{window.AndroidGPS&&window.AndroidGPS.walking&&window.AndroidGPS.walking(false);}catch(e){}
+  try{window.AndroidGPS&&window.AndroidGPS.walking&&window.AndroidGPS.walking(false);}catch(e){}setTimeout(headSync,0);
   document.getElementById("walkBanner").style.display="none";document.getElementById("walkBar").style.display="none";
   if(ml){ml.resize();ml.easeTo({pitch:0,bearing:0,zoom:Math.min(ml.getZoom(),16),padding:{top:0,bottom:0,left:0,right:0},duration:600});}
   drawMap();updatePanel();
@@ -3748,7 +3780,7 @@ function renderNlSaved(){const b=document.getElementById("nlSaved");if(!b)return
 setTimeout(applyCountry,0);
 var nlLoadedAt=null;
 function nlMoved(){if(appMode()!=="home"||!me)return;if(!nlLoadedAt||hav([me.lat,me.lon],nlLoadedAt)>3){nlLoadedAt=[me.lat,me.lon];if(nlDep.at)loadNlDep();if(nlRoad.at)loadNlRoad();fetchHereWx(false);placeName(me.lat,me.lon);renderNlSaved();}}
-setInterval(()=>{if(appMode()==="home"&&!document.hidden&&!typing()&&document.body.classList.contains("tab-dest")){if(Date.now()-nlDep.at>3*60e3)loadNlDep();if(Date.now()-nlRoad.at>5*60e3)loadNlRoad();fetchHereWx(false);}
+setInterval(()=>{if(appMode()==="home"&&!document.hidden&&!typing()&&!lowPower()&&document.body.classList.contains("tab-dest")){if(Date.now()-nlDep.at>3*60e3)loadNlDep();if(Date.now()-nlRoad.at>5*60e3)loadNlRoad();fetchHereWx(false);}
   if(appMode()==="home"&&me&&SHOPS["Near me"]&&SHOPS["Near me"].c&&hav([me.lat,me.lon],SHOPS["Near me"].c)>2&&!shopsBusy.has("Near me"))getShops("Near me");},60e3);
 
 /* ---------- FOOD NEEDS CARD: what you can't eat, in the language(s) of the country you're in ---------- */
@@ -3946,7 +3978,7 @@ function wxLine(town,short){
   const age=WX._ts?Math.round((Date.now()-WX._ts)/3600e3):0;
   return `<div class="wx"><span class="wi">${ic}</span><span>${now}${tx}, ${t.lo}–${t.hi}°${rainTxt}${t.wind>=35?` · 💨 windy`:""}</span>${!short&&tm?`<span>Tomorrow ${WMO(tm.c)[0]} ${tm.lo}–${tm.hi}°${tm.rain>=30?` · 🌂 ${tm.rain}%`:""}</span>`:""}${age>=6?`<span style="font-size:12px">(forecast from ${age} h ago)</span>`:""}</div>`;
 }
-setInterval(()=>fetchWx(false),30*60*1000);window.addEventListener("online",()=>setTimeout(()=>fetchWx(false),4000));
+setInterval(()=>{if(!lowPower()||Date.now()-(window.WX_AT||0)>3*3600e3){window.WX_AT=Date.now();fetchWx(false);}},30*60*1000);window.addEventListener("online",()=>setTimeout(()=>fetchWx(false),4000));
 
 /* ---------- DEPARTURE BOARD (ViaggiaTreno, live delays) ---------- */
 let VTC={};try{VTC=JSON.parse(localStorage.getItem("pt-vtcodes"))||{};}catch(e){}
@@ -5291,7 +5323,9 @@ function renderSurv(){const box=document.getElementById("survBox");if(!box)retur
    <div class="sv-call"><div><b>Emergency? Call 112</b><small>Free from any phone in Europe.</small></div><a class="big" href="tel:112" aria-label="Call 112">112</a>
    <div class="sv-where"><span>Your location<br><code>${ll||"Waiting for GPS…"}</code></span>${ll?`<button id="svCopy">Copy</button>`:""}</div>${nums?`<div class="sv-nums">${nums}</div>`:""}</div>`;
   svRegisterArt();const all=svAll();
+  if(!svQ.trim())h+=`<div class="sv-h">🧰 Tools</div>${tlTiles()}`;
   if(svQ.trim()){const q=svQ.trim().toLowerCase();const r=all.filter(g=>(g.t+" "+g.w+" "+g.s.join(" ")).toLowerCase().includes(q));
+    const tq=tlAvail().filter(x=>(x.t+" "+x.w).toLowerCase().includes(q));if(tq.length)h+=`<div class="sv-h">🧰 Tools</div><div class="tl-grid">${tq.map(x=>`<button class="tl-tile" data-tool="${x.id}"><span>${x.ic}</span><b>${x.t}</b></button>`).join("")}</div>`;
     // also guides in packs that aren't on the phone yet (titles come from the catalog)
     const more=[];for(const p of SURV_OFFER)if(!SURV_PACKS[p.id])for(const x of p.guides||[])if((x.t+" "+(x.w||"")+" "+(x.k||"")).toLowerCase().includes(q))more.push([p,x]);
     h+=`<div class="sv-h">${r.length+more.length?(r.length+more.length)+" found":"Nothing found"}</div><div class="sv-grid">${r.map(g=>svCard(g,true)).join("")}</div>`;
@@ -5321,11 +5355,330 @@ function svToggleBeat(){const b=document.getElementById("svBeatBtn"),d=document.
     if(ac){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.25;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.05);}
     try{navigator.vibrate&&navigator.vibrate(30);}catch(e){}};
   svBeat={ac,t:setInterval(tick,545)};tick();if(b)b.textContent="Stop";}
+/* ---------- TOOLS: the phone as a survival kit ----------
+   Each tool only switches its sensor on while it's on screen, and off again when you leave it. */
+const TL=()=>window.AndroidTools||null;
+function tlTry(f,d){try{const t=TL();return t?f(t):d;}catch(e){return d;}}
+const TOOLS=[
+ {id:"compass",ic:"🧭",t:"Compass",w:"Live direction, and keep a bearing"},
+ {id:"sun",ic:"☀️",t:"Sun & daylight",w:"Where the sun is, sunset, daylight left"},
+ {id:"where",ic:"📍",t:"Where am I",w:"Coordinates to read out to 112"},
+ {id:"torch",ic:"🔦",t:"Torch & SOS",w:"Light, or flash SOS in Morse"},
+ {id:"thunder",ic:"⚡",t:"Thunder counter",w:"How far away is the storm?"},
+ {id:"baro",ic:"🌡️",t:"Barometer",w:"Pressure trend and bad-weather warning",need:()=>tlTry(t=>t.hasPressure(),false)},
+ {id:"pace",ic:"👣",t:"Pace counter",w:"Steps and distance walked"},
+ {id:"level",ic:"📐",t:"Spirit level",w:"Is it flat?"},
+ {id:"timer",ic:"⏱️",t:"Timers",w:"Boiling water, cooling a burn, a nosebleed…"},
+ {id:"card",ic:"🆔",t:"Emergency card",w:"Your medical info for rescuers"},
+ {id:"phrases",ic:"💬",t:"Phrasebook",w:"Italian and Dutch for emergencies"},
+ {id:"saver",ic:"🔋",t:"Battery saver",w:"Make the battery last longer"},
+];
+// which guides open which tool
+const SV_TOOLS_FOR={north:["compass","sun"],compass:["compass"],papermap:["compass"],nophone:["compass","sun"],lost:["where","compass"],daylight:["sun"],dark:["sun","torch"],
+  thunder:["thunder"],storm:["thunder","baro"],clouds:["baro"],wind:["baro"],morse:["torch"],signal:["torch","where"],call:["where"],distance:["pace"],
+  burns:["timer"],nosebleed:["timer"],water:["timer"],filter:["timer"],rinseeye:["timer"],shelter:["level"],tautline:["level"],longout:["saver","torch"],
+  nonet:["saver","where"],contactplan:["card"],zgobag:["card"],kit:["card"],doctor:["phrases","card"],medical:["phrases","card"],allergy:["card"]};
+function tlAvail(){return TOOLS.filter(x=>!x.need||x.need());}
+function tlTiles(){return `<div class="tl-grid">${tlAvail().map(x=>`<button class="tl-tile" data-tool="${x.id}"><span>${x.ic}</span><b>${x.t}</b></button>`).join("")}</div>`;}
+function tlLinks(gid){const ids=(SV_TOOLS_FOR[gid]||[]).filter(id=>tlAvail().some(x=>x.id===id));
+  return ids.length?`<div class="tl-links">${ids.map(id=>{const x=TOOLS.find(t=>t.id===id);return `<button data-tool="${id}">${x.ic} Open ${x.t.toLowerCase()}</button>`;}).join("")}</div>`:"";}
+
+let TOOL=null;   // {id, stop()}
+function openTool(id){const x=TOOLS.find(t=>t.id===id);if(!x)return;closeTool();
+  const ov=document.createElement("div");ov.className="sv-ov tl-ov";ov.id="tlOv";
+  ov.innerHTML=`<div class="sv-top"><button data-tlclose>‹ Back</button></div><div class="tl-head"><span>${x.ic}</span><div><h2>${x.t}</h2><p>${x.w}</p></div></div><div class="tl-body" id="tlBody"></div>`;
+  document.body.appendChild(ov);history.pushState&&history.pushState({tl:1},"");
+  TOOL={id,stops:[]};try{TL_RUN[id](document.getElementById("tlBody"),TOOL);}catch(e){document.getElementById("tlBody").innerHTML=`<p class="sv-note">This tool couldn't start: ${svEsc(e.message||String(e))}</p>`;}}
+function closeTool(){if(TOOL){for(const f of TOOL.stops)try{f();}catch(e){}TOOL=null;}const o=document.getElementById("tlOv");if(o)o.remove();headSync();}
+function tlStop(T,f){T.stops.push(f);}
+function tlEvery(T,ms,f){const i=setInterval(()=>{if(!document.hidden)f();},ms);tlStop(T,()=>clearInterval(i));f();}
+
+/* compass heading from the phone (native sensor in the app, the browser's otherwise) */
+let TL_HEAD=null;
+function headSync(){const map=document.getElementById("v-map");const on=!!((map&&map.classList.contains("on"))||(typeof walking!=="undefined"&&walking)||TL_HEAD);
+  try{window.AndroidGPS&&window.AndroidGPS.heading&&window.AndroidGPS.heading(on);}catch(e){}}
+function tlHeading(T,cb){let got=false;TL_HEAD=d=>{got=true;cb(d);};headSync();
+  const web=e=>{let d=null;if(e.webkitCompassHeading!=null)d=e.webkitCompassHeading;else if(e.absolute&&e.alpha!=null)d=(360-e.alpha)%360;if(d!=null){got=true;cb(d);}};
+  if(!window.AndroidGPS){addEventListener("deviceorientationabsolute",web);addEventListener("deviceorientation",web);}
+  tlStop(T,()=>{TL_HEAD=null;removeEventListener("deviceorientationabsolute",web);removeEventListener("deviceorientation",web);});
+  return ()=>got;}
+const CARD16=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"],CARD8=["north","north-east","east","south-east","south","south-west","west","north-west"];
+const cardOf=d=>CARD16[Math.round(((d%360)+360)%360/22.5)%16],card8=d=>CARD8[Math.round(((d%360)+360)%360/45)%8];
+function dialSvg(extra){let t="";for(let i=0;i<72;i++){const a=i*5,l=i%18===0?14:i%6===0?9:5;t+=`<line x1="0" y1="-96" x2="0" y2="${-96+l}" transform="rotate(${a})" stroke="var(--ink,#1d2a30)" stroke-width="${i%6===0?2.4:1.2}"/>`;}
+  const L=["N","E","S","W"].map((c,i)=>`<text transform="rotate(${i*90}) translate(0 -66)" text-anchor="middle" font-size="18" font-weight="800" fill="${i?"var(--ink,#1d2a30)":"#d6452f"}" dy="6">${c}</text>`).join("");
+  const n=[30,60,120,150,210,240,300,330].map(a=>`<text transform="rotate(${a}) translate(0 -70)" text-anchor="middle" font-size="10" fill="var(--muted)" dy="4">${a}</text>`).join("");
+  return `<circle r="100" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>${t}${L}${n}${extra||""}`;}
+
+/* ---------- sun position and times (NOAA / suncalc formulas), all offline ---------- */
+const SUN=(()=>{const rad=Math.PI/180,J1970=2440588,J2000=2451545,dayMs=864e5,e=rad*23.4397;
+  const toJ=d=>d.valueOf()/dayMs-0.5+J1970,fromJ=j=>new Date((j+0.5-J1970)*dayMs),toDays=d=>toJ(d)-J2000;
+  const ra=(l,b)=>Math.atan2(Math.sin(l)*Math.cos(e)-Math.tan(b)*Math.sin(e),Math.cos(l)),dec=(l,b)=>Math.asin(Math.sin(b)*Math.cos(e)+Math.cos(b)*Math.sin(e)*Math.sin(l));
+  const M=d=>rad*(357.5291+0.98560028*d),L=m=>{const C=rad*(1.9148*Math.sin(m)+0.02*Math.sin(2*m)+0.0003*Math.sin(3*m));return m+C+rad*102.9372+Math.PI;};
+  const sid=(d,lw)=>rad*(280.16+360.9856235*d)-lw;
+  function pos(date,lat,lng){const lw=rad*-lng,phi=rad*lat,d=toDays(date),m=M(d),l=L(m),D=dec(l,0),H=sid(d,lw)-ra(l,0);
+    const az=Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(phi)-Math.tan(D)*Math.cos(phi)),alt=Math.asin(Math.sin(phi)*Math.sin(D)+Math.cos(phi)*Math.cos(D)*Math.cos(H));
+    return {az:(az/rad+180+360)%360,alt:alt/rad};}
+  function times(date,lat,lng){const lw=rad*-lng,phi=rad*lat,d=toDays(date),n=Math.round(d-0.0009-lw/(2*Math.PI)),ds=0.0009+lw/(2*Math.PI)+n,m=M(ds),l=L(m),D=dec(l,0);
+    const Jnoon=J2000+ds+0.0053*Math.sin(m)-0.0069*Math.sin(2*l);
+    const at=h=>{const w=Math.acos((Math.sin(h*rad)-Math.sin(phi)*Math.sin(D))/(Math.cos(phi)*Math.cos(D)));if(isNaN(w))return null;const a=0.0009+(w+lw)/(2*Math.PI)+n,Jset=J2000+a+0.0053*Math.sin(m)-0.0069*Math.sin(2*l);return [fromJ(Jnoon-(Jset-Jnoon)),fromJ(Jset)];};
+    const s=at(-0.833),c=at(-6);return {noon:fromJ(Jnoon),rise:s&&s[0],set:s&&s[1],dawn:c&&c[0],dusk:c&&c[1]};}
+  function moon(date){const p=((toJ(date)-2451550.1)/29.530588853)%1;const f=(p+1)%1;return {f,name:["New moon","Waxing crescent","First quarter","Waxing gibbous","Full moon","Waning gibbous","Last quarter","Waning crescent"][Math.round(f*8)%8]};}
+  return {pos,times,moon};})();
+function tlWhere(){if(typeof me!=="undefined"&&me&&me.lat)return [me.lat,me.lon,me.acc||50];
+  try{const h=JSON.parse(localStorage.getItem("pt-lastll")||"null");if(h&&Date.now()-h[3]<7*864e5)return h;}catch(e){}
+  if(typeof NLHOME!=="undefined"&&NLHOME)return [NLHOME.lat,NLHOME.lon,5000];return null;}
+function tlNeedGps(){if(typeof gpsOn!=="undefined"&&!gpsOn&&typeof startGPS==="function")try{startGPS();}catch(e){}}
+const tlHM=d=>d?d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"–";
+const tlDur=ms=>{const m=Math.max(0,Math.round(ms/60e3));return m>=60?`${Math.floor(m/60)} h ${m%60} min`:`${m} min`;};
+
+/* ---------- Open Location Code (plus code), the short code 112 operators and maps understand ---------- */
+function plusCode(lat,lng){const A="23456789CFGHJMPQRVWX";lat=Math.min(89.999999,Math.max(-90,lat))+90;lng=((lng+180)%360+360)%360;
+  let c="",r=20;for(let i=0;i<5;i++){const la=Math.floor(lat/r),lo=Math.floor(lng/r);lat-=la*r;lng-=lo*r;c+=A[la]+A[lo];if(i===3)c+="+";r/=20;}return c;}
+function dms(v,p,n){const a=Math.abs(v),d=Math.floor(a),m=Math.floor((a-d)*60),s=((a-d)*60-m)*60;return `${d}°${String(m).padStart(2,"0")}′${s.toFixed(1).padStart(4,"0")}″ ${v>=0?p:n}`;}
+
+const TL_RUN={
+ compass(el,T){let target=null;try{target=JSON.parse(localStorage.getItem("pt-bearing")||"null");}catch(e){}
+  el.innerHTML=`<div class="tl-dialwrap"><svg viewBox="-110 -118 220 228" class="tl-dial"><g id="tlRose">${dialSvg(`<g id="tlSun"></g><g id="tlTgt"></g>`)}</g>
+     <path d="M0 -112l9 16h-18z" fill="#d6452f"/><line x1="0" y1="-96" x2="0" y2="-40" stroke="#d6452f" stroke-width="3"/></svg>
+     <div class="tl-big" id="tlDeg">–</div><div class="tl-sub" id="tlCard">Hold the phone flat</div></div>
+   <div class="tl-card" id="tlCourse"></div>
+   <div class="tl-row"><button class="tl-btn" id="tlSet">🎯 Keep this direction</button><button class="tl-btn ghost" id="tlClr">Clear</button></div>
+   <p class="sv-note">Hold the phone flat, away from metal, magnets and speakers. If the direction seems off, move the phone in a figure 8 a few times. ☀️ shows where the sun is.</p>`;
+  let cur=null,shown=null;const rose=el.querySelector("#tlRose");
+  const sun=()=>{const w=tlWhere();const g=el.querySelector("#tlSun");if(!w||!g)return;const p=SUN.pos(new Date(),w[0],w[1]);
+    g.innerHTML=p.alt>-2?`<g transform="rotate(${p.az.toFixed(1)}) translate(0 -84)"><circle r="8" fill="#f2b632"/></g>`:"";};
+  const course=()=>{const c=el.querySelector("#tlCourse"),g=el.querySelector("#tlTgt");
+    if(target==null){c.innerHTML=`<b>No bearing set.</b> Point the top of the phone where you want to go and tap “Keep this direction”.`;g.innerHTML="";return;}
+    g.innerHTML=`<g transform="rotate(${target})"><path d="M0 -100l-7 -12h14z" fill="#1e8e3e"/><line x1="0" y1="-96" x2="0" y2="-20" stroke="#1e8e3e" stroke-width="3" stroke-dasharray="5 4"/></g>`;
+    if(cur==null){c.textContent=`Bearing ${Math.round(target)}° (${cardOf(target)})`;return;}
+    const diff=((target-cur+540)%360)-180,a=Math.abs(diff);
+    c.innerHTML=a<6?`<b class="ok">✓ On course</b> · bearing ${Math.round(target)}° ${cardOf(target)}`:`Turn <b>${diff>0?"right":"left"} ${Math.round(a)}°</b> · bearing ${Math.round(target)}° ${cardOf(target)}`;
+    c.classList.toggle("good",a<6);};
+  const draw=()=>{if(cur==null)return;if(shown!=null&&Math.abs(((cur-shown+540)%360)-180)<0.6)return;shown=cur;
+    rose.setAttribute("transform",`rotate(${(-cur).toFixed(1)})`);el.querySelector("#tlDeg").textContent=Math.round(cur)+"°";el.querySelector("#tlCard").textContent=cardOf(cur)+" · "+card8(cur);course();};
+  const got=tlHeading(T,d=>{if(cur==null)cur=d;else{const df=((d-cur+540)%360)-180;cur=(cur+df*0.25+360)%360;}requestAnimationFrame(draw);});
+  el.querySelector("#tlSet").onclick=()=>{if(cur==null)return toast("Waiting for the compass…");target=Math.round(cur);localStorage.setItem("pt-bearing",JSON.stringify(target));course();toast(`🎯 Keeping ${target}° ${cardOf(target)}`);};
+  el.querySelector("#tlClr").onclick=()=>{target=null;localStorage.removeItem("pt-bearing");course();};
+  sun();course();tlEvery(T,60e3,sun);
+  setTimeout(()=>{if(!got()&&document.getElementById("tlDeg"))el.querySelector("#tlCard").textContent="No compass sensor found on this phone. Use the sun or the stars (see “Finding north”).";},3000);},
+
+ sun(el,T){tlNeedGps();
+  const draw=()=>{const w=tlWhere();if(!w){el.innerHTML=`<p class="sv-note">Waiting for your location… (works without internet, it only needs GPS)</p>`;return;}
+    const now=new Date(),p=SUN.pos(now,w[0],w[1]),t=SUN.times(now,w[0],w[1]),tm=SUN.times(new Date(+now+864e5),w[0],w[1]),mo=SUN.moon(now);
+    let big,sub;
+    if(!t.rise){big=p.alt>0?"Sun all day":"No sunrise today";sub="";}
+    else if(now<t.dawn){big="Dark";sub=`First light ${tlHM(t.dawn)} · sunrise ${tlHM(t.rise)}`;}
+    else if(now<t.rise){big=`Sunrise in ${tlDur(t.rise-now)}`;sub=`It's getting light · sunrise ${tlHM(t.rise)}`;}
+    else if(now<t.set){big=`${tlDur(t.set-now)} of daylight left`;sub=`Sunset ${tlHM(t.set)} · dark by ${tlHM(t.dusk)}`;}
+    else if(now<t.dusk){big=`Dark in ${tlDur(t.dusk-now)}`;sub=`The sun has set · dark by ${tlHM(t.dusk)}`;}
+    else {big="Dark";sub=`Sunrise tomorrow ${tlHM(tm.rise)}`;}
+    el.innerHTML=`<div class="tl-hero"><div class="tl-big">${big}</div><div class="tl-sub">${sub}</div></div>
+     <div class="tl-dialwrap"><svg viewBox="-110 -110 220 220" class="tl-dial small"><g id="tlRose">${dialSvg(p.alt>-2?`<g transform="rotate(${p.az.toFixed(1)})"><line x1="0" y1="0" x2="0" y2="-80" stroke="#f2b632" stroke-width="4" stroke-dasharray="6 5"/><circle cy="-84" r="10" fill="#f2b632"/></g>`:"")}</g></svg></div>
+     <div class="tl-list">
+      <div><span>Sun now</span><b>${p.alt>-0.8?`${card8(p.az)} (${Math.round(p.az)}°), ${Math.round(p.alt)}° high`:"below the horizon"}</b></div>
+      <div><span>First light</span><b>${tlHM(t.dawn)}</b></div><div><span>Sunrise</span><b>${tlHM(t.rise)}</b></div>
+      <div><span>Highest (south)</span><b>${tlHM(t.noon)}</b></div><div><span>Sunset</span><b>${tlHM(t.set)}</b></div><div><span>Dark</span><b>${tlHM(t.dusk)}</b></div>
+      <div><span>Moon</span><b>${mo.name}</b></div></div>
+     <p class="sv-note">Hand trick: hold your arm out, fingers sideways under the sun. Each finger to the horizon is about 15 minutes of sun left. ${w[2]>2000?"(Location is approximate: times can be a few minutes off.)":""}</p>`;
+    const rose=el.querySelector("#tlRose");if(rose&&TL_LAST!=null)rose.setAttribute("transform",`rotate(${-TL_LAST})`);};
+  let TL_LAST=null;tlHeading(T,d=>{TL_LAST=d;const r=el.querySelector("#tlRose");if(r)r.setAttribute("transform",`rotate(${(-d).toFixed(0)})`);});
+  tlEvery(T,30e3,draw);},
+
+ where(el,T){tlNeedGps();
+  const draw=()=>{const w=(typeof me!=="undefined"&&me&&me.lat)?[me.lat,me.lon,me.acc||0]:null;
+    if(!w){el.innerHTML=`<div class="tl-hero"><div class="tl-big">Finding you…</div><div class="tl-sub">Go outside or near a window. GPS works without internet.</div></div><a class="tl-btn red" href="tel:112">📞 Call 112</a>`;return;}
+    const pc=plusCode(w[0],w[1]),txt=`My location: ${w[0].toFixed(5)}, ${w[1].toFixed(5)} (plus code ${pc}, accuracy ${Math.round(w[2])} m) https://maps.google.com/?q=${w[0].toFixed(5)},${w[1].toFixed(5)}`;
+    el.innerHTML=`<div class="tl-where"><small>Latitude, longitude</small><div class="tl-coord">${w[0].toFixed(5)}<br>${w[1].toFixed(5)}</div>
+      <small>Plus code</small><div class="tl-coord sm">${pc}</div>
+      <small>Degrees, minutes, seconds</small><div class="tl-dms">${dms(w[0],"N","S")}<br>${dms(w[1],"E","W")}</div>
+      <div class="tl-sub">Accurate to about ${Math.round(w[2])} m${w[2]>100?" · wait a moment outside for a better fix":""}${typeof hereTown!=="undefined"&&hereTown?` · near ${svEsc(hereTown)}`:""}</div></div>
+     <div class="tl-row"><a class="tl-btn red" href="tel:112">📞 Call 112</a><a class="tl-btn" href="sms:?body=${encodeURIComponent(txt)}">💬 Text it</a></div>
+     <p class="sv-note">On the phone with 112, read out the two numbers slowly, digit by digit (“forty point six three eight…”). 112 calls in Europe usually also send your location automatically.</p>`;};
+  tlEvery(T,4000,draw);},
+
+ torch(el,T){const has=tlTry(t=>t.hasTorch(),false);let mode="off",tmr=null;
+  const set=on=>{if(has)tlTry(t=>t.torch(on));const s=el.querySelector("#tlScreen");if(s)s.classList.toggle("on",on&&!has);};
+  const stop=()=>{clearTimeout(tmr);tmr=null;set(false);mode="off";paint();};
+  const U=220,seq=[];for(const L of ["...","---","..."]){for(const c of L)seq.push([true,c==="."?U:3*U],[false,U]);seq[seq.length-1][1]=3*U;}seq[seq.length-1][1]=7*U;
+  const sos=()=>{let i=0;const step=()=>{if(mode!=="sos")return;const [on,ms]=seq[i++%seq.length];set(on);tmr=setTimeout(step,ms);};step();};
+  const paint=()=>{el.querySelector("#tlOn").classList.toggle("act",mode==="on");el.querySelector("#tlSos").classList.toggle("act",mode==="sos");
+    el.querySelector("#tlState").textContent=mode==="on"?"Torch on":mode==="sos"?"Flashing SOS: · · · — — — · · ·":"Off";};
+  el.innerHTML=`<div class="tl-screen" id="tlScreen"></div><div class="tl-hero"><div class="tl-big" id="tlState">Off</div><div class="tl-sub">${has?"Uses the camera light":"No camera light found: the screen lights up instead"}</div></div>
+   <div class="tl-row"><button class="tl-btn" id="tlOn">🔦 Torch</button><button class="tl-btn red" id="tlSos">🆘 SOS</button></div>
+   <p class="sv-note">SOS is three short, three long, three short. Point it at a rescuer, a boat, a helicopter or a window. The light goes off when you leave this screen. It uses battery: switch it off when you don't need it.</p>`;
+  el.querySelector("#tlOn").onclick=()=>{if(mode==="on")return stop();stop();mode="on";set(true);paint();};
+  el.querySelector("#tlSos").onclick=()=>{if(mode==="sos")return stop();stop();mode="sos";sos();paint();};
+  tlStop(T,stop);},
+
+ thunder(el,T){let t0=null,hist=[],raf=0;
+  const ui=()=>{const r=hist[0];el.innerHTML=`<div class="tl-hero"><div class="tl-big" id="tlT">${t0?"0.0 s":r?`${r.km.toFixed(1)} km away`:"Ready"}</div>
+     <div class="tl-sub">${t0?"Counting… tap when you hear the thunder":r?(r.s<30?"⚠️ Close: get inside a building or a car now":"Further than 10 km, but keep an eye on it"):"Tap when you see the lightning"}</div></div>
+    <button class="tl-btn huge ${t0?"thunder":""}" id="tlTap">${t0?"🔊 Thunder!":"⚡ Flash!"}</button>
+    ${hist.length>1?`<div class="tl-card">${hist[0].km<hist[1].km-0.3?"⬆️ <b>Coming closer</b>":hist[0].km>hist[1].km+0.3?"⬇️ Moving away":"↔️ About the same distance"} · last: ${hist.slice(0,4).map(h=>h.km.toFixed(1)+" km").join(", ")}</div>`:""}
+    <p class="sv-note">Sound travels about 1 km in 3 seconds. Under 30 seconds (10 km) you're in reach of lightning: go inside, and wait 30 minutes after the last thunder.</p>`;
+   el.querySelector("#tlTap").onclick=()=>{if(!t0){t0=performance.now();ui();tick();}else{const s=(performance.now()-t0)/1000;t0=null;cancelAnimationFrame(raf);hist.unshift({s,km:s*0.343});ui();}};};
+  const tick=()=>{const e=el.querySelector("#tlT");if(!t0||!e)return;e.textContent=((performance.now()-t0)/1000).toFixed(1)+" s";raf=requestAnimationFrame(tick);};
+  ui();tlStop(T,()=>cancelAnimationFrame(raf));},
+
+ baro(el,T){let watch=tlTry(t=>t.baroWatching(),false);
+  const draw=()=>{const now=tlTry(t=>t.pressure(),-1);let log=[];try{log=JSON.parse(tlTry(t=>t.baroLog(),"[]"));}catch(e){}
+    const ago=h=>{let b=null;for(const x of log){if(Math.abs(Date.now()-x[0]-h*3600e3)<40*60e3)b=x[1];}return b;};
+    const p3=ago(3),d=now>0&&p3?now-p3:null;
+    const trend=d==null?["Not enough readings yet","Leave the warning on: after 3 hours the app can tell the trend."]:d<=-3?["⬇️ Falling fast","Wind and rain likely within hours."]:d<=-1?["↘️ Falling","Weather may get worse."]:d>=3?["⬆️ Rising fast","Clearing up, often windy at first."]:d>=1?["↗️ Rising","Weather getting better."]:["➡️ Steady","No big change coming."];
+    const pts=log.filter(x=>Date.now()-x[0]<24*3600e3);let spark="";
+    if(pts.length>2){const lo=Math.min(...pts.map(x=>x[1]))-0.5,hi=Math.max(...pts.map(x=>x[1]))+0.5,t0=Date.now()-24*3600e3;
+      spark=`<svg viewBox="0 0 300 80" class="tl-spark"><polyline fill="none" stroke="var(--accent,#11706a)" stroke-width="2.5" points="${pts.map(x=>`${((x[0]-t0)/864e5*300).toFixed(1)},${(75-(x[1]-lo)/(hi-lo)*70).toFixed(1)}`).join(" ")}"/></svg><div class="tl-sub">Last 24 hours · ${lo.toFixed(0)}–${hi.toFixed(0)} hPa</div>`;}
+    el.innerHTML=`<div class="tl-hero"><div class="tl-big">${now>0?now.toFixed(1)+" hPa":"–"}</div><div class="tl-sub">${d!=null?`${d>0?"+":""}${d.toFixed(1)} hPa in 3 hours`:""}</div></div>
+     <div class="tl-card"><b>${trend[0]}</b><br>${trend[1]}</div>${spark}
+     <label class="tl-switch"><input type="checkbox" id="tlW" ${watch?"checked":""}> Warn me when pressure falls fast</label>
+     <p class="sv-note">The warning reads the sensor about every 30 minutes, only when the phone is awake anyway: it uses almost no battery. Going up or down a hill also changes the pressure (about 1 hPa per 8 m).</p>`;
+    el.querySelector("#tlW").onchange=e=>{watch=e.target.checked;tlTry(t=>t.baroWatch(watch));toast(watch?"🌡️ Pressure warning on":"Pressure warning off");};};
+  tlEvery(T,5*60e3,draw);},
+
+ pace(el,T){const nat=tlTry(t=>t.hasSteps(),false);let st={};try{st=JSON.parse(localStorage.getItem("pt-pace")||"{}");}catch(e){}st.stride=st.stride||75;
+  const save=()=>localStorage.setItem("pt-pace",JSON.stringify(st));let acc=null;
+  const read=()=>nat&&tlTry(t=>t.stepsAllowed(),false)?tlTry(t=>t.steps(),-1):-1;
+  const draw=()=>{let n=0;if(st.on){if(nat&&st.base!=null){const v=read();if(v>=0)n=Math.max(0,v-st.base);}else n=st.js||0;}
+    const m=n*st.stride/100,el2=st.on?Date.now()-st.t:0;
+    el.innerHTML=`<div class="tl-hero"><div class="tl-big">${st.on?(m>=1000?(m/1000).toFixed(2)+" km":Math.round(m)+" m"):"Not counting"}</div>
+      <div class="tl-sub">${st.on?`${n} steps · ${tlDur(el2)}${el2>60e3&&m>20?` · ${(m/1000/(el2/3600e3)).toFixed(1)} km/h`:""}`:"Tap start, then walk"}</div></div>
+     <div class="tl-row"><button class="tl-btn" id="tlGo">${st.on?"↺ Start again":"▶ Start"}</button>${st.on?`<button class="tl-btn ghost" id="tlEnd">Stop</button>`:""}</div>
+     <label class="tl-switch">Step length <input type="number" id="tlStride" value="${st.stride}" min="40" max="120" style="width:70px"> cm</label>
+     <p class="sv-note">${nat?"Uses the phone's step counter: it keeps counting with the screen off and uses almost no battery.":"Keep this screen open while walking (this phone has no separate step counter)."} To find your step length: walk 10 steps, measure, divide by 10.</p>`;
+    el.querySelector("#tlGo").onclick=()=>{if(nat&&!tlTry(t=>t.stepsAllowed(),true)){tlTry(t=>t.askSteps());window.onStepsPerm=ok=>{if(ok)el.querySelector("#tlGo").click();else toast("Without that permission the screen has to stay open");};return;}
+      st={on:true,t:Date.now(),stride:st.stride,base:nat?read():null,js:0};if(nat&&st.base<0){st.base=null;}save();draw();};
+    const e=el.querySelector("#tlEnd");if(e)e.onclick=()=>{st.on=false;save();draw();};
+    el.querySelector("#tlStride").onchange=e=>{st.stride=Math.max(40,Math.min(120,+e.target.value||75));save();draw();};};
+  // phones without a step chip: count steps from movement, only while this screen is open
+  if(!nat){let last=0,hi=false;acc=e=>{const a=e.accelerationIncludingGravity;if(!a||!st.on||(nat&&st.base!=null))return;const g=Math.hypot(a.x||0,a.y||0,a.z||0);
+      if(!hi&&g>11.5&&performance.now()-last>300){hi=true;last=performance.now();st.js=(st.js||0)+1;}else if(hi&&g<10)hi=false;};
+    addEventListener("devicemotion",acc);tlStop(T,()=>{removeEventListener("devicemotion",acc);save();});}
+  tlEvery(T,3000,draw);},
+
+ level(el,T){el.innerHTML=`<div class="tl-level"><svg viewBox="-100 -100 200 200"><circle r="92" fill="var(--card)" stroke="var(--line)" stroke-width="2"/><circle r="30" fill="none" stroke="var(--line)" stroke-width="2"/><circle r="6" fill="none" stroke="var(--muted)"/><line x1="-92" y1="0" x2="92" y2="0" stroke="var(--line)"/><line x1="0" y1="-92" x2="0" y2="92" stroke="var(--line)"/><circle id="tlBub" r="16" fill="#9cc56a" stroke="#4f8a2a" stroke-width="2"/></svg></div>
+   <div class="tl-hero"><div class="tl-big" id="tlLv">–</div><div class="tl-sub">Lay the phone on the surface</div></div>`;
+  let got=false;const f=e=>{if(e.beta==null)return;got=true;const b=e.beta,g=e.gamma;const x=Math.max(-76,Math.min(76,-g*4)),y=Math.max(-76,Math.min(76,-b*4));
+    requestAnimationFrame(()=>{const bub=el.querySelector("#tlBub");if(!bub)return;bub.setAttribute("cx",x.toFixed(1));bub.setAttribute("cy",y.toFixed(1));
+      const t=Math.hypot(b,g);el.querySelector("#tlLv").textContent=t<1?"✓ Level":`${t.toFixed(1)}° off`;bub.setAttribute("fill",t<1?"#4fbf5a":"#9cc56a");});};
+  addEventListener("deviceorientation",f);tlStop(T,()=>removeEventListener("deviceorientation",f));
+  setTimeout(()=>{if(!got&&el.querySelector("#tlLv"))el.querySelector("#tlLv").textContent="No tilt sensor found";},2500);},
+
+ timer(el,T){const P=[["💧","Boil drinking water",1,"Rolling boil for 1 minute (3 minutes above 2,000 m)."],["🔥","Cool a burn",20,"Under cool running water."],["🩸","Nosebleed",10,"Lean forward, pinch the soft part of the nose."],["👁️","Rinse an eye",15,"Keep rinsing with clean water."],["🩹","Press on a wound",10,"Firm, steady pressure."],["🍝","Pasta / rice",10,""]];
+  let L=[];try{L=JSON.parse(localStorage.getItem("pt-timers")||"[]");}catch(e){}
+  const save=()=>localStorage.setItem("pt-timers",JSON.stringify(L));
+  const add=(ic,t,min,tip)=>{const end=Date.now()+min*60e3,id="tm"+Date.now();L.push({id,ic,t,end,tip});save();
+    try{window.AndroidNotify&&window.AndroidNotify.schedule(id,end,`${ic} ${t}: time's up`,tip||"Your timer has finished.");}catch(e){}draw();};
+  const draw=()=>{const now=Date.now();L=L.filter(x=>now-x.end<10*60e3);
+    el.innerHTML=`${L.length?`<div class="tl-timers">${L.map(x=>{const r=x.end-now;return `<div class="tl-tm ${r<=0?"done":""}"><span>${x.ic}</span><div><b>${svEsc(x.t)}</b><small>${svEsc(x.tip||"")}</small></div><div class="tl-left">${r>0?`${Math.floor(r/60e3)}:${String(Math.floor(r%60e3/1000)).padStart(2,"0")}`:"Done ✓"}</div><button data-tmx="${x.id}">✕</button></div>`;}).join("")}</div>`:""}
+     <div class="tl-presets">${P.map((p,i)=>`<button data-tmp="${i}"><span>${p[0]}</span><b>${p[1]}</b><small>${p[2]} min</small></button>`).join("")}</div>
+     <div class="tl-row"><input type="number" id="tlMin" min="1" max="600" placeholder="Minutes" style="flex:1"><button class="tl-btn" id="tlAdd">Start</button></div>
+     <p class="sv-note">You get a notification when time is up, also with the screen off or another app open.</p>`;
+    el.querySelectorAll("[data-tmp]").forEach(b=>b.onclick=()=>{const p=P[+b.dataset.tmp];add(p[0],p[1],p[2],p[3]);});
+    el.querySelectorAll("[data-tmx]").forEach(b=>b.onclick=()=>{L=L.filter(x=>x.id!==b.dataset.tmx);save();try{window.AndroidNotify&&window.AndroidNotify.cancelPrefix(b.dataset.tmx);}catch(e){}draw();});
+    el.querySelector("#tlAdd").onclick=()=>{const m=+el.querySelector("#tlMin").value;if(!(m>0))return toast("Type the minutes first");add("⏱️","Timer",m,"");};};
+  tlEvery(T,1000,()=>{if(!typing())draw();});},
+
+ card(el,T){let C={};try{C=JSON.parse(localStorage.getItem("pt-card")||"{}");}catch(e){}
+  const F=[["name","Name",""],["born","Date of birth","e.g. 12 March 1995"],["blood","Blood type","e.g. A+"],["allergies","Allergies","Medicines, food, insects…"],["conditions","Medical conditions","e.g. asthma, diabetes"],["meds","Medicines I take",""],["ice1","Emergency contact 1","Name and phone number"],["ice2","Emergency contact 2",""],["notes","Other notes","e.g. organ donor, language"]];
+  const text=()=>F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`${f[1]}: ${C[f[0]]}`).join("\n");
+  const view=()=>{const has=F.some(f=>C[f[0]]);
+    el.innerHTML=has?`<div class="tl-ice"><div class="tl-ice-h">EMERGENCY · ${svEsc(C.name||"")}</div>${F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`<div><small>${f[1]}</small><b>${svEsc(C[f[0]])}</b></div>`).join("")}</div>
+      <label class="tl-switch"><input type="checkbox" id="tlLock" ${C.lock?"checked":""}> Show on the lock screen</label>
+      <div class="tl-row"><button class="tl-btn ghost" id="tlEdit">✏️ Edit</button></div>
+      <p class="sv-note">Stays on this phone only. On the lock screen anyone can read it (that's the point: a rescuer can see it without unlocking).</p>`:
+      `<p class="sv-note">Fill this in once. In an emergency, rescuers can read your allergies, medicines and who to call, even from the lock screen.</p><div class="tl-row"><button class="tl-btn" id="tlEdit">Fill in my card</button></div>`;
+    el.querySelector("#tlEdit").onclick=edit;const lk=el.querySelector("#tlLock");
+    if(lk)lk.onchange=e=>{C.lock=e.target.checked;localStorage.setItem("pt-card",JSON.stringify(C));tlTry(t=>t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),C.lock?text():""));if(C.lock)tlTry(t=>{try{window.AndroidNotify.askPermission();}catch(e){}});};};
+  const edit=()=>{el.innerHTML=`<div class="tl-form">${F.map(f=>`<label>${f[1]}<input data-cf="${f[0]}" value="${svEsc(C[f[0]]||"")}" placeholder="${f[2]}"></label>`).join("")}</div><div class="tl-row"><button class="tl-btn" id="tlSave">Save</button></div>`;
+    el.querySelector("#tlSave").onclick=()=>{el.querySelectorAll("[data-cf]").forEach(i=>C[i.dataset.cf]=i.value.trim());localStorage.setItem("pt-card",JSON.stringify(C));
+      if(C.lock)tlTry(t=>t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),text()));view();toast("Saved");};};
+  view();},
+
+ phrases(el,T){let lang=localStorage.getItem("pt-phl")||(typeof curCountry==="function"&&curCountry()==="nl"?"nl":"it");
+  const draw=()=>{el.innerHTML=`<div class="tl-seg"><button data-pl="it" class="${lang==="it"?"on":""}">🇮🇹 Italiano</button><button data-pl="nl" class="${lang==="nl"?"on":""}">🇳🇱 Nederlands</button></div>
+    ${PHRASES.map(([cat,list])=>`<div class="sv-h">${cat}</div><div class="tl-phr">${list.map((p,i)=>`<button data-say="${svEsc(p[lang==="it"?1:3])}"><small>${svEsc(p[0])}</small><b>${svEsc(p[lang==="it"?1:3])}</b><i>${svEsc(p[lang==="it"?2:4])}</i><span>🔊</span></button>`).join("")}</div>`).join("")}
+    <p class="sv-note">Tap a phrase to hear it (uses your phone's own voices, works offline if the language is installed). Or just show the screen.</p>`;
+   el.querySelectorAll("[data-pl]").forEach(b=>b.onclick=()=>{lang=b.dataset.pl;localStorage.setItem("pt-phl",lang);draw();});
+   el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>{const t=b.dataset.say,lg=lang==="it"?"it-IT":"nl-NL";
+     if(TL())tlTry(x=>x.speak(t,lg));else if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(t);u.lang=lg;u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}
+     b.classList.add("say");setTimeout(()=>b.classList.remove("say"),900);});};
+  draw();},
+
+ saver(el,T){const draw=()=>{const b=batt();
+   el.innerHTML=`<div class="tl-hero"><div class="tl-big">${LOWPOWER?"🔋 Saver on":"Saver off"}</div><div class="tl-sub">${b.pct!=null?`Battery ${b.pct}%${b.chg?" · charging":""}`:""}</div></div>
+    <div class="tl-row"><button class="tl-btn ${LOWPOWER?"ghost":""}" id="tlLp">${LOWPOWER?"Switch off":"Switch on now"}</button></div>
+    <label class="tl-switch"><input type="checkbox" id="tlAuto" ${SAVER_AUTO?"checked":""}> Switch on by itself below 20%</label>
+    <div class="tl-card"><b>What it does</b><br>• GPS updates less often, and location sharing slows down (and only uses GPS while you move)<br>• No automatic refreshing of departures, shops and weather: pull or tap to refresh<br>• Animations off<br>Everything still works, a bit slower to update.</div>
+    <div class="tl-card"><b>Also helps</b><br>• Lower the screen brightness: the screen uses the most power<br>• Download maps and guides at home, then use them offline<br>• Switch off live location when you're together anyway</div>`;
+   el.querySelector("#tlLp").onclick=()=>{setLowPower(!LOWPOWER,true);draw();};
+   el.querySelector("#tlAuto").onchange=e=>{SAVER_AUTO=e.target.checked;localStorage.setItem("pt-saverauto",SAVER_AUTO?"1":"0");};};
+  draw();tlEvery(T,60e3,draw);},
+};
+
+/* ---------- battery saver (whole app) ---------- */
+let LOWPOWER=localStorage.getItem("pt-lowpower")==="1",SAVER_AUTO=localStorage.getItem("pt-saverauto")!=="0",SAVER_BY_AUTO=localStorage.getItem("pt-lpauto")==="1";
+function batt(){try{return JSON.parse(tlTry(t=>t.battery(),"{}"))||{};}catch(e){return {};}}
+function lowPower(){return LOWPOWER;}
+function setLowPower(on,byUser){LOWPOWER=on;SAVER_BY_AUTO=!byUser&&on;localStorage.setItem("pt-lowpower",on?"1":"0");localStorage.setItem("pt-lpauto",SAVER_BY_AUTO?"1":"0");
+  document.body.classList.toggle("lowpower",on);tlTry(t=>t.lowPower(on));
+  if(typeof gpsOn!=="undefined"&&gpsOn&&window.AndroidGPS)try{window.AndroidGPS.start();}catch(e){}
+  if(!byUser)toast(on?"🔋 Battery low: battery saver is on":"🔋 Battery saver off");}
+function saverCheck(){const b=batt();if(b.pct==null)return;
+  if(SAVER_AUTO&&!LOWPOWER&&b.pct<=20&&!b.chg)setLowPower(true,false);
+  else if(LOWPOWER&&SAVER_BY_AUTO&&(b.chg||b.pct>=30))setLowPower(false,false);}
+document.addEventListener("DOMContentLoaded",()=>{document.body.classList.toggle("lowpower",LOWPOWER);});
+setTimeout(()=>{document.body.classList.toggle("lowpower",LOWPOWER);saverCheck();},1500);
+setInterval(saverCheck,5*60e3);
+// the emergency card on the lock screen comes back after a restart of the phone
+setTimeout(()=>{try{const C=JSON.parse(localStorage.getItem("pt-card")||"{}");if(C.lock){const F=[["born","Date of birth"],["blood","Blood type"],["allergies","Allergies"],["conditions","Medical conditions"],["meds","Medicines I take"],["ice1","Emergency contact 1"],["ice2","Emergency contact 2"],["notes","Other notes"]];
+  tlTry(t=>t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),F.filter(f=>C[f[0]]).map(f=>`${f[1]}: ${C[f[0]]}`).join("\n")));}}catch(e){}},4000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)saverCheck();});
+
+const PHRASES=[
+ ["🚨 Emergency",[
+  ["Help!","Aiuto!","a-YOO-toh","Help!","help"],
+  ["Call an ambulance!","Chiami un'ambulanza!","KYAH-mee oon am-boo-LAN-tsa","Bel een ambulance!","bel ayn am-buu-LAN-suh"],
+  ["Call the police!","Chiami la polizia!","KYAH-mee la po-lee-TSEE-a","Bel de politie!","bel duh po-LEET-see"],
+  ["There's a fire!","C'è un incendio!","cheh oon een-CHEN-dyoh","Er is brand!","er is brant"],
+  ["I'm lost.","Mi sono perso.","mee SOH-noh PER-soh","Ik ben verdwaald.","ik ben ver-DWAALT"],
+  ["Someone is hurt.","C'è una persona ferita.","cheh OO-na per-SOH-na feh-REE-ta","Er is iemand gewond.","er is EE-mant khuh-WONT"],
+  ["Leave me alone!","Mi lasci in pace!","mee LA-shee een PA-cheh","Laat me met rust!","laat muh met rust"]]],
+ ["🩺 Doctor & pharmacy",[
+  ["I need a doctor.","Ho bisogno di un medico.","oh bee-ZOH-nyoh dee oon MEH-dee-koh","Ik heb een dokter nodig.","ik hep ayn DOK-ter NOH-dikh"],
+  ["Where is the pharmacy?","Dov'è la farmacia?","doh-VEH la far-ma-CHEE-a","Waar is de apotheek?","waar is duh a-po-TAYK"],
+  ["It hurts here.","Mi fa male qui.","mee fa MA-leh kwee","Het doet hier pijn.","het doot heer pain"],
+  ["I'm allergic to…","Sono allergico a…","SOH-noh al-LER-jee-koh a","Ik ben allergisch voor…","ik ben a-LER-khis vohr"],
+  ["I have diabetes.","Ho il diabete.","oh eel dee-a-BEH-teh","Ik heb diabetes.","ik hep dee-a-BAY-tes"],
+  ["I'm pregnant.","Sono incinta.","SOH-noh een-CHEEN-ta","Ik ben zwanger.","ik ben ZWANG-er"],
+  ["I take this medicine.","Prendo questa medicina.","PREN-doh KWES-ta meh-dee-CHEE-na","Ik neem dit medicijn.","ik naym dit may-dee-SAIN"],
+  ["Fever / headache","Febbre / mal di testa","FEB-breh / mal dee TES-ta","Koorts / hoofdpijn","koorts / HOHFT-pain"]]],
+ ["🧭 Directions & transport",[
+  ["Where is…?","Dov'è…?","doh-VEH","Waar is…?","waar is"],
+  ["The station","La stazione","la sta-TSYOH-neh","Het station","het sta-SHON"],
+  ["The bus stop","La fermata dell'autobus","la fer-MA-ta del OW-toh-boos","De bushalte","duh BUS-hal-tuh"],
+  ["Left / right / straight on","Sinistra / destra / dritto","see-NEES-tra / DES-tra / DREET-toh","Links / rechts / rechtdoor","links / rekhts / rekht-DOHR"],
+  ["How much is a ticket to…?","Quanto costa un biglietto per…?","KWAN-toh KOS-ta oon bee-LYET-toh per","Hoeveel kost een kaartje naar…?","hoo-VAYL kost ayn KAART-yuh naar"],
+  ["Is it far?","È lontano?","eh lon-TA-noh","Is het ver?","is het ver"],
+  ["My car broke down.","La mia macchina è guasta.","la MEE-a MAK-kee-na eh GWAS-ta","Mijn auto is kapot.","main OW-toh is ka-POT"]]],
+ ["🍽️ Food & allergies",[
+  ["Does this contain…?","Contiene…?","kon-TYEH-neh","Zit hier … in?","zit heer … in"],
+  ["Nuts / milk / gluten","Frutta a guscio / latte / glutine","FROOT-ta a GOO-shoh / LAT-teh / GLOO-tee-neh","Noten / melk / gluten","NOH-tuh / melk / GLUU-tuh"],
+  ["Without…, please.","Senza…, per favore.","SEN-tsa … per fa-VOH-reh","Zonder…, alstublieft.","ZON-der … als-tuu-BLEEFT"],
+  ["Water, please.","Acqua, per favore.","AK-kwa per fa-VOH-reh","Water, alstublieft.","WAA-ter als-tuu-BLEEFT"],
+  ["The bill, please.","Il conto, per favore.","eel KON-toh per fa-VOH-reh","De rekening, alstublieft.","duh RAY-kuh-ning als-tuu-BLEEFT"]]],
+ ["🙂 Basics",[
+  ["Hello / goodbye","Buongiorno / arrivederci","bwon-JOR-noh / ar-ree-veh-DER-chee","Hallo / tot ziens","HA-loh / tot zeens"],
+  ["Please / thank you","Per favore / grazie","per fa-VOH-reh / GRA-tsyeh","Alstublieft / dank u","als-tuu-BLEEFT / dank uu"],
+  ["I don't understand.","Non capisco.","non ka-PEES-koh","Ik begrijp het niet.","ik buh-KHRAIP het neet"],
+  ["Do you speak English?","Parla inglese?","PAR-la een-GLEH-zeh","Spreekt u Engels?","spraykt uu ENG-uls"],
+  ["Can you write it down?","Può scriverlo?","pwoh SKREE-ver-loh","Kunt u het opschrijven?","kunt uu het OP-skhrai-vuh"]]],
+];
+
 function openSurvGuide(id){svRegisterArt();const g=svAll().find(x=>x.id===id);if(!g)return;svStopBeat();closeSurvGuide();
   const ov=document.createElement("div");ov.className="sv-ov";ov.id="svOv";ov.style.setProperty("--sc",SURV_COL[g.cat]||"#455a64");
   ov.innerHTML=`<div class="sv-top"><button data-svclose>‹ Back</button></div>
    <div class="sv-hero"><h2>${g.ic} ${svEsc(g.t)}</h2>${g.w?`<p>${svEsc(g.w)}</p>`:""}${svHeroArt(g)}</div>
-   ${g.call?`<div class="sv-callbar"><a href="tel:112">📞 Call 112</a></div>`:""}
+   ${g.call?`<div class="sv-callbar"><a href="tel:112">📞 Call 112</a></div>`:""}${tlLinks(g.id)}
    ${g.metro?`<div class="sv-beat"><span class="sv-dot" id="svDot"></span><span><b>Compression beat</b><br><small style="color:var(--muted)">110 per minute, sound and vibration</small></span><button id="svBeatBtn">Start beat</button></div>`:""}
    <ol class="sv-steps">${g.s.map((x,i)=>{const a=svStepArt(g,i);return a?`<li class="pic"><div class="sv-pic">${a}</div>${svEsc(x)}</li>`:`<li>${svEsc(x)}</li>`;}).join("")}</ol>
    ${g.d&&g.d.length?`<div class="sv-dont"><b>Don't</b><ul>${g.d.map(x=>`<li>${svEsc(x)}</li>`).join("")}</ul></div>`:""}
@@ -5335,11 +5688,13 @@ function openSurvGuide(id){svRegisterArt();const g=svAll().find(x=>x.id===id);if
    ${g.src?`<div class="sv-src">Based on: ${svEsc(g.src)}</div>`:""}`;
   document.body.appendChild(ov);history.pushState&&history.pushState({sv:1},"");}
 function closeSurvGuide(){svStopBeat();const o=document.getElementById("svOv");if(o)o.remove();}
-window.addEventListener("popstate",()=>{if(document.getElementById("svOv"))closeSurvGuide();});
+window.addEventListener("popstate",()=>{if(document.getElementById("tlOv"))closeTool();else if(document.getElementById("svOv"))closeSurvGuide();});
 document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(!t)return;
   if(t.closest("#hdrSurv")||t.closest("[data-svopen]")){showTab("surv");renderSurv();svRefresh();return;}
   if(t.closest("#survBack")){showTab(prevTab||"dest");return;}
   const c=t.closest("[data-sv]");if(c){openSurvGuide(c.dataset.sv);return;}
+  const tb=t.closest("[data-tool]");if(tb){openTool(tb.dataset.tool);return;}
+  if(t.closest("[data-tlclose]")){if(history.state&&history.state.tl)history.back();else closeTool();return;}
   if(t.closest("[data-svclose]")){if(history.state&&history.state.sv)history.back();else closeSurvGuide();return;}
   if(t.closest("#svBeatBtn")){svToggleBeat();return;}
   const sh=t.closest("[data-svshelf]");if(sh){SV_OPEN.add(sh.dataset.svshelf);renderSurv();return;}
