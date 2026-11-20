@@ -736,6 +736,7 @@ details.alert{border-radius:14px;margin:8px 0}
 .nd-more{border:0;background:none;color:var(--accent);font-weight:600;font-size:13.5px;padding:4px 0 6px 30px;cursor:pointer}
 .np-to{font-size:16px!important;padding:12px 14px!important}
 .np-from{border:0;background:none;color:var(--muted);font-size:13.5px;padding:8px 2px 2px;cursor:pointer;text-align:left}.np-from b{color:var(--ink);font-weight:600}
+.sum-note{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:91;background:rgba(12,43,59,.88);color:#fff;border-radius:14px;padding:8px 14px;font-size:13.5px}
 </style>
 </head>
 <body class="tab-dest">
@@ -1455,9 +1456,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.9";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.10";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.10","Trip summary: the map now shows the real street map behind your route and photos (the same map as the Map tab, also in the shared file), instead of an empty outline."],
  ["1.9","The journey line now follows the streets you actually took: GPS pieces are matched to the road and footpath map (OpenStreetMap, via the free Valhalla server) once, then kept on your phone so it also works offline. Train and plane legs stay as straight dotted links."],
  ["1.8","Fix: the welcome questions sometimes came back although you had already answered them; the app now also remembers this in Android itself. Fix: the start-up animation now plays smoothly and completely every time, also while the app is still loading. Home → Transit is tidier: “Where to?” first with your saved routes as one-tap buttons, and “Leaving nearby” grouped per stop (distance and walking time) with each line's next two departures, instead of one long mixed list."],
  ["1.7","Outbox: tap “📤 … waiting to be sent” in Group to see every message that hasn't gone out yet (what, which group, since when), send them now, cancel one, or cancel them all."],
@@ -4405,7 +4407,9 @@ function buildSummary(){
   if(all.length>=1){let la=all.map(p=>p[0]),lo=all.map(p=>p[1]),a0=Math.min(...la),a1=Math.max(...la),o0=Math.min(...lo),o1=Math.max(...lo);
     const padA=Math.max((a1-a0)*.18,.012),padO=Math.max((o1-o0)*.18,.016);a0-=padA;a1+=padA;o0-=padO;o1+=padO;
     const k=Math.cos((a0+a1)/2*Math.PI/180),W=720,H=Math.round(Math.max(360,Math.min(820,W*(a1-a0)/((o1-o0)*k))));
-    const sx=W/((o1-o0)),sy=H/((a1-a0)),X=o=>(o-o0)*sx,Y=a=>H-(a-a0)*sy;
+    const sx=W/((o1-o0)),sy=H/((a1-a0));let X=o=>(o-o0)*sx,Y=a=>H-(a-a0)*sy;
+    const boxKey=[a0,a1,o0,o1,W,H].map(v=>(+v).toFixed(5)).join(",");window.__sumBox={a0,a1,o0,o1,W,H,key:boxKey};
+    const real=window.SUMMAP&&SUMMAP.key===boxKey?SUMMAP:null;if(real){X=real.px;Y=real.py;}   // a real street map behind the route
     // land & sea from the built-in coastline (Puglia) when it covers the trip
     let coast="";const C=window.PT_COAST;
     if(C&&C.geometry&&a0>39.3&&a1<42.1&&o0>15.4&&o1<19.4){coast=C.geometry.coordinates.map(poly=>poly.map(r=>"M"+r.map(([x,y])=>X(x).toFixed(1)+","+Y(y).toFixed(1)).join("L")+"Z").join("")).join("");}
@@ -4423,8 +4427,9 @@ function buildSummary(){
       <defs><linearGradient id="rl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11a39a"/><stop offset=".55" stop-color="#ffb547"/><stop offset="1" stop-color="#ff6b4a"/></linearGradient>
         <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0c2b3b" flood-opacity=".28"/></filter>
         <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#9fc3cf" opacity=".5"/></pattern></defs>
-      <rect width="${W}" height="${H}" fill="${coast?"#cfe6ee":"#eef3ee"}"/>${coast?`<rect width="${W}" height="${H}" fill="url(#dots)"/><path d="${coast}" fill="#f6f1e7" stroke="#d9cdb8" stroke-width="2"/>`:""}
-      ${towns.map(t=>{const x=X(PT[t][1]),y=Y(PT[t][0]),left=x>W*.62;return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#8b7f6c"/><text x="${(left?x-30:x+30).toFixed(1)}" y="${(y+8).toFixed(1)}" text-anchor="${left?"end":"start"}" class="tl">${esc(t)}</text>`;}).join("")}
+      ${real?`<image href="${real.url}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/><rect width="${W}" height="${H}" fill="#fff" opacity=".12"/>`
+        :`<rect width="${W}" height="${H}" fill="${coast?"#cfe6ee":"#eef3ee"}"/>${coast?`<rect width="${W}" height="${H}" fill="url(#dots)"/><path d="${coast}" fill="#f6f1e7" stroke="#d9cdb8" stroke-width="2"/>`:""}`}
+      ${(real?[]:towns).map(t=>{const x=X(PT[t][1]),y=Y(PT[t][0]),left=x>W*.62;return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#8b7f6c"/><text x="${(left?x-30:x+30).toFixed(1)}" y="${(y+8).toFixed(1)}" text-anchor="${left?"end":"start"}" class="tl">${esc(t)}</text>`;}).join("")}
       ${d?`<path d="${d}" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" filter="url(#sh)"/><path d="${d}" fill="none" stroke="url(#rl)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="${d}" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="1 9" stroke-linecap="round" opacity=".85"/>`:""}
       <g filter="url(#sh)">${stepDots}</g>
@@ -4441,7 +4446,7 @@ function buildSummary(){
       <div class="tl">${D.steps.sort((a,c)=>a.ts-c.ts).map(a=>{const u=img(a);
         return `<article class="step"><span class="dot"></span>${u?`<img src="${u}" alt="">`:""}<div class="sb">${a.cap?`<p class="${u?"":"q"}">${esc(a.cap)}</p>`:""}
           <div class="m">${esc(a.mine||a.from===(GRP&&GRP.me.id)?"Me":a.name)} · ${new Date(a.ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}${a.town?" · 📍 "+esc(a.town):""}</div></div></article>`;}).join("")||`<div class="m" style="padding:6px 0 10px 26px">On the road.</div>`}</div></section>`;}).join("");
-  const stat=(v,l)=>`<div class="sc"><b>${v}</b><span>${l}</span></div>`;
+  const stat=(v,l)=>`<div class="sc"><b>${v}</b><span>${v===1?({days:"day",places:"place",photos:"photo"}[l]||l):l}</span></div>`;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f6f1e7;color:#1d2a30;font:16px/1.55 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
@@ -4468,13 +4473,35 @@ function buildSummary(){
 <div class="stats">${stat(Math.max(1,S.days||dayKeys.length),"days")}${stat(S.km<10?S.km.toFixed(1):Math.round(S.km),"km")}${stat(Math.max(S.towns.length,[...new Set(items.map(a=>a.town).filter(Boolean))].length),"places")}${stat(photos.length,"photos")}</div>
 ${svg}${S.seq.length?`<div class="seq">${esc(S.seq.join("  ›  "))}</div>`:""}
 ${daysHtml}
-<div class="end"><h3>Until the next trip</h3><div class="m">${Math.max(1,S.days||dayKeys.length)} days · ${S.km<10?S.km.toFixed(1):Math.round(S.km)} km · ${items.length} moments</div><div class="m" style="margin-top:10px">Made with Out &amp; Back</div></div>
+<div class="end"><h3>Until the next trip</h3><div class="m">${(d=>d+(d===1?" day":" days"))(Math.max(1,S.days||dayKeys.length))} · ${S.km<10?S.km.toFixed(1):Math.round(S.km)} km · ${items.length} ${items.length===1?"moment":"moments"}</div><div class="m" style="margin-top:10px">Made with Out &amp; Back</div></div>
 </main></body></html>`;}
+async function summaryStreetMap(B){if(!B)return null;
+  try{await loadScript("map/maplibre-gl.js");await loadScript("map/style.js");await loadScript("map/coast.js");}catch(e){return null;}
+  if(!window.__ptProto){window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
+    const r=await fetch(params.url.replace("pt://","https://tiles.local/").replace(/\?r=\d+$/,""),{signal:ac.signal});const buf=await r.arrayBuffer();
+    if(params.type==="json")return {data:buf.byteLength?JSON.parse(new TextDecoder().decode(buf)):{}};return {data:buf};});}
+  const style=JSON.parse(JSON.stringify(PT_STYLE));style.sources.coast={type:"geojson",data:PT_COAST};
+  style.layers.splice(1,0,{id:"coast-land",type:"fill",source:"coast",paint:{"fill-color":"#f2efe9"}});
+  const div=document.createElement("div");div.style.cssText=`position:fixed;left:-${B.W+50}px;top:0;width:${B.W}px;height:${B.H}px;pointer-events:none`;document.body.appendChild(div);
+  let m=null;
+  try{m=new maplibregl.Map({container:div,style,bounds:[[B.o0,B.a0],[B.o1,B.a1]],fitBoundsOptions:{padding:0},interactive:false,attributionControl:false,
+      preserveDrawingBuffer:true,fadeDuration:0,pixelRatio:2,maxZoom:18});
+    await new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res();}};m.on("idle",fin);setTimeout(fin,9000);});
+    const url=m.getCanvas().toDataURL("image/jpeg",0.82);
+    const lat=(B.a0+B.a1)/2,lon=(B.o0+B.o1)/2;const pxCache={},pyCache={};
+    const px=o=>{const k=o.toFixed(6);return pxCache[k]??(pxCache[k]=m.project([o,lat]).x);},py=a=>{const k=a.toFixed(6);return pyCache[k]??(pyCache[k]=m.project([lon,a]).y);};
+    // keep the projection after the map is gone: sample it on a grid and interpolate (north-up map: x only depends on lon, y on lat)
+    const N=64,xs=[],ys=[];for(let i=0;i<=N;i++){xs.push(px(B.o0+(B.o1-B.o0)*i/N));ys.push(py(B.a0+(B.a1-B.a0)*i/N));}
+    const lerp=(arr,f)=>{f=Math.max(0,Math.min(N,f*N));const i=Math.min(N-1,Math.floor(f)),t=f-i;return arr[i]+(arr[i+1]-arr[i])*t;};
+    return {key:B.key,url,px:o=>lerp(xs,(o-B.o0)/(B.o1-B.o0)),py:a=>lerp(ys,(a-B.a0)/(B.a1-B.a0))};}
+  catch(e){return null;}finally{try{m&&m.remove();}catch(e){}div.remove();}}
 function shareSummary(){
   if(!ALBUM.length&&!trackPts().length){toast("Add a photo or note, or record your journey first");return;}
-  const html=buildSummary();const ov=document.createElement("div");ov.className="sum-ov";
-  ov.innerHTML=`<iframe title="Trip summary"></iframe><div class="sum-bar"><button class="btn ghost" data-sx="close">Close</button><button class="btn primary" data-sx="share">📤 Share</button></div>`;
+  window.SUMMAP=null;let html=buildSummary();const ov=document.createElement("div");ov.className="sum-ov";
+  ov.innerHTML=`<iframe title="Trip summary"></iframe><div class="sum-bar"><button class="btn ghost" data-sx="close">Close</button><button class="btn primary" data-sx="share">📤 Share</button></div><div class="sum-note">🗺️ Drawing the street map…</div>`;
   document.body.appendChild(ov);ov.querySelector("iframe").srcdoc=html;
+  summaryStreetMap(window.__sumBox).then(M=>{const n=ov.querySelector(".sum-note");if(n)n.remove();if(!M||!ov.isConnected)return;
+    window.SUMMAP=M;try{html=buildSummary();ov.querySelector("iframe").srcdoc=html;}finally{window.SUMMAP=null;}});
   ov.onclick=e=>{const t=e.target.closest("[data-sx]");if(!t)return;if(t.dataset.sx==="close")ov.remove();
     else{const nm=(GRP?GRP.name:"trip").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"trip";try{window.AndroidGroup.shareFile(nm+".html",html,"text/html");}catch(x){toast("⚠ "+x.message);}}};
 }
