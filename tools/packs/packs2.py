@@ -579,7 +579,7 @@ PACKS=[
  dict(id="knots",name="Knots & rope",ic="🪢",shelf="skills",desc="Ten knots drawn step by step, lashing poles together and making cord from plants",guides=G_KNOTS),
  dict(id="navweather",name="Finding your way & weather",ic="🧭",shelf="nature",desc="Paper maps, compass, distance and time, no-phone navigation, clouds, weather signs, walking in the dark",guides=G_NAV),
  dict(id="talk",name="Talking without internet",ic="📻",shelf="home",desc="Walkie-talkies, news by radio, texts when the network is busy, Morse, notes and a contact plan",guides=G_TALK),
- dict(id="road",name="On the road",ic="🚗",shelf="road",desc="Flat tyre, jump-start, warning lights, motorway breakdown, car kit, snow and heat, bike repairs",guides=G_ROAD),
+ dict(id="road",v=2,name="On the road",ic="🚗",shelf="road",desc="Flat tyre, jump-start, warning lights, motorway breakdown, car kit, snow and heat, bike repairs",guides=G_ROAD),
  dict(id="fixhome",name="Fix it at home",ic="🔧",shelf="home",desc="Shutting off water, gas and power, tripped fuses, gas smell, leaks, blocked drains, broken windows",guides=G_HOME),
  dict(id="zombie",name="Zombie apocalypse",ic="🧟",shelf="fun",desc="Just for fun, but every step is real preparation: day zero, go-bag, home, moving, finding people, a base",guides=G_ZOMBIE),
 ]

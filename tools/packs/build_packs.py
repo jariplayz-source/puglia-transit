@@ -65,7 +65,7 @@ for p in P.PACKS:
     for g in p["guides"]:
         k = [n for n in g.get("a", []) if n and n.startswith("k_")]
         if p["id"] == "knots" and k and "hero" not in g: g["hero"] = k[-1]
-    pk = {"id": p["id"], "v": 1, "name": p["name"], "ic": p["ic"], "desc": p["desc"], "shelf": p["shelf"], "guides": [clean(g) for g in p["guides"]]}
+    pk = {"id": p["id"], "v": p.get("v", 1), "name": p["name"], "ic": p["ic"], "desc": p["desc"], "shelf": p["shelf"], "guides": [clean(g) for g in p["guides"]]}
     new.append(pk)
 packs = [out, dis, off, trv] + new
 
