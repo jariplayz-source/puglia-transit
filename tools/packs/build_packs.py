@@ -4,7 +4,7 @@ import json, re, subprocess, sys, copy, os, difflib
 sys.path.insert(0, os.path.dirname(__file__))
 import packs2 as P
 
-APP = "/home/claude/puglia-transit/index.html"
+APP = "/home/claude/puglia-transit/surv.js"
 REPO = "/home/claude/pt-repo/packs"
 WRITE = "--write" in sys.argv
 html = open(APP).read()

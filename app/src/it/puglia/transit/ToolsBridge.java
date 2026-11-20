@@ -134,4 +134,69 @@ public class ToolsBridge {
             if (Build.VERSION.SDK_INT >= 26) a.startForegroundService(i); else a.startService(i);
         } } catch (Exception e) { }
     }
+
+    // ---------- storage ----------
+    static long sizeOf(java.io.File f) { if (f == null || !f.exists()) return 0; if (f.isFile()) return f.length(); long n = 0; java.io.File[] k = f.listFiles(); if (k != null) for (java.io.File x : k) n += sizeOf(x); return n; }
+    @JavascriptInterface public String storage() {
+        java.io.File media = new java.io.File(a.getFilesDir(), "media"), track = new java.io.File(a.getFilesDir(), "track.csv");
+        java.io.File[] ms = media.listFiles();
+        return "{\"media\":" + sizeOf(media) + ",\"mediaN\":" + (ms == null ? 0 : ms.length) + ",\"track\":" + sizeOf(track)
+            + ",\"cache\":" + sizeOf(a.getCacheDir()) + ",\"files\":" + sizeOf(a.getFilesDir()) + ",\"free\":" + a.getFilesDir().getUsableSpace() + "}";
+    }
+    /** Delete photo / voice files that no album uses any more (older than a day, so nothing arriving right now). */
+    @JavascriptInterface public long cleanMedia(String keepJson) {
+        long freed = 0;
+        try {
+            org.json.JSONArray k = new org.json.JSONArray(keepJson); java.util.HashSet<String> keep = new java.util.HashSet<String>();
+            for (int i = 0; i < k.length(); i++) keep.add(k.getString(i));
+            java.io.File[] fs = new java.io.File(a.getFilesDir(), "media").listFiles();
+            if (fs != null) for (java.io.File f : fs) if (!keep.contains(f.getName()) && System.currentTimeMillis() - f.lastModified() > 86400000L) { long n = f.length(); if (f.delete()) freed += n; }
+        } catch (Exception e) { }
+        return freed;
+    }
+    /** Remove recorded route points older than this many days. */
+    @JavascriptInterface public long trimTrack(int days) {
+        java.io.File f = new java.io.File(a.getFilesDir(), "track.csv"); if (!f.exists()) return 0;
+        long before = f.length(), cut = System.currentTimeMillis() - days * 86400000L;
+        try {
+            java.io.File tmp = new java.io.File(a.getFilesDir(), "track.tmp");
+            java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(f)); java.io.FileWriter w = new java.io.FileWriter(tmp);
+            String l; while ((l = r.readLine()) != null) { int c = l.indexOf(','); try { if (c > 0 && Long.parseLong(l.substring(0, c)) >= cut) w.write(l + "\n"); } catch (Exception x) { } }
+            r.close(); w.close(); if (!tmp.renameTo(f)) tmp.delete();
+        } catch (Exception e) { }
+        return before - f.length();
+    }
+    @JavascriptInterface public long clearCache() {
+        long before = sizeOf(a.getCacheDir());
+        try { java.io.File[] fs = a.getCacheDir().listFiles(); if (fs != null) for (java.io.File x : fs) if (!x.getName().equals("share") && !x.getName().startsWith("WebView")) delTree(x); } catch (Exception e) { }
+        if (a instanceof MainActivity) ((MainActivity) a).clearWebCache();
+        return Math.max(0, before - sizeOf(a.getCacheDir()));
+    }
+    static void delTree(java.io.File f) { java.io.File[] k = f.listFiles(); if (k != null) for (java.io.File x : k) delTree(x); f.delete(); }
+
+    // ---------- connection: wifi / mobile / none ----------
+    @JavascriptInterface public String net() {
+        try {
+            android.net.ConnectivityManager cm = (android.net.ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (Build.VERSION.SDK_INT >= 23) {
+                android.net.NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                if (nc == null) return "none";
+                if (nc.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) || nc.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET)) return nc.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_METERED) ? "wifi" : "wifi-metered";
+                if (nc.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR)) return "cell";
+                return "other";
+            }
+            android.net.NetworkInfo ni = cm.getActiveNetworkInfo();
+            return ni == null || !ni.isConnected() ? "none" : ni.getType() == android.net.ConnectivityManager.TYPE_WIFI ? "wifi" : "cell";
+        } catch (Exception e) { return "unknown"; }
+    }
+
+    // ---------- diagnostics ----------
+    @JavascriptInterface public String lastCrash() { return prefs(a).getString("crash", ""); }
+    @JavascriptInterface public void clearCrash() { prefs(a).edit().remove("crash").apply(); }
+    @JavascriptInterface public String device() { return Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")"; }
+    @JavascriptInterface public String sensors() {
+        android.hardware.SensorManager sm = (android.hardware.SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
+        return "{\"compass\":" + (sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null) + ",\"pressure\":" + (sm.getDefaultSensor(Sensor.TYPE_PRESSURE) != null)
+            + ",\"steps\":" + (sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null) + ",\"torch\":" + hasTorch() + "}";
+    }
 }
