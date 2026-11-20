@@ -721,6 +721,11 @@ details.alert{border-radius:14px;margin:8px 0}
 #itPlan .pm-seg{display:none}
 .push-box{margin:8px 0 4px;border-top:1px solid var(--line);padding-top:8px}.push-box summary{font-weight:650;font-size:15px;cursor:pointer;list-style:none;display:flex;gap:8px;align-items:center}
 .push-box summary::-webkit-details-marker{display:none}.push-box summary .tr{margin-left:auto;font-weight:500}.push-row.dis{opacity:.5}
+.obx-row{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:10px 12px;margin:0 0 8px;font-size:14px;font-weight:600;cursor:pointer}
+.obx .obx-list{max-height:52vh;overflow:auto;margin:0 -4px}.obx-it{display:flex;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line)}
+.obx-it img,.obx-ic{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none;display:flex;align-items:center;justify-content:center;background:var(--chip);font-size:20px}
+.obx-it .w{flex:1;min-width:0}.obx-it small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.obx-x{border:0;background:var(--chip);color:var(--ink);border-radius:10px;padding:7px 11px;font-weight:600;font-size:13px;cursor:pointer;flex:none}
 </style>
 </head>
 <body class="tab-dest">
@@ -1435,9 +1440,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.6";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.7";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.7","Outbox: tap “📤 … waiting to be sent” in Group to see every message that hasn't gone out yet (what, which group, since when), send them now, cancel one, or cancel them all."],
  ["1.6","Fix: group messages (I'm OK, locations, photos) stopped working after a while. The free message service allows about 250 messages a day per phone, and the app was sending your location every minute or two. Now it sends when you've moved 150 m or more (at most every 4 minutes) and otherwise every 45 minutes, keeps room for SOS and check-ins, shows how many messages you've used today, and says what really went wrong instead of “No internet”."],
  ["1.5","Buses too: Home → “Trains & buses” now has Train · Bus · All. Train keeps the Trenitalia search in Italy; Bus and All plan with open timetable data from Transitous, which works in the Netherlands, Italy and most of Europe. Pick any start (not just your location), tap a day-trip town to plan in one tap, and the last results stay available offline. The planner at home (Transit) has the same Train · Bus · All switch. Journey on the map is much cleaner: full-screen, one smooth line per person with an outline, everything else hidden, filters for Everyone / Me / each friend and per day, and a replay that draws the trip from start to finish. New in Group: “Tell … when I…”: per circle, choose whether they get a notification when you leave or arrive home, arrive at or leave your saved places, your battery gets low, or you start driving. Your phone notices this itself in the background (with location sharing on), also when the app is closed."],
  ["1.4","All guide pictures redrawn in a retro safety-poster style: real cartoon characters (the hiker mascot, the person being helped, a second helper) with faces, clothes, hands and boots, bold outlines on everything. The new mascot waves on the guides page and gives a thumbs-up at the end of every guide."],
@@ -4167,7 +4173,7 @@ async function flushOutbox(){if(flushing||!OUTBOX.length||navigator.onLine===fal
     const full=q.media?(()=>{const b=window.AndroidGroup.mediaB64(q.media);return b?(/\.webm$/.test(q.media)?{au:b}:{img:b}):null;})():null;
     try{await gPublish(q.env,full,G);OUTBOX=OUTBOX.filter(x=>x!==q);n++;
       if(q.item){const A=G===GRP?ALBUM:albumOf(G),it=A.find(a=>a.id===q.item);if(it){it.sent=true;it.queued=false;delete it.err;G===GRP?saveAlbum():saveAlbumOf(G,A);}}}
-    catch(e){break;}}
+    catch(e){SEND_ERR=e.message||"";break;}}
   saveOutbox();flushing=false;if(n){toast(`📤 Sent ${n} saved message${n>1?"s":""}`);try{renderAlbum();renderGroup();}catch(e){}}}
 window.addEventListener("online",()=>setTimeout(flushOutbox,3000));setInterval(flushOutbox,60e3);setTimeout(flushOutbox,8000);
 function smsLink(text){return "sms:?body="+encodeURIComponent(text);}
@@ -4267,13 +4273,14 @@ function renderGroup(){
     return;}
   const sharing=!!GRP.sharing;
   const mem=Object.entries(GRP.members).sort((a,b)=>(b[1].seen||0)-(a[1].seen||0));
-  const offB=isOffline()?offlineBanner()+(OUTBOX.length?`<div class="small" style="margin:0 0 8px">📤 ${OUTBOX.length} waiting to be sent</div>`:""):OUTBOX.length?`<div class="small" style="margin:0 0 8px">📤 ${OUTBOX.length} message${OUTBOX.length>1?"s":""} waiting to be sent…</div>`:"";
-  b.innerHTML=sw+offB+`<div class="card"><div class="trip-h"><div class="dest">${GRP.kind==="home"?"🏠":"👥"} ${escH(GRP.name)}</div><span class="badge">${mem.length+1} people</span></div>
+  const obx=OUTBOX.length?`<button class="obx-row" id="obxOpen"><span>📤 ${OUTBOX.length} message${OUTBOX.length>1?"s":""} waiting to be sent</span><span class="tr">Manage ›</span></button>`:"";
+  const offB=isOffline()?offlineBanner()+obx:obx;
+  b.innerHTML=sw+offB+`<div class="card"><div class="trip-h"><div class="dest">${GRP.kind==="home"?"🏠":"👥"} ${escH(GRP.name)}</div><span class="badge">${mem.length+1} ${mem.length?"people":"person"}</span></div>
     ${LOCREQ&&!sharing&&(!LOCREQ.g||LOCREQ.g===GRP.id)?`<div class="rt-warn" style="margin:6px 0">📍 ${LOCREQ.name} asked where you are: switch on sharing below.</div>`:""}
     <div class="sw"><span class="w">📍 Share my live location<small>${sharing?`On for ${escH(GRP.name)}, also when the app is closed`:`Off: ${escH(GRP.name)} can't see where you are`}${GROUPS.length>1?" · set per group":""}</small></span><button class="tg ${sharing?"on":""}" id="gShare" aria-pressed="${sharing}" aria-label="Share my live location"></button></div>
     ${(()=>{const P=gPush(GRP),row=(k,ic,t,sub,dis)=>`<div class="sw push-row${dis?" dis":""}"><span class="w">${ic} ${t}<small>${sub}</small></span><button class="tg ${P[k]&&!dis?"on":""}" data-push="${k}" ${dis?"disabled":""} aria-pressed="${!!P[k]}" aria-label="${t}"></button></div>`;
       const n=Object.values(P).filter(Boolean).length;
-      return `<details class="push-box"${GRP.pushOpen?" open":""}><summary>🔔 Tell ${escH(GRP.name)} when I… <span class="tr">${sharing?(n?n+" on":"off"):"needs live location"}</span></summary>
+      return `<details class="push-box"${GRP.pushOpen?" open":""}><summary>🔔 Tell ${escH(GRP.name)} when I… <span class="tr">${sharing&&n?n+" on":"off"}</span></summary>
         ${!sharing?`<div class="small" style="margin:4px 0 6px">These messages are sent by your phone in the background, so switch on “Share my live location” first.</div>`:""}
         ${row("home","🏠","Leave or arrive home",NLHOME?"Your home in settings":"Set your home in ⚙️ first",!NLHOME)}
         ${row("places","📍","Arrive at or leave my places",MYP.filter(m=>!m.pin).length?MYP.filter(m=>!m.pin).slice(0,3).map(m=>escH(m.name)).join(", ")+(MYP.filter(m=>!m.pin).length>3?"…":""):"Save places with ❤️ on the map",!MYP.filter(m=>!m.pin).length)}
@@ -5101,6 +5108,28 @@ try{if(!localStorage.getItem("pt-setup-1.0"))openSetup();}catch(e){}
     const s=document.createElement("span");s.className="ico";s.textContent=m[1];el.insertBefore(s,n);});}
   let q=false;new MutationObserver(()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;tile(document);});}).observe(document.body,{childList:true,subtree:true});
   tile(document);})();
+
+/* ---------- Outbox screen: see what's waiting, send now, or cancel ---------- */
+const OBX_IC={checkin:["✅","I'm OK"],sos:["🆘","SOS"],photo:["📷","Photo"],voice:["🎙","Voice note"],text:["💬","Message"],loc:["📍","Location"],locreq:["📍","Location request"],event:["🔔","Notification"],hello:["👋","Hello"],cost:["💶","Expense"]};
+function openOutbox(){let bg=document.getElementById("obxSheet");if(!bg){bg=document.createElement("div");bg.className="sheet-bg";bg.id="obxSheet";document.body.appendChild(bg);
+    bg.addEventListener("click",e=>{if(e.target===bg)bg.remove();});}
+  const items=OUTBOX.map((q,i)=>{const G=GROUPS.find(g=>g.id===q.gid),[ic,lab]=OBX_IC[q.env.ty]||["✉️","Message"],cap=q.env.cap||(q.env.ty==="event"?evShort(q.env):"");
+    const thumb=q.media&&/\.(jpe?g|png|webp)$/i.test(q.media)?`<img src="https://tiles.local/media/${q.media}" alt="">`:`<span class="obx-ic">${ic}</span>`;
+    return `<div class="obx-it">${thumb}<span class="w"><b>${lab}</b>${cap?` <span class="tr">· ${escH(String(cap).slice(0,60))}</span>`:""}<small>${G?escH(G.name):"Removed group"} · waiting since ${ago(q.env.ts0||Date.now())}</small></span><button class="obx-x" data-obx="${i}" aria-label="Cancel ${lab}">Cancel</button></div>`;}).join("");
+  bg.innerHTML=`<div class="sheet obx"><div class="trip-h"><div class="dest">📤 Outbox</div><button class="obx-x" id="obxClose" aria-label="Close">Done</button></div>
+    ${OUTBOX.length?`<div class="small" style="margin:4px 0 10px">${isOffline()?"📴 No internet right now. These are sent automatically when you're back online.":relayLimited()?failWhy("these are").replace(" saved and sent"," sent"):"These are sent automatically. Tap Send now to try straight away."}</div>
+      <div class="obx-list">${items}</div>
+      <div class="btns"><button class="btn" id="obxSend"${isOffline()?" disabled":""}>Send now</button><button class="btn ghost" id="obxAll">Cancel all</button></div>`
+      :`<div class="small" style="padding:14px 0">Nothing waiting. Everything has been sent.</div>`}</div>`;
+  bg.querySelector("#obxClose").onclick=()=>bg.remove();
+  bg.querySelectorAll("[data-obx]").forEach(b=>b.onclick=()=>{obxCancel([OUTBOX[+b.dataset.obx]]);openOutbox();});
+  const all=bg.querySelector("#obxAll");if(all)all.onclick=()=>{if(confirm(`Cancel all ${OUTBOX.length} waiting message${OUTBOX.length>1?"s":""}? They won't be sent.`)){obxCancel(OUTBOX.slice());openOutbox();}};
+  const sn=bg.querySelector("#obxSend");if(sn)sn.onclick=async()=>{sn.disabled=true;sn.textContent="Sending…";const before=OUTBOX.length;await flushOutbox();
+    if(OUTBOX.length&&OUTBOX.length===before)toast(failWhy(OUTBOX.length>1?"they're":"it's").replace(" saved and sent"," sent"));openOutbox();};}
+function obxCancel(list){for(const q of list){OUTBOX=OUTBOX.filter(x=>x!==q);
+    if(q.item){const G=GROUPS.find(g=>g.id===q.gid);if(G){const A=G===GRP?ALBUM:albumOf(G),it=A.find(a=>a.id===q.item);if(it){it.queued=false;it.err="Not sent (cancelled)";G===GRP?saveAlbum():saveAlbumOf(G,A);}}}}
+  saveOutbox();toast(list.length>1?`🗑 ${list.length} messages cancelled`:"🗑 Cancelled: it won't be sent");try{renderGroup();renderAlbum();}catch(e){}}
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#obxOpen"))openOutbox();});
 </script>
 </body>
 </html>
