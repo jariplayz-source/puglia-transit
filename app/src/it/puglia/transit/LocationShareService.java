@@ -106,6 +106,8 @@ public class LocationShareService extends Service implements LocationListener {
     @Override public void onLocationChanged(final Location l) {
         if (GroupCore.prefs(this).getBoolean("tracking", false))
             GroupCore.recordPoint(this, l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 50, l.hasSpeed() ? l.getSpeed() : -1);
+        final double la = l.getLatitude(), lo = l.getLongitude(); final float ac = l.hasAccuracy() ? l.getAccuracy() : 50, sp = l.hasSpeed() ? l.getSpeed() : -1;
+        new Thread(new Runnable() { public void run() { try { GroupCore.myEvents(LocationShareService.this, la, lo, ac, sp); } catch (Exception e) { } } }).start();
         // keep the better of: newer fix, or a much more accurate one from the last minute
         if (lastLoc == null || l.getTime() - lastLoc.getTime() > 60000 || l.getAccuracy() <= lastLoc.getAccuracy() * 1.5) lastLoc = l;
         send(lastLoc, false);

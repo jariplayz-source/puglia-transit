@@ -51,7 +51,7 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.4 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.5 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -126,13 +126,90 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.4"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.5"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
                 http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
             } catch (Exception e) { }
         }
+    }
+
+    /** Things your circle can be told about you, checked on every location fix in the background:
+     *  leaving/arriving home or a saved place, low battery, starting to drive. Each circle chooses what it gets ("push"). */
+    static void myEvents(Context ctx, double lat, double lon, float acc, float spd) {
+        SharedPreferences p = prefs(ctx);
+        if (!anySharing(p)) return;
+        long now = System.currentTimeMillis();
+        SharedPreferences.Editor ed = p.edit();
+        // --- where am I: home, one of my places, or nowhere (with hysteresis so GPS wobble doesn't flip it) ---
+        if (acc <= 100) try {
+            JSONArray pl = new JSONArray();
+            String hm = p.getString("homeLL", "");
+            if (hm.contains(",")) { String[] a = hm.split(","); JSONObject h = new JSONObject(); h.put("n", "home"); h.put("lat", Double.parseDouble(a[0])); h.put("lon", Double.parseDouble(a[1])); h.put("r", 150); h.put("home", true); pl.put(h); }
+            JSONArray mine = new JSONArray(p.getString("places", "[]"));
+            for (int i = 0; i < mine.length(); i++) { JSONObject q = mine.getJSONObject(i); if (!q.optBoolean("home")) pl.put(q); }
+            String at = p.getString("myAt", null), cand = "";
+            double best = 1e9;
+            for (int i = 0; i < pl.length(); i++) {
+                JSONObject q = pl.getJSONObject(i);
+                double d = Math.hypot((lat - q.getDouble("lat")) * 111320, (lon - q.getDouble("lon")) * 111320 * Math.cos(Math.toRadians(lat)));
+                double r = q.optDouble("r", 150);
+                boolean inside = q.getString("n").equals(at) ? d < r + 120 : d < r && acc < 80;   // leave only well outside
+                if (inside && d < best) { best = d; cand = q.getString("n"); }
+            }
+            if (at == null) ed.putString("myAt", cand);                                            // first fix: just remember
+            else if (!cand.equals(at)) {
+                String pend = p.getString("myAtPend", "");
+                int n = pend.equals(cand) ? p.getInt("myAtN", 0) + 1 : 1;
+                if (n >= 2) {                                                                       // confirmed by two fixes in a row
+                    ed.putString("myAt", cand).putString("myAtPend", "").putInt("myAtN", 0);
+                    if (!at.isEmpty()) pushEvent(ctx, p, "home".equals(at) ? "home" : "places", "leave", at);
+                    if (!cand.isEmpty()) pushEvent(ctx, p, "home".equals(cand) ? "home" : "places", "arrive", cand);
+                } else ed.putString("myAtPend", cand).putInt("myAtN", n);
+            } else ed.putString("myAtPend", "").putInt("myAtN", 0);
+        } catch (Exception e) { }
+        // --- battery low (once per discharge) ---
+        int bat = battery(ctx);
+        if (bat >= 0) {
+            int lvl = bat % 1000; boolean chg = bat >= 1000;
+            if (!chg && lvl <= 15 && !p.getBoolean("batSent", false)) { ed.putBoolean("batSent", true); pushEvent(ctx, p, "battery", "battery", String.valueOf(lvl)); }
+            if (chg || lvl >= 30) ed.putBoolean("batSent", false);
+        }
+        // --- started driving: faster than ~30 km/h on two fixes, at most once per 30 min after being still ---
+        if (spd >= 0) {
+            int fast = spd > 8.5 ? p.getInt("fastN", 0) + 1 : 0;
+            ed.putInt("fastN", fast);
+            if (spd < 1.5) ed.putLong("stillAt", now);
+            if (fast == 2 && now - p.getLong("driveSent", 0) > 30 * 60000 && now - p.getLong("stillAt", 0) < 20 * 60000) { ed.putLong("driveSent", now); pushEvent(ctx, p, "drive", "drive", ""); }
+        }
+        ed.apply();
+    }
+
+    static void pushEvent(Context ctx, SharedPreferences p, String kind, String ev, String place) {
+        JSONArray gs = groups(p);
+        for (int i = 0; i < gs.length(); i++) {
+            JSONObject g = gs.optJSONObject(i);
+            if (g == null || !g.optBoolean("share")) continue;
+            JSONObject push = g.optJSONObject("push");
+            if (push == null || !push.optBoolean(kind)) continue;
+            try {
+                JSONObject m = new JSONObject();
+                m.put("v", 1); m.put("ver", "1.5"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
+                m.put("from", g.optString("me")); m.put("name", g.optString("name")); m.put("ts", System.currentTimeMillis());
+                http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
+            } catch (Exception e) { }
+        }
+    }
+
+    static String[] eventText(JSONObject env, String name) {
+        String ev = env.optString("ev"), pl = env.optString("place"), kind = env.optString("kind");
+        if ("battery".equals(ev)) return new String[]{"🪫 " + name + "'s battery is low", pl + "% left. They may go offline soon."};
+        if ("drive".equals(ev)) return new String[]{"🚗 " + name + " started driving", "Just now"};
+        boolean home = "home".equals(kind);
+        if ("leave".equals(ev)) return new String[]{(home ? "🏠 " : "🚶 ") + name + " left " + (home ? "home" : pl), "Just now"};
+        if ("arrive".equals(ev)) return new String[]{(home ? "🏠 " : "📍 ") + name + (home ? " arrived home" : " arrived at " + pl), "Just now"};
+        return null;
     }
 
     /** "Sam arrived at B&B" / "Sam left B&B" for the places you saved (radius ~150 m). */
@@ -148,8 +225,9 @@ public class GroupCore {
                 if (d < q.optDouble("r", 150)) { now = q.getString("n"); break; }
             }
             String key = "in:" + env.optString("from"), was = p.getString(key, null);
+            boolean recentEvent = System.currentTimeMillis() - p.getLong("evAt:" + env.optString("from"), 0) < 15 * 60000;
             p.edit().putString(key, now).apply();
-            if (was == null || was.equals(now)) return;   // first sighting or no change
+            if (was == null || was.equals(now) || recentEvent) return;   // first sighting, no change, or they already told us
             String name = env.optString("name", "Someone");
             if (!now.isEmpty()) AlarmReceiver.show(ctx, "plc:" + env.optString("from") + now, "📍 " + name + " arrived at " + now, "Just now", true);
             else AlarmReceiver.show(ctx, "plc:" + env.optString("from") + was, "🚶 " + name + " left " + was, "Just now", true);
@@ -186,6 +264,12 @@ public class GroupCore {
                     String ty = env.optString("ty"), name = env.optString("name", "Your group") + gl, cap = env.optString("cap", "");
                     String title = null, text = null;
                     if ("loc".equals(ty)) { placeAlert(ctx, p, env); continue; }
+                    if ("event".equals(ty)) {
+                        if (System.currentTimeMillis() - env.optLong("ts", 0) > 3 * 3600000L) continue;   // too old to matter
+                        String[] t = eventText(env, name); if (t == null) continue;
+                        p.edit().putLong("evAt:" + env.optString("from"), System.currentTimeMillis()).apply();
+                        AlarmReceiver.show(ctx, "ev:" + o.optString("id"), t[0], t[1], true); continue;
+                    }
                     if ("locreq".equals(ty)) {
                         if (System.currentTimeMillis() - env.optLong("ts", 0) > 30 * 60000) continue;   // old request
                         if (p.getBoolean("sharing", false) && g.optBoolean("share")) {
