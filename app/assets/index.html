@@ -1456,9 +1456,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.11";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.12";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.12","Trip summary: the street map behind your route is now drawn by the app itself from the same map data as the Map tab (roads, buildings, parks, sea, place names), so it works on every phone and offline for downloaded areas."],
  ["1.11","Trip summary: the street map now waits until the streets have really loaded before it is put behind your route (and tells you if it can't). Updates: the app checks every hour, reads the newest version straight from GitHub, and each update file has its own name, so a new version shows up within minutes and never downloads an old copy."],
  ["1.10","Trip summary: the map now shows the real street map behind your route and photos (the same map as the Map tab, also in the shared file), instead of an empty outline."],
  ["1.9","The journey line now follows the streets you actually took: GPS pieces are matched to the road and footpath map (OpenStreetMap, via the free Valhalla server) once, then kept on your phone so it also works offline. Train and plane legs stay as straight dotted links."],
@@ -4483,33 +4484,77 @@ ${daysHtml}
 <div class="end"><h3>Until the next trip</h3><div class="m">${(d=>d+(d===1?" day":" days"))(Math.max(1,S.days||dayKeys.length))} · ${S.km<10?S.km.toFixed(1):Math.round(S.km)} km · ${items.length} ${items.length===1?"moment":"moments"}</div><div class="m" style="margin-top:10px">Made with Out &amp; Back</div></div>
 </main></body></html>`;}
 let SUMNOTE=null;
+/* ---------- Street map picture without WebGL: read the same vector tiles as the Map tab and draw them on a 2D canvas ---------- */
+function mvtDecode(buf){const b=new Uint8Array(buf);let p=0;
+  const varint=()=>{let r=0,s=0,x;do{x=b[p++];r+=(x&127)*Math.pow(2,s);s+=7;}while(x&128);return r;};
+  const skip=t=>{if(t===0)varint();else if(t===1)p+=8;else if(t===2){const l=varint();p+=l;}else if(t===5)p+=4;};
+  const str=(e)=>{let s="";const d=new TextDecoder();s=d.decode(b.subarray(p,e));p=e;return s;};
+  const packed=(e)=>{const a=[];while(p<e)a.push(varint());return a;};
+  const layers={};
+  while(p<b.length){const k=varint(),f=k>>3,t=k&7;
+    if(f===3&&t===2){const le=varint()+p;const L={name:"",ext:4096,keys:[],vals:[],feats:[]};
+      while(p<le){const k2=varint(),f2=k2>>3,t2=k2&7;
+        if(f2===1&&t2===2){const l=varint();L.name=str(p+l);}
+        else if(f2===5&&t2===0)L.ext=varint();
+        else if(f2===3&&t2===2){const l=varint();L.keys.push(str(p+l));}
+        else if(f2===4&&t2===2){const ve=varint()+p;let v=null;while(p<ve){const k3=varint(),f3=k3>>3,t3=k3&7;
+            if(f3===1){const l=varint();v=str(p+l);}else if(f3===2){v=new DataView(b.buffer,b.byteOffset+p,4).getFloat32(0,true);p+=4;}
+            else if(f3===3){v=new DataView(b.buffer,b.byteOffset+p,8).getFloat64(0,true);p+=8;}
+            else if(f3===4||f3===5){v=varint();}else if(f3===6){const z=varint();v=z%2?-(z+1)/2:z/2;}else if(f3===7)v=!!varint();else skip(t3);}
+          L.vals.push(v);}
+        else if(f2===2&&t2===2){const fe=varint()+p;const F={type:0,tags:[],geom:[]};
+          while(p<fe){const k3=varint(),f3=k3>>3,t3=k3&7;
+            if(f3===2&&t3===2){const l=varint();F.tags=packed(p+l);}else if(f3===3)F.type=varint();
+            else if(f3===4&&t3===2){const l=varint();F.geom=packed(p+l);}else skip(t3);}
+          L.feats.push(F);}
+        else skip(t2);}
+      layers[L.name]=L;}
+    else skip(t);}
+  return layers;}
+function mvtRings(F){const rings=[];let x=0,y=0,cur=null,i=0;const g=F.geom,zz=n=>(n>>1)^(-(n&1));
+  while(i<g.length){const c=g[i++],id=c&7,n=c>>3;
+    if(id===1){for(let j=0;j<n;j++){x+=zz(g[i++]);y+=zz(g[i++]);cur=[[x,y]];rings.push(cur);}}
+    else if(id===2){for(let j=0;j<n;j++){x+=zz(g[i++]);y+=zz(g[i++]);cur&&cur.push([x,y]);}}
+    else if(id===7){cur&&cur.length&&cur.push(cur[0]);}}
+  return rings;}
+const mercX=(lon,z)=>(lon+180)/360*256*Math.pow(2,z);
+const mercY=(lat,z)=>{const s=Math.sin(lat*Math.PI/180);return (0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256*Math.pow(2,z);};
 async function summaryStreetMap(B){if(!B)return null;
-  try{await loadScript("map/maplibre-gl.js");await loadScript("map/style.js");await loadScript("map/coast.js");}catch(e){return null;}
-  if(!window.__ptProto){window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
-    const r=await fetch(params.url.replace("pt://","https://tiles.local/").replace(/\?r=\d+$/,""),{signal:ac.signal});const buf=await r.arrayBuffer();
-    if(params.type==="json")return {data:buf.byteLength?JSON.parse(new TextDecoder().decode(buf)):{}};return {data:buf};});}
-  const style=JSON.parse(JSON.stringify(PT_STYLE));style.sources.coast={type:"geojson",data:PT_COAST};
-  style.layers.splice(1,0,{id:"coast-land",type:"fill",source:"coast",paint:{"fill-color":"#f2efe9"}});
-  const div=document.createElement("div");div.style.cssText=`position:fixed;left:-${B.W+50}px;top:0;width:${B.W}px;height:${B.H}px;pointer-events:none`;document.body.appendChild(div);
-  let m=null;
-  try{m=new maplibregl.Map({container:div,style,bounds:[[B.o0,B.a0],[B.o1,B.a1]],fitBoundsOptions:{padding:0},interactive:false,attributionControl:false,
-      preserveDrawingBuffer:true,canvasContextAttributes:{preserveDrawingBuffer:true,antialias:true},fadeDuration:0,pixelRatio:2,maxZoom:18});
-    // wait until the street tiles are really drawn (on mobile data this can take a while), max 40 s
-    const roads=()=>{try{return m.querySourceFeatures("protomaps",{sourceLayer:"roads"}).length+m.querySourceFeatures("protomaps",{sourceLayer:"buildings"}).length;}catch(e){return 0;}};
-    const t0=Date.now();let ok=false;
-    while(Date.now()-t0<40000){await new Promise(r=>setTimeout(r,500));
-      if(SUMNOTE)SUMNOTE(`🗺️ Drawing the street map… ${Math.round((Date.now()-t0)/1000)} s`);
-      if(m.loaded()&&m.areTilesLoaded()&&roads()>0){ok=true;break;}}
-    if(!ok){if(SUMNOTE)SUMNOTE(navigator.onLine===false?"📴 No street map for this area offline: download it in ⚙️ → Offline maps.":"⚠️ The street map didn't load in time. Close and open the summary to try again.",true);return null;}
-    m.triggerRepaint();await new Promise(r=>{m.once?m.once("render",r):m.on("render",r);setTimeout(r,1500);});
-    const url=m.getCanvas().toDataURL("image/jpeg",0.82);
-    const lat=(B.a0+B.a1)/2,lon=(B.o0+B.o1)/2;const pxCache={},pyCache={};
-    const px=o=>{const k=o.toFixed(6);return pxCache[k]??(pxCache[k]=m.project([o,lat]).x);},py=a=>{const k=a.toFixed(6);return pyCache[k]??(pyCache[k]=m.project([lon,a]).y);};
-    // keep the projection after the map is gone: sample it on a grid and interpolate (north-up map: x only depends on lon, y on lat)
-    const N=64,xs=[],ys=[];for(let i=0;i<=N;i++){xs.push(px(B.o0+(B.o1-B.o0)*i/N));ys.push(py(B.a0+(B.a1-B.a0)*i/N));}
-    const lerp=(arr,f)=>{f=Math.max(0,Math.min(N,f*N));const i=Math.min(N-1,Math.floor(f)),t=f-i;return arr[i]+(arr[i+1]-arr[i])*t;};
-    return {key:B.key,url,px:o=>lerp(xs,(o-B.o0)/(B.o1-B.o0)),py:a=>lerp(ys,(a-B.a0)/(B.a1-B.a0))};}
-  catch(e){return null;}finally{try{m&&m.remove();}catch(e){}div.remove();}}
+  // zoom so the trip box fills the picture
+  const zf=Math.log2(B.W/((mercX(B.o1,0)-mercX(B.o0,0))));const zt=Math.max(6,Math.min(15,Math.round(zf)));
+  const x0=mercX(B.o0,zf),x1=mercX(B.o1,zf),y0=mercY(B.a1,zf),y1=mercY(B.a0,zf),H=B.H;
+  const S=2,cv=document.createElement("canvas");cv.width=B.W*S;cv.height=H*S;const g=cv.getContext("2d");g.scale(S,S);g.lineCap="round";g.lineJoin="round";
+  const sc=B.W/(x1-x0),sy=B.H/(y1-y0),k=Math.pow(2,zf-zt);
+  const tx0=Math.floor(mercX(B.o0,zt)/256),tx1=Math.floor(mercX(B.o1,zt)/256),ty0=Math.floor(mercY(B.a1,zt)/256),ty1=Math.floor(mercY(B.a0,zt)/256);
+  if((tx1-tx0+1)*(ty1-ty0+1)>36)return null;
+  const tiles=[];let got=0;
+  for(let x=tx0;x<=tx1;x++)for(let y=ty0;y<=ty1;y++)tiles.push((async()=>{try{if(SUMNOTE)SUMNOTE(`🗺️ Drawing the street map… ${got}/${tiles.length||"…"}`);
+      const r=await fetch(`https://tiles.local/t/${zt}/${x}/${y}`);const buf=await r.arrayBuffer();got++;if(!buf.byteLength)return null;return {x,y,L:mvtDecode(buf)};}catch(e){return null;}})());
+  const T=(await Promise.all(tiles)).filter(Boolean);
+  if(!T.length){if(SUMNOTE)SUMNOTE(navigator.onLine===false?"📴 No street map for this area offline: download it in ⚙️ → Offline maps.":"⚠️ The street map couldn't be loaded for this area.",true);return null;}
+  const tag=(L,F,key)=>{for(let i=0;i<F.tags.length;i+=2)if(L.keys[F.tags[i]]===key)return L.vals[F.tags[i+1]];return null;};
+  const draw=(name,fn)=>{for(const t of T){const L=t.L[name];if(!L)continue;const f=256/L.ext;
+      for(const F of L.feats){const rings=mvtRings(F).map(r=>r.map(([px,py])=>[((t.x*256+px*f)*k-x0)*sc,((t.y*256+py*f)*k-y0)*sy]));fn(F,rings,L);}}};
+  const path=(rings,close)=>{g.beginPath();for(const r of rings){r.forEach(([a,b],i)=>i?g.lineTo(a,b):g.moveTo(a,b));if(close)g.closePath();}};
+  g.fillStyle="#aad3e8";g.fillRect(0,0,B.W,H);
+  draw("earth",(F,R)=>{if(F.type!==3)return;path(R,1);g.fillStyle="#f2efe9";g.fill("evenodd");});
+  draw("landuse",(F,R,L)=>{if(F.type!==3)return;const kd=tag(L,F,"kind")||"";const c=/park|garden|forest|wood|grass|meadow|cemetery|golf|pitch|nature/.test(kd)?"#d8ebcf":/beach|sand/.test(kd)?"#f6ecc8":/hospital|school|university|college/.test(kd)?"#f1e4e4":/pedestrian|square|platform/.test(kd)?"#ece8e2":null;if(!c)return;path(R,1);g.fillStyle=c;g.fill("evenodd");});
+  draw("water",(F,R)=>{if(F.type===3){path(R,1);g.fillStyle="#aad3e8";g.fill("evenodd");}else if(F.type===2){path(R);g.strokeStyle="#aad3e8";g.lineWidth=2;g.stroke();}});
+  draw("buildings",(F,R)=>{if(F.type!==3)return;path(R,1);g.fillStyle="#e3dcd1";g.fill("evenodd");});
+  // roads: casing first, then fill, small to big
+  const RW={highway:[7,"#f6c37e"],major:[5.5,"#fff"],medium:[4.2,"#fff"],minor:[3,"#fff"],other:[2,"#fff"],path:[1.4,"#fff"]};
+  const roads=[];draw("roads",(F,R,L)=>{if(F.type!==2)return;const kd=tag(L,F,"kind")||"minor";roads.push([RW[kd]?kd:kd==="rail"?"rail":"other",R]);});
+  const order=["path","other","minor","medium","major","highway"];
+  for(const pass of [0,1])for(const kd of order)for(const [kk,R] of roads){if(kk!==kd)continue;const w=RW[kd][0]*Math.max(.55,Math.min(1.6,zf/15));
+    path(R);g.strokeStyle=pass?RW[kd][1]:(kd==="path"?"rgba(0,0,0,0)":"#d6cfc3");g.lineWidth=pass?w:w+1.6;if(kd==="path"&&pass)g.setLineDash([2,2]);g.stroke();g.setLineDash([]);}
+  for(const [kk,R] of roads)if(kk==="rail"){path(R);g.strokeStyle="#9a9a9a";g.lineWidth=1.6;g.setLineDash([5,4]);g.stroke();g.setLineDash([]);}
+  // street names would need fonts on a curve; place names (towns, quarters) are enough here
+  g.font="600 13px system-ui,sans-serif";g.fillStyle="#5d5546";g.textAlign="center";g.strokeStyle="rgba(255,255,255,.85)";g.lineWidth=3;
+  const seen=[];draw("places",(F,R,L)=>{const n=tag(L,F,"name");if(!n||!R[0]||!R[0][0])return;const [x,y]=R[0][0];if(x<20||y<14||x>B.W-20||y>H-8)return;if(seen.some(([a,b])=>Math.abs(a-x)<90&&Math.abs(b-y)<24))return;seen.push([x,y]);g.strokeText(n,x,y);g.fillText(n,x,y);});
+  if(SUMNOTE)SUMNOTE("🗺️ Street map ready");
+  const px=o=>(mercX(o,zf)-x0)*sc,py=a=>(mercY(a,zf)-y0)*sy;
+  return {key:B.key,url:cv.toDataURL("image/jpeg",0.85),px,py,H};}
+
 function shareSummary(){
   if(!ALBUM.length&&!trackPts().length){toast("Add a photo or note, or record your journey first");return;}
   window.SUMMAP=null;let html=buildSummary();const ov=document.createElement("div");ov.className="sum-ov";
