@@ -1527,9 +1527,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.18";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.19";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.19","Fix: the street map went blank after switching between light and dark (also when your phone switches by itself in the evening). Your dot and the direction you're facing are now as smooth as Google Maps: GPS updates every second while the map is open, the dot glides to each new position, the view cone turns smoothly, works with the phone flat or held up, and points to true north instead of magnetic north."],
  ["1.18","Street map: when the map server can't be reached the app now switches to an official mirror of the same map, and the “isn't loading” message tells you why. Settings → Diagnostics shows how the street map is doing."],
  ["1.17","Faster and lighter: the app starts quicker (survival guides and tools load when you need them), screens that refresh themselves now only update what changed (smoother, less battery, photos don't flicker), the trip summary opens faster, and photos sent to the group are a bit smaller. New in Settings: Storage (what uses space, with buttons to free it up; old caches are tidied automatically) with a choice to do automatic downloads only on wifi, and Diagnostics (how GPS, messages, battery and sensors are doing, with a report you can copy when something isn't working)."],
  ["1.16","New: Tools in the survival section, and inside the guides where you need them: a live compass that keeps a bearing, sun & daylight left, “Where am I” with coordinates to read out to 112, torch & automatic SOS flashing, thunder counter, barometer with a bad-weather warning, pace counter, spirit level, timers (boiling water, cooling a burn…), an emergency card that can show on the lock screen, and an Italian/Dutch phrasebook that speaks. Battery: the app now pauses completely in the background, GPS runs slower when you don't need it, location sharing switches GPS off while you stand still, the compass sensor only runs when something on screen uses it, and a battery saver switches on by itself below 20%."],
@@ -2006,10 +2007,12 @@ function checkBaseMap(){
 if(window.AndroidMaps&&window.AndroidMaps.resetLive){try{if(localStorage.getItem("pt-tilefix")!=="1"){window.AndroidMaps.resetLive();localStorage.setItem("pt-tilefix","1");}}catch(e){}}
 async function ensureStreet(){
   if(ml){ml.resize();updateStreet();return;} if(mlLoading)return; mlLoading=true;
-  try{const l=document.createElement("link");l.rel="stylesheet";l.href="map/maplibre-gl.css";document.head.appendChild(l);
-    await loadScript("map/maplibre-gl.js");await loadScript("map/style.js");try{await loadScript("map/style-dark.js");}catch(e){}await loadScript("map/coast.js");}
+  // load the map library only once: loading it again (e.g. after switching light/dark) made a fresh copy
+  // that didn't know where the map tiles come from, so the map went blank
+  if(!window.maplibregl||!window.PT_STYLE)try{if(!document.querySelector('link[href="map/maplibre-gl.css"]')){const l=document.createElement("link");l.rel="stylesheet";l.href="map/maplibre-gl.css";document.head.appendChild(l);}
+    if(!window.maplibregl)await loadScript("map/maplibre-gl.js");if(!window.PT_STYLE)await loadScript("map/style.js");if(!window.PT_STYLE_DARK)try{await loadScript("map/style-dark.js");}catch(e){}if(typeof PT_COAST==="undefined")await loadScript("map/coast.js");}
   catch(e){areasMsg("⚠ The street map couldn't start: "+e.message);mlLoading=false;return;}
-  if(!window.__ptProto){window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
+  if(!maplibregl.__pt){maplibregl.__pt=true;window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
     const r=await fetch(params.url.replace("pt://","https://tiles.local/").replace(/\?r=\d+$/,""),{signal:ac.signal});const buf=await r.arrayBuffer();
     if(params.type==="json")return {data:buf.byteLength?JSON.parse(new TextDecoder().decode(buf)):{}};
     return {data:buf};});}
@@ -2107,7 +2110,7 @@ function updateStreet(){
   const t=T_LL(target);
   ml.getSource("target").setData(t?{type:"Feature",properties:{},geometry:{type:"Point",coordinates:[t[1],t[0]]}}:EMPTY);
   if(me){
-    meMarker.setLngLat([me.lon,me.lat]).addTo(ml);
+    dotTo(me.lat,me.lon);
     ml.getSource("acc").setData(circlePoly(me.lat,me.lon,Math.max(me.acc||30,5)));
     const ok=route&&route.ok;
     for(const L of ["route","route-case","trip-line"])if(ml.getLayer(L))ml.setLayoutProperty(L,"visibility",showLine?"visible":"none");
@@ -2116,10 +2119,24 @@ function updateStreet(){
   }
   updateStreetHeading();
 }
+/* Smooth like Google Maps: the dot glides to each new GPS position, and the view cone turns smoothly
+   (shortest way round) instead of jumping. Runs only while something is moving. */
+let dotShown=null,dotAnim=0,headShown=null,headAnim=0;
+function dotTo(lat,lon){if(!meMarker||!ml)return;if(!meMarker._map)meMarker.setLngLat([lon,lat]).addTo(ml);
+  const from=dotShown||[lat,lon],far=Math.hypot((lat-from[0])*111320,(lon-from[1])*78000)>250;
+  cancelAnimationFrame(dotAnim);if(!dotShown||far||document.hidden||lowPower()){dotShown=[lat,lon];meMarker.setLngLat([lon,lat]);return;}
+  const t0=performance.now(),D=900,ease=t=>1-Math.pow(1-t,3);
+  const step=()=>{const k=Math.min(1,(performance.now()-t0)/D),e=ease(k);if(!meMarker){dotShown=null;return;}dotShown=[from[0]+(lat-from[0])*e,from[1]+(lon-from[1])*e];meMarker.setLngLat([dotShown[1],dotShown[0]]);if(k<1)dotAnim=requestAnimationFrame(step);};
+  dotAnim=requestAnimationFrame(step);}
 function updateStreetHeading(){
   if(!meMarker)return;const cone=meMarker.getElement().querySelector(".cone");
-  if(heading==null){cone.style.display="none";return;}
-  cone.style.display="block";cone.style.transform=`rotate(${heading-(ml?ml.getBearing():0)}deg)`;
+  if(heading==null){cone.style.display="none";headShown=null;return;}
+  cone.style.display="block";
+  if(headShown==null||lowPower()){headShown=heading;cone.style.transform=`rotate(${heading-(ml?ml.getBearing():0)}deg)`;return;}
+  if(headAnim)return;
+  const step=()=>{if(!meMarker||heading==null||headShown==null){headAnim=0;return;}const d=((heading-headShown+540)%360)-180;headShown=(headShown+d*0.22+360)%360;
+    cone.style.transform=`rotate(${(headShown-(ml?ml.getBearing():0)).toFixed(1)}deg)`;headAnim=Math.abs(d)>0.4?requestAnimationFrame(step):0;};
+  headAnim=requestAnimationFrame(step);
 }
 function streetFly(ll,z){if(ml)ml.flyTo({center:[ll[1],ll[0]],zoom:z,speed:1.6});}
 
@@ -3493,7 +3510,7 @@ function applyTheme(){
   const dark=THEME==="dark"||(THEME==="auto"&&phoneNight()),was=DK();
   document.documentElement.dataset.theme=dark?"dark":"light";
   try{window.AndroidGPS&&window.AndroidGPS.setBars&&window.AndroidGPS.setBars(dark?"#0f1317":"#f1f3f4",!dark);}catch(e){}
-  if(was!==dark){drawMap();if(ml){const keep={c:ml.getCenter(),z:ml.getZoom()};try{ml.remove();}catch(e){}ml=null;mlReady=false;meMarker=null;
+  if(was!==dark){drawMap();if(ml){const keep={c:ml.getCenter(),z:ml.getZoom()};try{ml.remove();}catch(e){}ml=null;mlReady=false;meMarker=null;dotShown=null;headShown=null;cancelAnimationFrame(dotAnim);cancelAnimationFrame(headAnim);headAnim=0;
       if(mode==="street")ensureStreet().then(()=>{if(ml)ml.jumpTo({center:keep.c,zoom:keep.z});});}}
   renderSet();
 }

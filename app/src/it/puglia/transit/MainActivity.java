@@ -86,9 +86,13 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         @JavascriptInterface
         public void heading(final boolean on) {
             runOnUiThread(new Runnable() { public void run() {
+                final boolean changed = on != headingWanted;
                 headingWanted = on;
+                if (!changed) return;
                 try { sm.unregisterListener(MainActivity.this); } catch (Exception e) { }
-                if (on && !paused) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(MainActivity.this, rv, SensorManager.SENSOR_DELAY_UI); }
+                if (paused) return;
+                if (gpsWanted) { try { lm.removeUpdates(MainActivity.this); } catch (Exception e) { } startLocation(); }   // map on screen: GPS every second, else every 3 (startLocation also starts the compass)
+                else if (on) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(MainActivity.this, rv, SensorManager.SENSOR_DELAY_GAME); }
             }});
         }
         /** Is the phone in dark mode? */
@@ -311,14 +315,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.19 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.19 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -344,7 +348,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.19 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -380,7 +384,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     for (int i = 0; i < 6; i++) {
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.19 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -421,7 +425,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     File f = new File(d, "update.apk"), tmp = new File(d, "update.part");
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(15000); c.setReadTimeout(60000); c.setInstanceFollowRedirects(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.18 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.19 (+https://github.com/jariplayz-source/puglia-transit)");
                     if (c.getResponseCode() != 200) throw new Exception("download server said " + c.getResponseCode());
                     long total = c.getContentLength(), got = 0; int lastPct = -1;
                     java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
@@ -871,8 +875,9 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                 if (lm.getAllProviders().contains(p) && lm.isProviderEnabled(p)) {
                     boolean gps = LocationManager.GPS_PROVIDER.equals(p) || "fused".equals(p);
                     boolean lp = lowPower();
-                    long every = gps ? (fastGps ? 1000 : lp ? 10000 : 3000) : (lp ? 60000 : 10000);
-                    lm.requestLocationUpdates(p, every, fastGps ? 0 : lp ? 15 : 3, this);
+                    boolean onMap = fastGps || headingWanted;   // the map (or walking) is on screen: as smooth as Google Maps
+                    long every = gps ? (onMap ? (lp ? 3000 : 1000) : lp ? 10000 : 3000) : (lp ? 60000 : 10000);
+                    lm.requestLocationUpdates(p, every, onMap ? 0 : lp ? 15 : 3, this);
                     Location last = lm.getLastKnownLocation(p);
                     if (last != null && System.currentTimeMillis() - last.getTime() < 120000) onLocationChanged(last);
                     any = true;
@@ -882,7 +887,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         } catch (SecurityException e) {
             Toast.makeText(this, "Location permission needed", Toast.LENGTH_LONG).show();
         }
-        if (headingWanted) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(this, rv, SensorManager.SENSOR_DELAY_UI); }
+        if (headingWanted) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(this, rv, SensorManager.SENSOR_DELAY_GAME); }
     }
 
     private void openLocSettings() {
@@ -951,15 +956,30 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     @Override public void onProviderEnabled(String p) {}
     @Override public void onProviderDisabled(String p) {}
 
+    /* Compass like Google Maps: works flat and held upright, corrected from magnetic to true north,
+       smoothed, and sent ~15 times a second only when it actually turned. */
+    private final float[] rotUp = new float[9];
+    private double hSin = 0, hCos = 1, lastSentDeg = -999; private float decl = 0; private long declAt = 0;
     @Override
     public void onSensorChanged(SensorEvent e) {
-        long now = System.currentTimeMillis();
-        if (now - lastHeadingPush < 200) return;
-        lastHeadingPush = now;
         SensorManager.getRotationMatrixFromVector(rot, e.values);
         SensorManager.getOrientation(rot, ori);
-        double deg = (Math.toDegrees(ori[0]) + 360) % 360;
-        final String js = "window.onNativeHeading&&window.onNativeHeading(" + Math.round(deg) + ")";
+        float[] m = rot;
+        if (Math.toDegrees(ori[1]) < -45) {   // phone held upright (screen facing you): use where the back of the phone points
+            SensorManager.remapCoordinateSystem(rot, SensorManager.AXIS_X, SensorManager.AXIS_Z, rotUp);
+            SensorManager.getOrientation(rotUp, ori); m = rotUp;
+        }
+        long now = System.currentTimeMillis();
+        if (best != null && now - declAt > 600000) { declAt = now;
+            try { decl = new android.hardware.GeomagneticField((float) best.getLatitude(), (float) best.getLongitude(), (float) (best.hasAltitude() ? best.getAltitude() : 0), now).getDeclination(); } catch (Exception x) { } }
+        double a = ori[0] + Math.toRadians(decl);
+        hSin = hSin * 0.75 + Math.sin(a) * 0.25; hCos = hCos * 0.75 + Math.cos(a) * 0.25;   // smooth on the circle (no jump at north)
+        if (now - lastHeadingPush < 66) return;
+        double deg = (Math.toDegrees(Math.atan2(hSin, hCos)) + 360) % 360;
+        double d = Math.abs(((deg - lastSentDeg + 540) % 360) - 180);
+        if (d < 0.8) return;
+        lastHeadingPush = now; lastSentDeg = deg;
+        final String js = "window.onNativeHeading&&window.onNativeHeading(" + Math.round(deg * 10) / 10.0 + ")";
         web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } });
     }
     @Override public void onAccuracyChanged(Sensor s, int a) {}
@@ -967,7 +987,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     /* In the background the page's timers stop (no polling, no redraws: that's battery). Group messages, location sharing
        and alerts keep working natively. Only while a download is running do the page's timers keep going. */
     @Override protected void onPause() { super.onPause(); paused = true; stopLocation(); if (tools != null) tools.torchOff(); if (!bgBusy) { try { web.pauseTimers(); } catch (Exception e) { } } }
-    @Override protected void onResume() { super.onResume(); paused = false; try { web.resumeTimers(); } catch (Exception e) { } if (gpsWanted) startLocation(); else if (headingWanted) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(this, rv, SensorManager.SENSOR_DELAY_UI); } }
+    @Override protected void onResume() { super.onResume(); paused = false; try { web.resumeTimers(); } catch (Exception e) { } if (gpsWanted) startLocation(); else if (headingWanted) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(this, rv, SensorManager.SENSOR_DELAY_GAME); } }
 
     void clearWebCache() { runOnUiThread(new Runnable() { public void run() { try { web.clearCache(false); } catch (Exception e) { } } }); }
     @Override protected void onDestroy() { if (tools != null) tools.shutdown(); super.onDestroy(); }
