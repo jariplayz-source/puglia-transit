@@ -347,15 +347,15 @@ const SV_TOOLS_FOR={north:["compass","sun"],compass:["compass"],papermap:["compa
   nonet:["saver","where"],contactplan:["card"],zgobag:["supplies","card"],kit:["supplies","card"],doctor:["phrases","card"],medical:["phrases","card"],allergy:["card"],
   dike:["supplies"],evac:["supplies"],zday0:["supplies"],storing:["supplies"]};
 function tlAvail(){return TOOLS.filter(x=>!x.need||x.need());}
-const tlTile=x=>`<button class="tl-tile" data-tool="${x.id}" style="--tc:${x.c}"><span class="tl-ico">${tlIcon(x.id)}</span><b>${x.t}</b></button>`;
+const tlTile=x=>`<button class="tl-tile" data-tool="${x.id}" style="--tc:var(--skin-tc,${x.c})"><span class="tl-ico">${tlIcon(x.id)}</span><b>${x.t}</b></button>`;
 function tlTiles(){return `<div class="tl-grid">${tlAvail().map(tlTile).join("")}</div>`;}
 function tlLinks(gid){const ids=(SV_TOOLS_FOR[gid]||[]).filter(id=>tlAvail().some(x=>x.id===id));
-  return ids.length?`<div class="tl-links">${ids.map(id=>{const x=TOOLS.find(t=>t.id===id);return `<button data-tool="${id}" style="--tc:${x.c}">${tlIcon(id,18)} ${x.t}</button>`;}).join("")}</div>`:"";}
+  return ids.length?`<div class="tl-links">${ids.map(id=>{const x=TOOLS.find(t=>t.id===id);return `<button data-tool="${id}" style="--tc:var(--skin-tc,${x.c})">${tlIcon(id,18)} ${x.t}</button>`;}).join("")}</div>`:"";}
 const tap=()=>{try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}};
 
 let TOOL=null;   // {id, stops[]}
 function openTool(id){const x=TOOLS.find(t=>t.id===id);if(!x)return;closeTool();
-  const ov=document.createElement("div");ov.className="sv-ov tl-ov";ov.id="tlOv";ov.style.setProperty("--tc",x.c);
+  const ov=document.createElement("div");ov.className="sv-ov tl-ov";ov.id="tlOv";ov.style.setProperty("--tc","var(--skin-tc,"+x.c+")");
   ov.innerHTML=`<div class="sv-top"><button data-tlclose>‹ Back</button></div><div class="tl-head"><span class="tl-ico big">${tlIcon(id,30)}</span><div><h2>${x.t}</h2><p>${x.w}</p></div></div><div class="tl-body" id="tlBody"></div>`;
   document.body.appendChild(ov);history.pushState&&history.pushState({tl:1},"");
   TOOL={id,stops:[]};try{TL_RUN[id](document.getElementById("tlBody"),TOOL);}catch(e){document.getElementById("tlBody").innerHTML=`<p class="sv-note">This tool couldn't start: ${svEsc(e.message||String(e))}</p>`;}}
