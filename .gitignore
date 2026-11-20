@@ -1,6 +1,7 @@
 build/
 *.apk
 !dist/OutAndBack.apk
+!dist/OutAndBack-*.apk
 *.idsig
 *.jks
 *.keystore

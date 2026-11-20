@@ -1456,9 +1456,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.10";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.11";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.11","Trip summary: the street map now waits until the streets have really loaded before it is put behind your route (and tells you if it can't). Updates: the app checks every hour, reads the newest version straight from GitHub, and each update file has its own name, so a new version shows up within minutes and never downloads an old copy."],
  ["1.10","Trip summary: the map now shows the real street map behind your route and photos (the same map as the Map tab, also in the shared file), instead of an empty outline."],
  ["1.9","The journey line now follows the streets you actually took: GPS pieces are matched to the road and footpath map (OpenStreetMap, via the free Valhalla server) once, then kept on your phone so it also works offline. Train and plane legs stay as straight dotted links."],
  ["1.8","Fix: the welcome questions sometimes came back although you had already answered them; the app now also remembers this in Android itself. Fix: the start-up animation now plays smoothly and completely every time, also while the app is still loading. Home → Transit is tidier: “Where to?” first with your saved routes as one-tap buttons, and “Leaving nearby” grouped per stop (distance and walking time) with each line's next two departures, instead of one long mixed list."],
@@ -1557,11 +1558,17 @@ function renderUpdate(){
 /* ---------- IN-APP UPDATES from the app's GitHub page ---------- */
 const UPD_URL="https://raw.githubusercontent.com/jariplayz-source/puglia-transit/main/dist/latest.json";
 var UPD=null,updBusy=false,updPct=-1,updReady=false,updErr="",updMsg="";try{UPD=JSON.parse(localStorage.getItem("pt-upd"))||null;}catch(e){}
+/* GitHub's raw file server caches files for ~5 minutes and ignores "?t=", so right after a release it can still say
+   "old version". The API always has the current file; the raw address stays as a fallback. */
+async function fetchLatest(){
+  try{const r=JSON.parse(await netGet("https://api.github.com/repos/jariplayz-source/puglia-transit/contents/dist/latest.json?ref=main",15000));
+    if(r&&r.content){const txt=decodeURIComponent(escape(atob(r.content.replace(/\s/g,""))));return JSON.parse(txt);}}catch(e){}
+  return JSON.parse(await netGet(UPD_URL+"?t="+Math.floor(Date.now()/60000),15000));}
 async function checkUpdate(force){if(!window.AndroidUpdate||!window.AndroidNet)return;
   if(navigator.onLine===false){if(force){updMsg="📴 Checking for updates needs internet.";renderUpdate();}return;}
-  if(!force&&UPD&&Date.now()-(UPD.checked||0)<12*3600e3)return updBanner();
+  if(!force&&UPD&&Date.now()-(UPD.checked||0)<3600e3)return updBanner();
   if(force){updMsg="Checking…";renderUpdate();}
-  try{const j=JSON.parse(await netGet(UPD_URL+"?t="+Math.floor(Date.now()/60000),15000));UPD={...j,checked:Date.now()};try{localStorage.setItem("pt-upd",JSON.stringify(UPD));}catch(e){}updMsg=force&&!(j.code>window.AndroidUpdate.versionCode())?"You have the newest version.":"";}
+  try{const j=await fetchLatest();UPD={...j,checked:Date.now()};try{localStorage.setItem("pt-upd",JSON.stringify(UPD));}catch(e){}updMsg=force&&!(j.code>window.AndroidUpdate.versionCode())?"You have the newest version.":"";}
   catch(e){if(force)updMsg="Couldn't check: "+e.message;}
   renderUpdate();updBanner();}
 function updBanner(){const b=document.getElementById("updBanner");if(!b)return;let have=0;try{have=window.AndroidUpdate.versionCode();}catch(e){}
@@ -4475,6 +4482,7 @@ ${svg}${S.seq.length?`<div class="seq">${esc(S.seq.join("  ›  "))}</div>`:""}
 ${daysHtml}
 <div class="end"><h3>Until the next trip</h3><div class="m">${(d=>d+(d===1?" day":" days"))(Math.max(1,S.days||dayKeys.length))} · ${S.km<10?S.km.toFixed(1):Math.round(S.km)} km · ${items.length} ${items.length===1?"moment":"moments"}</div><div class="m" style="margin-top:10px">Made with Out &amp; Back</div></div>
 </main></body></html>`;}
+let SUMNOTE=null;
 async function summaryStreetMap(B){if(!B)return null;
   try{await loadScript("map/maplibre-gl.js");await loadScript("map/style.js");await loadScript("map/coast.js");}catch(e){return null;}
   if(!window.__ptProto){window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
@@ -4485,8 +4493,15 @@ async function summaryStreetMap(B){if(!B)return null;
   const div=document.createElement("div");div.style.cssText=`position:fixed;left:-${B.W+50}px;top:0;width:${B.W}px;height:${B.H}px;pointer-events:none`;document.body.appendChild(div);
   let m=null;
   try{m=new maplibregl.Map({container:div,style,bounds:[[B.o0,B.a0],[B.o1,B.a1]],fitBoundsOptions:{padding:0},interactive:false,attributionControl:false,
-      preserveDrawingBuffer:true,fadeDuration:0,pixelRatio:2,maxZoom:18});
-    await new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res();}};m.on("idle",fin);setTimeout(fin,9000);});
+      preserveDrawingBuffer:true,canvasContextAttributes:{preserveDrawingBuffer:true,antialias:true},fadeDuration:0,pixelRatio:2,maxZoom:18});
+    // wait until the street tiles are really drawn (on mobile data this can take a while), max 40 s
+    const roads=()=>{try{return m.querySourceFeatures("protomaps",{sourceLayer:"roads"}).length+m.querySourceFeatures("protomaps",{sourceLayer:"buildings"}).length;}catch(e){return 0;}};
+    const t0=Date.now();let ok=false;
+    while(Date.now()-t0<40000){await new Promise(r=>setTimeout(r,500));
+      if(SUMNOTE)SUMNOTE(`🗺️ Drawing the street map… ${Math.round((Date.now()-t0)/1000)} s`);
+      if(m.loaded()&&m.areTilesLoaded()&&roads()>0){ok=true;break;}}
+    if(!ok){if(SUMNOTE)SUMNOTE(navigator.onLine===false?"📴 No street map for this area offline: download it in ⚙️ → Offline maps.":"⚠️ The street map didn't load in time. Close and open the summary to try again.",true);return null;}
+    m.triggerRepaint();await new Promise(r=>{m.once?m.once("render",r):m.on("render",r);setTimeout(r,1500);});
     const url=m.getCanvas().toDataURL("image/jpeg",0.82);
     const lat=(B.a0+B.a1)/2,lon=(B.o0+B.o1)/2;const pxCache={},pyCache={};
     const px=o=>{const k=o.toFixed(6);return pxCache[k]??(pxCache[k]=m.project([o,lat]).x);},py=a=>{const k=a.toFixed(6);return pyCache[k]??(pyCache[k]=m.project([lon,a]).y);};
@@ -4500,7 +4515,8 @@ function shareSummary(){
   window.SUMMAP=null;let html=buildSummary();const ov=document.createElement("div");ov.className="sum-ov";
   ov.innerHTML=`<iframe title="Trip summary"></iframe><div class="sum-bar"><button class="btn ghost" data-sx="close">Close</button><button class="btn primary" data-sx="share">📤 Share</button></div><div class="sum-note">🗺️ Drawing the street map…</div>`;
   document.body.appendChild(ov);ov.querySelector("iframe").srcdoc=html;
-  summaryStreetMap(window.__sumBox).then(M=>{const n=ov.querySelector(".sum-note");if(n)n.remove();if(!M||!ov.isConnected)return;
+  SUMNOTE=(t,stay)=>{const n=ov.querySelector(".sum-note");if(n){n.textContent=t;if(stay)setTimeout(()=>n.remove(),6000);}};
+  summaryStreetMap(window.__sumBox).then(M=>{SUMNOTE=null;if(!M){return;}const n=ov.querySelector(".sum-note");if(n)n.remove();if(!ov.isConnected)return;
     window.SUMMAP=M;try{html=buildSummary();ov.querySelector("iframe").srcdoc=html;}finally{window.SUMMAP=null;}});
   ov.onclick=e=>{const t=e.target.closest("[data-sx]");if(!t)return;if(t.dataset.sx==="close")ov.remove();
     else{const nm=(GRP?GRP.name:"trip").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"trip";try{window.AndroidGroup.shareFile(nm+".html",html,"text/html");}catch(x){toast("⚠ "+x.message);}}};
