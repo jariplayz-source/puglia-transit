@@ -507,13 +507,15 @@ body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!importa
 #splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
   background:radial-gradient(120% 90% at 30% 20%,#11706a 0%,#0e4a52 45%,#0c2b3b 100%);transition:opacity .3s ease,transform .3s ease}
 #splash.sp-out{opacity:0;transform:scale(1.04);pointer-events:none}
-.sp-logo{width:118px;height:118px;overflow:visible}
-.sp-route{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-draw .7s cubic-bezier(.6,.05,.3,1) .12s forwards}
-.sp-home{transform-origin:256px 404px;transform:scale(0);animation:sp-pop .32s cubic-bezier(.3,1.6,.5,1) 0s forwards}
-.sp-dest{transform-origin:256px 206px;transform:scale(0);animation:sp-pop .32s cubic-bezier(.3,1.6,.5,1) .62s forwards}
-.sp-name{color:#f6f1e7;font:600 19px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.04em;opacity:0;transform:translateY(6px);animation:sp-up .35s ease .55s forwards}
-@keyframes sp-draw{to{stroke-dashoffset:0}}@keyframes sp-pop{to{transform:scale(1)}}@keyframes sp-up{to{opacity:.92;transform:none}}
-@media (prefers-reduced-motion: reduce){#splash *{animation:none!important;stroke-dashoffset:0!important;transform:none!important;opacity:1!important}}
+.sp-logo{width:118px;height:118px;position:relative}
+.sp-l{position:absolute;inset:0;will-change:transform,opacity}.sp-l svg{width:100%;height:100%;display:block;overflow:visible}
+.sp-rev{overflow:hidden;transform:translateY(100%);animation:sp-rev .75s cubic-bezier(.6,.05,.3,1) .15s forwards}
+.sp-rev-in{width:100%;height:100%;transform:translateY(-100%);animation:sp-rev .75s cubic-bezier(.6,.05,.3,1) .15s forwards;will-change:transform}
+.sp-home{transform-origin:50% 78.9%;transform:scale(0);animation:sp-pop .34s cubic-bezier(.3,1.6,.5,1) 0s forwards}
+.sp-dest{transform-origin:50% 40.2%;transform:scale(0);animation:sp-pop .34s cubic-bezier(.3,1.6,.5,1) .78s forwards}
+.sp-name{color:#f6f1e7;font:600 19px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.04em;opacity:0;transform:translateY(6px);animation:sp-up .4s ease .7s forwards;will-change:transform,opacity}
+@keyframes sp-rev{to{transform:translateY(0)}}@keyframes sp-pop{to{transform:scale(1)}}@keyframes sp-up{to{opacity:.92;transform:none}}
+@media (prefers-reduced-motion: reduce){#splash *{animation:none!important;transform:none!important;opacity:1!important}}
 .more-btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:10px 12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer}
 .sh-add{white-space:nowrap;display:inline-block;border:0;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:5px 10px;font-size:12.5px;font-weight:700;margin-left:6px;cursor:pointer;vertical-align:middle}
 /* ---------- SURVIVAL ---------- */
@@ -726,21 +728,34 @@ details.alert{border-radius:14px;margin:8px 0}
 .obx-it img,.obx-ic{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none;display:flex;align-items:center;justify-content:center;background:var(--chip);font-size:20px}
 .obx-it .w{flex:1;min-width:0}.obx-it small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
 .obx-x{border:0;background:var(--chip);color:var(--ink);border-radius:10px;padding:7px 11px;font-weight:600;font-size:13px;cursor:pointer;flex:none}
+.nd-stop{padding:10px 0 4px;border-top:1px solid var(--line)}.nd-stop:first-of-type{border-top:0}
+.nd-h{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}.nd-h b{font-size:15.5px}.nd-h .tr{margin-left:auto;font-size:12.5px}
+.nd-line{display:flex;align-items:center;gap:8px;padding:6px 0}.nd-mode{width:22px;text-align:center;flex:none}
+.nd-line .ln{flex:none}.nd-to{flex:1;min-width:0;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nd-to small{display:block;color:var(--muted);font-size:12px}
+.nd-t{text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;line-height:1.2}.nd-t b{font-size:15px}.nd-t small{color:var(--muted);font-size:12px}.nd-t .late{color:var(--warn)}
+.nd-more{border:0;background:none;color:var(--accent);font-weight:600;font-size:13.5px;padding:4px 0 6px 30px;cursor:pointer}
+.np-to{font-size:16px!important;padding:12px 14px!important}
+.np-from{border:0;background:none;color:var(--muted);font-size:13.5px;padding:8px 2px 2px;cursor:pointer;text-align:left}.np-from b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body class="tab-dest">
 <div id="splash" aria-hidden="true">
-  <svg viewBox="0 0 512 512" class="sp-logo">
-    <path class="sp-route" pathLength="1" d="M256 404 L169 280 A108 108 0 1 1 343 280 Z" fill="none" stroke="#f6f1e7" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/>
-    <circle class="sp-dest" cx="256" cy="206" r="34" fill="#f6f1e7"/>
-    <circle class="sp-home" cx="256" cy="404" r="34" fill="#ffb547" stroke="#0e3a44" stroke-width="10"/>
-  </svg>
+  <div class="sp-logo">
+    <div class="sp-l sp-rev"><div class="sp-rev-in"><svg viewBox="0 0 512 512"><path d="M256 404 L169 280 A108 108 0 1 1 343 280 Z" fill="none" stroke="#f6f1e7" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/></svg></div></div>
+    <div class="sp-l sp-dest"><svg viewBox="0 0 512 512"><circle cx="256" cy="206" r="34" fill="#f6f1e7"/></svg></div>
+    <div class="sp-l sp-home"><svg viewBox="0 0 512 512"><circle cx="256" cy="404" r="34" fill="#ffb547" stroke="#0e3a44" stroke-width="10"/></svg></div>
+  </div>
   <div class="sp-name">Out &amp; Back</div>
 </div>
 <script>(function(){var s=document.getElementById("splash");if(!s)return;
-  var quick=false;try{quick=matchMedia("(prefers-reduced-motion: reduce)").matches||sessionStorage.getItem("pt-splash")==="1";sessionStorage.setItem("pt-splash","1");}catch(e){}
-  var done=function(){s.classList.add("sp-out");setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},320);};
-  s.addEventListener("click",done);setTimeout(done,quick?0:1300);})();</script>
+  var reduce=false;try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
+  var t0=null,gone=false;
+  var done=function(){if(gone)return;gone=true;s.classList.add("sp-out");setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},360);};
+  // the clock starts when the animation really starts (not when this line is read), and the splash only leaves once the app has loaded
+  s.addEventListener("animationstart",function(){if(t0===null)t0=Date.now();});
+  var ready=function(){var left=reduce?0:Math.max(0,1500-(Date.now()-(t0===null?Date.now():t0)));setTimeout(done,left);};
+  if(document.readyState==="complete")ready();else window.addEventListener("load",ready);
+  s.addEventListener("click",done);setTimeout(done,6000);})();</script>
 <header>
   <div class="appbar"><h1 id="hdrTitle">📍 Brindisi</h1><button class="iconbtn" id="hdrSurv" aria-label="Survival guides"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></button><button class="iconbtn" id="hdrInfo" aria-label="Settings and info"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div class="sub"><span id="netChip" style="display:none;background:var(--chip);color:var(--ink);border-radius:10px;padding:1px 7px;font-weight:700;font-size:12px">📴 Offline: using saved data</span></div>
@@ -1440,9 +1455,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.7";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.8";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.8","Fix: the welcome questions sometimes came back although you had already answered them; the app now also remembers this in Android itself. Fix: the start-up animation now plays smoothly and completely every time, also while the app is still loading. Home → Transit is tidier: “Where to?” first with your saved routes as one-tap buttons, and “Leaving nearby” grouped per stop (distance and walking time) with each line's next two departures, instead of one long mixed list."],
  ["1.7","Outbox: tap “📤 … waiting to be sent” in Group to see every message that hasn't gone out yet (what, which group, since when), send them now, cancel one, or cancel them all."],
  ["1.6","Fix: group messages (I'm OK, locations, photos) stopped working after a while. The free message service allows about 250 messages a day per phone, and the app was sending your location every minute or two. Now it sends when you've moved 150 m or more (at most every 4 minutes) and otherwise every 45 minutes, keeps room for SOS and check-ins, shows how many messages you've used today, and says what really went wrong instead of “No internet”."],
  ["1.5","Buses too: Home → “Trains & buses” now has Train · Bus · All. Train keeps the Trenitalia search in Italy; Bus and All plan with open timetable data from Transitous, which works in the Netherlands, Italy and most of Europe. Pick any start (not just your location), tap a day-trip town to plan in one tap, and the last results stay available offline. The planner at home (Transit) has the same Train · Bus · All switch. Journey on the map is much cleaner: full-screen, one smooth line per person with an outline, everything else hidden, filters for Everyone / Me / each friend and per day, and a replay that draws the trip from start to finish. New in Group: “Tell … when I…”: per circle, choose whether they get a notification when you leave or arrive home, arrive at or leave your saved places, your battery gets low, or you start driving. Your phone notices this itself in the background (with location sharing on), also when the app is closed."],
@@ -3498,7 +3514,7 @@ function renderNL(){
   const b=document.getElementById("nlHome");if(!b)return;
   if(!b.dataset.built){b.dataset.built=1;
     b.innerHTML=`<div data-hp="now"><div class="card" id="nlNow"></div><div class="card" id="nlSaved"></div></div>
-      <div data-hp="ov" hidden><div class="card" id="nlDep"></div><div class="card" id="nlPlan"></div></div>
+      <div data-hp="ov" hidden><div class="card" id="nlPlan"></div><div class="card" id="nlDep"></div></div>
       <div data-hp="roads" hidden><div class="card" id="nlRoad"></div></div>
       <p class="small">Public transport by <a href="https://transitous.org/sources/">Transitous</a> (open data). Road info: NDW open data. Weather: Open-Meteo.</p>`;}
   applyPane();
@@ -3577,8 +3593,8 @@ function renderNlRoad(){const b=document.getElementById("nlRoad");if(!b)return;
 async function loadNlDep(){if(!me||nlDep.busy)return;
   if(navigator.onLine===false){if(nlDep.list){nlDep.list=nlDep.list.filter(s=>Date.parse(s.place.departure||s.place.scheduledDeparture)>=Date.now()-60e3);nlDep.cached=true;nlDep.err="";}else nlDep.err="📴 No internet, and no saved departures for here yet.";return renderNlDep();}
   nlDep.busy=true;nlDep.err="";renderNlDep();
-  try{const j=await trGet(`/v6/stoptimes?center=${me.lat.toFixed(5)},${me.lon.toFixed(5)}&radius=700&exactRadius=true&n=16`);
-    const now=Date.now();nlDep.list=(j.stopTimes||[]).filter(s=>s.place&&Date.parse(s.place.departure||s.place.scheduledDeparture)>=now-60e3).sort((a,c)=>Date.parse(a.place.departure)-Date.parse(c.place.departure)).slice(0,14);nlDep.at=now;nlDep.cached=false;
+  try{const j=await trGet(`/v6/stoptimes?center=${me.lat.toFixed(5)},${me.lon.toFixed(5)}&radius=700&exactRadius=true&n=40`);
+    const now=Date.now();nlDep.list=(j.stopTimes||[]).filter(s=>s.place&&Date.parse(s.place.departure||s.place.scheduledDeparture)>=now-60e3).sort((a,c)=>Date.parse(a.place.departure)-Date.parse(c.place.departure)).slice(0,40);nlDep.at=now;nlDep.cached=false;
     NLC.dep={list:(j.stopTimes||[]).slice(0,40),at:now,ll:[me.lat,me.lon]};saveNLC();}
   catch(e){if(nlDep.list&&NLC.dep&&hav([me.lat,me.lon],NLC.dep.ll)<1.5){nlDep.cached=true;nlDep.err="";}else nlDep.err=e.message;}nlDep.busy=false;renderNlDep();}
 function depRow(s){const p=s.place,dl=s.realTime&&p.scheduledDeparture?Math.round((Date.parse(p.departure)-Date.parse(p.scheduledDeparture))/60e3):null;
@@ -3586,11 +3602,31 @@ function depRow(s){const p=s.place,dl=s.realTime&&p.scheduledDeparture?Math.roun
   const tr=p.track||p.scheduledTrack;const gone=s.cancelled||s.tripCancelled;
   return `<div class="dep${gone?" gone":""}"><span class="t">${hmI(p.departure||p.scheduledDeparture)}</span><span><span class="to">${MODE_IC(s.mode)} ${line?`<span class="ln" style="${col}">${escH(line)}</span> `:""}${escH(s.headsign||"")}</span><br><span class="tr">${escH(p.name)}${tr?` · ${/RAIL|SUBURBAN/.test(s.mode)?"track":"platform"} ${escH(tr)}`:""}</span></span>
     <span>${gone?`<span class="dl late">cancelled</span>`:dl!=null?`<span class="dl ${dl>0?"late":"ok"}">${dl>0?"+"+dl+" min":"on time"}</span>`:""}</span></div>`;}
+function depIn(iso){const m=Math.round((Date.parse(iso)-Date.now())/60e3);return m<=0?"now":m<60?m+" min":hmI(iso);}
 function renderNlDep(){const b=document.getElementById("nlDep");if(!b)return;
-  b.innerHTML=`<div class="trip-h"><div class="dest">🚏 Departures near you</div>${nlDep.at&&!nlDep.busy?`<span class="badge">${hmI(new Date(nlDep.at).toISOString())}</span>`:""}</div>
-    ${!nlDep.busy&&nlDep.list?offNote(nlDep.at,nlDep.cached):""}${nlDep.busy?`<div class="small">⏳ Looking up stops around you…</div>`:nlDep.err?`<div class="live-err">${escH(nlDep.err)}</div>`:nlDep.list?(nlDep.list.length?nlDep.list.map(depRow).join(""):`<div class="small">No departures from stops within 700 m in the next while.</div>`):`<div class="small">${me?"":"Waiting for your location…"}</div>`}
-    <div class="btns"><button class="btn ghost" id="ndRef">🔄 Refresh</button></div>`;
-  b.querySelector("#ndRef").onclick=loadNlDep;}
+  const L=nlDep.list||[],open=nlDep.open||{};
+  // stop → line+direction → next departures
+  const stops={};for(const s of L){const p=s.place;if(!p)continue;const k=p.name;const st=stops[k]||(stops[k]={name:p.name,ll:p.lat!=null?[p.lat,p.lon]:null,lines:{}});
+    const lk=(s.routeShortName||s.displayName||s.tripShortName||"")+"|"+(s.headsign||"");(st.lines[lk]||(st.lines[lk]={s,deps:[]})).deps.push(s);}
+  const list=Object.values(stops).map(st=>({...st,d:me&&st.ll?hav([me.lat,me.lon],st.ll):9}))
+    .sort((a,c)=>a.d-c.d||Object.keys(c.lines).length-Object.keys(a.lines).length);
+  const showN=nlDep.all?list.length:3;
+  const lineRow=({s,deps})=>{const line=s.routeShortName||s.displayName||s.tripShortName||"",col=s.routeColor?`background:#${s.routeColor};color:#${s.routeTextColor||"fff"}`:"";
+    const p0=deps[0].place,dl=deps[0].realTime&&p0.scheduledDeparture?Math.round((Date.parse(p0.departure)-Date.parse(p0.scheduledDeparture))/60e3):null,gone=deps[0].cancelled||deps[0].tripCancelled;
+    const tr=p0.track||p0.scheduledTrack;
+    return `<div class="nd-line"><span class="nd-mode">${MODE_IC(s.mode)}</span>${line?`<span class="ln" style="${col}">${escH(line)}</span>`:""}<span class="nd-to">${escH(s.headsign||"")}${tr&&/RAIL|SUBURBAN/.test(s.mode)?`<small>track ${escH(tr)}</small>`:""}</span>
+      <span class="nd-t"><b class="${gone?"late":dl>0?"late":""}">${gone?"cancelled":depIn(p0.departure||p0.scheduledDeparture)}</b>${dl>0&&!gone?`<small class="late">+${dl}</small>`:""}${deps[1]?`<small>${depIn(deps[1].place.departure||deps[1].place.scheduledDeparture)}</small>`:""}</span></div>`;};
+  b.innerHTML=`<div class="trip-h"><div class="dest">🚏 Leaving nearby</div>${nlDep.at&&!nlDep.busy?`<span class="badge">${hmI(new Date(nlDep.at).toISOString())}</span>`:""}</div>
+    ${!nlDep.busy&&nlDep.list?offNote(nlDep.at,nlDep.cached):""}
+    ${nlDep.busy&&!L.length?`<div class="small">⏳ Looking up stops around you…</div>`:nlDep.err?`<div class="live-err">${escH(nlDep.err)}</div>`:!nlDep.list?(me?"":`<div class="small">Waiting for your location…</div>`)
+      :!list.length?`<div class="small">Nothing leaves from stops within 700 m in the next hour.</div>`
+      :list.slice(0,showN).map(st=>{const lines=Object.values(st.lines).sort((a,c)=>Date.parse(a.deps[0].place.departure)-Date.parse(c.deps[0].place.departure));const more=!open[st.name]&&lines.length>4;
+        return `<div class="nd-stop"><div class="nd-h"><b>${escH(st.name)}</b>${st.d<9?`<span class="tr">${st.d<1?Math.round(st.d*1000/10)*10+" m":st.d.toFixed(1)+" km"} · ${Math.max(1,Math.round(st.d*1000/80))} min walk</span>`:""}</div>
+          ${(more?lines.slice(0,4):lines).map(lineRow).join("")}${more?`<button class="nd-more" data-ndopen="${escH(st.name)}">${lines.length-4} more line${lines.length-4>1?"s":""}</button>`:""}</div>`;}).join("")}
+    <div class="btns">${list.length>3?`<button class="btn ghost" id="ndAll">${nlDep.all?"Fewer stops":"All "+list.length+" stops"}</button>`:""}<button class="btn ghost" id="ndRef">${nlDep.busy?"⏳":"🔄"} Refresh</button></div>`;
+  b.querySelector("#ndRef").onclick=loadNlDep;
+  const al=b.querySelector("#ndAll");if(al)al.onclick=()=>{nlDep.all=!nlDep.all;renderNlDep();};
+  b.querySelectorAll("[data-ndopen]").forEach(x=>x.onclick=()=>{nlDep.open={...open,[x.dataset.ndopen]:1};renderNlDep();});}
 
 /* ---------- Trip planner A → B ---------- */
 var sugT=null;
@@ -3601,19 +3637,19 @@ function planEl(){return document.getElementById(appMode()==="home"?"nlPlan":"it
 function planFrom(){const P=nlPlan;return P.from?P.from:me?{name:"My location",lat:me.lat,lon:me.lon,me:true}:null;}
 function planKey(){const f=planFrom(),P=nlPlan;return f&&P.to?[f.me?"me":f.lat.toFixed(3)+","+f.lon.toFixed(3),P.to.lat.toFixed(4)+","+P.to.lon.toFixed(4),P.mode].join("|"):"";}
 function planQuick(){if(curCountry()==="it"&&typeof PT!=="undefined")return depTrips().filter(t=>PT[t]).slice(0,10).map(t=>({name:t,lat:PT[t][0],lon:PT[t][1]}));
-  return SAVED.slice(0,6).map(r=>({...routeDir(r)[1]}));}
+  return routesList().slice(0,6).map(r=>({...routeDir(r)[1],label:r.name}));}
 function renderNlPlan(){const b=planEl();if(!b)return;const P=nlPlan;P.mode=P.mode||"all";
   for(const id of ["nlPlan","itPlan"]){const o=document.getElementById(id);if(o&&o!==b)o.innerHTML="";}
   const its=P.its||[],F=planFrom(),home=appMode()==="home";
   const sg=(list,attr)=>list.length?`<div class="sugg">${list.map((s,i)=>`<button ${attr}="${i}"><b>${escH(s.name)}</b><span>${escH([s.type==="STOP"?"stop":s.type==="ADDRESS"?"address":"place",...(s.areas||[]).filter(a=>a.default||a.adminLevel===8||a.adminLevel===10).map(a=>a.name)].slice(0,2).join(" · "))}</span></button>`).join("")}</div>`:"";
   const quick=!P.to&&!P.q?planQuick():[];
-  b.innerHTML=`<div class="trip-h"><div class="dest">${home?"🧭 Plan a trip":"🚌 Buses & trains"}</div>${P.at&&P.its&&!P.busy?`<span class="badge">${hmI(new Date(P.at).toISOString())}</span>`:""}</div>
-    <div class="seg pm-seg" style="margin:8px 0 4px">${Object.entries(PLAN_MODES).map(([k,v])=>`<button data-pm="${k}" class="${P.mode===k?"on":""}">${v[0]}</button>`).join("")}</div>
-    <div class="np-row" style="margin-top:6px;position:relative"><span class="small" style="width:44px;flex:none">From</span><input class="search" id="npFrom" style="margin:0;flex:1" placeholder="${me?"📍 My location":"Station, stop or place"}" value="${escH(P.from?P.from.name:P.fq||"")}" autocomplete="off"></div>
-    ${sg(P.fsugg||[],"data-fsg")}
-    <div class="np-row" style="margin-top:6px;position:relative"><span class="small" style="width:44px;flex:none">To</span><input class="search" id="npTo" style="margin:0;flex:1" placeholder="Station, stop, address or place" value="${escH(P.to?P.to.name:P.q)}" autocomplete="off"></div>
+  b.innerHTML=`<div class="trip-h"><div class="dest">${home?"🧭 Where to?":"🚌 Buses & trains"}</div>${P.at&&P.its&&!P.busy?`<span class="badge">${hmI(new Date(P.at).toISOString())}</span>`:""}</div>
+    <div style="position:relative;margin-top:8px"><input class="search np-to" id="npTo" style="margin:0" placeholder="🔍 Station, stop, address or place" value="${escH(P.to?P.to.name:P.q)}" autocomplete="off"></div>
     ${sg(P.sugg,"data-sg")}
-    ${quick.length?`<div class="chips" style="margin-top:8px">${quick.map((q,i)=>`<button class="chip" data-pq="${i}">${escH(q.name)}</button>`).join("")}</div>`:""}
+    ${P.editFrom||P.from||P.fq?`<div class="np-row" style="margin-top:6px"><span class="small" style="width:44px;flex:none">From</span><input class="search" id="npFrom" style="margin:0;flex:1" placeholder="${me?"📍 My location":"Station, stop or place"}" value="${escH(P.from?P.from.name:P.fq||"")}" autocomplete="off">${P.from?`<button class="mini" id="npFromX" aria-label="Start from my location">✕</button>`:""}</div>${sg(P.fsugg||[],"data-fsg")}`
+      :`<button class="np-from" id="npFromEdit">From <b>${F?escH(F.name):"…"}</b> · change</button>`}
+    <div class="seg pm-seg" style="margin:8px 0 4px">${Object.entries(PLAN_MODES).map(([k,v])=>`<button data-pm="${k}" class="${P.mode===k?"on":""}">${v[0]}</button>`).join("")}</div>
+    ${quick.length?`<div class="chips" style="margin-top:8px">${quick.map((q,i)=>`<button class="chip" data-pq="${i}">${home&&/^\p{L}/u.test(q.label||q.name)?"⭐ ":""}${escH(q.label||q.name)}</button>`).join("")}</div>`:""}
     ${!F&&P.to?`<div class="small" style="padding:6px 0">Waiting for your location… or type where you start.</div>`:""}
     ${P.busy?`<div class="small" style="padding:8px 0">⏳ Planning…</div>`:P.err?`<div class="live-err">${escH(P.err)}</div>`:""}
     ${P.its&&!P.busy&&P.cached?offNote(P.at,true):""}
@@ -3626,9 +3662,11 @@ function renderNlPlan(){const b=planEl();if(!b)return;const P=nlPlan;P.mode=P.mo
   const geo=async(q)=>{const j=await trGet(`/v1/geocode?text=${encodeURIComponent(q)}${me?`&place=${me.lat.toFixed(4)},${me.lon.toFixed(4)}&placeBias=5`:""}&numResults=6`);return (Array.isArray(j)?j:[]).slice(0,6);};
   const hook=(id,qk,lk,sk)=>{const inp=b.querySelector("#"+id);inp.oninput=()=>{P[qk]=inp.value;P[lk]=null;clearTimeout(sugT);if(inp.value.trim().length<2){P[sk]=[];return;}
     sugT=setTimeout(async()=>{try{P[sk]=await geo(inp.value.trim());const pos=inp.selectionStart;renderNlPlan();const n=document.getElementById(id);n.focus();n.setSelectionRange(pos,pos);}catch(e){}},450);};};
-  hook("npTo","q","to","sugg");hook("npFrom","fq","from","fsugg");
+  hook("npTo","q","to","sugg");if(b.querySelector("#npFrom"))hook("npFrom","fq","from","fsugg");
+  const fe=b.querySelector("#npFromEdit");if(fe)fe.onclick=()=>{P.editFrom=true;renderNlPlan();const n=document.getElementById("npFrom");if(n)n.focus();};
+  const fx=b.querySelector("#npFromX");if(fx)fx.onclick=()=>{P.from=null;P.fq="";P.editFrom=false;if(P.to)planNl();else renderNlPlan();};
   b.querySelectorAll("[data-sg]").forEach(x=>x.onclick=()=>{const s=P.sugg[+x.dataset.sg];P.to={name:s.name,lat:s.lat,lon:s.lon};P.sugg=[];planNl();});
-  b.querySelectorAll("[data-fsg]").forEach(x=>x.onclick=()=>{const s=P.fsugg[+x.dataset.fsg];P.from={name:s.name,lat:s.lat,lon:s.lon};P.fsugg=[];P.fq="";planNl();});
+  b.querySelectorAll("[data-fsg]").forEach(x=>x.onclick=()=>{const s=P.fsugg[+x.dataset.fsg];P.from={name:s.name,lat:s.lat,lon:s.lon};P.fsugg=[];P.fq="";P.editFrom=false;planNl();});
   b.querySelectorAll("[data-pq]").forEach(x=>x.onclick=()=>{P.to=quick[+x.dataset.pq];P.q="";planNl();});
   b.querySelectorAll("[data-pm]").forEach(x=>x.onclick=()=>{P.mode=x.dataset.pm;try{localStorage.setItem("pt-planmode",P.mode);}catch(e){}if(P.to)planNl();else renderNlPlan();});
   b.querySelectorAll("[data-it]").forEach(x=>x.onclick=()=>{P.open=P.open===+x.dataset.it?-1:+x.dataset.it;renderNlPlan();});
@@ -5078,7 +5116,7 @@ function suApply(){try{
   if(SU.where==="trip"&&NLHOME&&me&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])<=50){SET_MODE="travel";localStorage.setItem("pt-appmode","travel");}
 }catch(e){}appliedKey="";try{applyCountry();renderDiet();renderSet();}catch(e){}
   if(navigator.onLine!==false)SU.packs.filter(p=>!SURV_PACKS[p]).forEach((p,i)=>setTimeout(()=>svDownload(p).catch(()=>{}),800+i*600));}
-function suFinish(){suApply();try{localStorage.setItem("pt-setup-1.0","1");}catch(e){}const ov=document.getElementById("setup");
+function suFinish(){suApply();try{localStorage.setItem("pt-setup-1.0","1");}catch(e){}try{window.AndroidUpdate&&window.AndroidUpdate.setFlag&&window.AndroidUpdate.setFlag("setup-1.0");}catch(e){}const ov=document.getElementById("setup");
   if(ov){ov.style.transition="opacity .3s";ov.style.opacity="0";setTimeout(()=>ov.remove(),320);}showTab("dest");}
 function openSetup(){if(document.getElementById("setup"))return;suInit();suI=0;const ov=document.createElement("div");ov.id="setup";document.body.appendChild(ov);suRender(1);}
 // a home asked for before GPS had a fix: save it as soon as the location arrives
@@ -5099,7 +5137,11 @@ document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(
     else{try{window.AndroidNotify&&window.AndroidNotify.askPermission&&window.AndroidNotify.askPermission();}catch(x){}}return;}
 });
 
-try{if(!localStorage.getItem("pt-setup-1.0"))openSetup();}catch(e){}
+function setupDone(){let ls=false,nat=false;try{ls=!!localStorage.getItem("pt-setup-1.0");}catch(e){}try{nat=!!(window.AndroidUpdate&&window.AndroidUpdate.flag&&window.AndroidUpdate.flag("setup-1.0"));}catch(e){}
+  if(nat&&!ls)try{localStorage.setItem("pt-setup-1.0","1");}catch(e){}            // repair the web copy
+  if(ls&&!nat)try{window.AndroidUpdate&&window.AndroidUpdate.setFlag&&window.AndroidUpdate.setFlag("setup-1.0");}catch(e){}
+  return ls||nat;}
+try{if(!setupDone())openSetup();}catch(e){}
 
 /* leading emoji in headings → a small rounded icon tile, like iOS settings */
 (function(){const RX=/^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:️|‍(?:\p{Extended_Pictographic})|\p{Emoji_Modifier}|\p{Regional_Indicator})*)\s*/u;
