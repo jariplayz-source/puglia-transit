@@ -26,7 +26,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         ids.remove(id); sp.edit().putStringSet("ids", ids).apply();
     }
 
-    static void show(Context ctx, String id, String title, String text, boolean loud) {
+    static void show(Context ctx, String id, String title, String text, boolean loud) { show(ctx, id, title, text, loud, false); }
+    /** quiet: update a notification that is already there without buzzing again. */
+    static void show(Context ctx, String id, String title, String text, boolean loud, boolean quiet) {
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         Notification.Builder b;
         if (Build.VERSION.SDK_INT >= 26) {
@@ -42,7 +44,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         open.putExtra("notif", id);
         PendingIntent pi = PendingIntent.getActivity(ctx, id.hashCode(), open, PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
         b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(text)
-         .setStyle(new Notification.BigTextStyle().bigText(text)).setAutoCancel(true).setContentIntent(pi);
+         .setStyle(new Notification.BigTextStyle().bigText(text)).setAutoCancel(true).setContentIntent(pi).setOnlyAlertOnce(quiet);
         try { nm.notify(id.hashCode(), b.build()); } catch (Exception e) { }
     }
 

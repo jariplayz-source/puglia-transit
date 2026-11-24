@@ -243,10 +243,11 @@ public class Pmtiles {
         IOException last = null;
         for (int attempt = 0; attempt < 3; attempt++) {
             try {
+                OfflineLink.need();
                 HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                 c.setConnectTimeout(connectTimeout); c.setReadTimeout(readTimeout);
                 c.setRequestProperty("Range", "bytes=" + off + "-" + (off + len - 1));
-                c.setRequestProperty("User-Agent", "OutAndBack/1.23 (+https://github.com/jariplayz-source/puglia-transit)");
+                c.setRequestProperty("User-Agent", "OutAndBack/1.24 (+https://github.com/jariplayz-source/puglia-transit)");
                 int code = c.getResponseCode();
                 if (code != 206 && code != 200) throw new IOException("HTTP " + code);
                 byte[] b = readAll(c.getInputStream());
@@ -261,11 +262,12 @@ public class Pmtiles {
 
     /** Is this a real PMTiles archive (not a Wi-Fi login page or an error page)? Returns null if fine, else why not. */
     public static String probe(String u) {
+        if (!OfflineLink.up()) return "no internet";
         try {
             HttpURLConnection h = (HttpURLConnection) new URL(u).openConnection();
             h.setConnectTimeout(8000); h.setReadTimeout(8000);
             h.setRequestProperty("Range", "bytes=0-6");
-            h.setRequestProperty("User-Agent", "OutAndBack/1.23 (+https://github.com/jariplayz-source/puglia-transit)");
+            h.setRequestProperty("User-Agent", "OutAndBack/1.24 (+https://github.com/jariplayz-source/puglia-transit)");
             int code = h.getResponseCode();
             if (code != 206 && code != 200) { h.disconnect(); return "HTTP " + code; }
             byte[] b = new byte[7]; java.io.InputStream in = h.getInputStream(); int off = 0, n;

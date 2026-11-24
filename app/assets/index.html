@@ -529,7 +529,7 @@ html:not([data-country="nl"]) [data-hseg="roads"],html:not([data-country="nl"]) 
 .fl-route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;margin-top:8px}.fl-route b{display:block;font-size:30px;letter-spacing:.02em;line-height:1}.fl-route span{display:block;font-size:12.5px;color:var(--muted);max-width:110px}.fl-route i{font-style:normal;font-weight:700;font-size:15px}
 .fl-arc{width:100%;height:auto}.fl-meta{font-size:13.5px;color:var(--muted);margin-top:6px}.fl-more{border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
 details.orig{margin-top:6px;font-size:13px;color:var(--muted)}details.orig summary{cursor:pointer}
-body.grp-home [data-gseg="journey"],body.grp-home #sumShare{display:none!important}
+body.grp-home #sumShare{display:none!important}
 .offl{border:1.5px dashed var(--line)}.offrow{display:grid;grid-template-columns:24px auto 1fr;gap:6px;align-items:baseline;margin-top:6px;font-size:14px}.offrow span{color:var(--muted);font-size:13px}
 #updBanner{display:flex;gap:6px;margin:0 16px}#updBanner:empty{display:none}.upd-ban{flex:1;border:0;border-radius:12px;background:var(--accent-soft);color:var(--accent);font:inherit;font-size:14px;padding:8px 12px;text-align:left;margin-top:6px}
 .upd-x{border:0;background:none;color:var(--muted);font-size:16px;margin-top:6px}.upbar{height:8px;border-radius:4px;background:var(--chip);overflow:hidden;margin:6px 0}.upbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
@@ -849,6 +849,26 @@ details.alert{border-radius:14px;margin:8px 0}
 .ska-sh{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));animation:skaU .28s cubic-bezier(.2,.8,.2,1)}
 .ska-t{display:block;font-size:21px;font-weight:700}.ska-p{margin:4px 0 8px;color:var(--muted);font-size:14.5px}
 @keyframes skaF{from{opacity:0}}@keyframes skaU{from{transform:translateY(40px);opacity:0}}
+.tl-why{display:flex;flex-direction:column;gap:8px;margin:-2px 0 10px;padding:12px 14px;border-radius:14px;background:var(--warn-bg,#fff4d6);color:var(--ink);font-size:14px;line-height:1.35}.tl-why.ok{background:var(--chip)}.tl-why .tl-act{align-self:flex-start;min-height:38px;padding:0 16px}
+/* Puglia-only / NL-only parts */
+html:not([data-country="it"]) .pug-only{display:none!important}
+html:not([data-country="nl"]) .nl-only{display:none!important}
+/* day timeline */
+.dtl{list-style:none;margin:12px 0 0;padding:0 0 0 4px;border-left:2px solid var(--line)}
+.dtl li{position:relative;margin:0 0 2px 0}
+.tl-stop{display:flex;gap:12px;width:100%;border:0;background:none;color:var(--ink);text-align:left;padding:8px 6px 8px 14px;font:inherit;border-radius:12px}
+.tl-stop:active{background:var(--chip)}
+.tl-stop::before{content:"";position:absolute;left:-7px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--card)}
+.tl-t{flex:none;width:92px;font-weight:600;font-variant-numeric:tabular-nums;font-size:14px}
+.tl-n{flex:1;min-width:0;font-size:15px}.tl-n small{display:block;color:var(--muted);font-size:12.5px}
+.tl-move{padding:2px 0 6px 20px;color:var(--muted);font-size:13px}
+/* sun & moon tool */
+.tl-skyface{padding-top:14px}.tl-sky{width:min(78vw,300px);display:block;margin:0 auto}
+.tl-skyk{display:block;margin-top:8px;font-size:13px;color:rgba(244,241,232,.75);line-height:1.6}.tl-skyk i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+.tl-moonic{display:inline-block;vertical-align:-4px;margin-right:6px}
+.tl-moonx{background:var(--card);border-radius:18px;padding:12px 16px;margin:12px 0}.tl-moonx summary{font-weight:600;cursor:pointer;list-style:none}.tl-moonx summary::-webkit-details-marker{display:none}
+.tl-mrow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.tl-mrow:last-of-type{border-bottom:0}.tl-mrow .e{font-size:26px;line-height:1}
+.tl-mrow b{display:block;font-size:15px}.tl-mrow small{display:block;color:var(--muted);font-size:13.5px;line-height:1.4;margin-top:2px}.tl-mrow.now b{color:var(--accent)}
 /* nudges */
 .nu-row{display:flex;gap:8px;overflow-x:auto;margin:12px -4px 0;padding:2px 4px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nu-row::-webkit-scrollbar{display:none}
 .nu-chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 13px 8px 10px;background:var(--chip);color:var(--ink);font:600 14px var(--font,system-ui);white-space:nowrap}
@@ -878,6 +898,14 @@ details.alert{border-radius:14px;margin:8px 0}
 @keyframes nuBan{from{transform:translateY(-130%)}}
 .nu-e{font-size:32px;line-height:1}.nu-t{flex:1;min-width:0;display:flex;flex-direction:column;font-size:15px}.nu-t b{font-size:13px;color:var(--muted);font-weight:600}
 #nuBan button{flex:none;border:0;border-radius:50%;width:44px;height:44px;background:var(--chip);font-size:20px}
+body.nopin #navPanel{display:none!important}
+body.nopin:not(.walking) #map,body.nopin:not(.walking) #smap{height:calc(100dvh - 150px - env(safe-area-inset-bottom))}
+.navm{width:100%;margin-bottom:4px}.navm button{font-size:14px}
+[hidden]{display:none!important}
+.my-rts{display:flex;gap:8px;overflow-x:auto;margin:8px -2px 2px;padding:2px;scrollbar-width:none}.my-rts::-webkit-scrollbar{display:none}
+.my-rt{flex:none;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;text-align:left;border:0;border-radius:16px;padding:10px 14px;background:var(--accent-soft);color:var(--ink);font:inherit;max-width:240px}
+.my-rt span{grid-row:span 2;font-size:22px}.my-rt b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.my-rt small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-go .btn{flex:1;min-width:0;padding-left:6px;padding-right:6px}
 /* compact panel under the map */
 .np-go,.np-more{display:none;flex:none;border:0;border-radius:50%;width:44px;height:44px;place-items:center;background:var(--card2);color:var(--ink);font-size:20px;padding:0}
 .np-more{display:grid;transition:transform .2s}.nav-panel:not(.mini) .np-more{transform:rotate(180deg);align-self:flex-start}
@@ -1073,7 +1101,7 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
 .su-skins .skin small{max-width:110px}
 </style>
 </head>
-<body class="tab-dest">
+<body class="tab-map">
 <div id="splash" aria-hidden="true">
   <div class="sp-logo">
     <div class="sp-l sp-rev"><div class="sp-rev-in"><svg viewBox="0 0 512 512"><path d="M256 404 L169 280 A108 108 0 1 1 343 280 Z" fill="none" stroke="#f6f1e7" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/></svg></div></div>
@@ -1101,7 +1129,7 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
 
 <main>
   <!-- DESTINATIONS -->
-  <section class="view on" id="v-dest">
+  <section class="view" id="v-dest">
     <div id="alertTop"></div>
     <div class="kit" id="kitStrip"><div><b>Guides &amp; tools</b><small>First aid, survival, compass, torch · offline</small></div>
       <div class="kit-q"><button data-tool="compass" style="--tc:var(--skin-tc,#e4572e)" aria-label="Compass"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2.2 5-4.8 2 2.2-5z"/></svg></button><button data-tool="torch" style="--tc:var(--skin-tc,#c99a10)" aria-label="Torch"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1.5 5h-5zM9.5 8h5v11.5a1.5 1.5 0 0 1-1.5 1.5h-2a1.5 1.5 0 0 1-1.5-1.5z"/><path d="M12 12.5v2"/></svg></button><button data-tool="where" style="--tc:var(--skin-tc,#3d8fd6)" aria-label="Where am I"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg></button></div>
@@ -1115,7 +1143,7 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
   </section>
 
   <!-- MAP -->
-  <section class="view" id="v-map">
+  <section class="view on" id="v-map">
     <div class="map-wrap">
       <div id="smap"></div>
       <div id="walkBanner" class="walk-banner" style="display:none"></div>
@@ -1135,18 +1163,18 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
         <button id="m-gps" title="My location">📍</button>
         <button id="m-in" title="Zoom in">＋</button>
         <button id="m-out" title="Zoom out">－</button>
-        <button id="m-fit" title="Whole region">⤢</button>
+        <button id="m-fit" class="pug-only" title="Whole region">⤢</button>
         <button id="m-line" title="Route line on/off">〰</button>
-        <button id="m-layer" title="Switch map">🗺️</button>
+        <button id="m-layer" class="pug-only" title="Switch map">🗺️</button>
       </div>
-      <div class="map-legend"><span style="color:var(--train)">━ Trenitalia</span> <span style="color:var(--bus)">━ FSE</span> <span style="color:#7a5bb5">━ FAL</span> · <span style="color:#e0a100">● sight</span> <span style="color:#9b4dca">● gem</span> ■ station</div>
+      <div class="map-legend pug-only"><span style="color:var(--train)">━ Trenitalia</span> <span style="color:var(--bus)">━ FSE</span> <span style="color:#7a5bb5">━ FAL</span> · <span style="color:#e0a100">● sight</span> <span style="color:#9b4dca">● gem</span> ■ station</div>
     </div>
     <div class="card trip-bar" id="tripBar" style="display:none"></div>
     <div class="card nav-panel" id="navPanel">
       <div class="np-row">
         <div class="np-arrow" id="npArrow"><svg viewBox="0 0 100 100"><path d="M50 6 L78 86 L50 70 L22 86 Z" fill="currentColor"/></svg></div>
         <div style="flex:1">
-          <div id="npPick"><select id="npTown" class="np-select" aria-label="City"></select>
+          <div id="npPick" class="pug-only"><select id="npTown" class="np-select" aria-label="City"></select>
             <select id="npPlace" class="np-select" style="margin-top:4px;font-weight:500" aria-label="Place in this city"></select></div>
           <div id="npStep" style="display:none;font-weight:700;font-size:16px"></div>
           <div class="np-dist" id="npDist">Tap 📍 to find yourself</div>
@@ -1157,16 +1185,18 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
         <button class="np-more" id="npMore" aria-label="Show more" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button>
       </div>
       <div class="btns">
-        <button class="btn primary" id="npWalk" style="border:0">🚶 Start walking</button>
+        <div class="seg navm" role="group" aria-label="How you travel"><button data-navm="car">🚗 Drive</button><button data-navm="bike">🚲 Bike</button><button data-navm="foot">🚶 Walk</button></div>
+        <button class="btn primary" id="npWalk" style="border:0">🚶 Start</button>
         <button class="btn ghost" id="npHome" style="border:0;display:none">🏠 Home</button>
         <a class="btn ghost" id="npOpen" href="#" style="display:none">🗺️ Street map</a>
+        <button class="btn ghost" id="npSaveRt" style="border:0">⭐ Save route</button>
         <button class="btn ghost" id="npDetails" style="border:0">ℹ️ Details</button>
         <button class="btn ghost" id="npClear" style="border:0">✕ Remove pin</button>
       </div>
     </div>
     <div class="card" id="myBox"></div>
     <div class="card" id="areasBox" style="display:none"></div>
-    <p class="small">📴 This map works offline: coastline, towns and train lines, with your GPS position. Pins are checked against OpenStreetMap when you're online (see Info → Map positions). Switch to <b>🗺️ Street map</b> for detailed streets in the areas you saved.</p>
+    <p class="small pug-only">📴 This map works offline: coastline, towns and train lines, with your GPS position. Pins are checked against OpenStreetMap when you're online (see Info → Map positions). Switch to <b>🗺️ Street map</b> for detailed streets in the areas you saved.</p>
   </section>
 
   <!-- DAY TRIPS -->
@@ -1224,10 +1254,11 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
     <button class="back-btn" id="infoBack">‹ Back</button>
     <div class="card" id="setBox"></div>
     <div class="card" id="notifBox"></div>
-    <div class="card" id="offBox"></div>
+    <div class="card pug-only" id="offBox"></div>
     <div class="card upd" id="updateBox"></div>
     <div class="card" id="storeBox"></div>
     <div class="card" id="diagBox"></div>
+    <div class="pug-only">
     <h2>⚠️ Alerts</h2>
     <div id="alerts"></div>
     <a class="btn ghost" style="display:block;margin-top:6px" href="https://scioperi.mit.gov.it/mit2/public/scioperi">Official strike list (online)</a>
@@ -1267,14 +1298,27 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
     <h2>🚦 Operators &amp; live timetables</h2>
     <div id="ops"></div>
 
+    </div>
+    <div class="nl-only">
+    <h2>🆘 Emergency &amp; practical</h2>
+    <div class="card"><ul class="list">
+      <li><b>112</b>: emergency number for police, ambulance and fire, free from any phone. Only when every second counts.</li>
+      <li><b>0900-8844</b>: police when it isn't urgent (e.g. reporting a theft afterwards).</li>
+      <li><b>Doctor at night or at the weekend:</b> call the <i>huisartsenpost</i> for your area. Your own GP's voicemail gives the number.</li>
+      <li><b>Pharmacy at night:</b> there is always one on duty (<i>dienstapotheek</i>); the sign on any pharmacy door says which.</li>
+      <li><b>Trains:</b> check in and out with your bank card or OV-chipkaart at the card readers.</li>
+    </ul></div>
+    </div>
+    <div class="pug-only">
     <h2>🗣️ Useful phrases</h2>
     <div class="card" id="phrases"></div>
+    </div>
   </section>
 </main>
 
 <nav>
-  <button class="on" data-v="dest"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M9 20l-2 2M15 20l2 2M8 16l-1 4M16 16l1 4"/><circle cx="8.5" cy="13" r=".6" fill="currentColor"/><circle cx="15.5" cy="13" r=".6" fill="currentColor"/></svg></span>Home</button>
-  <button data-v="map"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>Map</button>
+  <button class="on" data-v="map"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>Map</button>
+  <button data-v="dest"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M9 20l-2 2M15 20l2 2M8 16l-1 4M16 16l1 4"/><circle cx="8.5" cy="13" r=".6" fill="currentColor"/><circle cx="15.5" cy="13" r=".6" fill="currentColor"/></svg></span>Home</button>
   <button data-v="trips"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8"/></svg></span>Trips</button>
   <button data-v="shops"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg></span>Nearby</button>
   <button data-v="group"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.3c3 .1 5 2.6 5 5.7"/></svg></span>Group</button>
@@ -1680,7 +1724,7 @@ function renderLive(name){
 }
 function liveCheck(name){
   const L=LAST[name], out=document.getElementById("live-"+slug(name)); if(!L||!L.q) return;
-  if(window.AndroidLive&&navigator.onLine===false){if(out)out.innerHTML=`<div class="small">📴 No internet: showing the estimate. Ask at the station or check the departure board (<i>Partenze</i>).</div>`;return;}
+  if(window.AndroidLive&&isOffline()){if(out)out.innerHTML=`<div class="small">📴 No internet: showing the estimate. Ask at the station or check the departure board (<i>Partenze</i>).</div>`;return;}
   if(window.AndroidLive){ if(out) out.innerHTML=`<div class="small">⏳ Asking Trenitalia…</div>`; try{window.AndroidLive.lastBack(L.q,name);}catch(e){window.onLiveResult(name,{ok:false,error:"Live check not available"});} }
   else if(out) out.innerHTML=`<div class="small">The live check works in the Android app. Online here: <a href="https://www.trenitalia.com">trenitalia.com</a> (it also shows FSE).</div>`;
 }
@@ -1797,9 +1841,13 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.23";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.24";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.24","Opens on the map. Navigate by car, bike or on foot with spoken directions, and save your own routes (e.g. to work) with one-tap start. Outside Italy: Dutch map labels, places on the map, better train results, and no Puglia info. Day timeline for your circle, one notification per person, emergency card on the lock screen, sun & moon in the daylight tool, and a new guide pack: Food that keeps."],
+ ["1.23","Nudges with emoji effects for your group, and the map works outside Italy."],
+ ["1.22","More room for the map, and calmer Soft versions of the Mono and Vault styles."],
+ ["1.21","Pick a style: Mono, Editorial, Glass, Float, Noir or Vault."],
  ["1.20","Guides & tools are now easy to find: a Guides button at the top and a strip on Home with the compass, torch and “Where am I” one tap away. All tools have a new, calmer instrument design. New tool: Emergency supplies, a checklist of what to have at home for 72 hours, following the official Dutch or Italian advice depending on where you are, with the names you'll find in the shop and amounts for your household. Fix: the compass could suddenly spin all the way round; it now always turns the short way and doesn't flip when you tilt the phone."],
  ["1.19","Fix: the street map went blank after switching between light and dark (also when your phone switches by itself in the evening). Your dot and the direction you're facing are now as smooth as Google Maps: GPS updates every second while the map is open, the dot glides to each new position, the view cone turns smoothly, works with the phone flat or held up, and points to true north instead of magnetic north."],
  ["1.18","Street map: when the map server can't be reached the app now switches to an official mirror of the same map, and the “isn't loading” message tells you why. Settings → Diagnostics shows how the street map is doing."],
@@ -1915,7 +1963,7 @@ async function fetchLatest(){
     if(r&&r.content){const txt=decodeURIComponent(escape(atob(r.content.replace(/\s/g,""))));return JSON.parse(txt);}}catch(e){}
   return JSON.parse(await netGet(UPD_URL+"?t="+Math.floor(Date.now()/60000),15000));}
 async function checkUpdate(force){if(!window.AndroidUpdate||!window.AndroidNet)return;
-  if(navigator.onLine===false){if(force){updMsg="📴 Checking for updates needs internet.";renderUpdate();}return;}
+  if(isOffline()){if(force){updMsg="📴 Checking for updates needs internet.";renderUpdate();}return;}
   if(!force&&UPD&&Date.now()-(UPD.checked||0)<3600e3)return updBanner();
   if(force){updMsg="Checking…";renderUpdate();}
   try{const j=await fetchLatest();UPD={...j,checked:Date.now()};try{localStorage.setItem("pt-upd",JSON.stringify(UPD));}catch(e){}updMsg=force&&!(j.code>window.AndroidUpdate.versionCode())?"You have the newest version.":"";}
@@ -2123,6 +2171,8 @@ function updatePanel(){
   el("npOpen").href=placeLink(target);
   const stepEl=el("npStep");if(stepEl){if(activeTrip!=null){const s=planTrip(activeTrip).steps[curStep];stepEl.style.display="block";stepEl.textContent=s?`${s.time} · ${s.text}`:"";}else stepEl.style.display="none";}
   const arrow=el("npArrow");
+  // nothing to show yet (no pin, no trip): hide the panel so the map gets the whole screen
+  {const none=!t&&activeTrip==null;if(document.body.classList.contains("nopin")!==none){document.body.classList.toggle("nopin",none);setTimeout(()=>{try{if(ml)ml.resize();}catch(e){}try{drawMap();}catch(e){}},30);}}
   {const c=el("npClear");if(c)c.style.display=target?"":"none";}
   if(!t&&me){el("npDist").textContent="No pin";el("npInfo").textContent="Tap a place on the map (or press and hold anywhere) to put the pin there.";el("npRoute").textContent="";arrow.style.opacity=".25";return;}
   if(!me||!t){el("npDist").textContent=me?"—":(gpsOn?"Finding GPS…":"Tap 📍 to find yourself");
@@ -2132,7 +2182,7 @@ function updatePanel(){
     // point the arrow along the part of the route still ahead of you: the first point ≥ 25 m ahead
     const ah=s?s.ahead:route.coords;for(let k=1;k<ah.length;k++){const c=ah[k];if(hav([me.lat,me.lon],[c[1],c[0]])*1000>=25||k===ah.length-1){b=bearing([me.lat,me.lon],[c[1],c[0]]);break;}}}
   el("npDist").textContent=km<1?`${Math.round(km*1000)} m`:`${km<10?km.toFixed(1):Math.round(km)} km`;
-  const out=me.lat<MB.s||me.lat>MB.n||me.lon<MB.w||me.lon>MB.e;
+  const out=mode!=="street"&&(me.lat<MB.s||me.lat>MB.n||me.lon<MB.w||me.lon>MB.e);
   const rot=heading==null?b:b-heading;
   arrow.style.opacity="1";arrow.style.transform=`rotate(${rot}deg)`;
   el("npRoute").textContent=routeText();
@@ -2272,7 +2322,7 @@ function checkBaseMap(){
   if(baseFixN>=2){let d=bar;if(!d){d=document.createElement("div");d.id="baseMsg";d.className="base-msg";document.querySelector(".map-wrap").appendChild(d);}
     let w="",I={};try{w=window.AndroidMaps.liveStatus()||"";}catch(e){}try{I=JSON.parse(window.AndroidMaps.liveInfo())||{};}catch(e){}
     if(!w&&I.ok===0&&I.empty>0)w=`the online map sent no data for this spot (${I.empty} empty tiles)`;
-    d.innerHTML=navigator.onLine===false?"📴 No street data here offline. Download this area (Map → Offline maps) or go online.":"⏳ Street map data isn't loading. Retrying… <button id='baseRetry'>Retry now</button>"+(w?`<div class="small" style="margin-top:4px;opacity:.75">Reason: ${escH(w)}</div>`:"");
+    d.innerHTML=isOffline()?"📴 No street data here offline. Download this area (Map → Offline maps) or go online.":"⏳ Street map data isn't loading. Retrying… <button id='baseRetry'>Retry now</button>"+(w?`<div class="small" style="margin-top:4px;opacity:.75">Reason: ${escH(w)}</div>`:"");
     const r=d.querySelector("#baseRetry");if(r)r.onclick=()=>{baseFixAt=0;checkBaseMap();};}
 }
 if(window.AndroidMaps&&window.AndroidMaps.resetLive){try{if(localStorage.getItem("pt-tilefix")!=="1"){window.AndroidMaps.resetLive();localStorage.setItem("pt-tilefix","1");}}catch(e){}}
@@ -2288,21 +2338,24 @@ async function ensureStreet(){
     const r=await fetch(params.url.replace("pt://","https://tiles.local/").replace(/\?r=\d+$/,""),{signal:ac.signal});const buf=await r.arrayBuffer();
     if(params.type==="json")return {data:buf.byteLength?JSON.parse(new TextDecoder().decode(buf)):{}};
     return {data:buf};});}
-  const style=JSON.parse(JSON.stringify(DK()&&window.PT_STYLE_DARK?PT_STYLE_DARK:PT_STYLE));
+  const lang=mapLang(),style=JSON.parse(JSON.stringify(DK()&&window.PT_STYLE_DARK?PT_STYLE_DARK:PT_STYLE).split('"name:it"').join('"name:'+lang+'"'));   // place names in the language of the country you're in
   style.sources.coast={type:"geojson",data:PT_COAST};
   style.layers.splice(1,0,{id:"coast-land",type:"fill",source:"coast",paint:{"fill-color":DK()?"#1f1f1f":"#f2efe9"}});
-  const t=T_LL(target), c=STREET_GO||(me?[me.lat,me.lon]:lastMe?[lastMe[0],lastMe[1]]:(t||PT["Brindisi"]));
+  const t=T_LL(target), c=STREET_GO||(me?[me.lat,me.lon]:lastMe?[lastMe[0],lastMe[1]]:(t||(LAST_C==="it"?PT["Brindisi"]:NLHOME?[NLHOME.lat,NLHOME.lon]:[52.2,5.3])));
   try{
     ml=new maplibregl.Map({container:"smap",style,center:[c[1],c[0]],zoom:(me||lastMe)?15:12,minZoom:3,maxZoom:19,
       attributionControl:{compact:true},pitchWithRotate:false,dragRotate:true,touchPitch:false});
   }catch(e){areasMsg("⚠ This phone can't show the street map (WebGL missing): "+e.message);mlLoading=false;return;}
-  ml.touchZoomRotate.enableRotation();
+  ml.touchZoomRotate.enableRotation();ml.__lang=lang;
   ml.on("rotate",()=>{updateStreetHeading();updateNorth();});
   ml.on("rotatestart",e=>{if(e.originalEvent&&headingMode){headingMode=false;updateGpsBtn();}});
   ml.on("dragstart",()=>{mapMoved=true;stopFollow();if(walking&&follow){follow=false;walkUpdate();}});
   ml.on("error",()=>{});
   ml.on("idle",checkBaseMap);
+  ml.on("moveend",()=>{clearTimeout(lpMove.t);lpMove.t=setTimeout(lpMove,1500);});
   ml.on("load",()=>{
+    // GPS arrived while the map was still starting: go to where you are now
+    setTimeout(()=>{try{if(me&&!mapMoved&&!STREET_GO&&!walking&&activeTrip==null&&hav([me.lat,me.lon],[ml.getCenter().lat,ml.getCenter().lng])>0.3)ml.jumpTo({center:[me.lon,me.lat],zoom:Math.max(ml.getZoom(),15)});}catch(e){}},0);
     [["pin-sight","#f2a900","sight"],["pin-gem","#9b4dca","gem"],["pin-station","#3b3f45","station"],["pin-home","#e0531f","home"],["pin-target","#e0531f","target"],["pin-town","#1d1b18","town"],["pin-mine","#e91e63","heart"],["pin-osm","#2a8c82","dot"]]
       .forEach(([n,col,k])=>ml.addImage(n,makePin(col,k),{pixelRatio:2}));
     ml.addSource("areas",{type:"geojson",data:areasGeo()});
@@ -2655,26 +2708,29 @@ function osrmText(s){
 function finishRoute(r){ // cumulative distances + maneuver distances
   const c=r.coords,cum=[0];for(let k=1;k<c.length;k++)cum.push(cum[k-1]+mDist(c[k-1],c[k]));r.cum=cum;return r;}
 async function onlineRoute(a,b){
-  const url=`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
-  const j=JSON.parse(await netGet(url,9000));
+  const url=`https://routing.openstreetmap.de/${NI().url}/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
+  const j=JSON.parse(await netGet(url,NAVM==="car"?15000:9000));
   if(!j.routes||!j.routes.length)throw new Error("no route");
   const R=j.routes[0],coords=R.geometry.coordinates,man=[];
   for(const leg of R.legs)for(const s of leg.steps){const loc=s.maneuver.location;let bi=0,bd=1e9;
     for(let k=0;k<coords.length;k++){const d=Math.abs(coords[k][0]-loc[0])+Math.abs(coords[k][1]-loc[1]);if(d<bd){bd=d;bi=k;}}
     if(s.maneuver.type!=="arrive")man.push({i:s.maneuver.type==="depart"?-1:bi,text:osrmText(s)});}
-  return finishRoute({ok:true,src:"online",coords:[[a[1],a[0]],...coords,[b[1],b[0]]].filter((p,k,arr)=>k===0||mDist(arr[k-1],p)>0.5),meters:R.distance,man:man.map(m=>({...m,i:m.i+1}))});
+  return finishRoute({ok:true,src:"online",coords:[[a[1],a[0]],...coords,[b[1],b[0]]].filter((p,k,arr)=>k===0||mDist(arr[k-1],p)>0.5),meters:R.distance,sec:R.duration,mode:NAVM,man:man.map(m=>({...m,i:m.i+1}))});
 }
 async function computeRoute(force){
   const t=T_LL(target);
   if(!IN_APP||!me||!t){route=null;return;}
-  const key=target+"|"+me.lat.toFixed(4)+","+me.lon.toFixed(4);
+  const key=target+"|"+NAVM+"|"+me.lat.toFixed(4)+","+me.lon.toFixed(4);
   if(!force&&(routeBusy||key===routeFor||Date.now()-routeAt<8000&&routeFor&&routeFor.startsWith(target+"|")))return;
+  if(force&&routeBusy&&key===routeFor)return;                                                   // the same route is already on its way
+  if(force&&route&&route.ok&&route.mode===NAVM&&key===routeFor&&Date.now()-routeAt<15000&&!offRoute())return;   // just got it: don't ask the server again
   const direct=hav([me.lat,me.lon],t),gen=++routeGen;let R=null;
-  if(direct>(window.AndroidNet?15:8)){route={ok:false,reason:"far",meters:direct*1000};routeFor=key;routeBusy=false;updatePanel();drawMap();return;}
+  if(direct>(window.AndroidNet?NI().far:8)){route={ok:false,reason:"far",meters:direct*1000};routeFor=key;routeBusy=false;updatePanel();drawMap();return;}
   routeBusy=true;routeFor=key;routeAt=Date.now();
   try{
     // 1) with internet: a proper walking-route service (most accurate)
     if(window.AndroidNet&&direct>0.03){try{R=await onlineRoute([me.lat,me.lon],t);return;}catch(e){/* offline → use saved maps */}}
+    if(NAVM==="car"){R={ok:false,reason:"carnet",meters:direct*1000};return;}   // the offline map has no one-way streets or turn rules: not good enough to drive by
     if(direct>8){R={ok:false,reason:"far",meters:direct*1000};return;}
     // 2) offline: route on the streets of the saved map areas
     const m=0.004,w=Math.min(me.lon,t[1])-m*1.3,e=Math.max(me.lon,t[1])+m*1.3,s=Math.min(me.lat,t[0])-m,n=Math.max(me.lat,t[0])+m,z=15,N=1<<z;
@@ -2698,7 +2754,7 @@ async function computeRoute(force){
       if(mDist(coords[coords.length-1],raw[k])<3){coords[coords.length-1]=raw[k];continue;}
       segNames.push(rawN[k-1]);segKinds.push(rawK[k-1]);coords.push(raw[k]);}
     segNames.push(segNames[segNames.length-1]||"");segKinds.push(segKinds[segKinds.length-1]||"");
-    R=finishRoute({ok:true,src:"offline",coords,meters:r.meters+da+db,man:offlineManeuvers(coords,segNames,segKinds)});
+    R=finishRoute({ok:true,src:"offline",coords,meters:r.meters+da+db,mode:NAVM,man:offlineManeuvers(coords,segNames,segKinds)});
   }catch(err){R={ok:false,reason:"error",meters:0};}
   finally{if(gen!==routeGen)return;route=R;routeBusy=false;updatePanel();drawMap();if(walking)walkUpdate(true);}
 }
@@ -2719,16 +2775,37 @@ function snapRoute(){
 }
 const routeLeftM=()=>{const s=snapRoute();return s?s.remain+Math.min(s.off,60):(route&&route.meters)||0;};
 let lastReroute=0;
-function offRoute(){if(!route||!route.ok||!me)return false;const s=snapRoute();if(s)return s.off>(walking?25:35);const K=111320,C=Math.cos(me.lat*Math.PI/180),p=[me.lon*K*C,me.lat*K];
+/* ---------- HOW YOU TRAVEL: walk, bike or drive (like Google Maps). Routes from the open OSRM servers of FOSSGIS (routing.openstreetmap.de). ---------- */
+const NAV_INFO={foot:{ic:"🚶",go:"Walk",ing:"walking",url:"routed-foot/route/v1/foot",far:15,kmh:4.8,arrive:20,off:25,zoom:18,pitch:50,say:[40]},
+  bike:{ic:"🚲",go:"Bike",ing:"cycling",url:"routed-bike/route/v1/driving",far:80,kmh:15,arrive:25,off:30,zoom:17,pitch:50,say:[150,40]},
+  car:{ic:"🚗",go:"Drive",ing:"driving",url:"routed-car/route/v1/driving",far:1500,kmh:45,arrive:40,off:45,zoom:16.3,pitch:55,say:[600,200,40]}};
+let NAVM="foot";try{NAVM=localStorage.getItem("pt-navm")||"foot";if(!NAV_INFO[NAVM])NAVM="foot";}catch(e){}
+let NAVVOICE=true;try{NAVVOICE=localStorage.getItem("pt-navvoice")!=="0";}catch(e){}
+const NI=()=>NAV_INFO[NAVM];
+function setNavMode(m,silent){if(!NAV_INFO[m])return;const ch=m!==NAVM;NAVM=m;try{localStorage.setItem("pt-navm",m);}catch(e){}
+  document.querySelectorAll("[data-navm]").forEach(b=>b.classList.toggle("on",b.dataset.navm===m));
+  const wb=document.getElementById("npWalk"),wm=document.getElementById("npGoMini");if(wb)wb.textContent=`${NI().ic} Start`;if(wm){wm.textContent=NI().ic;wm.setAttribute("aria-label","Start "+NI().ing);}
+  if(ch){route=null;routeFor=null;if(target)computeRoute(true);updatePanel();drawMap();if(walking)walkUpdate(true);}}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-navm]");if(!b)return;e.stopPropagation();setNavMode(b.dataset.navm);});
+// spoken directions (the phone's own voice, works offline)
+let navSaid={};function navSay(t){if(!NAVVOICE)return;try{window.AndroidTools&&window.AndroidTools.speak&&window.AndroidTools.speak(t,"en");}catch(e){}}
+function navVoiceTick(n){if(!n||!route||!route.ok)return;const key=n.text,S=NI().say;navSaid[key]=navSaid[key]||{};
+  for(const th of S){if(n.dist<=th&&!navSaid[key][th]){navSaid[key][th]=1;for(const t2 of S)if(t2>th)navSaid[key][t2]=1;
+    navSay(n.arrive?(n.dist<60?"You have arrived":`In ${spokenM(n.dist)}, you arrive`):th===S[S.length-1]?n.text:`In ${spokenM(n.dist)}, ${n.text.charAt(0).toLowerCase()+n.text.slice(1)}`);break;}}}
+const spokenM=m=>m>=950?(m/1000).toFixed(1).replace(".0","")+" kilometres":(Math.round(m/50)*50||Math.round(m/10)*10)+" metres";
+function offRoute(){if(!route||!route.ok||!me)return false;const s=snapRoute();if(s)return s.off>(walking?NI().off:Math.max(35,NI().off));const K=111320,C=Math.cos(me.lat*Math.PI/180),p=[me.lon*K*C,me.lat*K];
   let best=1e9;for(let k=0;k+1<route.coords.length;k++){const a=[route.coords[k][0]*K*C,route.coords[k][1]*K],b=[route.coords[k+1][0]*K*C,route.coords[k+1][1]*K];
     const dx=b[0]-a[0],dy=b[1]-a[1],L2=dx*dx+dy*dy;let t=L2?((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L2:0;t=Math.max(0,Math.min(1,t));best=Math.min(best,Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy));}
   return best>(walking?25:35);}
+function navMins(left){return Math.max(1,Math.round(route&&route.ok&&route.sec&&route.meters?route.sec*left/route.meters/60:left/1000/NI().kmh*60));}
+function navDur(m){return m>=60?`${Math.floor(m/60)} h ${m%60} min`:`${m} min`;}
 function routeText(){
   if(!IN_APP)return "";
-  if(!route)return routeBusy?"🚶 Finding a walking route…":"";
-  const left=route.ok?routeLeftM():route.meters,km=left/1000,mins=Math.max(1,Math.round(km/4.8*60));
-  if(route.ok)return `🚶 ${km<1?Math.round(left)+" m":km.toFixed(1)+" km"} · ≈${mins} min walk${route.src==="online"?" · live route":" · offline route"}`;
-  if(route.reason==="far")return "🚆 Too far to walk: take the train or bus (see Places).";
+  if(!route)return routeBusy?`${NI().ic} Finding a ${NI().ing} route…`:"";
+  const left=route.ok?routeLeftM():route.meters,km=left/1000,mins=navMins(left);
+  if(route.ok)return `${NI().ic} ${km<1?Math.round(left)+" m":km<10?km.toFixed(1)+" km":Math.round(km)+" km"} · ${navDur(mins)}${route.src==="online"?"":" · offline route"}`;
+  if(route.reason==="carnet")return "🚗 Driving directions need internet. Try 🚶 or 🚲, which also work with saved maps.";
+  if(route.reason==="far")return NAVM==="foot"?"Too far to walk: try 🚲 or 🚗, or take the train or bus.":NAVM==="bike"?"Too far to cycle: try 🚗, or the train.":"Too far for a route here.";
   if(route.reason==="nomap")return "🗺️ Save the street map for this area to get walking directions (Street map → My map areas).";
   if(route.reason==="big")return "Too far for a walking route. Get closer first.";
   return "No walking route found here. Follow the arrow.";
@@ -2739,6 +2816,7 @@ const netCbs={};let netSeq=0;
 window.onNetResult=(id,ok,text)=>{const cb=netCbs[id];if(cb){delete netCbs[id];cb(ok,text);}};
 function netCall(kind,url,timeout){return new Promise((res,rej)=>{
   if(!window.AndroidNet)return rej(new Error("this needs the Android app"));
+  if(isOffline())return rej(new Error("No internet right now"));   // no network: don't even try
   const id="n"+(++netSeq),tm=setTimeout(()=>{delete netCbs[id];rej(new Error("no answer (are you online?)"));},timeout||15000);
   netCbs[id]=(ok,txt)=>{clearTimeout(tm);ok?res(txt):rej(new Error(txt||"failed"));};window.AndroidNet[kind](id,url);});}
 const netGet=(u,t)=>netCall("get",u,t), netResolve=u=>netCall("resolve",u,12000);
@@ -2806,6 +2884,37 @@ async function loadTownPlaces(town){
   return true;
 }
 
+
+/* ---------- PLACES OUTSIDE PUGLIA: sights, museums, churches, parks… around where you look on the map, from OpenStreetMap.
+   One small area (about 4 × 4 km) at a time, only when you look at it, kept on the phone for 30 days (then also offline). ---------- */
+let LOCALP={};try{LOCALP=JSON.parse(localStorage.getItem("pt-localp"))||{};}catch(e){}
+const lpCell=(la,lo)=>Math.floor(la/0.04)+":"+Math.floor(lo/0.06);
+function lpAdd(cell){const x=LOCALP[cell];if(!x)return;
+  for(const it of x.items){if(!isSight(it))continue;const id="lp:"+cell+":"+it.n;if(POIMAP[id])continue;
+    const o={id,town:"@"+cell,kind:"osm",label:it.n,desc:it.t,ll:[it.lat,it.lon],q:it.n,ic:OSM_ICON[it.t]||"📌",wk:it.k||null};POIS.push(o);POIMAP[id]=o;}}
+for(const c in LOCALP)try{lpAdd(c);}catch(e){}
+let lpBusy=false;
+async function lpLoad(cell){const [a,b]=cell.split(":").map(Number),S=a*0.04,W=b*0.06,N=S+0.04,E=W+0.06,B=`(${S.toFixed(4)},${W.toFixed(4)},${N.toFixed(4)},${E.toFixed(4)})`,lang=mapLang();
+  const ql=`[out:json][timeout:20];(nwr["tourism"~"^(attraction|museum|gallery|viewpoint)$"]["name"]${B};nwr["historic"~"^(castle|fort|monument|archaeological_site|ruins|city_gate|tower|windmill)$"]["name"]${B};`
+    +`nwr["amenity"="place_of_worship"]["name"]["wikidata"]${B};nwr["leisure"~"^(park|garden|nature_reserve)$"]["name"]["wikidata"]${B};nwr["man_made"~"^(lighthouse|windmill)$"]["name"]${B};nwr["natural"="beach"]["name"]${B};);out center tags 120;`;
+  const items=[],seen=new Set();
+  for(const srv of OVERPASS){try{const j=JSON.parse(await netGet(srv+"?data="+encodeURIComponent(ql),35000));
+      for(const e of j.elements||[]){const t=e.tags||{};const n=(t["name:"+lang]||t.name||"").trim(),lat=e.lat??(e.center&&e.center.lat),lon=e.lon??(e.center&&e.center.lon);
+        if(!n||lat==null||seen.has(n.toLowerCase()))continue;
+        const ok=notable(t)||t.historic==="windmill"||t.man_made==="windmill"||t.tourism==="attraction"&&!!(t.wikidata||t.wikipedia);if(!ok)continue;
+        seen.add(n.toLowerCase());items.push({n,lat:+(+lat).toFixed(6),lon:+(+lon).toFixed(6),t:t.historic==="windmill"||t.man_made==="windmill"?"monument":osmType(t),w:t.wikidata||t.wikipedia?0:1,k:t.wikipedia||t.wikidata||null});}
+      LOCALP[cell]={ts:Date.now(),items};
+      const ks=Object.keys(LOCALP);if(ks.length>40)ks.sort((x,y)=>LOCALP[x].ts-LOCALP[y].ts).slice(0,ks.length-40).forEach(k=>{delete LOCALP[k];});
+      try{localStorage.setItem("pt-localp",JSON.stringify(LOCALP));}catch(e){}
+      lpAdd(cell);return true;}
+    catch(e){if(/internet/i.test(e.message))return false;}}
+  return false;}
+async function lpMove(){if(lpBusy||!ml||!mlReady||!window.AndroidNet||isOffline())return;const c=ml.getCenter();
+  if(inPuglia([c.lat,c.lng])||ml.getZoom()<12)return;
+  const bb=ml.getBounds(),cells=new Set();for(const la of [bb.getSouth(),c.lat,bb.getNorth()])for(const lo of [bb.getWest(),c.lng,bb.getEast()])cells.add(lpCell(la,lo));
+  const todo=[...cells].filter(k=>!LOCALP[k]||Date.now()-LOCALP[k].ts>30*864e5).slice(0,4);if(!todo.length)return;
+  lpBusy=true;let any=false;for(const k of todo){if(await lpLoad(k))any=true;await nap(1100);}lpBusy=false;
+  if(any&&mlReady)try{ml.getSource("pois").setData(poiGeo());}catch(e){}}
 /* ---------- GET PLACES FOR EVERY TOWN ONCE (then always ready offline) ---------- */
 let allBusy=false;
 let REMOVED=new Set();try{REMOVED=new Set(JSON.parse(localStorage.getItem("pt-removed"))||[]);}catch(e){}
@@ -2814,10 +2923,10 @@ const placeTowns=()=>Object.keys(PT).filter(n=>!MINOR.has(n)&&!/Airport/.test(n)
 const PLACES_EVERY=60*60*1000;            // refresh from the internet every hour
 const stale=t=>!OSMX[t]||!OSMX[t].ts||Date.now()-OSMX[t].ts>PLACES_EVERY;
 async function downloadAllPlaces(manual){
-  if(allBusy||!window.AndroidNet)return;
-  if(navigator.onLine===false){if(manual)toast("📴 No internet right now: try again when you're online");return;}
+  if(allBusy||!window.AndroidNet)return;if(!manual&&!pugliaOn())return;   // Puglia's places: only fetched while you're in Italy
+  if(isOffline()){if(manual)toast("📴 No internet right now: try again when you're online");return;}
   const todo=placeTowns().filter(t=>manual||stale(t));if(!todo.length)return;
-  const first=todo.some(t=>!OSMX[t]),show=manual||first;   // hourly refresh runs quietly
+  const first=todo.some(t=>!OSMX[t]),show=!!manual;   // runs quietly unless you asked for it
   allBusy=true;const strip=document.getElementById("placesStrip");let k=0,fails=0;renderPosBox();
   const ts=document.getElementById("npTown");if(ts&&todo.includes(ts.value))todo.unshift(...todo.splice(todo.indexOf(ts.value),1));
   for(const t of todo){k++;if(strip&&show){strip.style.display="block";strip.textContent=`⬇ ${first?"Getting":"Updating"} places from the internet: ${k}/${todo.length} · ${t}`;}
@@ -2826,8 +2935,8 @@ async function downloadAllPlaces(manual){
   allBusy=false;renderPosBox();
   if(strip&&show){if(fails&&!manual){strip.style.display="none";}else strip.textContent=fails?`⚠ ${fails} town(s) couldn't update: ${Object.keys(OSMX).length?"keeping the last places":"using the built-in list"} for now.`:"✅ Places up to date for every town, also offline.";setTimeout(()=>strip.style.display="none",5000);}
 }
-setInterval(()=>{if(navigator.onLine!==false&&bgOk())downloadAllPlaces(false);},10*60*1000);
-async function refreshShops(){if(!window.AndroidNet||navigator.onLine===false)return;for(const t of new Set([...OFFL,...Object.keys(SHOPS)])){const s=SHOPS[t];if(s&&s.src!=="map"&&Date.now()-s.ts<24*3600e3)continue;await getShops(t);await nap(1500);}}
+setInterval(()=>{if(!isOffline()&&bgOk())downloadAllPlaces(false);},10*60*1000);
+async function refreshShops(){if(!window.AndroidNet||isOffline()||!pugliaOn())return;for(const t of new Set([...OFFL,...Object.keys(SHOPS)])){const s=SHOPS[t];if(s&&s.src!=="map"&&Date.now()-s.ts<24*3600e3)continue;await getShops(t);await nap(1500);}}
 setInterval(()=>{if(!lowPower()&&bgOk())refreshShops();},15*60*1000);window.addEventListener("online",()=>setTimeout(()=>{if(bgOk())refreshShops();},5000));setTimeout(()=>{if(bgOk())refreshShops();},20000);
 window.addEventListener("online",()=>setTimeout(()=>{if(bgOk())downloadAllPlaces(false);},3000));
 
@@ -2847,7 +2956,7 @@ async function downloadCity(town){
   if(cityJob){if(!cityQueue.includes(town)&&cityJob.town!==town)cityQueue.push(town);renderOffBox();return;}
   cityJob={town,step:"places",n:0,m:0};REMOVED.delete(town);saveRemoved();OFFL.add(town);saveOffl();renderOffBox();
   try{
-    if(navigator.onLine===false)throw new Error("no internet");
+    if(isOffline())throw new Error("no internet");
     await fetchOsmTown(town);
     cityJob.step="supermarkets & bars";renderOffBox();try{await fetchShops(town);}catch(e){}
     const ids=placesFor(town).list.map(o=>o.id);cityJob.step="explanations";cityJob.m=ids.length;
@@ -2868,7 +2977,7 @@ function removeCity(town){
 }
 function renderOffBox(){setTimeout(bgSync,0);
   const b=document.getElementById("offBox");if(!b)return;
-  const online=navigator.onLine!==false,app=!!window.AndroidNet;
+  const online=!isOffline(),app=!!window.AndroidNet;
   let used=0;if(HAS_MAPS())try{used=JSON.parse(window.AndroidMaps.summary()).used;}catch(e){}
   const all=cityTowns(),short=all.filter(t=>t===hereTown||OFFL.has(t)||cityStatus(t).area||(cityJob&&cityJob.town===t)||cityQueue.includes(t));
   const list=offAll?all:short;
@@ -2889,7 +2998,7 @@ function renderOffBox(){setTimeout(bgSync,0);
   const om=b.querySelector("#offMore");if(om)om.onclick=()=>{offAll=!offAll;renderOffBox();};
   const hb=b.querySelector("#cdlHere");if(hb)hb.onclick=()=>hereTown&&downloadCity(hereTown);
 }
-function netState(){const off=navigator.onLine===false,c=document.getElementById("netChip");if(c)c.style.display=off?"inline":"none";renderOffBox();}
+function netState(){const off=isOffline(),c=document.getElementById("netChip");if(c)c.style.display=off?"inline":"none";renderOffBox();}
 window.addEventListener("online",netState);window.addEventListener("offline",netState);
 
 /* ---------- SUPERMARKETS & BARS (only for saved cities) ---------- */
@@ -3072,7 +3181,7 @@ const shopsBusy=new Set(),shErr={};
 async function mapShopsFirst(town){if(SHOPS[town])return;const m=await shopsFromMap(town).catch(()=>null);if(m&&!SHOPS[town]){SHOPS[town]=m;saveShops();renderShops();}}
 async function getShops(town){if(shopsBusy.has(town))return;shopsBusy.add(town);bgSync();renderShops();
   await mapShopsFirst(town);
-  if(window.AndroidNet&&navigator.onLine!==false){try{await fetchShops(town);delete shErr[town];toast("✅ Opening hours downloaded");}catch(e){shErr[town]=e.message;}}else shErr[town]="no internet";
+  if(window.AndroidNet&&!isOffline()){try{await fetchShops(town);delete shErr[town];toast("✅ Opening hours downloaded");}catch(e){shErr[town]=e.message;}}else shErr[town]="no internet";
   shopsBusy.delete(town);renderShops();renderOffBox();}
 document.addEventListener("click",e=>{const ad=e.target.closest&&e.target.closest("[data-shadd]");if(ad){e.stopPropagation();const [tw,n,la]=ad.dataset.shadd.split("|");const x=(SHOPS[tw]||{items:[]}).items.find(i=>i.n===n&&String(i.lat)===la);if(x)hoursSheet(tw,x);return;}
   const t=e.target.closest&&e.target.closest("[data-shcat],[data-shrow],[data-shgo],[data-shget],[data-cdl2],[data-shsort],#shOpen");if(!t)return;
@@ -3212,13 +3321,15 @@ function renderMyBox(){
   const res=myResults.length?`<div style="margin-top:6px">${myResults.map((r,i)=>`<div class="area-row"><span class="grow"><b>${r.name}</b><br><span class="small">${r.info||""}${me?" · "+distTxt([r.lat,r.lon]):""}</span></span>
       <button data-rsave="${i}" style="color:var(--accent)">＋</button><button data-rhome="${i}" style="color:#e0531f">🏠</button><button data-rgo="${i}" style="color:var(--accent)">🧭</button></div>`).join("")}</div>`:"";
   box.innerHTML=`<div class="trip-h"><div class="dest">❤️ My places</div><span class="badge">${MYP.length}</span></div>
-    ${home?`<div class="small">🏠 Home: <b>${home.name}</b> · ≈${toStation()} min walk to Brindisi station</div>`:`<div class="small">Tip: save your B&B as <b>🏠 Home</b>. Trips will then use your real walk to the station, and 🏠 gets you back.</div>`}
+    ${home?`<div class="small">🏠 Home: <b>${home.name}</b>${pugliaOn()?` · ≈${toStation()} min walk to Brindisi station`:""}</div>`:pugliaOn()?`<div class="small">Tip: save your B&B as <b>🏠 Home</b>. Trips will then use your real walk to the station, and 🏠 gets you back.</div>`:`<div class="small">Tip: save the places you go to often. Tap a place on the map, then ❤ Save.</div>`}
+    ${(()=>{const R=typeof routesList==="function"?routesList():[];return R.length?`<div class="my-rts">${R.map(r=>{const t=routeDir(r)[1],m=r.m||NAVM;return `<button class="my-rt" data-myrt="${r.id}"><span>${NAV_INFO[m].ic}</span><b>${escH(r.name)}</b><small>to ${escH(t.name)}${me?" · "+distTxt([t.lat,t.lon]):""}</small></button>`;}).join("")}</div>`:"";})()}
     <div class="chips" style="margin-top:6px">${tab("search","🔎 Search")}${tab("nearby","📍 Nearby")}${tab("here","📌 Save spot")}${tab("link","🔗 Link")}</div>
     ${tool}<div class="small" id="myMsg">${myMsg}</div>${res}
     <div style="margin-top:8px">${MYP.filter(m=>!m.pin).map(m=>myEdit===m.id?`<div class="area-row"><input class="np-select" id="myRename" style="flex:1" value="${m.name.replace(/"/g,"&quot;")}" placeholder="Name this place"><button data-mren="${m.id}" style="color:var(--accent)">✓ Save</button></div>`
       :`<div class="area-row"><span class="grow">${m.home?"🏠":"❤️"} <b>${m.name}</b><br><span class="small">${m.note?m.note+" · ":""}${distTxt([m.lat,m.lon])}</span></span>
       <button data-medit="${m.id}" style="color:var(--accent)" aria-label="Rename">✏️</button><button data-mgo="${m.id}" style="color:var(--accent)">🧭</button>${m.home?"":`<button data-mhome="${m.id}" style="color:#e0531f">🏠</button>`}<button data-mdel="${m.id}" class="${myConfirm===m.id?"sure":""}">${myConfirm===m.id?"Delete?":"🗑"}</button></div>`).join("")}</div>`;
   box.querySelectorAll("[data-mytool]").forEach(b=>b.onclick=()=>{myTool=b.dataset.mytool;myResults=[];myMsg="";renderMyBox();});
+  box.querySelectorAll("[data-myrt]").forEach(b=>b.onclick=()=>{const r=routesList().find(y=>y.id===b.dataset.myrt);if(r)navTo(routeDir(r)[1],r.m||NAVM);});
   box.querySelectorAll("[data-medit]").forEach(b=>b.onclick=()=>{myEdit=b.dataset.medit;renderMyBox();});
   const rn=box.querySelector("#myRename");if(rn){setTimeout(()=>{rn.focus();rn.select();},50);rn.onkeydown=e=>{if(e.key==="Enter")renamePlace(myEdit,rn.value);};}
   box.querySelectorAll("[data-mren]").forEach(b=>b.onclick=()=>renamePlace(b.dataset.mren,box.querySelector("#myRename").value));
@@ -3282,9 +3393,9 @@ function oType(o){return o.kind==="osm"?o.desc:wikiType(o.label||"");}
 function catOk(o){if(!gmCat)return true;const c=GM_CATS.find(x=>x[0]===gmCat);if(!c)return true;
   if(gmCat==="station")return o.kind==="station";if(gmCat==="mine")return false;return o.kind!=="station"&&c[2].includes(oType(o));}
 let gmRecent=[];try{gmRecent=JSON.parse(localStorage.getItem("pt-recent"))||[];}catch(e){}
-function gmAll(){const out=[];
-  for(const o of POIS){if((o.kind==="sight"||o.kind==="gem")&&OSMX[o.town])continue;out.push({id:o.id,name:o.label,sub:o.kind==="station"?"Station":o.town,ic:o.kind==="station"?"🚉":(o.ic||"⭐"),ll:o.ll,o});}
-  for(const n of Object.keys(PT))if(!MINOR.has(n))out.push({id:n,name:n,sub:"Town",ic:"🏙",ll:PT[n]});
+function gmAll(){const out=[],far=!pugliaOn();
+  for(const o of POIS){if(far&&!String(o.town||"").startsWith("@"))continue;if(!far&&String(o.town||"").startsWith("@"))continue;if((o.kind==="sight"||o.kind==="gem")&&OSMX[o.town])continue;out.push({id:o.id,name:o.label,sub:o.kind==="station"?"Station":String(o.town||"").startsWith("@")?(({museum:"Museum",church:"Church",castle:"Castle",view:"Viewpoint",park:"Park",beach:"Beach",ruins:"Ancient site",gate:"City gate",tower:"Tower",monument:"Monument"})[o.desc]||"Sight"):o.town,ic:o.kind==="station"?"🚉":(o.ic||"⭐"),ll:o.ll,o});}
+  if(!far)for(const n of Object.keys(PT))if(!MINOR.has(n))out.push({id:n,name:n,sub:"Town",ic:"🏙",ll:PT[n]});
   for(const m of MYP)out.push({id:m.id,name:m.name,sub:m.home?"Home":"My place",ic:m.home?"🏠":"❤",ll:[m.lat,m.lon]});
   return out;}
 const gmDist=r=>me?hav([me.lat,me.lon],r.ll):hav(PT[hereTown||"Brindisi"]||PT.Brindisi,r.ll);
@@ -3298,8 +3409,8 @@ function gmSearch(){
   const hits=gmAll().map(r=>{const nt=normT(r.name+" "+r.sub);let s=0;for(const t of qt){if(nt.some(w=>w===t))s+=2;else if(nt.some(w=>w.startsWith(t)))s+=1.5;else if(nt.some(w=>w.includes(t)))s+=.7;else return null;}if(r.sub==="Town")s+=1;else if(normT(r.name).some(w=>qt.some(t=>w.startsWith(t))))s+=.5;return {r,s};})
     .filter(Boolean).sort((a,b)=>b.s-a.s||gmDist(a.r)-gmDist(b.r)).slice(0,25).map(x=>x.r);
   res.innerHTML=(hits.length?hits.map(gmRow).join(""):`<div class="h">Nothing in the app for “${q}”</div>`)
-    +(window.AndroidNet&&navigator.onLine===false?`<div class="h">📴 Offline: searching saved places only</div>`:"")
-    +(window.AndroidNet&&navigator.onLine!==false?`<div class="r" data-gmonline="1"><span class="i">🌐</span><span><div class="n">Search “${q}” online</div><div class="s">Any address, shop or restaurant (needs internet)</div></span></div>`:"");
+    +(window.AndroidNet&&isOffline()?`<div class="h">📴 Offline: searching saved places only</div>`:"")
+    +(window.AndroidNet&&!isOffline()?`<div class="r" data-gmonline="1"><span class="i">🌐</span><span><div class="n">Search “${q}” online</div><div class="s">Any address, shop or restaurant (needs internet)</div></span></div>`:"");
   res.classList.add("on");
 }
 function gmShowCat(){
@@ -3390,7 +3501,7 @@ async function findDesc(o){
 }
 function getDesc(id){
   const o=POIMAP[id];if(!o)return Promise.resolve(null);
-  if(DESC[id]&&(DESC[id].l==="app"||DESC[id].l==="none"||(DESC[id].tl||DESC[id].l)===INFO_LANG||!window.AndroidNet||navigator.onLine===false))return Promise.resolve(DESC[id]);
+  if(DESC[id]&&(DESC[id].l==="app"||DESC[id].l==="none"||(DESC[id].tl||DESC[id].l)===INFO_LANG||!window.AndroidNet||isOffline()))return Promise.resolve(DESC[id]);
   const b=builtInText(o);
   if(!window.AndroidNet||o.kind==="station")return Promise.resolve(b?{t:b,l:"app"}:null);
   if(descBusy.has(id))return descBusy.get(id);
@@ -3401,13 +3512,13 @@ function getDesc(id){
 function aboutHTML(r){
   if(!r||!r.t)return r&&r.l==="err"?`⚠ Couldn't load the explanation (${r.e}). It needs internet the first time, then it's saved.`:"No explanation for this place yet.";
   const LN={en:"English",it:"Italian",nl:"Dutch",de:"German",fr:"French",es:"Spanish",pt:"Portuguese"};
-  return `${escH(r.t)}<span class="src">${r.l==="app"?"From the app's own notes":r.mt?`From ${LN[r.l]||r.l} Wikipedia, machine-translated (MyMemory)`:r.l===INFO_LANG?"From Wikipedia":`From ${LN[r.l]||r.l} Wikipedia${navigator.onLine===false?" · translation needs internet":""}`}</span>${r.orig?`<details class="orig"><summary>Original text</summary>${escH(r.orig)}</details>`:""}`;}
+  return `${escH(r.t)}<span class="src">${r.l==="app"?"From the app's own notes":r.mt?`From ${LN[r.l]||r.l} Wikipedia, machine-translated (MyMemory)`:r.l===INFO_LANG?"From Wikipedia":`From ${LN[r.l]||r.l} Wikipedia${isOffline()?" · translation needs internet":""}`}</span>${r.orig?`<details class="orig"><summary>Original text</summary>${escH(r.orig)}</details>`:""}`;}
 async function toggleAbout(btn){
   const box=btn.nextElementSibling;if(!box)return;
   if(!box.hidden){box.hidden=true;btn.textContent="About this place ▸";return;}
   box.hidden=false;btn.textContent="About this place ▾";
   const id=btn.dataset.about,cached=DESC[id];
-  if(cached&&(cached.l==="app"||(cached.tl||cached.l)===INFO_LANG||!window.AndroidNet||navigator.onLine===false)){box.innerHTML=aboutHTML(cached);return;}
+  if(cached&&(cached.l==="app"||(cached.tl||cached.l)===INFO_LANG||!window.AndroidNet||isOffline())){box.innerHTML=aboutHTML(cached);return;}
   if(cached)box.innerHTML=aboutHTML(cached)+`<div class="small">⏳ Getting it in your language…</div>`;
   if(!cached)box.textContent=window.AndroidNet?"⏳ Loading…":"";const r=await getDesc(id);box.innerHTML=aboutHTML(r);
 }
@@ -3427,7 +3538,7 @@ const KIND_LBL={supermarket:"🛒 Supermarket",convenience:"🧺 Minimarket",bak
   monument:"🗿 Monument",memorial:"🗿 Memorial",theatre:"🎭 Theatre",cinema:"🎬 Cinema",townhall:"🏛 Town hall",police:"🚓 Police",toilets:"🚻 Toilets",fuel:"⛽ Petrol station",ferry_terminal:"⛴ Ferry",
   locality:"🏙 Town",neighbourhood:"🏘 Neighbourhood",suburb:"🏘 District",village:"🏡 Village",hamlet:"🏡 Hamlet"};
 function showMapThing(pr,ll,layer){
-  const nm=pr["name:it"]||pr.name,kind=pr.kind||"",lbl=KIND_LBL[kind]||(kind?kind.replace(/_/g," ").replace(/^./,c=>c.toUpperCase()):layer==="places"?"Place":"Place");
+  const nm=pr["name:"+mapLang()]||pr.name,kind=pr.kind||"",lbl=KIND_LBL[kind]||(kind?kind.replace(/_/g," ").replace(/^./,c=>c.toUpperCase()):layer==="places"?"Place":"Place");
   // same as a sight the app knows? use that (it has explanations)
   const sight=POIS.find(o=>(o.kind==="osm"||o.kind==="station")&&hav(o.ll,ll)<0.08&&(nameScore(nm,o.label)>=0.5||nameScore(o.label,nm)>=0.5));
   if(sight)return showPlaceCard(sight.id);
@@ -3447,13 +3558,13 @@ function showPlaceCard(id,ll,name,kindLbl){
   const c=document.getElementById("placeCard");if(!c)return;
   const o=id?POIMAP[id]:null,my=id&&id.startsWith("my:")?myById(id):null;
   const L=ll||(id?T_LL(id):null);if(!L)return;
-  const nm=(name&&name!=="Dropped pin"?name:"")||(o&&o.label)||(my?my.name:"")||(id?T_NAME(id):"Pinned spot"),town=o?o.town:(PT[id]?id:hereTownOf(L[0],L[1])||"");
+  const nm=(name&&name!=="Dropped pin"?name:"")||(o&&o.label)||(my?my.name:"")||(id?T_NAME(id):"Pinned spot"),town=o?(String(o.town||"").startsWith("@")?"":o.town):(PT[id]?id:hereTownOf(L[0],L[1])||"");
   const kind=kindLbl?kindLbl:(my&&my.pin)?"📍 Pinned spot":o?(o.kind==="station"?"🚉 Station":o.kind==="osm"?`${o.ic} ${({museum:"Museum",church:"Church",castle:"Castle",view:"Viewpoint",park:"Park",beach:"Beach",ruins:"Ancient site",gate:"City gate",tower:"Tower",monument:"Monument"})[o.desc]||"Sight"}`:"⭐ Sight"):my?(my.home?"🏠 Home":"❤ My place"):PT[id]?"🏙 Town":"📍 Spot on the map";
   const dist=me?` · ${walkTxt(hav([me.lat,me.lon],L))}`:"";
   cardPin=id?null:L;
   const canTrip=o&&o.kind!=="station"&&mkTowns().includes(o.town);
   c.innerHTML=`<button class="pc-x" data-pc="x" aria-label="Close">✕</button><div class="pc-t">${nm}</div><div class="pc-s">${kind}${town&&!PT[id]?" · "+town:""}${dist}</div>${id&&!PT[id]&&!(id.startsWith("my:"))?aboutBtn(id):""}
-    <div class="pc-b">${activeTrip!=null?`<button class="go" data-pc="go">🧭 Go here</button>`:""}${IN_APP&&me?`<button class="${activeTrip==null?"go":""}" data-pc="walk">🚶 Walk there</button>`:""}
+    <div class="pc-b">${activeTrip!=null?`<button class="go" data-pc="go">🧭 Go here</button>`:""}${IN_APP&&me?["car","bike","foot"].map(k=>`<button class="${activeTrip==null&&NAVM===k?"go":""}" data-pc="walk" data-pcm="${k}">${NAV_INFO[k].ic} ${NAV_INFO[k].go}</button>`).join(""):""}
     ${canTrip?`<button data-pc="trip">➕ Add to a day trip</button>`:""}${(my&&my.pin)||o?`<button data-pc="save">❤ Save</button>`:""}${my&&!my.pin?`<button data-pc="rename">✏️ Rename</button>`:""}<button data-pc="clear">✕ Remove pin</button></div>
     <div class="add-row" id="pcRen" hidden><input class="np-select" id="pcRenIn" style="flex:1" placeholder="Name this place"><button class="btn primary" data-pc="rensave" style="flex:none;min-width:0">Save</button></div>`;
   c.dataset.id=id||"";c.dataset.name=nm;c.classList.add("on");
@@ -3472,14 +3583,14 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   let tid=id;
   if(!tid&&cardPin){if(a!=="save"){const old=MYP.findIndex(p=>p.pin);if(old>=0){MYP.splice(old,1);saveMYP();}}   // one "Pinned spot" at a time
     tid=addMine(a==="save"?"Saved spot":"📍 Pinned spot",cardPin[0],cardPin[1],false);if(a!=="save"){myById(tid).pin=true;saveMYP();}if(mlReady)ml.getSource("mine").setData(mineGeo());}
-  if(a==="go"||a==="walk"){userPickAt=Date.now();endTripQuiet();setTarget(tid);hidePlaceCard();if(a==="walk")setTimeout(startWalking,300);}
+  if(a==="go"||a==="walk"){userPickAt=Date.now();if(a==="walk"&&b.dataset.pcm)setNavMode(b.dataset.pcm);endTripQuiet();setTarget(tid);hidePlaceCard();if(a==="walk")setTimeout(startWalking,300);}
   else if(a==="trip"){const o=POIMAP[id];mk.town=o.town;mk.manual=true;mk.mode="pick";mk.picked.add(id);hidePlaceCard();showTab("trips");renderMaker();
     toast(`Added ${o.label}. Tick more places, then “Create trip”.`);setTimeout(()=>{const t=document.getElementById("tripMaker");t&&t.scrollIntoView({block:"start"});},100);}
   else if(a==="save"){if(id&&!id.startsWith("my:")){const L=T_LL(id);addMine(c.dataset.name,L[0],L[1],false);}
     renderMyBox&&renderMyBox();refreshPickerTowns&&refreshPickerTowns();if(mlReady)ml.getSource("mine").setData(mineGeo());toast("Saved to My places ❤");hidePlaceCard();}
 });
 
-function startWalking(){if(!target||!T_LL(target)){toast("Tap a place on the map first");return;}document.querySelector(".map-wrap").classList.add("walking");
+function startWalking(){if(!target||!T_LL(target)){toast("Tap a place on the map first");return;}navSaid={};walkUpdate.said=0;document.querySelector(".map-wrap").classList.add("walking");
   if(!T_LL(target))return;
   walking=true;follow=true;
   if(HAS_MAPS()&&mode!=="street")setMode("street");
@@ -3487,7 +3598,7 @@ function startWalking(){if(!target||!T_LL(target)){toast("Tap a place on the map
   try{window.AndroidGPS&&window.AndroidGPS.walking&&window.AndroidGPS.walking(true);}catch(e){}setTimeout(headSync,0);
   if(!gpsOn)startGPS();
   document.getElementById("walkBanner").style.display="flex";document.getElementById("walkBar").style.display="flex";
-  routeFor=null;computeRoute(true);
+  computeRoute(true);
   setTimeout(()=>{if(ml)ml.resize();walkUpdate(true);},120);
 }
 function stopWalking(){document.querySelector(".map-wrap").classList.remove("walking");
@@ -3511,15 +3622,16 @@ function walkUpdate(force){
   const ban=document.getElementById("walkBanner"),bar=document.getElementById("walkBar"),t=T_LL(target);
   let arrived=false,left=null;
   if(!me){ban.className="walk-banner";ban.innerHTML=`<div class="wi">📍</div><div><div class="wt">Waiting for GPS…</div><div class="small" style="color:#d8f0ee">Go outside or near a window</div></div>`;}
-  else if(t&&hav([me.lat,me.lon],t)*1000<20){arrived=true;ban.className="walk-banner arrived";ban.innerHTML=`<div class="wi">🏁</div><div><div class="wd">You've arrived</div><div class="wt">${T_NAME(target)}</div></div>`;}
-  else if(route&&route.ok){const n=nextMan();left=n.left;ban.className="walk-banner";
+  else if(t&&hav([me.lat,me.lon],t)*1000<NI().arrive){arrived=true;if(!walkUpdate.said){walkUpdate.said=1;navSay("You have arrived");}ban.className="walk-banner arrived";ban.innerHTML=`<div class="wi">🏁</div><div><div class="wd">You've arrived</div><div class="wt">${T_NAME(target)}</div></div>`;}
+  else if(route&&route.ok){const n=nextMan();left=n.left;ban.className="walk-banner";navVoiceTick(n);
     ban.innerHTML=`<div class="wi">${manIcon(n.text)}</div><div><div class="wd">${n.arrive&&n.dist<20?"":roundM(n.dist)}</div><div class="wt">${n.text}</div></div>`;}
-  else{ban.className="walk-banner";ban.innerHTML=`<div class="wi">🧭</div><div><div class="wt">${routeBusy?"Finding the walking route…":(routeText()||"Follow the arrow")}</div></div>`;}
+  else{ban.className="walk-banner";ban.innerHTML=`<div class="wi">🧭</div><div><div class="wt">${routeBusy?`Finding the ${NI().ing} route…`:(routeText()||"Follow the arrow")}</div></div>`;}
   if(left==null&&me&&t)left=hav([me.lat,me.lon],t)*1000*1.3;
-  const mins=left!=null?Math.max(1,Math.round(left/1000/4.8*60)):null,eta=mins!=null?fmt(new Date().getHours()*60+new Date().getMinutes()+mins):"";
+  const mins=left!=null?navMins(left):null,eta=mins!=null?fmt(new Date().getHours()*60+new Date().getMinutes()+mins):"";
   const nextBtn=arrived&&activeTrip!=null?`<button class="nx" id="wbNext">✓ Done, next</button>`:"";
-  bar.innerHTML=`<div class="grow">${left!=null?`<b>${left<1000?Math.round(left/10)*10+" m":(left/1000).toFixed(1)+" km"}</b> · ${mins} min · arrive ${eta}`:""}<br><span class="small">${T_NAME(target)}${route&&route.ok?(route.src==="online"?" · live route":" · offline route"):""}</span></div>
-    ${follow?"":`<button class="rc" id="wbRc">⟳ Follow</button>`}${nextBtn}<button class="exit" id="wbExit">✕</button>`;
+  bar.innerHTML=`<div class="grow">${left!=null?`<b>${left<1000?Math.round(left/10)*10+" m":(left/1000<10?(left/1000).toFixed(1):Math.round(left/1000))+" km"}</b> · ${navDur(mins)} · arrive ${eta}`:""}<br><span class="small">${NI().ic} ${T_NAME(target)}${route&&route.ok&&route.src!=="online"?" · offline route":""}</span></div>
+    ${follow?"":`<button class="rc" id="wbRc">⟳ Follow</button>`}${nextBtn}<button class="rc" id="wbVoice" aria-label="${NAVVOICE?"Voice off":"Voice on"}">${NAVVOICE?"🔊":"🔇"}</button><button class="exit" id="wbExit">✕</button>`;
+  bar.querySelector("#wbVoice").onclick=()=>{NAVVOICE=!NAVVOICE;try{localStorage.setItem("pt-navvoice",NAVVOICE?"1":"0");}catch(e){}if(NAVVOICE)navSay("Voice on");walkUpdate(true);};
   bar.querySelector("#wbExit").onclick=stopWalking;
   const rc=bar.querySelector("#wbRc");if(rc)rc.onclick=()=>{follow=true;walkUpdate(true);};
   const nb=bar.querySelector("#wbNext");if(nb)nb.onclick=()=>{const P=planTrip(activeTrip);if(curStep>=P.steps.length-1){endTrip();stopWalking();}else goStep(curStep+1,true);};
@@ -3527,7 +3639,7 @@ function walkUpdate(force){
   if(follow&&me&&(force||Date.now()-lastEase>300)){
     lastEase=Date.now();
     const hd=gpsBearing!=null?gpsBearing:(heading!=null?heading:(ml?ml.getBearing():0));
-    if(ml)ml.easeTo({center:[me.lon,me.lat],zoom:Math.max(ml.getZoom(),18),pitch:50,bearing:hd,padding:{top:Math.round(ml.getContainer().clientHeight*0.38),bottom:0,left:0,right:0},duration:force?800:350});
+    if(ml)ml.easeTo({center:[me.lon,me.lat],zoom:NAVM==="foot"?Math.max(ml.getZoom(),18):NI().zoom,pitch:NI().pitch,bearing:hd,padding:{top:Math.round(ml.getContainer().clientHeight*0.38),bottom:0,left:0,right:0},duration:force?800:350});
     else{const [x,y]=proj(me.lat,me.lon);vb=[x-3,y-2.6,6,5.3];drawMap();}
   }
 }
@@ -3750,7 +3862,7 @@ function render(){
   else{el.innerHTML=base+AREAS.map((a,i)=>{const g=list.filter(d=>d.area===i).sort((x,y)=>x.mins-y.mins);return g.length?`<div class="group-h">${a}</div>`+g.map(card).join(""):""}).join("");}
 }
 function renderStatic(){
-  {const hot=liveAlerts().filter(a=>a.hot);document.getElementById("alertTop").innerHTML=hot.length>1
+  {const hot=pugliaOn()?liveAlerts().filter(a=>a.hot):[];document.getElementById("alertTop").innerHTML=hot.length>1
     ?`<details class="alert"><summary>⚠️ ${hot.length} strikes or disruptions coming up</summary>${hot.map(a=>`<p><b>${a.t}</b><br>${a.p}</p>`).join("")}</details>`
     :hot.map(a=>`<details class="alert"><summary>⚠️ ${a.t}</summary><p>${a.p}</p></details>`).join("");}
   document.getElementById("alerts").innerHTML=liveAlerts().map(a=>`<div class="${a.hot?"alert":"card"}"><h3 style="margin:0 0 4px;font-size:15px${a.hot?"":";color:var(--ink)"}">${a.t}</h3><p style="margin:0;font-size:14px">${a.p}</p></div>`).join("");
@@ -3792,6 +3904,9 @@ function skinPv(k){return `<span class="pv" data-pv="${k}" style="--pvh:${pvHue(
 const SKIN_SOFTABLE={mono:1,vault:1};
 function skinPicker(cur,attr,cls){return `<div class="${cls||"skins"}">${SKINS.map(([k,l,d])=>`<button class="skin${cur===k?" on":""}" ${attr}="${k}" aria-pressed="${cur===k}">${skinPv(k)}${l}<small>${d}</small></button>`).join("")}</div>${SKIN_SOFTABLE[cur]?`<div class="seg skin-soft">${[[1,"Soft"],[0,"Strong"]].map(([v,l])=>`<button data-skin-soft="${v}" class="${(SKIN_SOFT?1:0)===v?"on":""}">${l}</button>`).join("")}</div>`:""}`;}
 function skinCenter(root){try{const on=root&&root.querySelector(".skins .skin.on");if(!on)return;const sc=on.parentNode;if(sc.scrollWidth>sc.clientWidth)sc.scrollLeft=on.offsetLeft-sc.offsetLeft-sc.clientWidth/2+on.offsetWidth/2;}catch(e){}}
+/* start the street map again (new colours or label language), keeping where you were looking */
+function rebuildMap(){if(!ml)return;const keep={c:ml.getCenter(),z:ml.getZoom()};try{ml.remove();}catch(e){}ml=null;mlReady=false;meMarker=null;dotShown=null;headShown=null;cancelAnimationFrame(dotAnim);cancelAnimationFrame(headAnim);headAnim=0;
+  if(mode==="street")ensureStreet().then(()=>{if(ml)ml.jumpTo({center:keep.c,zoom:keep.z});});}
 function applyTheme(){
   const dark=!!SKIN_DARK[SKIN]||THEME==="dark"||(THEME==="auto"&&phoneNight()),was=DK();
   document.documentElement.dataset.skin=SKIN;
@@ -3799,8 +3914,7 @@ function applyTheme(){
   document.documentElement.dataset.theme=dark?"dark":"light";
   let bar=dark?"#0f1317":"#f1f3f4";try{const v=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();if(/^#[0-9a-f]{3,8}$/i.test(v))bar=v;else if(v.startsWith("hsl")||v.startsWith("rgb")){const t=document.createElement("i");t.style.color=v;document.body.appendChild(t);const m=getComputedStyle(t).color.match(/\d+/g);t.remove();if(m)bar="#"+m.slice(0,3).map(n=>(+n).toString(16).padStart(2,"0")).join("");}}catch(e){}
   try{window.AndroidGPS&&window.AndroidGPS.setBars&&window.AndroidGPS.setBars(bar,!dark);}catch(e){}
-  if(was!==dark){drawMap();if(ml){const keep={c:ml.getCenter(),z:ml.getZoom()};try{ml.remove();}catch(e){}ml=null;mlReady=false;meMarker=null;dotShown=null;headShown=null;cancelAnimationFrame(dotAnim);cancelAnimationFrame(headAnim);headAnim=0;
-      if(mode==="street")ensureStreet().then(()=>{if(ml)ml.jumpTo({center:keep.c,zoom:keep.z});});}}
+  if(was!==dark){drawMap();rebuildMap();}
   renderSet();
 }
 function renderSet(){const b=document.getElementById("setBox");if(!b)return;
@@ -3827,6 +3941,9 @@ var COUNTRY_NAME={it:"Italy",nl:"Netherlands",xx:"Neutral"};
 var SET_COUNTRY="auto",SET_MODE="auto",LAST_C="it";
 try{SET_COUNTRY=localStorage.getItem("pt-country")||"auto";SET_MODE=localStorage.getItem("pt-appmode")||"auto";LAST_C=localStorage.getItem("pt-lastc")||"it";}catch(e){}
 function countryAt(lat,lon){for(const k in COUNTRY_BOX){const b=COUNTRY_BOX[k];if(lat>=b[0]&&lat<=b[2]&&lon>=b[1]&&lon<=b[3])return k;}return "xx";}
+/* Puglia-only parts (day trips, Puglia towns, Italian strikes, the simple Puglia map…) only show in Italy */
+function pugliaOn(){return curCountry()==="it";}
+function mapLang(){return {nl:"nl",it:"it"}[curCountry()]||"en";}
 function curCountry(){if(SET_COUNTRY!=="auto")return SET_COUNTRY;return me?countryAt(me.lat,me.lon):LAST_C;}
 /* Home mode = near where you live (set in ⚙️ or with "This is my home"), in any country. Without a home set, the Netherlands counts as home. */
 var LAST_MODE="travel";try{LAST_MODE=localStorage.getItem("pt-lastmode")||"travel";}catch(e){}
@@ -3846,8 +3963,11 @@ function applyCountry(){
   if(me&&SET_COUNTRY==="auto"&&c!==LAST_C){LAST_C=c;try{localStorage.setItem("pt-lastc",c);}catch(e){}}
   document.documentElement.dataset.country=c;
   document.body.classList.toggle("mode-home",m==="home");document.body.classList.toggle("mode-travel",m!=="home");
+  {const tb=document.querySelector('nav [data-v="trips"]');if(tb){const tn=[...tb.childNodes].find(n=>n.nodeType===3);if(tn)tn.textContent=m==="home"?"Flights":"Trips";}}
   applyPane();
-  if(key===appliedKey)return;appliedKey=key;
+  if(!pugliaOn()&&mode!=="street"&&HAS_MAPS())setTimeout(()=>setMode("street"),0);
+  if(ml&&ml.__lang&&ml.__lang!==mapLang())rebuildMap();
+  if(key===appliedKey)return;appliedKey=key;try{renderStatic();}catch(e){}
   if(m==="home"){renderNL();if(document.body.classList.contains("tab-trips"))showTab("dest");}
   try{planNotifs();}catch(e){}
   try{renderShops();}catch(e){}
@@ -3898,7 +4018,7 @@ const minsTxt=s=>{const m=Math.round(s/60);return m<60?m+" min":Math.floor(m/60)
 const escH=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const MODE_IC=m=>/RAIL|SUBURBAN|HIGHSPEED|LONG_DISTANCE|NIGHT_RAIL/.test(m)?"🚆":/BUS|COACH/.test(m)?"🚌":/TRAM/.test(m)?"🚊":/SUBWAY|METRO/.test(m)?"🚇":/FERRY/.test(m)?"⛴":/WALK/.test(m)?"🚶":/BIKE|RENTAL/.test(m)?"🚲":/CAR/.test(m)?"🚗":"🚍";
 const TR="https://api.transitous.org/api";
-async function trGet(path){if(!window.AndroidNet)throw new Error("Works in the Android app");if(navigator.onLine===false)throw new Error("No internet");
+async function trGet(path){if(!window.AndroidNet)throw new Error("Works in the Android app");if(isOffline())throw new Error("No internet");
   const t=await netGet(TR+path,20000);try{return JSON.parse(t);}catch(e){throw new Error("Transitous sent something unreadable");}}
 
 /* ---------- NLHOME (NL) state ---------- */
@@ -3912,7 +4032,7 @@ const saveNLC=()=>{try{localStorage.setItem("pt-nlcache",JSON.stringify(NLC));}c
 if(NLC.dep){nlDep.list=NLC.dep.list.filter(s=>Date.parse(s.place.departure||s.place.scheduledDeparture)>=Date.now()-60e3);nlDep.at=NLC.dep.at;nlDep.cached=true;}
 if(NLC.road&&Date.now()-NLC.road.at<6*3600e3){nlRoad.list=NLC.road.list;nlRoad.at=NLC.road.at;nlRoad.cached=true;}
 if(NLC.routes)for(const [k,v] of Object.entries(NLC.routes))nlRouteRes[k]={...v,cached:true};
-const offNote=(at,cached)=>cached||navigator.onLine===false?`<div class="small" style="margin:2px 0 4px">📴 ${navigator.onLine===false?"No internet: ":""}saved ${at?hmI(new Date(at).toISOString()):""}${at&&Date.now()-at>86400e3?" ("+Math.round((Date.now()-at)/86400e3)+" d ago)":""}</div>`:"";
+const offNote=(at,cached)=>cached||isOffline()?`<div class="small" style="margin:2px 0 4px">📴 ${isOffline()?"No internet: ":""}saved ${at?hmI(new Date(at).toISOString()):""}${at&&Date.now()-at>86400e3?" ("+Math.round((Date.now()-at)/86400e3)+" d ago)":""}</div>`:"";
 
 function renderNL(){
   const b=document.getElementById("nlHome");if(!b)return;
@@ -3927,12 +4047,12 @@ function renderNL(){
 }
 
 /* ---------- Now: place, weather, rain in the next 2 hours ---------- */
-async function placeName(lat,lon){const k=lat.toFixed(2)+","+lon.toFixed(2);if(PLACE_NM[k])return PLACE_NM[k];if(!window.AndroidNet||navigator.onLine===false)return "";
+async function placeName(lat,lon){const k=lat.toFixed(2)+","+lon.toFixed(2);if(PLACE_NM[k])return PLACE_NM[k];if(!window.AndroidNet||isOffline())return "";
   try{const j=JSON.parse(await netGet(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat=${lat}&lon=${lon}`,15000));const a=j.address||{};
     const n=a.city||a.town||a.village||a.municipality||a.suburb||"";if(n){PLACE_NM[k]=n;try{localStorage.setItem("pt-placenm",JSON.stringify(PLACE_NM));}catch(e){}renderNlNow();}return n;}catch(e){return "";}}
 function hereName(){if(!me)return "";const k=me.lat.toFixed(2)+","+me.lon.toFixed(2);return PLACE_NM[k]||"";}
 var hwxBusy=false;
-async function fetchHereWx(force){if(!me||hwxBusy||!window.AndroidNet||navigator.onLine===false)return;
+async function fetchHereWx(force){if(!me||hwxBusy||!window.AndroidNet||isOffline())return;
   if(!force&&HWX&&Date.now()-HWX.ts<20*60e3&&hav([HWX.lat,HWX.lon],[me.lat,me.lon])<5)return;hwxBusy=true;
   try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${me.lat.toFixed(3)}&longitude=${me.lon.toFixed(3)}&current=temperature_2m,weather_code,is_day,precipitation,wind_speed_10m&minutely_15=precipitation&forecast_minutely_15=12&hourly=precipitation_probability,precipitation&forecast_hours=24&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&forecast_days=2&timezone=auto`;
     const j=JSON.parse(await netGet(u,20000));HWX={ts:Date.now(),lat:me.lat,lon:me.lon,j};try{localStorage.setItem("pt-hwx",JSON.stringify(HWX));}catch(e){}renderNlNow();}catch(e){}finally{hwxBusy=false;}}
@@ -3949,7 +4069,7 @@ function renderNlNow(){const b=document.getElementById("nlNow");if(!b)return;
   if(cur){let [ic,tx]=WMO(cur.weather_code);if(cur.is_day===0&&cur.weather_code<=2){ic="🌙";tx=cur.weather_code===0?"Clear":"Partly cloudy";}
     const r=rainSoon(j);
     const old=Date.now()-HWX.ts>3*3600e3;
-    wx=`${old||navigator.onLine===false?offNote(HWX.ts,true):""}<div class="wx"><span class="wi">${ic}</span><span><b>${Math.round(cur.temperature_2m)}°</b> ${old?"then":"now"} · ${tx}${d?`, ${Math.round(d.temperature_2m_min[0])}–${Math.round(d.temperature_2m_max[0])}°`:""}${cur.wind_speed_10m>=40?" · 💨 windy":""}</span>
+    wx=`${old||isOffline()?offNote(HWX.ts,true):""}<div class="wx"><span class="wi">${ic}</span><span><b>${Math.round(cur.temperature_2m)}°</b> ${old?"then":"now"} · ${tx}${d?`, ${Math.round(d.temperature_2m_min[0])}–${Math.round(d.temperature_2m_max[0])}°`:""}${cur.wind_speed_10m>=40?" · 💨 windy":""}</span>
       ${d&&d.time[1]?`<span>Tomorrow ${WMO(d.weather_code[1])[0]} ${Math.round(d.temperature_2m_min[1])}–${Math.round(d.temperature_2m_max[1])}°${d.precipitation_sum[1]>=1?` · 🌂 ${Math.round(d.precipitation_sum[1])} mm`:" · dry"}</span>`:""}</div>
       ${r?`<div class="rain"><b>${r.txt}</b>${r.bars}</div>`:""}`;}
   const away=NLHOME&&me?hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon]):null;
@@ -3972,7 +4092,7 @@ const ROAD_KIND=r=>{const t=r.type||"",a=r.abnormalTrafficType||"",m=r.roadOrCar
 function routeCorridor(a,b2){const pts=[],n=Math.max(1,Math.ceil(hav([a.lat,a.lon],[b2.lat,b2.lon])/8));for(let i=0;i<=n;i++)pts.push([a.lat+(b2.lat-a.lat)*i/n,a.lon+(b2.lon-a.lon)*i/n,4]);return pts;}
 var roadKey=0;
 function loadNlRoad(){if(!me||curCountry()!=="nl")return;if(!window.AndroidRoad){nlRoad.err="Road info works in the Android app.";return renderNlRoad();}
-  if(navigator.onLine===false){if(nlRoad.list){nlRoad.cached=true;nlRoad.err="";}else nlRoad.err="📴 No internet: road info needs a connection.";return renderNlRoad();}
+  if(isOffline()){if(nlRoad.list){nlRoad.cached=true;nlRoad.err="";}else nlRoad.err="📴 No internet: road info needs a connection.";return renderNlRoad();}
   nlRoad.busy=true;nlRoad.err="";renderNlRoad();const key="r"+(++roadKey);
   const pts=[[me.lat,me.lon,25]];if(NLHOME&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>2)pts.push(...routeCorridor(me,NLHOME));
   for(const r of SAVED)pts.push(...routeCorridor(r.a,r.b));
@@ -3995,7 +4115,7 @@ function renderNlRoad(){const b=document.getElementById("nlRoad");if(!b)return;
 
 /* ---------- Departures near me (Transitous) ---------- */
 async function loadNlDep(){if(!me||nlDep.busy)return;
-  if(navigator.onLine===false){if(nlDep.list){nlDep.list=nlDep.list.filter(s=>Date.parse(s.place.departure||s.place.scheduledDeparture)>=Date.now()-60e3);nlDep.cached=true;nlDep.err="";}else nlDep.err="📴 No internet, and no saved departures for here yet.";return renderNlDep();}
+  if(isOffline()){if(nlDep.list){nlDep.list=nlDep.list.filter(s=>Date.parse(s.place.departure||s.place.scheduledDeparture)>=Date.now()-60e3);nlDep.cached=true;nlDep.err="";}else nlDep.err="📴 No internet, and no saved departures for here yet.";return renderNlDep();}
   nlDep.busy=true;nlDep.err="";renderNlDep();
   try{const j=await trGet(`/v6/stoptimes?center=${me.lat.toFixed(5)},${me.lon.toFixed(5)}&radius=700&exactRadius=true&n=40`);
     const now=Date.now();nlDep.list=(j.stopTimes||[]).filter(s=>s.place&&Date.parse(s.place.departure||s.place.scheduledDeparture)>=now-60e3).sort((a,c)=>Date.parse(a.place.departure)-Date.parse(c.place.departure)).slice(0,40);nlDep.at=now;nlDep.cached=false;
@@ -4080,13 +4200,20 @@ function renderNlPlan(){const b=planEl();if(!b)return;const P=nlPlan;P.mode=P.mo
 }
 async function planNl(time){const P=nlPlan,F=planFrom();if(!F||!P.to){renderNlPlan();return;}P.err="";P.open=-1;P.cached=false;
   const key=planKey(),modes=PLAN_MODES[P.mode||"all"][1];
-  if(navigator.onLine===false){const c=PLANC[key];if(c){P.its=c.its;P.at=c.at;P.cached=true;}else{P.its=null;P.err="📴 No internet, and no saved connections for this trip yet.";}return renderNlPlan();}
+  if(isOffline()){const c=PLANC[key];if(c){P.its=c.its;P.at=c.at;P.cached=true;}else{P.its=null;P.err="📴 No internet, and no saved connections for this trip yet.";}return renderNlPlan();}
   P.busy=true;if(!time)P.its=null;renderNlPlan();
   try{const base=`/v6/plan?fromPlace=${F.lat.toFixed(5)},${F.lon.toFixed(5)}&toPlace=${P.to.lat},${P.to.lon}${time?`&time=${encodeURIComponent(time)}`:""}`;
-    const fits=i=>{const tl=(i.legs||[]).filter(l=>!/WALK|BIKE|CAR|RENTAL/.test(l.mode));if(!tl.length)return false;if(!modes)return true;
-      return tl.every(l=>P.mode==="bus"?/BUS|COACH/.test(l.mode):/RAIL|SUBURBAN|HIGHSPEED|LONG_DISTANCE|NIGHT_RAIL/.test(l.mode));};
-    let j;try{j=await trGet(base+(modes?`&transitModes=${modes}`:""));}catch(x){if(!modes)throw x;j=await trGet(base);}   // older servers: filter here instead
-    const its=(j.itineraries||[]).filter(fits);P.its=time?[...(P.its||[]),...its]:its;P.at=Date.now();
+    // Train / Bus: ask for everything and keep the trips that are mostly by train (or bus). Asking the server for trains only
+    // dropped every trip that needs a short bus ride to the station, which left only night trains with hours of waiting.
+    const isRail=m=>/RAIL|SUBURBAN|HIGHSPEED|LONG_DISTANCE|METRO|SUBWAY/.test(m),isBus=m=>/BUS|COACH|TRAM/.test(m);
+    const share=i=>{let r=0,bu=0,all=0;for(const l of i.legs||[]){if(/WALK|BIKE|CAR|RENTAL|FLEX|ODM/.test(l.mode))continue;const d=l.duration||((Date.parse(l.endTime)-Date.parse(l.startTime))/1000)||0;all+=d;if(isRail(l.mode))r+=d;else if(isBus(l.mode))bu+=d;}return {r:all?r/all:0,b:all?bu/all:0,all};};
+    const fits=i=>{const sh=share(i);if(!sh.all)return false;if(!modes)return true;return P.mode==="bus"?sh.b>=0.6:sh.r>=0.6;};
+    const j=await trGet(base+"&numItineraries=8");
+    const raw=(j.itineraries||[]).filter(i=>share(i).all);let its=raw.filter(fits);
+    if(modes&&!its.length&&raw.length){its=raw;P.err=(P.mode==="bus"?"No trips mostly by bus":"No trips mostly by train")+" right now, so here are all connections.";}
+    its.sort((a,c)=>Date.parse(a.startTime)-Date.parse(c.startTime));
+    P.its=time?[...(P.its||[]),...its.filter(i=>!(P.its||[]).some(o=>o.startTime===i.startTime&&o.endTime===i.endTime))]:its;P.at=Date.now();
+    if(P.its.length&&!time){const first=Date.parse(P.its[0].startTime);if(first-Date.now()>3*3600e3)P.err=`Nothing leaves in the next 3 hours: the first connection is at ${hmI(P.its[0].startTime)}.`;}
     if(!P.its.length)P.err=P.mode==="bus"?"No buses found for this trip in the open timetable data. Try All or Train.":P.mode==="rail"?"No train connection found. Try All or Bus.":(j.direct||[]).length?`It's quicker to walk: about ${minsTxt(j.direct[0].duration)}.`:"No public transport connection found.";
     else{PLANC[key]={its:P.its.slice(0,8),at:P.at,day:localDay()};const ks=Object.keys(PLANC);if(ks.length>20)delete PLANC[ks[0]];try{localStorage.setItem("pt-plancache",JSON.stringify(PLANC));}catch(e){}}}
   catch(e){P.err=e.message;}P.busy=false;renderNlPlan();}
@@ -4102,17 +4229,26 @@ function applyTrainsMode(){const it=curCountry()==="it",useTI=it&&TMODE==="rail"
 /* ---------- Saved routes (incl. Home) ---------- */
 function routesList(){const L=[];if(NLHOME&&me&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])>1)L.push({id:"home",name:"🏠 Home",a:{name:hereName()||"Here",lat:me.lat,lon:me.lon},b:NLHOME,home:true});return L.concat(SAVED);}
 function routeDir(r){if(r.home||!me)return [r.a,r.b];return hav([me.lat,me.lon],[r.a.lat,r.a.lon])<=hav([me.lat,me.lon],[r.b.lat,r.b.lon])?[r.a,r.b]:[r.b,r.a];}
-async function routeNext(r){if(navigator.onLine===false){if(nlRouteRes[r.id]&&nlRouteRes[r.id].its){nlRouteRes[r.id].cached=true;}else nlRouteRes[r.id]={err:"📴 No internet, no saved connections for this route yet."};return renderNlSaved();}
+async function routeNext(r){if(isOffline()){if(nlRouteRes[r.id]&&nlRouteRes[r.id].its){nlRouteRes[r.id].cached=true;}else nlRouteRes[r.id]={err:"📴 No internet, no saved connections for this route yet."};return renderNlSaved();}
   const [f,t]=routeDir(r);const from=me&&hav([me.lat,me.lon],[f.lat,f.lon])<3?me:f;nlRouteRes[r.id]={busy:true};renderNlSaved();
   try{const j=await trGet(`/v6/plan?fromPlace=${from.lat.toFixed(5)},${from.lon.toFixed(5)}&toPlace=${t.lat},${t.lon}`);nlRouteRes[r.id]={its:(j.itineraries||[]).filter(i=>(i.legs||[]).some(l=>l.mode!=="WALK")).slice(0,3),at:Date.now()};NLC.routes=NLC.routes||{};NLC.routes[r.id]=nlRouteRes[r.id];saveNLC();}
   catch(e){nlRouteRes[r.id]={err:e.message};}renderNlSaved();}
+/* go to a saved route's other end, by car / bike / on foot (in the app, with turn-by-turn) */
+function navTo(pt,m){if(!pt)return;let my=MYP.find(p=>!p.pin&&hav([p.lat,p.lon],[pt.lat,pt.lon])*1000<40);
+  const id=my?my.id:setTempPin([pt.lat,pt.lon],pt.name);if(m)setNavMode(m);showTab("map");endTripQuiet&&endTripQuiet();setTarget(id);setTimeout(startWalking,300);}
+function saveNavRoute(){const t=T_LL(target);if(!t||!me){toast("Pick a place and wait for your location first");return;}
+  const to={name:String(T_NAME(target)||"Destination").replace(/^\S*[📍❤️🏠]\uFE0F?\s*/u,""),lat:+t[0].toFixed(5),lon:+t[1].toFixed(5)},from={name:hereName()||"Start",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5)};
+  const nm=prompt("Name this route (it works both ways)",`${from.name} → ${to.name}`);if(!nm)return;
+  SAVED.push({id:"r"+Date.now(),name:nm,a:from,b:to,m:NAVM});saveRoutes();renderNlSaved();renderMyBox();toast("⭐ Route saved: it's under My places on the map and under Transit");}
 function renderNlSaved(){const b=document.getElementById("nlSaved");if(!b)return;const L=routesList();
-  b.innerHTML=`<div class="trip-h"><div class="dest">⭐ My routes</div></div>${!L.length?`<div class="small">Plan a trip above and tap ⭐ Save route, e.g. home ⇄ work. ${NLHOME?"":"Set your home in the card at the top to get a Home route."}</div>`:""}
+  b.innerHTML=`<div class="trip-h"><div class="dest">⭐ My routes</div></div>${!L.length?`<div class="small">Plan a trip under Transit and tap ⭐ Save route, e.g. home ⇄ work. ${NLHOME?"":"Set your home in the card at the top to get a Home route."}</div>`:""}
     ${L.map(r=>{const [f,t]=routeDir(r),R=nlRouteRes[r.id]||{};const onWay=(nlRoad.list||[]).filter(x=>routeCorridor(f,t).some(p=>hav([p[0],p[1]],[x.lat,x.lon])<=4)&&ROAD_KIND(x)[2]<2);
       return `<div class="rt"><div class="rt-h"><b>${escH(r.name)}</b><span class="tr">to ${escH(t.name)}</span>${r.home?"":`<button class="mini" data-rdel="${r.id}" aria-label="Delete route">✕</button>`}</div>
         ${onWay.length?`<div class="rt-warn">⚠️ ${onWay.length} traffic message${onWay.length>1?"s":""} on the way: ${onWay.slice(0,2).map(x=>`${x.roadNumber||""} ${ROAD_KIND(x)[1].toLowerCase()}`).join(", ")}</div>`:curCountry()==="nl"&&nlRoad.list?`<div class="tr" style="margin:2px 0">✅ No jams or closures on the way</div>`:""}
         ${R.its&&!R.busy?offNote(R.at,R.cached):""}${R.busy?`<div class="small">⏳ …</div>`:R.err?`<div class="live-err">${escH(R.err)}</div>`:R.its?(R.its.length?R.its.map(it=>`<div class="tr">🚆 ${hmI(it.startTime)} → ${hmI(it.endTime)} · ${minsTxt(it.duration)} · ${(it.legs||[]).filter(l=>l.mode!=="WALK").map(l=>MODE_IC(l.mode)+" "+escH(l.routeShortName||l.displayName||"")).join(" › ")}</div>`).join(""):`<div class="small">No connection found.</div>`):""}
-        <div class="btns"><button class="btn ghost" data-rnext="${r.id}">🚆 Next connections</button><a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&origin=${me&&!r.home&&hav([me.lat,me.lon],[f.lat,f.lon])>3?f.lat+","+f.lon:""}&destination=${t.lat},${t.lon}&travelmode=driving">🚗 Drive (traffic)</a></div></div>`;}).join("")}`;
+        <div class="btns rt-go">${["car","bike","foot"].map(k=>`<button class="btn ${(r.m||"")===k?"primary":"ghost"}" data-rgom="${k}" data-rgo2="${r.id}">${NAV_INFO[k].ic} ${NAV_INFO[k].go}</button>`).join("")}</div>
+        <div class="btns"><button class="btn ghost" data-rnext="${r.id}">🚆 Next connections</button><a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&origin=${me&&!r.home&&hav([me.lat,me.lon],[f.lat,f.lon])>3?f.lat+","+f.lon:""}&destination=${t.lat},${t.lon}&travelmode=driving">🌐 Traffic in Google Maps</a></div></div>`;}).join("")}`;
+  b.querySelectorAll("[data-rgo2]").forEach(x=>x.onclick=()=>{const r=routesList().find(y=>y.id===x.dataset.rgo2);if(!r)return;if(!r.home&&r.m!==x.dataset.rgom){r.m=x.dataset.rgom;saveRoutes();}navTo(routeDir(r)[1],x.dataset.rgom);});
   b.querySelectorAll("[data-rnext]").forEach(x=>x.onclick=()=>{const r=routesList().find(y=>y.id===x.dataset.rnext);if(r)routeNext(r);});
   b.querySelectorAll("[data-rdel]").forEach(x=>x.onclick=()=>{if(x.dataset.sure){SAVED=SAVED.filter(r=>r.id!==x.dataset.rdel);saveRoutes();renderNlSaved();}else{x.dataset.sure=1;x.textContent="Delete?";}});
 }
@@ -4152,7 +4288,7 @@ var DIET=[],DIET_CC="",DIET_LANGSEL=null;
 try{const d=JSON.parse(localStorage.getItem("pt-diet"));if(Array.isArray(d))DIET=d;DIET_CC=localStorage.getItem("pt-cc")||"";}catch(e){}
 function dietLangs(){if(DIET_LANGSEL)return [DIET_LANGSEL];const cc=DIET_CC||({it:"it",nl:"nl"}[curCountry()]||"");return (CC_LANGS[cc]||["en"]).filter(l=>DIET_LANG[l]);}
 var ccAt=null;
-async function dietCountry(){if(!me||!window.AndroidNet||navigator.onLine===false)return;if(ccAt&&hav(ccAt,[me.lat,me.lon])<40)return;
+async function dietCountry(){if(!me||!window.AndroidNet||isOffline())return;if(ccAt&&hav(ccAt,[me.lat,me.lon])<40)return;
   const quick=countryAt(me.lat,me.lon);if(quick!=="xx"){ccAt=[me.lat,me.lon];if(DIET_CC!==quick){DIET_CC=quick;try{localStorage.setItem("pt-cc",quick);}catch(e){}renderDiet();}return;}
   try{const j=JSON.parse(await netGet(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=3&lat=${me.lat}&lon=${me.lon}`,15000));const cc=((j.address||{}).country_code||"").toLowerCase();
     ccAt=[me.lat,me.lon];if(cc&&cc!==DIET_CC){DIET_CC=cc;try{localStorage.setItem("pt-cc",cc);}catch(e){}renderDiet();}}catch(e){}}
@@ -4266,7 +4402,7 @@ async function renderFlights(){const b=document.getElementById("flBox");if(!b)re
   b.querySelectorAll("[data-fldel]").forEach(x=>x.onclick=()=>{if(!x.dataset.sure){x.dataset.sure=1;x.textContent="Tap again to remove";return;}FLIGHTS=FLIGHTS.filter(f=>f.id!==x.dataset.fldel);saveFlights();renderFlights();});
   if(flOpen)flightWx(FLIGHTS.find(f=>f.id===flOpen));
 }
-async function flightWx(f){if(!f||!AP||!AP[f.to]||!window.AndroidNet||navigator.onLine===false)return;const B=AP[f.to],dd=Math.round((new Date(f.date)-new Date(localDay()))/864e5);if(dd<0||dd>14)return;
+async function flightWx(f){if(!f||!AP||!AP[f.to]||!window.AndroidNet||isOffline())return;const B=AP[f.to],dd=Math.round((new Date(f.date)-new Date(localDay()))/864e5);if(dd<0||dd>14)return;
   try{const j=JSON.parse(await netGet(`https://api.open-meteo.com/v1/forecast?latitude=${B.lat}&longitude=${B.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=16&timezone=auto`,15000));
     const i=j.daily.time.indexOf(f.date);if(i<0)return;const el=document.getElementById("flwx-"+f.id);if(el)el.innerHTML=`Weather in ${escH(apName(f.to))} that day: ${WMO(j.daily.weather_code[i])[0]} ${Math.round(j.daily.temperature_2m_min[i])}–${Math.round(j.daily.temperature_2m_max[i])}°${j.daily.precipitation_sum[i]>=1?` · 🌂 ${Math.round(j.daily.precipitation_sum[i])} mm`:""}`;}catch(e){}}
 function planFlightNotifs(){if(!canNotify())return;try{window.AndroidNotify.cancelPrefix("flt:");}catch(e){}const now=Date.now();
@@ -4284,7 +4420,7 @@ let WX={};try{WX=JSON.parse(localStorage.getItem("pt-wx"))||{};}catch(e){}
 const WMO=c=>c==null?["",""]:c===0?["☀️","Sunny"]:c<=2?["🌤","Partly cloudy"]:c===3?["☁️","Cloudy"]:c<=48?["🌫","Fog"]:c<=57?["🌦","Drizzle"]:c<=67?["🌧","Rain"]:c<=77?["🌨","Snow"]:c<=82?["🌦","Showers"]:c<=86?["🌨","Snow showers"]:["⛈","Thunderstorms"];
 let wxBusy=false;
 async function fetchWx(force){
-  if(wxBusy||!window.AndroidNet||navigator.onLine===false)return;
+  if(wxBusy||!window.AndroidNet||isOffline())return;
   if(!force&&WX._ts&&Date.now()-WX._ts<3600e3)return;
   wxBusy=true;
   try{const towns=Object.keys(PT).filter(n=>!MINOR.has(n));
@@ -4348,7 +4484,7 @@ let depKey=0;var DEPC={};try{DEPC=JSON.parse(localStorage.getItem("pt-depcache")
 async function loadDeps(){
   if(depBusy)return;
   if(!window.AndroidLive){depErr="Train times work in the Android app.";return renderDeps();}
-  if(navigator.onLine===false){const c=DEPC[depFromName()+">"+defaultTo()];
+  if(isOffline()){const c=DEPC[depFromName()+">"+defaultTo()];
     if(c&&c.date===localDay()){const nowM=new Date().getHours()*60+new Date().getMinutes();depData={from:c.from,to:c.to,list:c.list.filter(t=>{const [hh,mm]=t.dep.split(":").map(Number);return hh*60+mm>=nowM-1;}),cached:c.at};depAt=new Date(c.at);depErr="";return renderDeps();}
     depErr="📴 No internet. Check “Getting back” and the day-trip cards: they have offline times.";return renderDeps();}
   depBusy=true;depErr="";renderDeps();
@@ -4446,7 +4582,7 @@ function canNotify(){return !!(window.AndroidNotify&&window.AndroidNotify.schedu
 function planNotifs(){
   if(!canNotify())return;
   try{window.AndroidNotify.cancelPrefix("plan:");}catch(e){}
-  if(appMode()==="home")return;
+  if(appMode()==="home"||!pugliaOn())return;
   const now=Date.now(),at=(m,dayOff=0)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+dayOff);return d.getTime()+m*60000;};
   const S=(id,when,title,text)=>{if(when>now+30000&&when<now+36*3600e3)try{window.AndroidNotify.schedule("plan:"+id,when,title,text);}catch(e){}};
   // last connection back to Brindisi
@@ -4466,7 +4602,7 @@ setInterval(planNotifs,5*60*1000);
 function renderNotifBox(){
   const b=document.getElementById("notifBox");if(!b)return;
   b.innerHTML=`<div class="dest">🔔 Notifications</div>${canNotify()?"":`<div class="small">Notifications work in the Android app.</div>`}
-    ${NOTIF_TYPES.map(([k,t,s])=>`<div class="sw"><span class="w">${t}<small>${s}</small></span><button class="tg ${NOTIF[k]?"on":""}" data-nt="${k}" aria-pressed="${!!NOTIF[k]}" aria-label="${t}"></button></div>`).join("")}
+    ${NOTIF_TYPES.filter(([k])=>pugliaOn()||!["last","trip","strike","rain"].includes(k)).map(([k,t,s])=>`<div class="sw"><span class="w">${t}<small>${s}</small></span><button class="tg ${NOTIF[k]?"on":""}" data-nt="${k}" aria-pressed="${!!NOTIF[k]}" aria-label="${t}"></button></div>`).join("")}
     <div class="sw"><span class="w">💶 Shared costs<small>Keep track of who paid what when you travel together (shows in Trips)</small></span><button class="tg ${COSTS.on?"on":""}" id="costTg" aria-pressed="${COSTS.on}" aria-label="Shared costs"></button></div>`;
   b.querySelectorAll("[data-nt]").forEach(x=>x.onclick=()=>{NOTIF[x.dataset.nt]=!NOTIF[x.dataset.nt];try{localStorage.setItem("pt-notif",JSON.stringify(NOTIF));}catch(e){}
     if(NOTIF[x.dataset.nt]&&window.AndroidNotify&&window.AndroidNotify.askPermission)try{window.AndroidNotify.askPermission();}catch(e){}renderNotifBox();planNotifs();if(x.dataset.nt==="group")gCfg();});
@@ -4537,7 +4673,7 @@ function gLeave(){const G=GRP;if(!G)return;try{gPublish({ty:"bye"},null,G).catch
   try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}renderGroup();try{renderAlbum();}catch(e){}drawMap();}
 let gBusy=false,gErr="";
 async function gPoll(){
-  if(!GROUPS.length||gBusy||!gNative()||navigator.onLine===false)return;gBusy=true;let fresh=0;
+  if(!GROUPS.length||gBusy||!gNative()||isOffline())return;gBusy=true;let fresh=0;
   for(const G of GROUPS.slice())fresh+=await gPollG(G);
   gBusy=false;gPolledAt=Date.now();if(GRP)GRP.polled=Date.now();saveGrp();gCfg();renderGroup();drawMap();if(fresh)playNewVoices();
 }
@@ -4552,7 +4688,7 @@ async function gPollG(G){
       if(env.ty==="event"){const t=evText(env,(env.name||"Someone")+gl);if(t&&Date.now()-(env.ts||0)<3*3600e3){m.ev={s:evShort(env),ic:t[0].split(" ")[0],ts:env.ts};if(!m.evSeen||m.evSeen<env.ts){m.evSeen=env.ts;toast(t[0]);}}continue;}
       if(env.ty==="locreq"){if(Date.now()-(env.ts||0)<30*60e3){if(G.sharing){sendMyLoc(true,G);toast(`📍 ${env.name}${gl} asked where you are: sent`);}else{LOCREQ={name:env.name+gl,ts:env.ts,g:G.id};toast(`📍 ${env.name} asks where you are`);}}continue;}
       if(env.ty==="loc"){const prevAt=m.last?placeOf([m.last.lat,m.last.lon]):null;m.last={lat:env.lat,lon:env.lon,acc:env.acc,ts:env.ts,bat:env.bat,chg:env.chg,spd:env.spd};
-        m.trail=(m.trail||[]).filter(p=>Date.now()-p[0]<48*3600e3);m.trail.push([env.ts,env.lat,env.lon,env.acc||40]);if(m.trail.length>500)m.trail.splice(0,m.trail.length-500);
+        m.trail=(m.trail||[]).filter(p=>Date.now()-p[0]<7*24*3600e3);m.trail.push([env.ts,env.lat,env.lon,env.acc||40]);if(m.trail.length>1500)m.trail.splice(0,m.trail.length-1500);
         const nowAt=placeOf([env.lat,env.lon]);if(prevAt!=null&&prevAt!==nowAt&&NOTIF.places){const sp=s=>s&&!s.startsWith("in ");if(sp(nowAt))toast(`📍 ${env.name}${gl} arrived at ${nowAt.replace("🏠 ","")}`);else if(sp(prevAt))toast(`🚶 ${env.name}${gl} left ${prevAt.replace("🏠 ","")}`);}
         continue;}
       if(env.ty==="sos"){SOS={name:env.name+gl,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
@@ -4581,7 +4717,7 @@ async function gPollG(G){
 /* while the app is open: send my own position too (the background service does it when the app is closed), and look for updates often */
 let LOCREQ=null,lastMySend=0,gPolledAt=0;
 function gSharing(){return !!(GRP&&GRP.sharing);}
-function sendMyLoc(force,only){if(!me||navigator.onLine===false)return;if(gNative()&&!force)return;const L=GROUPS.filter(g=>g.sharing&&(!only||g===only));if(!L.length)return;
+function sendMyLoc(force,only){if(!me||isOffline())return;if(gNative()&&!force)return;const L=GROUPS.filter(g=>g.sharing&&(!only||g===only));if(!L.length)return;
   if(!force&&Date.now()-lastMySend<60e3)return;if(!only)lastMySend=Date.now();
   let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}
   for(const G of L)gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50),...(bt>=0?{bat:bt%1000,chg:bt>=1000}:{})},null,G).catch(()=>{});}
@@ -4610,10 +4746,10 @@ function failWhy(what){if(isOffline())return `📴 No internet: ${what} saved an
   return `⚠️ Couldn't reach the message service${SEND_ERR?" ("+SEND_ERR+")":""}: ${what} saved and sent later.`;}
 async function gSend(env,media,G=GRP,itemId){
   const full=media?(()=>{const b=window.AndroidGroup.mediaB64(media);return b?(/\.webm$/.test(media)?{au:b}:{img:b}):null;})():null;
-  SEND_ERR="";if(navigator.onLine!==false){try{await gPublish(env,full,G);return "sent";}catch(e){if(/413|too big|key/i.test(e.message))throw e;SEND_ERR=e.message||"";}}
+  SEND_ERR="";if(!isOffline()){try{await gPublish(env,full,G);return "sent";}catch(e){if(/413|too big|key/i.test(e.message))throw e;SEND_ERR=e.message||"";}}
   OUTBOX.push({gid:G.id,env:{...env,ts0:Date.now()},media:media||null,item:itemId||null});saveOutbox();return "queued";}
 var flushing=false;
-async function flushOutbox(){if(flushing||!OUTBOX.length||navigator.onLine===false||!gNative())return;flushing=true;let n=0;
+async function flushOutbox(){if(flushing||!OUTBOX.length||isOffline()||!gNative())return;flushing=true;let n=0;
   for(const q of OUTBOX.slice()){const G=GROUPS.find(g=>g.id===q.gid);if(!G){OUTBOX=OUTBOX.filter(x=>x!==q);continue;}
     const full=q.media?(()=>{const b=window.AndroidGroup.mediaB64(q.media);return b?(/\.webm$/.test(q.media)?{au:b}:{img:b}):null;})():null;
     try{await gPublish(q.env,full,G);OUTBOX=OUTBOX.filter(x=>x!==q);n++;
@@ -4630,7 +4766,7 @@ function isOffline(){try{if(window.AndroidGroup&&window.AndroidGroup.offline)ret
 function readInbox(){if(!gNative()||!window.AndroidGroup.inbox)return;let L=[];try{L=JSON.parse(window.AndroidGroup.inbox()||"[]");}catch(e){}if(!L.length)return;
   let ch=false;for(const x of L){const G=GROUPS.find(g=>g.topic===x.topic);if(!G||!x.from)continue;const m=G.members[x.from];if(!m)continue;
     if(x.phone&&!m.phone)m.phone=x.phone;
-    if(x.ty==="loc"&&(!m.last||x.ts>=m.last.ts)){m.last={lat:x.lat,lon:x.lon,acc:x.via==="bt"?60:100,ts:x.ts,via:x.via};m.trail=(m.trail||[]).concat([[x.ts,x.lat,x.lon,40]]).slice(-500);ch=true;}
+    if(x.ty==="loc"&&(!m.last||x.ts>=m.last.ts)){m.last={lat:x.lat,lon:x.lon,acc:x.via==="bt"?60:100,ts:x.ts,via:x.via};m.trail=(m.trail||[]).concat([[x.ts,x.lat,x.lon,40]]).slice(-1500);ch=true;}
     if(x.ty==="locreq"){LOCREQ={name:m.name,ts:x.ts,g:G.id};ch=true;}}
   if(ch){saveGrp();gCfg();try{renderGroup();}catch(e){}drawMap();}}
 setInterval(readInbox,15000);setTimeout(readInbox,3000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(readInbox,500);});
@@ -4714,8 +4850,8 @@ async function toggleRec(btn){
 let SOS=null,gAdding=false,gKind="trip";
 document.addEventListener("click",e=>{const k=e.target.closest&&e.target.closest("[data-gkind]");if(!k)return;gKind=k.dataset.gkind;const nm=document.getElementById("gName"),me2=document.getElementById("gMe");const keep=[nm&&nm.value,me2&&me2.value];renderGroup();const a=document.getElementById("gName"),c=document.getElementById("gMe");if(a)a.value=keep[0]||"";if(c&&keep[1])c.value=keep[1];});
 function applyGroupKind(){const home=!!(GRP&&GRP.kind==="home");document.body.classList.toggle("grp-home",home);
-  const al=document.querySelector('[data-gseg="album"]');if(al)al.textContent=home?"Moments":"Album";
-  if(home){const j=document.querySelector('[data-gseg="journey"].on');if(j)document.querySelector('[data-gseg="circle"]').click();}}
+  const al=document.querySelector('[data-gseg="album"]');if(al)al.textContent=home?"Photos":"Album";
+  const jn=document.querySelector('[data-gseg="journey"]');if(jn)jn.textContent=home?"Timeline":"Journey";}
 document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-push]");if(!t||!GRP||t.disabled)return;const P=gPush(GRP);P[t.dataset.push]=!P[t.dataset.push];GRP.push=P;GRP.pushOpen=true;saveGrp();gCfg();renderGroup();});
 document.addEventListener("toggle",e=>{if(e.target.classList&&e.target.classList.contains("push-box")&&GRP){GRP.pushOpen=e.target.open;saveGrp();}},true);
 function gSwHooks(b){const p=b.querySelector("#gPick");if(p)p.onchange=()=>{if(GROUPS.some(g=>g.id===p.value)){gAdding=false;switchGroup(p.value);}};
@@ -4781,7 +4917,7 @@ function nuRow(){if(!GRP)return "";const now=Date.now();
     <div class="small nu-foot">Pops up on their screen with a little effect. <button class="linkbtn" id="nuMute">${GRP.nudgeOff?"🔕 Muted: turn on":"Mute nudges from them"}</button></div>`;}
 async function sendSOS(){if(!GRP)return;const ll=me?[+me.lat.toFixed(5),+me.lon.toFixed(5)]:null,where=ll?placeOf(ll):"";
   const cap=`I need help${where?" · "+where.replace("🏠 ",""):""}${ll?` · https://maps.google.com/?q=${ll[0]},${ll[1]}`:""}`;
-  let ok=false;try{if(navigator.onLine!==false){await gPublish({ty:"sos",cap,ll});ok=true;}}catch(e){}
+  let ok=false;try{if(!isOffline()){await gPublish({ty:"sos",cap,ll});ok=true;}}catch(e){}
   if(ok){toast("🆘 SOS sent to your group");return;}
   try{await gSend({ty:"sos",cap,ll});}catch(e){}
   // no internet: text messages and calls still work on the phone network
@@ -4875,7 +5011,7 @@ function renderAlbum(){
       ${a.cap?`<div class="cap">${a.cap.replace(/</g,"&lt;")}</div>`:""}
       <div class="small">${a.sending?"⏳ Sending…":a.queued?"📴 Waiting for internet, sends by itself":a.err?`⚠ Not sent: ${a.err}`:a.sent?"✓ Sent to group":""}${!a.played&&a.ty==="voice"?" · new":""}</div>
       <div class="acts">${a.ll?`<button class="mini" data-aloc="${a.id}">📍 Where</button>`:""}${a.mine?`<button class="mini" data-adel="${a.id}" style="color:var(--warn)">🗑 Delete</button>`:""}</div></div></div>`).join("")}
-      ${!items.length?`<div class="card small">Your trip album is empty. Add a photo with a note, or a voice note.</div>`:""}</div>`;
+      ${!items.length?`<div class="card small">${GRP&&GRP.kind==="home"?"No photos yet. Share a photo, a voice note or a note with "+escH(GRP.name)+".":"Your trip album is empty. Add a photo with a note, or a voice note."}</div>`:""}</div>`;
   b.querySelector("#pPick").onchange=async e=>{const fs=[...e.target.files];const cap=b.querySelector("#memo").value.trim();b.querySelector("#memo").value="";
     for(const f of fs){try{const info=await photoInfo(f);addPost("photo",cap,await shrinkPhoto(f),0,info);}catch(x){toast("⚠ Couldn't read that photo");}}};
   b.querySelector("#vRec").onclick=e=>toggleRec(e.currentTarget);
@@ -5091,7 +5227,7 @@ async function summaryStreetMap(B){if(!B)return null;
   for(let x=tx0;x<=tx1;x++)for(let y=ty0;y<=ty1;y++)tiles.push((async()=>{try{if(SUMNOTE)SUMNOTE(`🗺️ Drawing the street map… ${got}/${tiles.length||"…"}`);
       const r=await fetch(`https://tiles.local/t/${zt}/${x}/${y}`);const buf=await r.arrayBuffer();got++;if(!buf.byteLength)return null;return {x,y,L:mvtDecode(buf)};}catch(e){return null;}})());
   const T=(await Promise.all(tiles)).filter(Boolean);
-  if(!T.length){if(SUMNOTE)SUMNOTE(navigator.onLine===false?"📴 No street map for this area offline: download it in ⚙️ → Offline maps.":"⚠️ The street map couldn't be loaded for this area.",true);return null;}
+  if(!T.length){if(SUMNOTE)SUMNOTE(isOffline()?"📴 No street map for this area offline: download it in ⚙️ → Offline maps.":"⚠️ The street map couldn't be loaded for this area.",true);return null;}
   const tag=(L,F,key)=>{for(let i=0;i<F.tags.length;i+=2)if(L.keys[F.tags[i]]===key)return L.vals[F.tags[i+1]];return null;};
   const draw=(name,fn)=>{for(const t of T){const L=t.L[name];if(!L)continue;const f=256/L.ext;
       for(const F of L.feats){const rings=mvtRings(F).map(r=>r.map(([px,py])=>[((t.x*256+px*f)*k-x0)*sc,((t.y*256+py*f)*k-y0)*sy]));fn(F,rings,L);}}};
@@ -5168,6 +5304,55 @@ function jStats(pts){
   const days=new Set([...pts.map(p=>new Date(p[0]).toDateString()),...ALBUM.map(a=>new Date(a.ts).toDateString())]);
   return {km,towns:[...new Set(towns)],seq:towns,days:days.size,steps:ALBUM.filter(a=>a.ty!=="voice"||a.cap).length};
 }
+
+/* ---------- DAY TIMELINE: where you (and the people in your circle) were on a day: stops with times, and the trips between them ---------- */
+let TLF={who:"me",day:null};let PLNAME={};try{PLNAME=JSON.parse(localStorage.getItem("pt-plname"))||{};}catch(e){}
+function tlStays(pts){pts=pts.filter(p=>p&&!isNaN(p[1])&&(p[3]===undefined||isNaN(p[3])||p[3]<=150)).sort((a,b)=>a[0]-b[0]);
+  const out=[];let cl=[];const flush=()=>{if(!cl.length)return;const t0=cl[0][0],t1=cl[cl.length-1][0];
+    const lat=cl.reduce((s,p)=>s+p[1],0)/cl.length,lon=cl.reduce((s,p)=>s+p[2],0)/cl.length;out.push({t0,t1,lat,lon,n:cl.length});cl=[];};
+  for(const p of pts){if(!cl.length){cl.push(p);continue;}const c=cl[0];
+    if(hav([c[1],c[2]],[p[1],p[2]])*1000<150)cl.push(p);else{flush();cl.push(p);}}
+  flush();
+  // a stop = 8+ minutes in one spot (or the first/last known place of the day); join stops at the same place
+  const st=out.filter((x,i)=>x.t1-x.t0>=8*60e3||i===0||i===out.length-1);const m=[];
+  for(const x of st){const L=m[m.length-1];if(L&&hav([L.lat,L.lon],[x.lat,x.lon])*1000<150){L.t1=x.t1;}else m.push({...x});}
+  return m;}
+function tlName(x){const near=MYP.map(p=>({p,d:hav([p.lat,p.lon],[x.lat,x.lon])*1000})).filter(o=>o.d<150).sort((a,b)=>a.d-b.d)[0];
+  if(near)return {ic:near.p.home?"🏠":"❤",t:near.p.name};
+  if(typeof NLHOME!=="undefined"&&NLHOME&&hav([NLHOME.lat,NLHOME.lon],[x.lat,x.lon])*1000<150)return {ic:"🏠",t:"Home"};
+  const k=x.lat.toFixed(3)+","+x.lon.toFixed(3);if(PLNAME[k])return {ic:"📍",t:PLNAME[k]};
+  const tw=typeof hereTownOf==="function"&&pugliaOn()?hereTownOf(x.lat,x.lon):null;
+  if(!tlName.q.includes(k)&&!(k in PLNAME))tlName.q.push(k);
+  return {ic:"📍",t:tw||"Somewhere"+(me?" · "+kmTxt(hav([me.lat,me.lon],[x.lat,x.lon]))+" away":""),wait:1};}
+tlName.q=[];let tlBusy=false;
+// look up a street or place name for each stop once (photon, one at a time), saved on the phone
+async function tlNames(){if(tlBusy||!tlName.q.length||isOffline())return;tlBusy=true;
+  while(tlName.q.length){const k=tlName.q.shift();if(k in PLNAME)continue;const [la,lo]=k.split(",");
+    try{const j=JSON.parse(await netGet(`https://photon.komoot.io/reverse?lat=${la}&lon=${lo}&limit=1`,12000));const p=((j.features||[])[0]||{}).properties||{};
+      const nm=[p.name&&p.name!==p.street?p.name:"",p.street?p.street+(p.housenumber?" "+p.housenumber:""):"",p.city||p.town||p.village||""].filter(Boolean).slice(0,2).join(", ");
+      PLNAME[k]=nm||"";const ks=Object.keys(PLNAME);if(ks.length>600)delete PLNAME[ks[0]];try{localStorage.setItem("pt-plname",JSON.stringify(PLNAME));}catch(e){}}
+    catch(e){break;}await new Promise(r=>setTimeout(r,1100));}
+  tlBusy=false;if(document.getElementById("tlBox"))renderTimeline();}
+const dtlHM=t=>new Date(t).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+function renderTimeline(){const b=document.getElementById("tlBox");if(!b)return;
+  const ppl=[{id:"me",name:"Me"}];if(GRP)for(const [id,m] of Object.entries(GRP.members))if(m.trail&&m.trail.length)ppl.push({id,name:(m.name||"Friend").split(" ")[0]});
+  if(!ppl.some(p=>p.id===TLF.who))TLF.who="me";
+  const raw=jRaw(TLF.who),days=[...new Set(raw.map(p=>jDayKey(p[0])))].sort((a,c)=>{const f=k=>k.split("-").map(Number);const [A,B]=[f(a),f(c)];return (B[0]-A[0])||(B[1]-A[1])||(B[2]-A[2]);});
+  if(!TLF.day||!days.includes(TLF.day))TLF.day=days[0]||null;
+  const pts=TLF.day?raw.filter(p=>jDayKey(p[0])===TLF.day):[],S=tlStays(pts);
+  let rows="";S.forEach((x,i)=>{if(i){const a=S[i-1],km=hav([a.lat,a.lon],[x.lat,x.lon]),min=Math.max(1,Math.round((x.t0-a.t1)/60e3)),v=km/(min/60);
+      rows+=`<li class="tl-move">${v>25?"🚗":v>12?"🚲":"🚶"} ${km<1?Math.round(km*1000)+" m":km.toFixed(1)+" km"} · ${minsTxt(min*60)}</li>`;}
+    const n=tlName(x),dur=x.t1-x.t0;
+    rows+=`<li><button class="tl-stop" data-tlgo="${x.lat.toFixed(5)},${x.lon.toFixed(5)}"><span class="tl-t">${dtlHM(x.t0)}${dur>=8*60e3?"–"+dtlHM(x.t1):""}</span><span class="tl-n">${n.ic} ${escH(n.t)}${dur>=8*60e3?`<small>${minsTxt(Math.round(dur/1000))}</small>`:""}</span></button></li>`;});
+  b.innerHTML=`<div class="card"><div class="trip-h"><div class="dest">🕒 Day timeline</div></div>
+    ${ppl.length>1?`<div class="chips" style="margin-top:8px">${ppl.map(p=>`<button class="chip${TLF.who===p.id?" on":""}" data-tlw="${p.id}">${escH(p.name)}</button>`).join("")}</div>`:""}
+    ${days.length?`<div class="chips" style="margin-top:6px">${days.slice(0,7).map(d=>`<button class="chip${TLF.day===d?" on":""}" data-tld="${d}">${jDayName(d)}</button>`).join("")}</div>`:""}
+    ${S.length?`<ul class="dtl">${rows}</ul>`:`<p class="small" style="margin:10px 0 0">${TLF.who==="me"?"Nothing recorded yet. Switch on “Record my journey” below and your day shows up here.":"No locations from them yet. They show up when they share their location with this circle."}</p>`}
+    <p class="small" style="margin:8px 0 0">Stops of 8 minutes or more. Saved on this phone only.</p></div>`;
+  b.querySelectorAll("[data-tlw]").forEach(x=>x.onclick=()=>{TLF.who=x.dataset.tlw;TLF.day=null;renderTimeline();});
+  b.querySelectorAll("[data-tld]").forEach(x=>x.onclick=()=>{TLF.day=x.dataset.tld;renderTimeline();});
+  b.querySelectorAll("[data-tlgo]").forEach(x=>x.onclick=()=>{const [la,lo]=x.dataset.tlgo.split(",").map(Number);showTab("map");if(HAS_MAPS()&&mode!=="street")setMode("street");setTimeout(()=>{if(mode==="street"&&ml)streetFly([la,lo],16);},400);});
+  setTimeout(tlNames,200);}
 function renderJourney(){
   const b=document.getElementById("jrnBox");if(!b)return;
   if(!gNative()){b.innerHTML=`<div class="card small">Journey recording works in the Android app.</div>`;return;}
@@ -5187,6 +5372,7 @@ function renderJourney(){
         <div class="towns">${ts.length?ts.join(" → "):""}${st.km>0.2?` · ${st.km.toFixed(1)} km`:""}</div>
         ${D.steps.length?`<div class="jsteps">${D.steps.sort((a,c)=>a.ts-c.ts).map(a=>`<button data-jstep="${a.id}">${a.ty==="photo"&&a.media?`<img loading="lazy" src="https://tiles.local/media/${a.media}" alt="">`:`<div class="ic">${a.ty==="voice"?"🎙":"✍️"}</div>`}<div class="t">${(a.cap||a.town||"Step").replace(/</g,"&lt;")}</div></button>`).join("")}</div>`:`<div class="small">No photos or notes this day.</div>`}</div>`;}).join("")}
     ${on&&pts.length?`<button class="offmore" id="jClear">Delete recorded route</button>`:""}`;
+  if(!document.getElementById("tlBox"))b.insertAdjacentHTML("afterbegin",'<div id="tlBox"></div>');else b.prepend(document.getElementById("tlBox"));renderTimeline();
   b.querySelector("#jTrack").onclick=()=>{try{window.AndroidGroup.track(!on);}catch(e){}if(!on)toast("🧭 Recording your journey (a notification shows while it's on)");setTimeout(renderJourney,700);};
   b.querySelector("#jMap").onclick=()=>showJourney(true);
   b.querySelector("#jShare").onclick=shareSummary;
@@ -5214,14 +5400,31 @@ function unpoly6(s){const out=[];let i=0,la=0,lo=0;const dec=()=>{let r=0,sh=0,b
 function segLen(ll){let d=0;for(let i=1;i<ll.length;i++)d+=hav(ll[i-1],ll[i]);return d;}
 function matchKey(pid,s){return pid+"|"+s.t0+"|"+s.t1+"|"+s.ll.length;}
 // what to use as the drawn line for a piece: matched streets if we have them, else the smoothed GPS line
-function jMatchedLL(pid,s){if(s.ll.length<3)return null;const k=matchKey(pid,s),c=MATCHC[k];
+function jMatchedLL(pid,s){if(s.ll.length<2)return null;const k=matchKey(pid,s),c=MATCHC[k];
   if(c&&c.ll)return unpoly6(c.ll);
   if(!c&&!MQ.some(q=>q.k===k)){const km=segLen(s.ll),h=Math.max(1/60,(s.t1-s.t0)/3600e3),v=km/h;
-    if(km>0.08&&v<=90)MQ.push({k,ll:s.ll,costing:v<=9?"pedestrian":"auto",km});}   // trains/planes: no streets to follow
+    // few, far-apart points (a shared location every few minutes): don't match, guess the likely streets between them
+    const sparse=s.ll.length<3||km/(s.ll.length-1)>0.12;
+    if(km>0.08&&v<=90)MQ.push({k,ll:s.ll,costing:v<=9?"pedestrian":"auto",km,guess:sparse});}   // trains/planes: no streets to follow
   return null;}
-async function runMatch(){if(mBusy||!MQ.length||navigator.onLine===false||!journeyOn)return;mBusy=true;
-  while(MQ.length&&journeyOn&&navigator.onLine!==false){const q=MQ.shift();
-    try{const parts=[];for(let i=0;i<q.ll.length-1;i+=110)parts.push(q.ll.slice(i,i+111));
+// a gap between two pieces (no location for a while): guess the streets too, if it's a walk or a drive in town
+function jGapLL(pid,a,b,t0,t1){const km=hav(a,b);if(km<0.08||km>8)return null;const k="gap|"+pid+"|"+t0+"|"+t1,c=MATCHC[k];
+  if(c&&c.ll)return unpoly6(c.ll);
+  if(!c&&!MQ.some(q=>q.k===k)){const h=Math.max(1/60,(t1-t0)/3600e3),v=km/h;if(v<=90)MQ.push({k,ll:[a,b],costing:v<=7?"pedestrian":"auto",km,guess:true});}
+  return null;}
+async function runMatch(){if(mBusy||!MQ.length||isOffline()||!journeyOn)return;mBusy=true;
+  while(MQ.length&&journeyOn&&!isOffline()){const q=MQ.shift();
+    if(q.guess){try{
+        // up to 20 points along the way: the route between them over the streets
+        const n=q.ll.length,idx=n<=20?q.ll.map((_,i)=>i):Array.from({length:20},(_,i)=>Math.round(i*(n-1)/19));
+        const body={locations:idx.map((i,j)=>({lat:+q.ll[i][0].toFixed(6),lon:+q.ll[i][1].toFixed(6),type:j===0||j===idx.length-1?"break":"through",radius:35})),costing:q.costing,directions_options:{directions_type:"none"}};
+        const j=JSON.parse(await netGet("https://valhalla1.openstreetmap.de/route?json="+encodeURIComponent(JSON.stringify(body)),25000));
+        let all=[];for(const L of ((j.trip||{}).legs||[]))all=all.concat(unpoly6(L.shape||""));
+        const r=segLen(all)/Math.max(0.01,q.km);
+        MATCHC[q.k]=all.length>1&&r>0.8&&r<2.6?{ll:poly6(dp(all,4)),at:Date.now(),guess:1}:{fail:1,at:Date.now()};
+        await new Promise(r=>setTimeout(r,1200));}
+      catch(e){if(/429|busy/.test(e.message)){MQ.unshift(q);await new Promise(r=>setTimeout(r,20000));}else MATCHC[q.k]={fail:1,at:Date.now()};}}
+    else try{const parts=[];for(let i=0;i<q.ll.length-1;i+=110)parts.push(q.ll.slice(i,i+111));
       let all=[];for(const pt of parts){const body={encoded_polyline:poly6(pt),costing:q.costing,shape_match:"map_snap",trace_options:{search_radius:40,gps_accuracy:25,breakage_distance:3000},directions_options:{directions_type:"none"}};
         const j=JSON.parse(await netGet("https://valhalla1.openstreetmap.de/trace_route?json="+encodeURIComponent(JSON.stringify(body)),25000));
         for(const L of ((j.trip||{}).legs||[]))all=all.concat(unpoly6(L.shape||""));
@@ -5257,7 +5460,7 @@ function jBuild(){const ppl=jPeople().filter(p=>JF.who==="all"||p.id===JF.who);c
   const people=ppl.map(p=>{let raw=jRaw(p.id);if(JF.day!=="all")raw=raw.filter(q=>jDayKey(q[0])===JF.day);
     const segs=cleanTrack(raw).map(s=>{const m=jMatchedLL(p.id,s);return {...s,ll:m||chaikin(s.ll,3),street:!!m};});
     // one route: pieces joined by dotted "route unknown" links, with running length for the replay
-    const parts=[];let len=0;segs.forEach((s,j)=>{if(j){const a=segs[j-1].ll[segs[j-1].ll.length-1],b=s.ll[0];if(hav(a,b)>0.05){parts.push({ll:[a,b],dash:1,l0:len});len+=hav(a,b);}}
+    const parts=[];let len=0;segs.forEach((s,j)=>{if(j){const a=segs[j-1].ll[segs[j-1].ll.length-1],b=s.ll[0];if(hav(a,b)>0.05){const g=jGapLL(p.id,a,b,segs[j-1].t1,s.t0)||[a,b];parts.push({ll:g,dash:1,l0:len});len+=segLen(g);}}
       if(s.ll.length>1){const st=len;for(let i=1;i<s.ll.length;i++)len+=hav(s.ll[i-1],s.ll[i]);parts.push({ll:s.ll,dash:0,l0:st});}});
     return {...p,parts,len};});
   const steps=ALBUM.filter(a=>a.ll&&(JF.day==="all"||jDayKey(a.ts)===JF.day)&&ppl.some(p=>p.from===a.from));
@@ -5438,7 +5641,9 @@ if(HAS_MAPS()){let m0="street";try{m0=localStorage.getItem("pt-mode")||"street";
 if(window.AndroidGPS&&!gpsOn)startGPS();   // needed for the last-train warning
 renderPosBox();
 if(window.AndroidNet){const age=POSFIX.at?(Date.now()-new Date(POSFIX.at).getTime())/864e5:999;setTimeout(async()=>{await downloadAllPlaces();if(!POSFIX.at||age>30)fixPositions(false);},1500);}
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#npSaveRt"))saveNavRoute();});
 (function(){const wb=document.getElementById("npWalk"),wm=document.getElementById("npGoMini");if(!IN_APP){wb.style.display="none";if(wm)wm.style.display="none";return;}wb.onclick=startWalking;if(wm)wm.onclick=startWalking;})();
+setTimeout(()=>{try{setNavMode(NAVM,true);}catch(e){}},0);
 /* the panel under the map: small by default so the map gets the room; tap it (or the arrow) for the place pickers and buttons */
 (function(){const np=document.getElementById("navPanel"),mb=document.getElementById("npMore");if(!np||!mb)return;
   let full=false;try{full=localStorage.getItem("pt-npfull")==="1";}catch(e){}
@@ -5550,7 +5755,7 @@ function diagData(){const D=[],ok=(b,t,v)=>D.push([b?"✅":"⚠️",t,v]);
   try{const I=JSON.parse(window.AndroidMaps.liveInfo());const off=(()=>{try{return JSON.parse(window.AndroidMaps.summary()).areas.length}catch(e){return 0}})();
     if(window.DIAG_TILE)D.push([window.DIAG_TILE.n>0?"✅":"⚠️","Map tile at your spot",window.DIAG_TILE.txt]);
     ok(!I.error&&!(I.ok===0&&(I.empty||I.err)),"Street map",`${I.build||"no online map found yet"} · tiles ${I.ok} ok, ${I.empty} empty, ${I.err} failed${I.error?" · "+I.error:""}${I.problem?" · "+I.problem:""} · ${off} offline area${off===1?"":"s"}`);}catch(e){}
-  ok(navigator.onLine!==false,"Internet",`${navigator.onLine===false?"offline":"online"} · ${netKind()}`);
+  ok(!isOffline(),"Internet",`${isOffline()?"offline":"online"} · ${netKind()}`);
   try{D.push(["👥","Groups",GROUPS.map(g=>`${g.name}${g.sharing?" (sharing)":""}`).join(", ")||"none"]);}catch(e){}
   const bt=batt();D.push(["🔋","Battery",`${bt.pct!=null?bt.pct+"%":"?"}${bt.chg?" charging":""} · saver ${LOWPOWER?"on":"off"} · downloads: ${DLRULE}`]);
   let se={};try{se=JSON.parse(tlTry(t=>t.sensors(),"{}"));}catch(e){}D.push(["🧭","Sensors",Object.entries(se).map(([k,v])=>`${k} ${v?"✓":"✗"}`).join(" · ")||"n/a"]);
@@ -5617,7 +5822,7 @@ function suPage(k){const E=svEsc;switch(k){
    <p class="su-note">Tap each one to allow it. You can change this later in your phone settings.</p>`,go:"Continue"};
  case "offline":return {b:`<div class="su-ic">📴</div><h1>Ready without internet</h1><p class="su-sub">The survival guides (useful know-how, first aid, emergencies) are always on your phone. Add extra guide packs too?</p>
    <div class="su-list">${(typeof SURV_OFFER!=="undefined"?SURV_OFFER:[]).map(p=>suRow(SU.packs.includes(p.id),"data-su-pack",p.id,p.ic,E(p.name),`${p.n} guides · ${Math.max(1,Math.round(p.size/1024))} KB`)).join("")}</div>
-   <p class="su-note">${navigator.onLine===false?"You're offline now: the packs will be skipped. Download them later in 🆘.":"Offline maps for an area can be downloaded from the Map tab."}</p>`,go:"Continue"};
+   <p class="su-note">${isOffline()?"You're offline now: the packs will be skipped. Download them later in 🆘.":"Offline maps for an area can be downloaded from the Map tab."}</p>`,go:"Continue"};
  case "done":return {b:`<svg class="su-done" viewBox="0 0 88 88" fill="none" stroke="var(--ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="44" cy="44" r="40"/><path d="M27 45l11 11 24-24"/></svg>
    <h1>You're all set${SU.name?", "+E(SU.name.split(" ")[0]):""}</h1><p class="su-sub">${SU.where==="home"?"Home mode is on.":"Have a great trip."} You can change all of this later in ⚙️.</p>`,go:"Start using Out & Back"};}}
 function suRender(dir){const ov=document.getElementById("setup");if(!ov)return;const P=suPages();if(suI>=P.length)suI=P.length-1;const k=P[suI],pg=suPage(k);
@@ -5639,9 +5844,9 @@ function suApply(){try{
   if(SU.where==="home"&&!NLHOME&&SU.home!=="now"){SET_MODE="home";localStorage.setItem("pt-appmode","home");}
   if(SU.where==="trip"&&NLHOME&&me&&hav([me.lat,me.lon],[NLHOME.lat,NLHOME.lon])<=50){SET_MODE="travel";localStorage.setItem("pt-appmode","travel");}
 }catch(e){}appliedKey="";try{applyCountry();renderDiet();renderSet();}catch(e){}
-  if(navigator.onLine!==false&&typeof SURV_PACKS!=="undefined")SU.packs.filter(p=>!SURV_PACKS[p]).forEach((p,i)=>setTimeout(()=>svDownload(p).catch(()=>{}),800+i*600));}
+  if(!isOffline()&&typeof SURV_PACKS!=="undefined")SU.packs.filter(p=>!SURV_PACKS[p]).forEach((p,i)=>setTimeout(()=>svDownload(p).catch(()=>{}),800+i*600));}
 function suFinish(){suApply();try{localStorage.setItem("pt-setup-1.0","1");}catch(e){}try{window.AndroidUpdate&&window.AndroidUpdate.setFlag&&window.AndroidUpdate.setFlag("setup-1.0");}catch(e){}const ov=document.getElementById("setup");
-  if(ov){ov.style.transition="opacity .3s";ov.style.opacity="0";setTimeout(()=>ov.remove(),320);}showTab("dest");}
+  if(ov){ov.style.transition="opacity .3s";ov.style.opacity="0";setTimeout(()=>ov.remove(),320);}showTab("map");}
 function openSetup(){if(document.getElementById("setup"))return;suInit();suI=0;const ov=document.createElement("div");ov.id="setup";document.body.appendChild(ov);suRender(1);}
 // a home asked for before GPS had a fix: save it as soon as the location arrives
 setInterval(()=>{try{if(localStorage.getItem("pt-homepending")&&typeof me!=="undefined"&&me&&(me.acc||0)<200){localStorage.removeItem("pt-homepending");setHomeHere();}}catch(e){}},4000);

@@ -47,6 +47,11 @@ public class OfflineLink {
     static final int SMS_PER_DAY = 16;
 
     // ---------- connectivity ----------
+    /** Set by the app and its services; lets code without a Context check for internet. */
+    static volatile Context APP;
+    /** No internet: don't even try (saves battery and avoids long waits). Unknown = assume online. */
+    static boolean up() { Context c = APP; return c == null || online(c); }
+    static void need() throws java.io.IOException { if (!up()) throw new java.io.IOException("No internet connection"); }
     static boolean online(Context c) {
         try {
             ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);

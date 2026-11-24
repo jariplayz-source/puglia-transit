@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *  Every sensor is read once and switched off again, so nothing keeps running in the background. */
 public class ToolsBridge {
     static final int REQ_STEPS = 4801;
-    static final String CH_CARD = "card";
+    static final String CH_CARD = "card2";
     private final Activity a;
     private TextToSpeech tts; private boolean ttsReady = false;
     private String torchId = null; private boolean torchOn = false;
@@ -99,20 +99,58 @@ public class ToolsBridge {
     void shutdown() { torchOff(); try { if (tts != null) tts.shutdown(); } catch (Exception e) { } tts = null; }
 
     // ---------- emergency card on the lock screen ----------
-    @JavascriptInterface public void lockCard(final String title, final String text) {
-        NotificationManager nm = (NotificationManager) a.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (text == null || text.isEmpty()) { nm.cancel(31); return; }
+    /** The emergency card on the lock screen. Returns "ok", or why it can't show: perm, blocked, hidden, lockoff. */
+    @JavascriptInterface public String lockCard(final String title, final String text) {
+        prefs(a).edit().putString("cardT", title == null ? "" : title).putString("cardX", text == null ? "" : text).apply();
+        return postCard(a, title, text);
+    }
+    static String postCard(Context c, String title, String text) {
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (text == null || text.isEmpty()) { nm.cancel(31); return "off"; }
+        if (Build.VERSION.SDK_INT >= 33 && c.checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) return "perm";
         Notification.Builder b;
         if (Build.VERSION.SDK_INT >= 26) {
-            if (nm.getNotificationChannel(CH_CARD) == null) { NotificationChannel ch = new NotificationChannel(CH_CARD, "Emergency card", NotificationManager.IMPORTANCE_LOW); ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC); ch.setShowBadge(false); nm.createNotificationChannel(ch); }
-            b = new Notification.Builder(a, CH_CARD);
-        } else b = new Notification.Builder(a);
+            // the first version used a "low" channel: most phones hide silent notifications on the lock screen, so it's a normal one now, without sound
+            try { if (nm.getNotificationChannel("card") != null) nm.deleteNotificationChannel("card"); } catch (Exception e) { }
+            if (nm.getNotificationChannel(CH_CARD) == null) {
+                NotificationChannel ch = new NotificationChannel(CH_CARD, "Emergency card", NotificationManager.IMPORTANCE_DEFAULT);
+                ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC); ch.setShowBadge(false); ch.setSound(null, null); ch.enableVibration(false);
+                ch.setDescription("Your emergency information on the lock screen, so rescuers can read it");
+                nm.createNotificationChannel(ch);
+            }
+            b = new Notification.Builder(c, CH_CARD);
+        } else b = new Notification.Builder(c).setPriority(Notification.PRIORITY_DEFAULT).setSound(null).setVibrate(null);
         int fl = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
-        Intent open = new Intent(a, MainActivity.class); open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent open = new Intent(c, MainActivity.class); open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(text.split("\n")[0])
-         .setStyle(new Notification.BigTextStyle().bigText(text)).setOngoing(true).setShowWhen(false)
-         .setVisibility(Notification.VISIBILITY_PUBLIC).setContentIntent(PendingIntent.getActivity(a, 31, open, fl));
+         .setStyle(new Notification.BigTextStyle().bigText(text)).setOngoing(true).setShowWhen(false).setOnlyAlertOnce(true)
+         .setVisibility(Notification.VISIBILITY_PUBLIC).setCategory(Notification.CATEGORY_STATUS).setContentIntent(PendingIntent.getActivity(c, 31, open, fl));
         nm.notify(31, b.build());
+        if (!nm.areNotificationsEnabled()) return "blocked";
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel ch = nm.getNotificationChannel(CH_CARD);
+            if (ch != null && ch.getImportance() == NotificationManager.IMPORTANCE_NONE) return "blocked";
+            if (ch != null && ch.getLockscreenVisibility() == Notification.VISIBILITY_SECRET) return "hidden";
+        }
+        try { if (android.provider.Settings.Secure.getInt(c.getContentResolver(), "lock_screen_show_notifications", 1) == 0) return "lockoff"; } catch (Exception e) { }
+        return "ok";
+    }
+    /** Opens this phone's settings for the emergency card notification. */
+    @JavascriptInterface public void cardSettings() {
+        a.runOnUiThread(new Runnable() { public void run() {
+            try {
+                Intent i;
+                if (Build.VERSION.SDK_INT >= 26) { i = new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS); i.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, a.getPackageName()); i.putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, CH_CARD); }
+                else { i = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS); i.setData(android.net.Uri.parse("package:" + a.getPackageName())); }
+                a.startActivity(i);
+            } catch (Exception e) { try { a.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS)); } catch (Exception x) { } }
+        } });
+    }
+    @JavascriptInterface public void lockSettings() {
+        a.runOnUiThread(new Runnable() { public void run() {
+            try { a.startActivity(new Intent("android.settings.LOCK_SCREEN_SETTINGS")); }
+            catch (Exception e) { try { a.startActivity(new Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)); } catch (Exception x) { } }
+        } });
     }
 
     // ---------- battery ----------

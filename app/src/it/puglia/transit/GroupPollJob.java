@@ -18,6 +18,7 @@ public class GroupPollJob extends JobService {
         try { js.schedule(ji); } catch (Exception e) { }
     }
     @Override public boolean onStartJob(final JobParameters p) {
+        OfflineLink.APP = getApplicationContext();
         new Thread(new Runnable() { public void run() { GroupCore.pollAndNotify(GroupPollJob.this); jobFinished(p, false); } }).start();
         return true;
     }

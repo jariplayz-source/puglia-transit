@@ -60,6 +60,7 @@ public class LocationShareService extends Service implements LocationListener {
     @Override public IBinder onBind(Intent i) { return null; }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
+        OfflineLink.APP = getApplicationContext();
         if (intent != null && intent.getBooleanExtra("stop", false)) {
             GroupCore.prefs(this).edit().putBoolean("sharing", false).putBoolean("tracking", false).apply();
             stopSelf(); return START_NOT_STICKY;

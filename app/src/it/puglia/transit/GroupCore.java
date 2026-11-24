@@ -48,10 +48,11 @@ public class GroupCore {
     }
 
     static String http(String method, String url, byte[] body, JSONObject headers, int timeout) throws Exception {
+        OfflineLink.need();
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.23 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.24 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -154,7 +155,7 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.23"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.24"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
@@ -224,7 +225,7 @@ public class GroupCore {
             if (push == null || !push.optBoolean(kind)) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.23"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
+                m.put("v", 1); m.put("ver", "1.24"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
                 m.put("from", g.optString("me")); m.put("name", g.optString("name")); m.put("ts", System.currentTimeMillis());
                 http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
             } catch (Exception e) { }
@@ -239,6 +240,33 @@ public class GroupCore {
         if ("leave".equals(ev)) return new String[]{(home ? "🏠 " : "🚶 ") + name + " left " + (home ? "home" : pl), "Just now"};
         if ("arrive".equals(ev)) return new String[]{(home ? "🏠 " : "📍 ") + name + (home ? " arrived home" : " arrived at " + pl), "Just now"};
         return null;
+    }
+
+    /** One notification per person for their comings and goings: the newest on top, what happened before it underneath.
+     *  The same news from a second circle (or twice) is dropped, and it only buzzes again after 10 quiet minutes. */
+    static void personNote(Context ctx, SharedPreferences p, String name, String title, long ts) {
+        String who = name.trim().toLowerCase(java.util.Locale.ROOT), key = "pn:" + who;
+        long now = System.currentTimeMillis();
+        try {
+            JSONArray old = new JSONArray(p.getString(key, "[]")), log = new JSONArray();
+            for (int i = 0; i < old.length(); i++) {
+                JSONObject e = old.optJSONObject(i); if (e == null || now - e.optLong("ts") > 45 * 60000L) continue;
+                if (e.optString("t").equals(title) && Math.abs(ts - e.optLong("ts")) < 10 * 60000L) return;   // already told
+                log.put(e);
+            }
+            JSONObject e = new JSONObject(); e.put("t", title); e.put("ts", ts); log.put(e);
+            while (log.length() > 5) log.remove(0);
+            long lastBuzz = p.getLong("pnBuzz:" + who, 0); boolean quiet = now - lastBuzz < 10 * 60000L;
+            SharedPreferences.Editor ed = p.edit().putString(key, log.toString()); if (!quiet) ed.putLong("pnBuzz:" + who, now); ed.apply();
+            java.text.SimpleDateFormat hm = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.ROOT);
+            StringBuilder sb = new StringBuilder();
+            for (int i = log.length() - 2; i >= 0; i--) {
+                JSONObject x = log.getJSONObject(i); String t = x.optString("t");
+                int sp = t.indexOf(' '); if (sp > 0) t = t.substring(sp + 1);   // drop the emoji
+                sb.append(sb.length() > 0 ? "\n" : "Before: ").append(hm.format(new java.util.Date(x.optLong("ts")))).append(" ").append(t);
+            }
+            AlarmReceiver.show(ctx, "who:" + who, title, sb.length() > 0 ? sb.toString() : "Just now", true, quiet);
+        } catch (Exception x) { AlarmReceiver.show(ctx, "who:" + who, title, "Just now", true); }
     }
 
     /** "Sam arrived at B&B" / "Sam left B&B" for the places you saved (radius ~150 m). */
@@ -258,8 +286,7 @@ public class GroupCore {
             p.edit().putString(key, now).apply();
             if (was == null || was.equals(now) || recentEvent) return;   // first sighting, no change, or they already told us
             String name = env.optString("name", "Someone");
-            if (!now.isEmpty()) AlarmReceiver.show(ctx, "plc:" + env.optString("from") + now, "📍 " + name + " arrived at " + now, "Just now", true);
-            else AlarmReceiver.show(ctx, "plc:" + env.optString("from") + was, "🚶 " + name + " left " + was, "Just now", true);
+            personNote(ctx, p, name, !now.isEmpty() ? "📍 " + name + " arrived at " + now : "🚶 " + name + " left " + was, System.currentTimeMillis());
         } catch (Exception e) { }
     }
 
@@ -315,7 +342,7 @@ public class GroupCore {
                         if (System.currentTimeMillis() - env.optLong("ts", 0) > 3 * 3600000L) continue;   // too old to matter
                         String[] t = eventText(env, name); if (t == null) continue;
                         p.edit().putLong("evAt:" + env.optString("from"), System.currentTimeMillis()).apply();
-                        AlarmReceiver.show(ctx, "ev:" + o.optString("id"), t[0], t[1], true); continue;
+                        personNote(ctx, p, env.optString("name", "Someone"), t[0], env.optLong("ts", System.currentTimeMillis())); continue;
                     }
                     if ("nudge".equals(ty)) {   // fun nudges: muted per group, nothing old, at most one per person per minute (the newest replaces the last one)
                         if (g.optBoolean("nudgeOff")) continue;
