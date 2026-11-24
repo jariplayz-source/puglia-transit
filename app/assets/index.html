@@ -620,6 +620,7 @@ body.grp-home #sumShare{display:none!important}
 .tl-ice-h small{display:block;opacity:.85;font-size:12.5px}.tl-ice-h b{font-size:20px}.tl-ice-r{padding:11px 16px;border-top:1px solid var(--line)}.tl-ice-r small{display:block;color:var(--muted);font-size:12.5px}.tl-ice-r b{font-size:17px;font-weight:600}
 .tl-form{display:flex;flex-direction:column;gap:12px}.tl-form label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)}.tl-form input{font:inherit;font-size:16px;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink,inherit)}
 .tl-seg{display:flex;background:var(--card2);border-radius:13px;padding:3px;margin-bottom:12px}.tl-seg button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;font:600 13.5px system-ui,sans-serif;color:inherit}.tl-seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.games-entry{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;width:100%;margin:16px 0 8px;padding:12px 14px;border:0;border-radius:16px;background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);text-align:left;font:inherit}.games-entry span{grid-row:span 2;font-size:26px}.games-entry small{color:var(--muted);font-size:12.5px}.games-entry[hidden]{display:none}
 .tl-sec{font-size:13px;font-weight:600;color:var(--muted);margin:18px 4px 8px}
 .tl-phr{display:flex;flex-direction:column;background:var(--card);border-radius:18px;overflow:hidden}.tl-phr button{position:relative;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:12px 52px 12px 16px;font:inherit;color:inherit}.tl-phr button:last-child{border:0}
 .tl-phr small{display:block;color:var(--muted);font-size:12.5px}.tl-phr b{display:block;font-size:17px;font-weight:600;margin:1px 0}.tl-phr i{display:block;font-size:13px;color:var(--muted)}
@@ -1254,6 +1255,7 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
     <div id="grpBox" data-pane="circle"></div>
     <div id="jrnBox" data-pane="journey" hidden></div>
     <div id="albumBox" data-pane="album" hidden></div>
+    <button class="games-entry" data-tool="games" data-pane="circle"><span>🎮</span><b>Games</b><small>Cards, drinking games and Wildlings. Play together over Bluetooth or online.</small></button>
   </section>
 
   <!-- SURVIVAL -->
@@ -1854,9 +1856,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.27";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.28";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.28","Games: Pesten, drinking games (horse race, Kingsen, higher or lower, the bus) and Wildlings, a creature game to catch, raise and battle. Play together over Bluetooth or online with your circle. The paper map now shows the whole world offline. The old schematic train lines are gone from the map."],
  ["1.27","Paper map: just streets and names, no places to visit. The old simple Puglia map is gone. Emergency supplies with exact food amounts for your household and pets, your own items, shopping lists, and recipes from your stock. Quieter recording notification."],
  ["1.26","Download whole Dutch provinces for offline use. Settings always one tap away. Map names in the language you pick. Your emergency card can now be your lock screen picture or a widget, so it's readable without tapping."],
  ["1.25","A notification when a new version is ready, also when the app is closed. Download map areas for Dutch towns and around your home, with a zoomed-out map of the country you're in."],
@@ -2214,7 +2217,18 @@ function onLocation(lat,lon,acc){const first=!me;me={lat,lon,acc:acc||50};setTim
   if(!route||!routeFor||!routeFor.startsWith(target+"|"))computeRoute();
   else if(offRoute()&&!routeBusy&&Date.now()-lastReroute>(walking?4000:8000)){lastReroute=Date.now();computeRoute(true);}}
 let lastLLsave=0;function saveLastLL(lat,lon,acc){if(Date.now()-lastLLsave<10*60e3)return;lastLLsave=Date.now();try{localStorage.setItem("pt-lastll",JSON.stringify([+lat.toFixed(4),+lon.toFixed(4),Math.max(acc||0,200),Date.now()]));}catch(e){}}
-window.onNativeLocation=(lat,lon,acc,b)=>{saveLastLL(lat,lon,acc);gpsBearing=(b!=null&&b>=0)?b:null;onLocation(lat,lon,acc);if(walking)walkUpdate();lastWarn();};
+/* Wildlings: creatures turn up along the routes you really travel. No extra GPS: it only uses the fixes the app already gets.
+   Every ~700 m you move there's a find (at most 6 a day); open Games → Wildlings to meet it. */
+function wildStep(lat,lon,acc){try{if(acc>80||localStorage.getItem("pt-wfoff")==="1"||!localStorage.getItem("pt-mon"))return;const W=JSON.parse(localStorage.getItem("pt-wfind")||"{}"),now=Date.now(),day=new Date().toDateString();
+  if(W.day!==day){W.day=day;W.n=0;}if(W.lat==null){W.lat=lat;W.lon=lon;W.d=0;}
+  const dd=hav([W.lat,W.lon],[lat,lon]),dt=(now-(W.t||now))/1000;W.lat=lat;W.lon=lon;W.t=now;
+  if(dd<3&&dd>0.02)W.d=(W.d||0)+dd;const kmh=dt>0?dd/(dt/3600):0;
+  W.f=(W.f||[]).filter(x=>now-x.ts<3*864e5);
+  if(W.d>=0.7&&W.n<6&&W.f.length<10){W.d=0;W.n++;const h=new Date().getHours();
+    W.f.push({ts:now,ll:[+lat.toFixed(4),+lon.toFixed(4)],night:h>=21||h<6,fast:kmh>35,town:(typeof placeOf==="function"?String(placeOf([lat,lon])||""):"").replace(/^in /,"").slice(0,30),k:Math.floor(Math.random()*1e6)});
+    if(now-(W.toast||0)>2*3600e3){W.toast=now;setTimeout(()=>toast("🌿 A Wildling is hiding along your route: Group → Games → Wildlings"),800);}}
+  localStorage.setItem("pt-wfind",JSON.stringify(W));}catch(e){}}
+window.onNativeLocation=(lat,lon,acc,b)=>{saveLastLL(lat,lon,acc);wildStep(lat,lon,acc||50);gpsBearing=(b!=null&&b>=0)?b:null;onLocation(lat,lon,acc);if(walking)walkUpdate();lastWarn();};
 window.onNativeHeading=deg=>{if(TL_HEAD)TL_HEAD(deg);heading=deg;updatePanel();if(mode==="street"){updateStreetHeading();headingTick();}if(walking)walkUpdate();};
 function startGPS(){
   gpsOn=true;document.getElementById("m-gps").classList.add("on");updatePanel();
@@ -2304,6 +2318,48 @@ function setMode(m){try{localStorage.setItem("pt-mode",m);}catch(e){}if(m!=="str
   document.getElementById("areasBox").style.display=m==="street"?"block":"none";
   if(m==="street"){ensureStreet();renderAreas();} else drawMap();
 }
+/* ---------- built-in world map (Natural Earth): land, water, borders, main roads, railways and towns for the whole world, always offline.
+   It sits underneath the detailed street tiles, so wherever those exist (downloaded or online) they cover it. ---------- */
+let WORLD_GEO=null;
+function wDec(str){const pts=[];let i=0,la=0,lo=0;while(i<str.length){for(let k=0;k<2;k++){let b,sh=0,r=0;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<sh;sh+=5;}while(b>=32);const d=r&1?~(r>>1):r>>1;if(k===0)la+=d;else lo+=d;}pts.push([lo/1e3,la/1e3]);}return pts;}
+function worldGeo(){if(WORLD_GEO)return WORLD_GEO;const W=window.PT_WORLD;if(!W)return null;const G={};
+  const poly=a=>({type:"FeatureCollection",features:a.map(r=>({type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:r.map(wDec)}}))});
+  const line=o=>({type:"FeatureCollection",features:Object.keys(o).flatMap(k=>o[k].map(x=>({type:"Feature",properties:{k:isNaN(+k)?k:+k},geometry:{type:"LineString",coordinates:wDec(x)}})))});
+  G.land=poly(W.land);G.lake=poly(W.lake);G.urban=poly(W.urban);
+  G.lines={type:"FeatureCollection",features:[]};
+  for(const [n,o] of [["river",W.river],["border",W.border],["state",W.state],["road",W.road],["rail",W.rail]])for(const f of line(o).features){f.properties.l=n;G.lines.features.push(f);}
+  const bz=z=>Math.max(2,Math.min(10,Math.floor(z)-1));
+  G.place={type:"FeatureCollection",features:W.place.map(r=>{const pr={n:r[2],b:bz(r[3]),cap:r[4]};if(r[5])for(const l in r[5])pr["n_"+l]=r[5][l];return {type:"Feature",properties:pr,geometry:{type:"Point",coordinates:[r[0],r[1]]}};})};
+  G.country={type:"FeatureCollection",features:W.country.map(r=>{const pr={n:r[2],z:r[3]};if(r[4])for(const l in r[4])pr["n_"+l]=r[4][l];return {type:"Feature",properties:pr,geometry:{type:"Point",coordinates:[r[0],r[1]]}};})};
+  WORLD_GEO=G;return G;}
+function worldLayers(style,lang){const G=worldGeo();if(!G)return;const dk=DK();
+  for(const k of ["land","lake","urban","lines","place","country"])style.sources["w-"+k]={type:"geojson",data:G[k],tolerance:0.6,buffer:32};
+  const C=dk?{land:"#1f1f1f",water:"#34373d",urban:"#262626",hw:"#555",mj:"#474747",rd:"#3a3a3a",rail:"#777",bd:"#5b6374",st:"#3f4552",tx:"#9a9a9a",halo:"#1f1f1f",cty:"#6a6a6a"}
+              :{land:"#f2efe9",water:"#aad3e8",urban:"#e6e0d6",hw:"#f5a95c",mj:"#fcdc8b",rd:"#ffffff",rail:"#8c8c8c",bd:"#b39cc6",st:"#cbbfd6",tx:"#2f2f2f",halo:"#ffffff",cty:"#8a8a8a"};
+  const nm=["coalesce",["get","n_"+lang],["get","n"]];
+  const L=(id,f,ex)=>Object.assign({id:"w-"+id,filter:f},ex);
+  const under=[
+    {id:"w-land",type:"fill",source:"w-land",paint:{"fill-color":C.land}},
+    {id:"w-urban",type:"fill",source:"w-urban",minzoom:5,paint:{"fill-color":C.urban,"fill-opacity":["interpolate",["linear"],["zoom"],8,1,12,0.45]}},
+    {id:"w-lake",type:"fill",source:"w-lake",paint:{"fill-color":C.water}},
+    L("river",["all",["==",["get","l"],"river"],["<=",["get","k"],7]],{type:"line",source:"w-lines",minzoom:3,paint:{"line-color":C.water,"line-width":["interpolate",["linear"],["zoom"],3,0.5,8,1.2,12,2.5]}}),
+    L("river2",["all",["==",["get","l"],"river"],[">",["get","k"],7]],{type:"line",source:"w-lines",minzoom:6,paint:{"line-color":C.water,"line-width":["interpolate",["linear"],["zoom"],6,0.4,12,1.6]}}),
+    L("state",["==",["get","l"],"state"],{type:"line",source:"w-lines",minzoom:4,paint:{"line-color":C.st,"line-width":0.6,"line-dasharray":[3,2]}}),
+    L("border",["==",["get","l"],"border"],{type:"line",source:"w-lines",paint:{"line-color":C.bd,"line-width":["interpolate",["linear"],["zoom"],2,0.6,8,1.4]}}),
+    L("rail",["==",["get","l"],"rail"],{type:"line",source:"w-lines",minzoom:6,paint:{"line-color":C.rail,"line-width":["interpolate",["linear"],["zoom"],6,0.5,12,1.4],"line-dasharray":[2,2]}}),
+    L("ferry",["all",["==",["get","l"],"road"],["==",["get","k"],"f"]],{type:"line",source:"w-lines",minzoom:5,paint:{"line-color":dk?"#4c6a85":"#7fa8c9","line-width":1,"line-dasharray":[3,3]}}),
+    L("road",["all",["==",["get","l"],"road"],["==",["get","k"],"r"]],{type:"line",source:"w-lines",minzoom:7,layout:{"line-join":"round"},paint:{"line-color":C.rd,"line-width":["interpolate",["linear"],["zoom"],7,0.6,12,2.4]}}),
+    L("road-s",["all",["==",["get","l"],"road"],["==",["get","k"],"s"]],{type:"line",source:"w-lines",minzoom:5,layout:{"line-join":"round"},paint:{"line-color":C.mj,"line-width":["interpolate",["linear"],["zoom"],5,0.5,12,2.8]}}),
+    L("road-m",["all",["==",["get","l"],"road"],["==",["get","k"],"m"]],{type:"line",source:"w-lines",minzoom:4,layout:{"line-join":"round"},paint:{"line-color":C.hw,"line-width":["interpolate",["linear"],["zoom"],4,0.6,12,3.4]}})];
+  style.layers.splice(2,0,...under);
+  // names: below the detailed map's own labels, so where both exist only one shows
+  const at=style.layers.findIndex(l=>l.type==="symbol");const labels=[];
+  for(let b=10;b>=2;b--)labels.push({id:"w-place"+b,type:"symbol",source:"w-place",minzoom:b,filter:["==",["get","b"],b],
+    layout:{"text-field":nm,"text-font":["Noto Sans "+(b<=5?"Medium":"Regular")],"text-size":b<=4?13:b<=6?12:11,"text-max-width":8,"symbol-sort-key":b,"text-padding":4,
+      "text-variable-anchor":["center","top","bottom"]},paint:{"text-color":C.tx,"text-halo-color":C.halo,"text-halo-width":1.4}});
+  labels.push({id:"w-country",type:"symbol",source:"w-country",maxzoom:7,layout:{"text-field":nm,"text-font":["Noto Sans Medium"],"text-size":["interpolate",["linear"],["zoom"],2,10,6,14],"text-transform":"uppercase","text-letter-spacing":0.08,"text-max-width":7},
+    paint:{"text-color":C.cty,"text-halo-color":C.halo,"text-halo-width":1.2}});
+  style.layers.splice(at<0?style.layers.length:at,0,...labels);}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("couldn't load "+src));document.head.appendChild(s);});}
 function makePin(fill,kind){
   const W=56,H=72,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");
@@ -2342,7 +2398,7 @@ function checkBaseMap(){
   if(baseFixN>=2){let d=bar;if(!d){d=document.createElement("div");d.id="baseMsg";d.className="base-msg";document.querySelector(".map-wrap").appendChild(d);}
     let w="",I={};try{w=window.AndroidMaps.liveStatus()||"";}catch(e){}try{I=JSON.parse(window.AndroidMaps.liveInfo())||{};}catch(e){}
     if(!w&&I.ok===0&&I.empty>0)w=`the online map sent no data for this spot (${I.empty} empty tiles)`;
-    d.innerHTML=isOffline()?"📴 No street data here offline. Download this area (Map → Offline maps) or go online.":"⏳ Street map data isn't loading. Retrying… <button id='baseRetry'>Retry now</button>"+(w?`<div class="small" style="margin-top:4px;opacity:.75">Reason: ${escH(w)}</div>`:"");
+    d.innerHTML=isOffline()?"📴 Offline you see the world map here (main roads and towns). For every street, download this area (Map → Offline maps).":"⏳ Street map data isn't loading. Retrying… <button id='baseRetry'>Retry now</button>"+(w?`<div class="small" style="margin-top:4px;opacity:.75">Reason: ${escH(w)}</div>`:"");
     const r=d.querySelector("#baseRetry");if(r)r.onclick=()=>{baseFixAt=0;checkBaseMap();};}
 }
 if(window.AndroidMaps&&window.AndroidMaps.resetLive){try{if(localStorage.getItem("pt-tilefix")!=="1"){window.AndroidMaps.resetLive();localStorage.setItem("pt-tilefix","1");}}catch(e){}}
@@ -2352,7 +2408,7 @@ async function ensureStreet(){
   // load the map library only once: loading it again (e.g. after switching light/dark) made a fresh copy
   // that didn't know where the map tiles come from, so the map went blank
   if(!window.maplibregl||!window.PT_STYLE)try{if(!document.querySelector('link[href="map/maplibre-gl.css"]')){const l=document.createElement("link");l.rel="stylesheet";l.href="map/maplibre-gl.css";document.head.appendChild(l);}
-    if(!window.maplibregl)await loadScript("map/maplibre-gl.js");if(!window.PT_STYLE)await loadScript("map/style.js");if(!window.PT_STYLE_DARK)try{await loadScript("map/style-dark.js");}catch(e){}if(typeof PT_COAST==="undefined")await loadScript("map/coast.js");}
+    if(!window.maplibregl)await loadScript("map/maplibre-gl.js");if(!window.PT_STYLE)await loadScript("map/style.js");if(!window.PT_STYLE_DARK)try{await loadScript("map/style-dark.js");}catch(e){}if(typeof PT_COAST==="undefined")await loadScript("map/coast.js");if(!window.PT_WORLD)try{await loadScript("map/world.js");}catch(e){}}
   catch(e){areasMsg("⚠ The street map couldn't start: "+e.message);mlLoading=false;return;}
   if(!maplibregl.__pt){maplibregl.__pt=true;window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
     const r=await fetch(params.url.replace("pt://","https://tiles.local/").replace(/\?r=\d+$/,""),{signal:ac.signal});const buf=await r.arrayBuffer();
@@ -2361,6 +2417,7 @@ async function ensureStreet(){
   const lang=mapLang(),style=JSON.parse(JSON.stringify(DK()&&window.PT_STYLE_DARK?PT_STYLE_DARK:PT_STYLE).split('"name:it"').join('"name:'+lang+'"'));   // place names in the language of the country you're in
   style.sources.coast={type:"geojson",data:PT_COAST};
   style.layers.splice(1,0,{id:"coast-land",type:"fill",source:"coast",paint:{"fill-color":DK()?"#1f1f1f":"#f2efe9"}});
+  try{worldLayers(style,lang);}catch(e){}
   const t=T_LL(target), c=STREET_GO||(me?[me.lat,me.lon]:lastMe?[lastMe[0],lastMe[1]]:(t||(LAST_C==="it"?PT["Brindisi"]:NLHOME?[NLHOME.lat,NLHOME.lon]:[52.2,5.3])));
   try{
     ml=new maplibregl.Map({container:"smap",style,center:[c[1],c[0]],zoom:(me||lastMe)?15:12,minZoom:3,maxZoom:19,
@@ -2381,7 +2438,7 @@ async function ensureStreet(){
     ml.addSource("areas",{type:"geojson",data:areasGeo()});
     ml.addLayer({id:"areas-line",type:"line",source:"areas",paint:{"line-color":"#9b4dca","line-width":1.5,"line-dasharray":[3,2],"line-opacity":["interpolate",["linear"],["zoom"],9,0.9,14,0]}});
     ml.addSource("rails",{type:"geojson",data:railGeo()});
-    ml.addLayer({id:"rails",type:"line",source:"rails",maxzoom:11,paint:{"line-width":2.5,"line-color":["match",["get","k"],"ti","#0f6e6e","fse","#b4561f","#7a5bb5"]}});
+    // (the old schematic Puglia train lines are no longer drawn: the street map shows the real railways)
     ml.addSource("acc",{type:"geojson",data:EMPTY});
     ml.addLayer({id:"acc",type:"fill",source:"acc",paint:{"fill-color":"#2f7cf6","fill-opacity":0.12}});
     ml.addSource("route",{type:"geojson",data:EMPTY});
@@ -4721,6 +4778,9 @@ function gLeave(){const G=GRP;if(!G)return;try{gPublish({ty:"bye"},null,G).catch
   GRP=GROUPS[0]||null;ALBUM=GRP?albumOf(GRP):[];saveGrp();loadCostsFor();gCfg();
   try{window.AndroidGroup.share(GROUPS.some(g=>g.sharing));}catch(e){}renderGroup();try{renderAlbum();}catch(e){}drawMap();}
 let gBusy=false,gErr="";
+/* games: poll one circle now (for live online games), unless a poll is already running */
+async function gPollGame(G){if(gBusy||!G||isOffline())return;gBusy=true;try{await gPollG(G);}catch(e){}gBusy=false;saveGrp();}
+function gGroups(){return GROUPS;}function gActive(){return GRP;}
 async function gPoll(){
   if(!GROUPS.length||gBusy||!gNative()||isOffline())return;gBusy=true;let fresh=0;
   for(const G of GROUPS.slice())fresh+=await gPollG(G);
@@ -4743,6 +4803,9 @@ async function gPollG(G){
       if(env.ty==="sos"){SOS={name:env.name+gl,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
       if(env.ty==="checkin"){toast(`✅ ${env.name}${gl}: ${env.cap||"all OK"}`);continue;}
       if(env.ty==="nudge"){nuGot(G,env,m,gl);continue;}
+      if(env.ty==="game"){if(env.to===G.me.id&&Date.now()-(env.ts||0)<15*60e3){if(window.GAME_IN){try{GAME_IN(G,env);}catch(e){}}
+        else if(env.k==="inv"){try{const a=(JSON.parse(localStorage.getItem("pt-ginv")||"[]")||[]).filter(x=>Date.now()-x.ts<15*60e3&&x.sid!==env.sid);a.push({g:G.id,from:env.from,name:env.name,game:env.g,sid:env.sid,ts:env.ts||Date.now()});localStorage.setItem("pt-ginv",JSON.stringify(a.slice(-5)));}catch(e){}
+          toast(`🎮 ${env.name}${gl} invites you to play: Group tab → Games`);}}continue;}
       if(env.phone)m.phone=env.phone;
       if(env.ty==="profile"&&env.del){albumGone(G,A,env);continue;}
       if(env.ty==="profile")continue;
@@ -5784,7 +5847,7 @@ function renderStorage(){const b=document.getElementById("storeBox");if(!b)retur
     <div class="seg">${[["any","Always"],["wifi","Wifi only"],["wifi+charge","Wifi + charging"]].map(([k,l])=>`<button data-dlrule="${k}" class="${DLRULE===k?"on":""}">${l}</button>`).join("")}</div>
     <div class="small" style="margin-top:6px">For background updates of places, opening hours and guide packs. Things you start yourself always download.</div></details>`;
   b.querySelector("#stDet").ontoggle=e=>{b.dataset.open=e.target.open?"1":"";};}
-document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-st],[data-dlrule]");if(!t)return;
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("#storeBox [data-st],#storeBox [data-dlrule]");if(!t)return;
   if(t.dataset.dlrule){DLRULE=t.dataset.dlrule;localStorage.setItem("pt-dlrule",DLRULE);renderStorage();return;}
   const k=t.dataset.st;let n=0;
   if(k==="media")n=tlTry(x=>x.cleanMedia(JSON.stringify(albumMedia())),0);

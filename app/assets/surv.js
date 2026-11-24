@@ -885,3 +885,10 @@ document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(
 const CARD_F=[["name","Name",""],["born","Date of birth","e.g. 12 March 1995"],["blood","Blood type","e.g. A+"],["allergies","Allergies","Medicines, food, insects…"],["conditions","Medical conditions","e.g. asthma, diabetes"],["meds","Medicines I take",""],["ice1","Emergency contact 1","Name and phone number"],["ice2","Emergency contact 2",""],["notes","Other notes","e.g. organ donor, language"]];
 (function(){try{const C=JSON.parse(localStorage.getItem("pt-card")||"{}"),rows=CARD_F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>[f[1],C[f[0]]]),key=JSON.stringify([C.name||"",rows]);
   if(localStorage.getItem("pt-card-widget")!==key&&window.AndroidTools&&window.AndroidTools.iceWidget){window.AndroidTools.iceWidget(C.name||"",JSON.stringify(rows));localStorage.setItem("pt-card-widget",key);}}catch(e){}})();
+
+/* ---------- Games: the games themselves live in games.js (and the creature game in mon.js), loaded when you open it ---------- */
+TL_ICONS.games='<rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7.5 10.5v4M5.5 12.5h4"/><circle cx="15.5" cy="11.5" r=".9"/><circle cx="17.8" cy="13.8" r=".9"/>';
+TOOLS.push({id:"games",c:"#7a5bc4",t:"Games",w:"Card games, drinking games and Wildlings. Play together over Bluetooth or online."});
+TL_RUN.games=function(el,T){const go=()=>{if(T!==TOOL)return;try{GAMES.run(el,T);}catch(e){el.innerHTML=`<p class="sv-note">Games couldn't start: ${svEsc(e.message)}</p>`;}};
+  if(window.GAMES)return go();el.innerHTML=`<p class="sv-note">Loading games…</p>`;
+  const sc=document.createElement("script");sc.src=location.protocol==="file:"?"games.js":"games.js?v="+APP_VERSION;sc.onload=go;sc.onerror=()=>{el.innerHTML=`<p class="sv-note">Games couldn't load.</p>`;};document.head.appendChild(sc);};

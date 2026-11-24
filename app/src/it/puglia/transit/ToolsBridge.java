@@ -141,6 +141,12 @@ public class ToolsBridge {
         try { IceWidget.refresh(a); return "" + IceWidget.count(a); } catch (Exception e) { return "0"; }
     }
     @JavascriptInterface public boolean pinIceWidget() { return IceWidget.pin(a); }
+    // ---------- games over Bluetooth ----------
+    @JavascriptInterface public boolean gameBt() { return GameLink.ready(a); }
+    @JavascriptInterface public String gameListen(String room) { return GameLink.listen(a, room); }
+    @JavascriptInterface public String gameSend(String hex) { return GameLink.send(a, hex); }
+    @JavascriptInterface public String gameTake() { return GameLink.take(); }
+    @JavascriptInterface public void gameStop() { GameLink.stop(); }
     /** Opened from a widget: which tool to show (once). */
     @JavascriptInterface public String takeOpenTool() {
         try { Intent i = a.getIntent(); if (i == null) return ""; String t = i.getStringExtra("tool"); if (t != null) i.removeExtra("tool"); return t == null ? "" : t; } catch (Exception e) { return ""; }
