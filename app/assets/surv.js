@@ -892,3 +892,11 @@ TOOLS.push({id:"games",c:"#7a5bc4",t:"Games",w:"Card games, drinking games and W
 TL_RUN.games=function(el,T){const go=()=>{if(T!==TOOL)return;try{GAMES.run(el,T);}catch(e){el.innerHTML=`<p class="sv-note">Games couldn't start: ${svEsc(e.message)}</p>`;}};
   if(window.GAMES)return go();el.innerHTML=`<p class="sv-note">Loading games…</p>`;
   const sc=document.createElement("script");sc.src=location.protocol==="file:"?"games.js":"games.js?v="+APP_VERSION;sc.onload=go;sc.onerror=()=>{el.innerHTML=`<p class="sv-note">Games couldn't load.</p>`;};document.head.appendChild(sc);};
+
+/* ---------- Star map: the tool lives in sky.js, the star catalogue in skydata.js; both load when you open it ---------- */
+TL_ICONS.sky='<path d="M12 3l1.8 4.2 4.5.4-3.4 3 1 4.4L12 12.8 8.1 15l1-4.4-3.4-3 4.5-.4z"/><path d="M4 20h16"/><path d="M6.5 20c1.5-2.5 3.4-3.7 5.5-3.7s4 1.2 5.5 3.7"/>';
+TOOLS.splice(Math.max(0,TOOLS.findIndex(t=>t.id==="games")),0,{id:"sky",c:"#2b3a8c",t:"Star map",w:"Point your phone at the sky: stars, planets, and how to find your way by them"});   // games stay last
+TL_RUN.sky=function(el,T){const v=location.protocol==="file:"?"":"?v="+APP_VERSION,go=()=>{if(T!==TOOL)return;try{SKY.run(el,T);}catch(e){el.innerHTML=`<p class="sv-note">The star map couldn't start: ${svEsc(e.message)}</p>`;}};
+  const load=(src,cb)=>{const sc=document.createElement("script");sc.src=src+v;sc.onload=cb;sc.onerror=()=>{el.innerHTML=`<p class="sv-note">The star map couldn't load.</p>`;};document.head.appendChild(sc);};
+  el.innerHTML=`<p class="sv-note">Loading the sky…</p>`;
+  const need=()=>window.SKY?go():load("sky.js",go);if(window.SKY_DATA)need();else load("skydata.js",need);};

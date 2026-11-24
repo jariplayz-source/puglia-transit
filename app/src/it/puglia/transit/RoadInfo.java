@@ -35,7 +35,7 @@ public class RoadInfo {
         OfflineLink.need();
         HttpURLConnection c = (HttpURLConnection) new URL(FEED).openConnection();
         c.setConnectTimeout(15000); c.setReadTimeout(45000);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
         if (c.getResponseCode() != 200) throw new Exception("road data server said " + c.getResponseCode());
         String mod = c.getHeaderField("Last-Modified");
         InputStream in = new GZIPInputStream(c.getInputStream(), 65536);

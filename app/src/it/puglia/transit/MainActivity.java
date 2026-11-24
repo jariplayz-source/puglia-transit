@@ -63,6 +63,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     private boolean fastGps = false;
     /** The compass sensor only runs while the map or the compass tool is on screen (saves battery). */
     private boolean headingWanted = false;
+    private volatile boolean skyWanted = false; private long skyAt = 0; private final float[] sky9 = new float[9];
     /** Battery saver (set from the page): slower GPS, fewer background jobs. */
     boolean lowPower() { return getSharedPreferences("app", 0).getBoolean("lowpower", false); }
     private boolean paused = false, bgBusy = false;
@@ -95,6 +96,8 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                 else if (on) { Sensor rv = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); if (rv != null) sm.registerListener(MainActivity.this, rv, SensorManager.SENSOR_DELAY_GAME); }
             }});
         }
+        /** Star map: send the phone's full orientation to the page while it's open (the compass sensor must be on too). */
+        @JavascriptInterface public void sky(boolean on) { skyWanted = on; }
         /** Is the phone in dark mode? */
         /** true when the user allowed "Precise location" (Android 12+ can give approximate only). */
         @JavascriptInterface
@@ -317,14 +320,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -351,7 +354,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -388,7 +391,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                         OfflineLink.need();
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -430,7 +433,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     OfflineLink.need();
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(15000); c.setReadTimeout(60000); c.setInstanceFollowRedirects(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
                     if (c.getResponseCode() != 200) throw new Exception("download server said " + c.getResponseCode());
                     long total = c.getContentLength(), got = 0; int lastPct = -1;
                     java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
@@ -680,7 +683,8 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
         web.post(new Runnable() { public void run() { web.evaluateJavascript(code, null); } });
     }
 
-    private static final int REQ_FILE = 501, REQ_MIC = 502;
+    private static final int REQ_FILE = 501, REQ_MIC = 502, REQ_CAM = 503;
+    private android.webkit.PermissionRequest camReq;
     private android.webkit.ValueCallback<Uri[]> fileCb;
     private android.webkit.PermissionRequest micReq;
     File mediaDir() { File d = new File(getFilesDir(), "media"); d.mkdirs(); return d; }
@@ -825,7 +829,11 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
             @Override
             public void onPermissionRequest(final android.webkit.PermissionRequest r) {
                 runOnUiThread(new Runnable() { public void run() {
-                    boolean audio = false; for (String res : r.getResources()) if (android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(res)) audio = true;
+                    boolean audio = false, video = false; for (String res : r.getResources()) { if (android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(res)) audio = true; if (android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(res)) video = true; }
+                    if (video && !audio) {   // the camera behind the star map
+                        if (Build.VERSION.SDK_INT < 23 || checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) { r.grant(r.getResources()); return; }
+                        camReq = r; requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQ_CAM); return;
+                    }
                     if (!audio) { r.deny(); return; }
                     if (Build.VERSION.SDK_INT < 23 || checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) { r.grant(r.getResources()); return; }
                     micReq = r; requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, REQ_MIC);
@@ -909,6 +917,10 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
 
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+        if (code == REQ_CAM && camReq != null) {
+            if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED) camReq.grant(camReq.getResources()); else camReq.deny();
+            camReq = null; return;
+        }
         if (code == REQ_MIC && micReq != null) {
             if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED) micReq.grant(micReq.getResources()); else micReq.deny();
             micReq = null; return;
@@ -971,6 +983,12 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
     private double hSin = 0, hCos = 1, lastSentDeg = -999; private float decl = 0; private long declAt = 0;
     @Override
     public void onSensorChanged(SensorEvent e) {
+        if (skyWanted) {   // star map: the whole orientation of the phone, about 30 times a second
+            long t = System.currentTimeMillis();
+            if (t - skyAt >= 33) { skyAt = t; SensorManager.getRotationMatrixFromVector(sky9, e.values);
+                final String js = "window.onSky&&onSky([" + sky9[0] + "," + sky9[1] + "," + sky9[2] + "," + sky9[3] + "," + sky9[4] + "," + sky9[5] + "," + sky9[6] + "," + sky9[7] + "," + sky9[8] + "]," + decl + ")";
+                web.post(new Runnable() { public void run() { web.evaluateJavascript(js, null); } }); }
+        }
         SensorManager.getRotationMatrixFromVector(rot, e.values);
         SensorManager.getOrientation(rot, ori);
         float[] m = rot;
