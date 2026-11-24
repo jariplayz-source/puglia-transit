@@ -106,9 +106,11 @@ public class LocationShareService extends Service implements LocationListener {
 
     /* Battery: GPS only while you move. After 5 minutes in the same spot it switches to the phone network's location
        (cell towers / wifi, almost free) and wakes GPS again as soon as you've moved. Battery saver makes it all slower. */
+    private boolean fastOn = false; private long lastFast = 0;
     private boolean still = false; private double ancLat = 999, ancLon = 999; private float ancAcc = 50; private long ancT = 0;
     private boolean providers(boolean moving) {
-        boolean lp = GroupCore.prefs(this).getBoolean("lowpower", false);
+        boolean fast = System.currentTimeMillis() < GroupCore.prefs(this).getLong("fastUntil", 0); fastOn = fast;
+        boolean lp = GroupCore.prefs(this).getBoolean("lowpower", false) && !fast; if (fast) moving = true;
         try { lm.removeUpdates(this); } catch (Exception e) { }
         try {
             for (String p : new String[]{"fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER}) {
@@ -116,7 +118,8 @@ public class LocationShareService extends Service implements LocationListener {
                 boolean net = LocationManager.NETWORK_PROVIDER.equals(p), pas = LocationManager.PASSIVE_PROVIDER.equals(p);
                 if (!moving && !net && !pas) continue;
                 long every = pas ? 30000 : net ? (moving ? 60000 : lp ? 300000 : 120000) : (lp ? 60000 : 20000);
-                lm.requestLocationUpdates(p, every, pas ? 0 : moving ? (lp ? 30 : 10) : 50, this);
+                if (fast && !net && !pas) every = 15000;
+                lm.requestLocationUpdates(p, every, fast ? 0 : pas ? 0 : moving ? (lp ? 30 : 10) : 50, this);
             }
             return true;
         } catch (SecurityException e) { return false; } catch (Exception e) { return true; }
@@ -145,6 +148,18 @@ public class LocationShareService extends Service implements LocationListener {
         long now = System.currentTimeMillis();
         GroupCore.prefs(this).edit().putString("lastLoc", l.getLatitude() + "," + l.getLongitude() + "," + (l.hasAccuracy() ? l.getAccuracy() : 50) + "," + l.getTime()).apply();
         if (!GroupCore.anySharing(GroupCore.prefs(this))) return;
+        // someone driving near you asked for your position every 30 s
+        long fu = GroupCore.prefs(this).getLong("fastUntil", 0);
+        if (now < fu && now - lastFast >= 28000) {
+            lastFast = now; final String ft = GroupCore.prefs(this).getString("fastTopic", null);
+            final boolean fpoll = now - lastPoll > 60000; if (fpoll) lastPoll = now;
+            new Thread(new Runnable() { public void run() {
+                GroupCore.sendLocation(LocationShareService.this, l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 50, l.hasSpeed() ? l.getSpeed() : -1, ft);
+                if (fpoll) GroupCore.pollAndNotify(LocationShareService.this);
+            }}).start();
+        } else if (fastOn && now >= fu) providers(!still);   // the ask ran out: back to the normal, slower pace
+        // while you're on the move, look for messages about every 75 s (so an ask like that reaches you quickly)
+        if (!still && now - lastPoll > 75000) { lastPoll = now; new Thread(new Runnable() { public void run() { GroupCore.pollAndNotify(LocationShareService.this); } }).start(); }
         // Budget-friendly: send when you moved 150 m+ (at most every 4 min), otherwise a heartbeat every 45 min.
         double moved = sentLat == 999 ? 1e9 : Math.hypot((l.getLatitude() - sentLat) * 111320, (l.getLongitude() - sentLon) * 111320 * Math.cos(Math.toRadians(l.getLatitude())));
         if (force) { if (now - lastSent < 30000) return; }

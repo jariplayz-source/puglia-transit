@@ -52,7 +52,7 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.28 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.29 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -100,6 +100,14 @@ public class GroupCore {
             int pct = Math.round(lvl * 100f / sc);
             return pct + ((st == BatteryManager.BATTERY_STATUS_CHARGING || st == BatteryManager.BATTERY_STATUS_FULL) ? 1000 : 0);
         } catch (Exception e) { return -1; }
+    }
+
+    /** Fast sharing: every 30 s to one circle until the given time (at most 5 minutes ahead, renewed by the asker). */
+    static void startFast(Context ctx, String topic, long until) {
+        long now = System.currentTimeMillis(); until = Math.min(until, now + 5 * 60000L); if (until <= now) return;
+        SharedPreferences p = prefs(ctx); boolean was = p.getLong("fastUntil", 0) > now;
+        p.edit().putLong("fastUntil", until).putString("fastTopic", topic).apply();
+        if (!was) try { ctx.startService(new Intent(ctx, LocationShareService.class).putExtra("reprov", true)); } catch (Exception e) { }
     }
 
     /** Journey: adds a point to your own route (kept only on this phone). */
@@ -155,7 +163,7 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.28"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.29"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
@@ -225,7 +233,7 @@ public class GroupCore {
             if (push == null || !push.optBoolean(kind)) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.28"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
+                m.put("v", 1); m.put("ver", "1.29"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
                 m.put("from", g.optString("me")); m.put("name", g.optString("name")); m.put("ts", System.currentTimeMillis());
                 http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
             } catch (Exception e) { }
@@ -291,7 +299,7 @@ public class GroupCore {
     }
 
     /** Checks the relay for new group messages and shows a notification for each (works while the app is closed). */
-    static void pollAndNotify(Context ctx) {
+    static synchronized void pollAndNotify(Context ctx) {   // one poll at a time: never the same message twice
         SharedPreferences p = prefs(ctx);
         if (!p.getBoolean("notify", true)) return;
         JSONArray gs = groups(p);
@@ -359,6 +367,12 @@ public class GroupCore {
                         if (!"inv".equals(env.optString("k")) || !g.optString("me").equals(env.optString("to"))) continue;
                         if (System.currentTimeMillis() - env.optLong("ts", 0) > 15 * 60000L) continue;
                         AlarmReceiver.show(ctx, "game:" + topic + ":" + env.optString("from"), "🎮 " + name + " wants to play", "Open Out & Back → Group → Games to join.", true); continue;
+                    }
+                    if ("locfast".equals(ty)) {   // someone driving near you asks for your position every 30 s for a few minutes
+                        if (!g.optString("me").equals(env.optString("to"))) continue;
+                        if (System.currentTimeMillis() - env.optLong("ts", 0) > 5 * 60000L) continue;
+                        if (p.getBoolean("sharing", false) && g.optBoolean("share")) startFast(ctx, topic, env.optLong("until", 0));
+                        continue;
                     }
                     if ("locreq".equals(ty)) {
                         if (System.currentTimeMillis() - env.optLong("ts", 0) > 30 * 60000) continue;   // old request

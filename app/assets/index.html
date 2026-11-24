@@ -1856,9 +1856,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.28";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.29";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.29","Driving: while you navigate by car, people in your circle within 1 km send their position every 30 seconds. The Puglia trip pins only show while you travel there, and overlapping pins hide until you zoom in."],
  ["1.28","Games: Pesten, drinking games (horse race, Kingsen, higher or lower, the bus) and Wildlings, a creature game to catch, raise and battle. Play together over Bluetooth or online with your circle. The paper map now shows the whole world offline. The old schematic train lines are gone from the map."],
  ["1.27","Paper map: just streets and names, no places to visit. The old simple Puglia map is gone. Emergency supplies with exact food amounts for your household and pets, your own items, shopping lists, and recipes from your stock. Quieter recording notification."],
  ["1.26","Download whole Dutch provinces for offline use. Settings always one tap away. Map names in the language you pick. Your emergency card can now be your lock screen picture or a widget, so it's readable without tapping."],
@@ -2303,7 +2304,9 @@ function showPlace(n){tripsPane("explore");filter="All";renderChips();const q=do
 /* paper map: the street map without places to visit, shops and pins, like a printed map */
 var PAPER=false;try{PAPER=localStorage.getItem("pt-paper")==="1";}catch(e){}
 function applyPaper(){document.body.classList.toggle("paper",PAPER);const lb=document.getElementById("m-layer");if(lb){lb.textContent=PAPER?"📍":"📄";lb.title=PAPER?"Show places again":"Paper map: streets only";lb.classList.toggle("on",PAPER);}
-  if(!ml||!mlReady)return;for(const id of ["pois","pt-pois","towns"])if(ml.getLayer(id))try{ml.setLayoutProperty(id,"visibility",PAPER?"none":"visible");}catch(e){}}
+  if(!ml||!mlReady)return;const trip=typeof pugliaOn==="function"&&pugliaOn()&&(typeof appMode!=="function"||appMode()!=="home");
+  // the Puglia trip towns only belong on the map while you're travelling there
+  for(const id of ["pois","pt-pois","towns"])if(ml.getLayer(id))try{ml.setLayoutProperty(id,"visibility",PAPER||(id==="towns"&&!trip)?"none":"visible");}catch(e){}}
 let mode="simple", ml=null, mlReady=false, mlLoading=false, meMarker=null, pendingDl=null;
 const HAS_MAPS=()=>!!window.AndroidMaps;
 const AREA_SIZE={"Bari":0.045,"Lecce":0.04,"Taranto":0.045,"Matera":0.035,"Brindisi":0.04};
@@ -2379,7 +2382,8 @@ function makePin(fill,kind){
 }
 let gmCat=null;
 function poiGeo(){return {type:"FeatureCollection",features:POIS.filter(o=>(o.kind==="osm"||o.kind==="station"||!OSMX[o.town])&&catOk(o)).map(o=>({type:"Feature",properties:{id:o.id,label:o.label,kind:o.kind},geometry:{type:"Point",coordinates:[o.ll[1],o.ll[0]]}}))};}
-function townGeo(){return {type:"FeatureCollection",features:Object.keys(PT).filter(n=>!MINOR.has(n)).map(n=>({type:"Feature",properties:{id:n,label:n.replace(" (nature reserve)",""),home:n==="Brindisi"},geometry:{type:"Point",coordinates:[PT[n][1],PT[n][0]]}}))};}
+const BIGTOWN=new Set(["Bari","Brindisi","Lecce","Taranto","Matera","Ostuni","Polignano a Mare","Alberobello","Otranto","Gallipoli"]);
+function townGeo(){return {type:"FeatureCollection",features:Object.keys(PT).filter(n=>!MINOR.has(n)).map(n=>({type:"Feature",properties:{id:n,label:n.replace(" (nature reserve)",""),home:n==="Brindisi",rank:BIGTOWN.has(n)?1:2},geometry:{type:"Point",coordinates:[PT[n][1],PT[n][0]]}}))};}
 function railGeo(){return {type:"FeatureCollection",features:RAIL.map(([k,l])=>({type:"Feature",properties:{k},geometry:{type:"LineString",coordinates:l.map(n=>[PT[n][1],PT[n][0]])}}))};}
 function circlePoly(lat,lon,m){const pts=[],dl=m/111320,dn=dl/Math.cos(lat*Math.PI/180);for(let i=0;i<=48;i++){const a=i/48*2*Math.PI;pts.push([lon+dn*Math.cos(a),lat+dl*Math.sin(a)]);}return {type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[pts]}};}
 const EMPTY={type:"FeatureCollection",features:[]};
@@ -2449,7 +2453,7 @@ async function ensureStreet(){
     ml.addSource("trip-line",{type:"geojson",data:EMPTY});
     ml.addLayer({id:"trip-line",type:"line",source:"trip-line",paint:{"line-color":"#e0531f","line-width":2,"line-dasharray":[1.5,2],"line-opacity":0.55}});
     ml.addSource("towns",{type:"geojson",data:townGeo()});
-    ml.addLayer({id:"towns",type:"symbol",source:"towns",maxzoom:12,layout:{"icon-image":["case",["get","home"],"pin-home","pin-town"],"icon-anchor":"bottom","icon-size":0.8,"icon-allow-overlap":true,
+    ml.addLayer({id:"towns",type:"symbol",source:"towns",maxzoom:12,layout:{"icon-image":["case",["get","home"],"pin-home","pin-town"],"icon-anchor":"bottom","icon-size":0.8,"icon-allow-overlap":false,"icon-padding":6,"symbol-sort-key":["case",["get","home"],0,["get","rank"]],
       "text-field":["get","label"],"text-font":["Noto Sans Medium"],"text-size":13,"text-anchor":"top","text-offset":[0,0.2],"text-optional":true},
       paint:{"text-color":DK()?"#e6eaee":"#2f2f2f","text-halo-color":DK()?"#14191e":"#ffffff","text-halo-width":1.6}});
     ml.addSource("pois",{type:"geojson",data:poiGeo()});
@@ -2500,7 +2504,7 @@ async function ensureStreet(){
     ml.on("movestart",()=>clearTimeout(lp));ml.on("contextmenu",e=>{clearTimeout(lp);const ll=e.lngLat;showPlaceCard(null,[ll.lat,ll.lng],"Dropped pin");});
     const el=document.createElement("div");el.className="me-marker";el.innerHTML='<div class="cone"></div><div class="dot"></div>';
     meMarker=new maplibregl.Marker({element:el});
-    mlReady=true;updateStreet();if(activeTrip!=null)fitTripStreet();
+    mlReady=true;try{applyPaper();}catch(e){}updateStreet();if(activeTrip!=null)fitTripStreet();
   });
   mlLoading=false;
 }
@@ -4070,7 +4074,7 @@ function applyCountry(){
   document.documentElement.dataset.country=c;
   document.body.classList.toggle("mode-home",m==="home");document.body.classList.toggle("mode-travel",m!=="home");
   {const tb=document.querySelector('nav [data-v="trips"]');if(tb){const tn=[...tb.childNodes].find(n=>n.nodeType===3);if(tn)tn.textContent=m==="home"?"Flights":"Trips";}}
-  applyPane();
+  applyPane();try{applyPaper();}catch(e){}
   if(mode!=="street"&&HAS_MAPS())setTimeout(()=>setMode("street"),0);
   if(ml&&ml.__lang&&ml.__lang!==mapLang())rebuildMap();
   if(key===appliedKey)return;appliedKey=key;try{renderStatic();}catch(e){}
@@ -4803,6 +4807,8 @@ async function gPollG(G){
       if(env.ty==="sos"){SOS={name:env.name+gl,cap:env.cap,ll:env.ll,ts:env.ts};renderSOS();continue;}
       if(env.ty==="checkin"){toast(`✅ ${env.name}${gl}: ${env.cap||"all OK"}`);continue;}
       if(env.ty==="nudge"){nuGot(G,env,m,gl);continue;}
+      if(env.ty==="locfast"){if(env.to===G.me.id&&G.sharing&&Date.now()-(env.ts||0)<5*60e3){const u=Math.min(env.until||0,Date.now()+5*60e3);
+        if(gNative()){try{window.AndroidGroup.fastShare(G.topic,u);}catch(e){}}else{FAST={G,until:u};}}continue;}
       if(env.ty==="game"){if(env.to===G.me.id&&Date.now()-(env.ts||0)<15*60e3){if(window.GAME_IN){try{GAME_IN(G,env);}catch(e){}}
         else if(env.k==="inv"){try{const a=(JSON.parse(localStorage.getItem("pt-ginv")||"[]")||[]).filter(x=>Date.now()-x.ts<15*60e3&&x.sid!==env.sid);a.push({g:G.id,from:env.from,name:env.name,game:env.g,sid:env.sid,ts:env.ts||Date.now()});localStorage.setItem("pt-ginv",JSON.stringify(a.slice(-5)));}catch(e){}
           toast(`🎮 ${env.name}${gl} invites you to play: Group tab → Games`);}}continue;}
@@ -4829,6 +4835,9 @@ async function gPollG(G){
 /* while the app is open: send my own position too (the background service does it when the app is closed), and look for updates often */
 let LOCREQ=null,lastMySend=0,gPolledAt=0;
 function gSharing(){return !!(GRP&&GRP.sharing);}
+let FAST=null,fastSent=0;
+setInterval(()=>{if(!FAST||!me||isOffline())return;if(Date.now()>FAST.until){FAST=null;return;}if(Date.now()-fastSent<28e3)return;fastSent=Date.now();
+  gPublish({ty:"loc",lat:+me.lat.toFixed(5),lon:+me.lon.toFixed(5),acc:Math.round(me.acc||50)},null,FAST.G).catch(()=>{});},5000);
 function sendMyLoc(force,only){if(!me||isOffline())return;if(gNative()&&!force)return;const L=GROUPS.filter(g=>g.sharing&&(!only||g===only));if(!L.length)return;
   if(!force&&Date.now()-lastMySend<60e3)return;if(!only)lastMySend=Date.now();
   let bt=-1;try{bt=window.AndroidGroup.battery();}catch(e){}
@@ -4836,7 +4845,13 @@ function sendMyLoc(force,only){if(!me||isOffline())return;if(gNative()&&!force)r
 async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;
   if(isOffline()){if(m.phone){try{window.AndroidGroup.askBySms(GRP.topic,m.phone);}catch(e){}m.asked=Date.now();toast(`📱 Asked ${m.name} by text message`);renderGroup();}else toast(`📴 No internet, and no phone number for ${m.name} yet`);return;}try{await gPublish({ty:"locreq",to:id});toast(`📍 Asked ${m.name} for their location`);m.asked=Date.now();renderGroup();setTimeout(gPoll,15000);setTimeout(gPoll,45000);}catch(e){toast("⚠ "+e.message);}}
 setInterval(()=>{if(!GROUPS.length||document.hidden||typing())return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
-  if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);},15000);
+  if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);askFastNearby();},15000);
+/* Driving: while you navigate by car, anyone in your circle within 1 km is asked to send their position every 30 seconds.
+   The ask lasts 3 minutes and is renewed every 2 while they stay close, so it stops by itself once you're apart. */
+function askFastNearby(){if(!me||isOffline()||NAVM!=="car"||!document.body.classList.contains("walking"))return;const now=Date.now();
+  for(const G of GROUPS)for(const [id,m] of Object.entries(G.members||{})){if(id===G.me.id||!m.last||now-m.last.ts>10*60e3)continue;
+    if(hav([me.lat,me.lon],[m.last.lat,m.last.lon])>1)continue;if(now-(m.fastAsked||0)<120e3)continue;m.fastAsked=now;
+    gPublish({ty:"locfast",to:id,until:now+180e3},null,G).catch(()=>{});}}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&GRP)gPoll();});
 /* opened from the emergency-card widget: show the card */
 function openFromWidget(){let t="";try{t=window.AndroidTools&&window.AndroidTools.takeOpenTool?String(window.AndroidTools.takeOpenTool()||""):"";}catch(e){}
