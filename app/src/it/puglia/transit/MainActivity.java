@@ -97,7 +97,13 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
             }});
         }
         /** Star map: send the phone's full orientation to the page while it's open (the compass sensor must be on too). */
-        @JavascriptInterface public void sky(boolean on) { skyWanted = on; }
+        @JavascriptInterface public void sky(boolean on) { skyWanted = on;
+            if (on) try {   // magnetic north isn't true north: work out the difference here even if the map's GPS isn't running
+                android.location.Location l = best;
+                if (l == null) for (String pv : new String[]{LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER}) { try { android.location.Location k = lm.getLastKnownLocation(pv); if (k != null && (l == null || k.getTime() > l.getTime())) l = k; } catch (Exception ignored) {} }
+                if (l != null) { decl = new android.hardware.GeomagneticField((float) l.getLatitude(), (float) l.getLongitude(), (float) (l.hasAltitude() ? l.getAltitude() : 0), System.currentTimeMillis()).getDeclination(); declAt = System.currentTimeMillis(); }
+            } catch (Exception ignored) { }
+        }
         /** Is the phone in dark mode? */
         /** true when the user allowed "Precise location" (Android 12+ can give approximate only). */
         @JavascriptInterface
@@ -320,14 +326,14 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(40000);
                     if (url.contains("transitous.org")) {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.31 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     } else if (url.contains("viaggiatreno.it")) {
                         c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36");
                         c.setRequestProperty("Accept", "*/*");
                         c.setRequestProperty("Referer", "https://www.viaggiatreno.it/infomobilita/index.jsp");
                     } else {
-                        c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "OutAndBack/1.31 (+https://github.com/jariplayz-source/puglia-transit)");
                         c.setRequestProperty("Accept", "application/json");
                     }
                     int code = c.getResponseCode();
@@ -354,7 +360,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(10000); c.setReadTimeout(60000);
                     c.setRequestMethod("POST"); c.setDoOutput(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.31 (+https://github.com/jariplayz-source/puglia-transit)");
                     c.setRequestProperty("Accept", "application/json,*/*");
                     c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     byte[] out = form.getBytes("UTF-8"); c.setFixedLengthStreamingMode(out.length);
@@ -391,7 +397,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                         OfflineLink.need();
                         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
                         c.setInstanceFollowRedirects(false); c.setConnectTimeout(7000); c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) OutAndBack/1.31 (+https://github.com/jariplayz-source/puglia-transit)");
                         int code = c.getResponseCode(); String loc = c.getHeaderField("Location"); c.disconnect();
                         if (code >= 300 && code < 400 && loc != null) u = new URL(new URL(u), loc).toString(); else break;
                     }
@@ -433,7 +439,7 @@ public class MainActivity extends Activity implements LocationListener, SensorEv
                     OfflineLink.need();
                     HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
                     c.setConnectTimeout(15000); c.setReadTimeout(60000); c.setInstanceFollowRedirects(true);
-                    c.setRequestProperty("User-Agent", "OutAndBack/1.30 (+https://github.com/jariplayz-source/puglia-transit)");
+                    c.setRequestProperty("User-Agent", "OutAndBack/1.31 (+https://github.com/jariplayz-source/puglia-transit)");
                     if (c.getResponseCode() != 200) throw new Exception("download server said " + c.getResponseCode());
                     long total = c.getContentLength(), got = 0; int lastPct = -1;
                     java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
