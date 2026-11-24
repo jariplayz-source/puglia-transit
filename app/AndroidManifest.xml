@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="it.puglia.transit" android:versionCode="104" android:versionName="1.24">
+    package="it.puglia.transit" android:versionCode="106" android:versionName="1.25">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -44,6 +44,7 @@
     </receiver>
     <service android:name=".LocationShareService" android:exported="false" android:foregroundServiceType="location"/>
     <service android:name=".GroupPollJob" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE"/>
+    <service android:name=".UpdateJob" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE"/>
     <provider android:name=".ShareProvider" android:authorities="it.puglia.transit.share" android:exported="false" android:grantUriPermissions="true"/>
     <service android:name=".DownloadService" android:exported="false" android:foregroundServiceType="dataSync"/>
   </application>

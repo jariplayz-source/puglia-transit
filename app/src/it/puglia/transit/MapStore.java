@@ -154,10 +154,15 @@ public class MapStore {
                 Pmtiles p = new Pmtiles(buildUrl);
                 p.open();
                 rememberBuild(buildUrl);
-                // 1) small overview of the whole region (once)
-                if (!hasArea("overview")) {
+                // 1) small zoomed-out overview of the region the area is in (once per region): Puglia, the Netherlands, or ~400 km around it
+                double cx = (w + e) / 2, cy = (s + n) / 2;
+                String ovId; String ovName; double[] ov;
+                if (cx > REGION[0] && cx < REGION[2] && cy > REGION[1] && cy < REGION[3]) { ovId = "overview"; ovName = "Puglia overview"; ov = REGION; }
+                else if (cx > 3.2 && cx < 7.3 && cy > 50.7 && cy < 53.6) { ovId = "overview-nl"; ovName = "Netherlands overview"; ov = new double[]{3.2, 50.7, 7.3, 53.6}; }
+                else { long gx = Math.round(cx / 4), gy = Math.round(cy / 3); ovId = "overview-" + gx + "_" + gy; ovName = "Region overview"; ov = new double[]{gx * 4 - 2.5, gy * 3 - 2, gx * 4 + 2.5, gy * 3 + 2}; }
+                if (!hasArea(ovId)) {
                     l.progress(id, "Overview of the region…", 0, 1, 0);
-                    saveArea("overview", "Region overview", REGION[0], REGION[1], REGION[2], REGION[3], 0, 9, p, l, "overview");
+                    saveArea(ovId, ovName, ov[0], ov[1], ov[2], ov[3], 0, 9, p, l, ovId);
                 }
                 // 2) the requested area
                 saveArea(id, name, w, s, e, n, minZ, Math.min(maxZ, p.maxZoom()), p, l, id);
@@ -181,7 +186,7 @@ public class MapStore {
         List<int[]> cover = Pmtiles.cover(w, s, e, n, minZ, maxZ);
         Set<String> have = new HashSet<String>();
         for (int[] t : cover) if (tileFile(t[0], t[1], t[2]).exists()) have.add(t[0] + "/" + t[1] + "/" + t[2]);
-        final String phase = "overview".equals(id) ? "Overview of the region…" : "Downloading " + name + "…";
+        final String phase = id.startsWith("overview") ? "Overview of the region…" : "Downloading " + name + "…";
         p.extract(cover, new Pmtiles.Sink() {
             public void tile(int z, int x, int y, byte[] data) throws IOException {
                 File f = tileFile(z, x, y); f.getParentFile().mkdirs();
