@@ -17,7 +17,7 @@ import android.os.IBinder;
 
 /** Shares your location with your travel group every ~2 minutes, also when the app is closed (shows a notification while on). */
 public class LocationShareService extends Service implements LocationListener {
-    static final String CH = "share";
+    static final String CH = "share2";
     static final int ID = 9;
     private LocationManager lm;
     private long lastSent = 0, lastPoll = 0;
@@ -69,7 +69,9 @@ public class LocationShareService extends Service implements LocationListener {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder b;
         if (Build.VERSION.SDK_INT >= 26) {
-            if (nm.getNotificationChannel(CH) == null) nm.createNotificationChannel(new NotificationChannel(CH, "Location sharing", NotificationManager.IMPORTANCE_LOW));
+            // "min": no icon in the status bar, no sound, folded away at the bottom of the notifications (Android needs one while it records)
+            try { if (nm.getNotificationChannel("share") != null) nm.deleteNotificationChannel("share"); } catch (Exception e) { }
+            if (nm.getNotificationChannel(CH) == null) { NotificationChannel ch = new NotificationChannel(CH, "Recording & sharing (quiet)", NotificationManager.IMPORTANCE_MIN); ch.setShowBadge(false); nm.createNotificationChannel(ch); }
             b = new Notification.Builder(this, CH);
         } else b = new Notification.Builder(this);
         int fl = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -81,7 +83,7 @@ public class LocationShareService extends Service implements LocationListener {
         String title = sharing && tracking ? "Recording your journey · sharing location" : sharing ? "Sharing your location" : "Recording your journey";
         String text = sharing ? "With " + grp + " (end-to-end encrypted)" : "Your route stays on this phone";
         b.setSmallIcon(android.R.drawable.ic_menu_mylocation).setContentTitle(title).setContentText(text)
-         .setOngoing(true).setContentIntent(PendingIntent.getActivity(this, 1, open, fl))
+         .setOngoing(Build.VERSION.SDK_INT < 33).setPriority(Notification.PRIORITY_MIN).setShowWhen(false).setContentIntent(PendingIntent.getActivity(this, 1, open, fl))
          .addAction(new Notification.Action.Builder(null, "Stop", PendingIntent.getService(this, 2, stop, fl)).build());
         // Always go to the foreground first: Android kills the whole app if a service started with
         // startForegroundService() stops or fails before calling startForeground().

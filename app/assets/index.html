@@ -871,6 +871,14 @@ html:not([data-country="nl"]) .nl-only{display:none!important}
 .tl-mrow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.tl-mrow:last-of-type{border-bottom:0}.tl-mrow .e{font-size:26px;line-height:1}
 .tl-mrow b{display:block;font-size:15px}.tl-mrow small{display:block;color:var(--muted);font-size:13.5px;line-height:1.4;margin-top:2px}.tl-mrow.now b{color:var(--accent)}
 .tl-switch span small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;font-weight:400}
+/* supplies & shopping lists */
+.tl-check label{position:relative}.tl-x{flex:none;margin-left:auto;align-self:center;border:0;background:none;color:var(--muted);font-size:16px;width:36px;height:36px;border-radius:50%}
+.tl-days{display:inline-flex;gap:6px}.tl-days button{border:0;border-radius:999px;padding:6px 12px;background:rgba(255,255,255,.12);color:inherit;font:600 13px system-ui}.tl-days button.on{background:var(--tc);color:#0b0f14}
+.tl-add{display:flex;gap:8px;padding:10px 12px;align-items:center}.tl-check .tl-add input,.tl-add input{position:static;opacity:1;flex:1;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.tl-check .tl-add input+input,.tl-add input+input{flex:0 0 96px}.tl-add button{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);font-size:22px}
+.tl-listrow{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);text-align:left;padding:14px 16px;font:inherit}
+.tl-listrow small{color:var(--muted)}.tl-listhead{display:flex;gap:8px;align-items:center;margin:0 0 10px}.tl-listhead input{flex:1;min-width:0;font:600 18px system-ui;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.tl-recipes{display:flex;flex-wrap:wrap;gap:8px}.tl-recipes button{border:0;border-radius:999px;padding:9px 14px;background:var(--card);color:var(--ink);font:600 14px system-ui;box-shadow:0 0 0 1px var(--line)}
 /* nudges */
 .nu-row{display:flex;gap:8px;overflow-x:auto;margin:12px -4px 0;padding:2px 4px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nu-row::-webkit-scrollbar{display:none}
 .nu-chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 13px 8px 10px;background:var(--chip);color:var(--ink);font:600 14px var(--font,system-ui);white-space:nowrap}
@@ -909,6 +917,7 @@ body.nopin:not(.walking) #map,body.nopin:not(.walking) #smap{height:calc(100dvh 
 .my-rt span{grid-row:span 2;font-size:22px}.my-rt b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.my-rt small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rt-go .btn{flex:1;min-width:0;padding-left:6px;padding-right:6px}
 .gm-set{position:absolute;right:0;top:0;width:46px;height:46px;border:0;border-radius:50%;background:var(--card);color:var(--ink);box-shadow:var(--float,0 2px 8px rgba(0,0,0,.25));display:grid;place-items:center;padding:0}
+body.paper #gmChips{display:none}
 /* compact panel under the map */
 .np-go,.np-more{display:none;flex:none;border:0;border-radius:50%;width:44px;height:44px;place-items:center;background:var(--card2);color:var(--ink);font-size:20px;padding:0}
 .np-more{display:grid;transition:transform .2s}.nav-panel:not(.mini) .np-more{transform:rotate(180deg);align-self:flex-start}
@@ -1169,7 +1178,7 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
         <button id="m-out" title="Zoom out">－</button>
         <button id="m-fit" class="pug-only" title="Whole region">⤢</button>
         <button id="m-line" title="Route line on/off">〰</button>
-        <button id="m-layer" class="pug-only" title="Switch map">🗺️</button>
+        <button id="m-layer" title="Paper map: streets only">📄</button>
       </div>
       <div class="map-legend pug-only"><span style="color:var(--train)">━ Trenitalia</span> <span style="color:var(--bus)">━ FSE</span> <span style="color:#7a5bb5">━ FAL</span> · <span style="color:#e0a100">● sight</span> <span style="color:#9b4dca">● gem</span> ■ station</div>
     </div>
@@ -1845,9 +1854,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.26";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.27";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.27","Paper map: just streets and names, no places to visit. The old simple Puglia map is gone. Emergency supplies with exact food amounts for your household and pets, your own items, shopping lists, and recipes from your stock. Quieter recording notification."],
  ["1.26","Download whole Dutch provinces for offline use. Settings always one tap away. Map names in the language you pick. Your emergency card can now be your lock screen picture or a widget, so it's readable without tapping."],
  ["1.25","A notification when a new version is ready, also when the app is closed. Download map areas for Dutch towns and around your home, with a zoomed-out map of the country you're in."],
  ["1.24","Opens on the map. Navigate by car, bike or on foot with spoken directions, and save your own routes (e.g. to work) with one-tap start. Outside Italy: Dutch map labels, places on the map, better train results, and no Puglia info. Day timeline for your circle, one notification per person, emergency card on the lock screen, sun & moon in the daylight tool, and a new guide pack: Food that keeps."],
@@ -2240,7 +2250,7 @@ function initMap(){
   const lb=document.getElementById("m-line");lb.classList.toggle("on",showLine);
   lb.onclick=()=>{showLine=!showLine;lb.classList.toggle("on",showLine);try{localStorage.setItem("pt-line",showLine?"1":"0");}catch(e){}
     toast(showLine?"Route line on":"Route line off: the arrow and distance still guide you");drawMap();if(mode==="street"&&ml)updateStreet();};
-  document.getElementById("m-layer").onclick=()=>setMode(mode==="street"?"simple":"street");
+  document.getElementById("m-layer").onclick=()=>{if(mode!=="street"&&HAS_MAPS()){setMode("street");return;}PAPER=!PAPER;try{localStorage.setItem("pt-paper",PAPER?"1":"0");}catch(e){}applyPaper();toast(PAPER?"📄 Paper map: just streets and names":"📍 Places are back on the map");};
   document.getElementById("m-fit").onclick=()=>{if(mode==="street"&&ml)ml.fitBounds([[16.3,39.65],[18.75,41.35]],{padding:10});else{vb=FULL.slice();drawMap();}};
 
   document.getElementById("npDetails").onclick=()=>showPlace(POIMAP[target]?(POIMAP[target].town||"Brindisi"):target);
@@ -2276,6 +2286,10 @@ function openOnMap(n){const ll=T_LL(n);if(ll){target=n;routeFor=null;syncPicker(
 function showPlace(n){tripsPane("explore");filter="All";renderChips();const q=document.getElementById("q");q.value=n==="Brindisi"?"":n;render();showTab("trips");tripsPane("explore");}
 
 /* ---------- STREET MAP (Android app only, offline after download) ---------- */
+/* paper map: the street map without places to visit, shops and pins, like a printed map */
+var PAPER=false;try{PAPER=localStorage.getItem("pt-paper")==="1";}catch(e){}
+function applyPaper(){document.body.classList.toggle("paper",PAPER);const lb=document.getElementById("m-layer");if(lb){lb.textContent=PAPER?"📍":"📄";lb.title=PAPER?"Show places again":"Paper map: streets only";lb.classList.toggle("on",PAPER);}
+  if(!ml||!mlReady)return;for(const id of ["pois","pt-pois","towns"])if(ml.getLayer(id))try{ml.setLayoutProperty(id,"visibility",PAPER?"none":"visible");}catch(e){}}
 let mode="simple", ml=null, mlReady=false, mlLoading=false, meMarker=null, pendingDl=null;
 const HAS_MAPS=()=>!!window.AndroidMaps;
 const AREA_SIZE={"Bari":0.045,"Lecce":0.04,"Taranto":0.045,"Matera":0.035,"Brindisi":0.04};
@@ -2285,7 +2299,7 @@ function setMode(m){try{localStorage.setItem("pt-mode",m);}catch(e){}if(m!=="str
   if(m==="street"&&!HAS_MAPS()){const b=document.getElementById("areasBox");b.style.display="block";
     b.innerHTML=`<b>🗺️ Street maps work in the Android app.</b><div class="small">Install the latest Out & Back app, then pick the areas you want to keep offline.</div>`;return;}
   mode=m;
-  {const lb=document.getElementById("m-layer");if(lb){lb.textContent=m==="street"?"🧭":"🗺️";lb.title=m==="street"?"Simple map":"Street map";}}
+  applyPaper();
   document.querySelector(".map-wrap").classList.toggle("street",m==="street");
   document.getElementById("areasBox").style.display=m==="street"?"block":"none";
   if(m==="street"){ensureStreet();renderAreas();} else drawMap();
@@ -2359,7 +2373,7 @@ async function ensureStreet(){
   ml.on("error",()=>{});
   ml.on("idle",checkBaseMap);
   ml.on("moveend",()=>{clearTimeout(lpMove.t);lpMove.t=setTimeout(lpMove,1500);});
-  ml.on("load",()=>{
+  ml.on("load",()=>{setTimeout(applyPaper,0);
     // GPS arrived while the map was still starting: go to where you are now
     setTimeout(()=>{try{if(me&&!mapMoved&&!STREET_GO&&!walking&&activeTrip==null&&hav([me.lat,me.lon],[ml.getCenter().lat,ml.getCenter().lng])>0.3)ml.jumpTo({center:[me.lon,me.lat],zoom:Math.max(ml.getZoom(),15)});}catch(e){}},0);
     [["pin-sight","#f2a900","sight"],["pin-gem","#9b4dca","gem"],["pin-station","#3b3f45","station"],["pin-home","#e0531f","home"],["pin-target","#e0531f","target"],["pin-town","#1d1b18","town"],["pin-mine","#e91e63","heart"],["pin-osm","#2a8c82","dot"]]
@@ -4000,7 +4014,7 @@ function applyCountry(){
   document.body.classList.toggle("mode-home",m==="home");document.body.classList.toggle("mode-travel",m!=="home");
   {const tb=document.querySelector('nav [data-v="trips"]');if(tb){const tn=[...tb.childNodes].find(n=>n.nodeType===3);if(tn)tn.textContent=m==="home"?"Flights":"Trips";}}
   applyPane();
-  if(!pugliaOn()&&mode!=="street"&&HAS_MAPS())setTimeout(()=>setMode("street"),0);
+  if(mode!=="street"&&HAS_MAPS())setTimeout(()=>setMode("street"),0);
   if(ml&&ml.__lang&&ml.__lang!==mapLang())rebuildMap();
   if(key===appliedKey)return;appliedKey=key;try{renderStatic();}catch(e){}
   if(m==="home"){renderNL();}
@@ -5517,7 +5531,7 @@ function journeyGeo(){const lines=[],steps=[];if(!journeyOn)return [EMPTY,EMPTY]
       let best=1e9,at=0;for(const part of p.parts)for(let i=0;i<part.ll.length;i++){const d=hav(part.ll[i],a.ll);if(d<best){best=d;at=part.l0;}}if(at>p.len*jProg)continue;}}
     steps.push({type:"Feature",properties:{id:a.id,col:gColor(a.from),k:a.ty},geometry:{type:"Point",coordinates:[a.ll[1],a.ll[0]]}});}
   return [{type:"FeatureCollection",features:lines},{type:"FeatureCollection",features:steps}];}
-function jDeclutter(on){if(!(ml&&ml.getLayer))return;for(const id of ["pt-pois","mine","trip-line","trip-num","trip-stops","group","group-lbl","group-name","areas-line"])if(ml.getLayer(id))try{ml.setLayoutProperty(id,"visibility",on?"none":"visible");}catch(e){}}
+function jDeclutter(on){if(!(ml&&ml.getLayer))return;for(const id of ["pt-pois","mine","trip-line","trip-num","trip-stops","group","group-lbl","group-name","areas-line"])if(ml.getLayer(id))try{ml.setLayoutProperty(id,"visibility",on?"none":"visible");}catch(e){}if(!on)applyPaper();}
 function jRender(){if(mode==="street"&&ml&&ml.getSource&&ml.getSource("jline")){const jg=journeyGeo();ml.getSource("jline").setData(jg[0]);ml.getSource("jsteps").setData(jg[1]);}else drawMap();}
 function jFit(){const B=jBuild();const pts=[].concat(...B.people.map(p=>[].concat(...p.parts.map(x=>x.ll)))).concat(B.steps.map(a=>a.ll));if(!pts.length)return;
   const la=pts.map(p=>p[0]),lo=pts.map(p=>p[1]);
@@ -5676,7 +5690,7 @@ syncTrips();renderMaker();renderTrips();
 {const c=document.getElementById("npClear");if(c)c.onclick=clearPin;}
 renderMyBox();lastWarn();initGm();netState();applyTheme();renderShops();
 renderDeps();renderCosts();renderNotifBox();gSyncStop();renderGroup();if(GRP){gCfg();setTimeout(gPoll,3000);}setTimeout(()=>{fetchWx(false);planNotifs();},2500);
-if(HAS_MAPS()){let m0="street";try{m0=localStorage.getItem("pt-mode")||"street";}catch(e){}if(m0==="street")setTimeout(()=>setMode("street"),200);}
+if(HAS_MAPS())setTimeout(()=>setMode("street"),200);   // the street map is the map (the old simple Puglia map only shows when street maps aren't available)
 if(window.AndroidGPS&&!gpsOn)startGPS();   // needed for the last-train warning
 renderPosBox();
 if(window.AndroidNet){const age=POSFIX.at?(Date.now()-new Date(POSFIX.at).getTime())/864e5:999;setTimeout(async()=>{await downloadAllPlaces();if(!POSFIX.at||age>30)fixPositions(false);},1500);}
