@@ -472,7 +472,8 @@ body.journey .map-ctrl{top:auto;bottom:24px}
 .jb-chip i{width:10px;height:10px;border-radius:5px;display:inline-block}.jb-chip.on{background:var(--ink);color:var(--bg)}
 .appbar{display:flex;align-items:center;gap:8px}.appbar h1{flex:1;margin:0}
 .iconbtn{border:0;background:var(--chip);color:var(--ink);width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;flex:none;cursor:pointer}
-body:not(.tab-dest) .appbar{display:none}
+body.tab-map .appbar,body.tab-tips .appbar,body.tab-surv .appbar,body.walking .appbar{display:none}
+body:not(.tab-dest) .appbar #hdrSurv{margin-left:auto}
 .home-h{display:flex;align-items:baseline;justify-content:space-between;margin:22px 2px 6px}.home-h h2{margin:0}
 details.alert{padding:10px 14px}details.alert summary{list-style:none;cursor:pointer;font-weight:700;color:var(--warn);font-size:14.5px}
 details.alert summary::-webkit-details-marker{display:none}details.alert summary::after{content:" ▸";font-weight:400}details.alert[open] summary::after{content:" ▾"}
@@ -869,6 +870,7 @@ html:not([data-country="nl"]) .nl-only{display:none!important}
 .tl-moonx{background:var(--card);border-radius:18px;padding:12px 16px;margin:12px 0}.tl-moonx summary{font-weight:600;cursor:pointer;list-style:none}.tl-moonx summary::-webkit-details-marker{display:none}
 .tl-mrow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.tl-mrow:last-of-type{border-bottom:0}.tl-mrow .e{font-size:26px;line-height:1}
 .tl-mrow b{display:block;font-size:15px}.tl-mrow small{display:block;color:var(--muted);font-size:13.5px;line-height:1.4;margin-top:2px}.tl-mrow.now b{color:var(--accent)}
+.tl-switch span small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;font-weight:400}
 /* nudges */
 .nu-row{display:flex;gap:8px;overflow-x:auto;margin:12px -4px 0;padding:2px 4px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nu-row::-webkit-scrollbar{display:none}
 .nu-chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 13px 8px 10px;background:var(--chip);color:var(--ink);font:600 14px var(--font,system-ui);white-space:nowrap}
@@ -906,6 +908,7 @@ body.nopin:not(.walking) #map,body.nopin:not(.walking) #smap{height:calc(100dvh 
 .my-rt{flex:none;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;text-align:left;border:0;border-radius:16px;padding:10px 14px;background:var(--accent-soft);color:var(--ink);font:inherit;max-width:240px}
 .my-rt span{grid-row:span 2;font-size:22px}.my-rt b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.my-rt small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rt-go .btn{flex:1;min-width:0;padding-left:6px;padding-right:6px}
+.gm-set{position:absolute;right:0;top:0;width:46px;height:46px;border:0;border-radius:50%;background:var(--card);color:var(--ink);box-shadow:var(--float,0 2px 8px rgba(0,0,0,.25));display:grid;place-items:center;padding:0}
 /* compact panel under the map */
 .np-go,.np-more{display:none;flex:none;border:0;border-radius:50%;width:44px;height:44px;place-items:center;background:var(--card2);color:var(--ink);font-size:20px;padding:0}
 .np-more{display:grid;transition:transform .2s}.nav-panel:not(.mini) .np-more{transform:rotate(180deg);align-self:flex-start}
@@ -1150,6 +1153,7 @@ html:not([data-theme="dark"]) .pv[data-pv="float"]{--pv-bg:hsl(var(--pvh,150) 12
       <div id="walkLast"></div>
       <div id="walkBar" class="walk-bar" style="display:none"></div>
       <div class="gm-top" id="gmTop">
+        <button class="gm-set" id="gmSet" aria-label="Settings"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
         <div class="gm-search"><span>🔍</span><input id="gmQ" type="search" placeholder="Search places, towns, stations" autocomplete="off"><button id="gmX" style="display:none" aria-label="Clear">✕</button></div>
         <div class="gm-chips" id="gmChips"></div>
         <div class="gm-res" id="gmRes"></div>
@@ -1841,9 +1845,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.25";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.26";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.26","Download whole Dutch provinces for offline use. Settings always one tap away. Map names in the language you pick. Your emergency card can now be your lock screen picture or a widget, so it's readable without tapping."],
  ["1.25","A notification when a new version is ready, also when the app is closed. Download map areas for Dutch towns and around your home, with a zoomed-out map of the country you're in."],
  ["1.24","Opens on the map. Navigate by car, bike or on foot with spoken directions, and save your own routes (e.g. to work) with one-tap start. Outside Italy: Dutch map labels, places on the map, better train results, and no Puglia info. Day timeline for your circle, one notification per person, emergency card on the lock screen, sun & moon in the daylight tool, and a new guide pack: Food that keeps."],
  ["1.23","Nudges with emoji effects for your group, and the map works outside Italy."],
@@ -2259,8 +2264,8 @@ let prevTab="dest";
 document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest("[data-nseg]");if(!s)return;
   document.querySelectorAll("#nSeg button").forEach(x=>x.classList.toggle("on",x===s));
   document.querySelectorAll("#v-shops [data-npane]").forEach(p=>p.hidden=p.dataset.npane!==s.dataset.nseg);window.scrollTo(0,0);});
-document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#hdrInfo"))showTab("tips");if(e.target.closest&&e.target.closest("#infoBack"))showTab(prevTab||"dest");});
-function showTab(v){if(v==="trips"&&typeof appMode==="function"&&appMode()==="home"){setTimeout(()=>{const f=document.querySelector('[data-tseg="flights"]');if(f)f.click();},0);}if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips"&&v!=="surv")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}document.body.classList.toggle("tab-map",v==="map");document.body.classList.toggle("tab-dest",v==="dest");
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#hdrInfo,#gmSet"))showTab("tips");if(e.target.closest&&e.target.closest("#infoBack"))showTab(prevTab||"dest");});
+function showTab(v){if(v==="trips"&&typeof appMode==="function"&&appMode()==="home"){setTimeout(()=>{const f=document.querySelector('[data-tseg="flights"]');if(f)f.click();},0);}if(v==="food"){showTab("shops");const b=document.querySelector('[data-nseg="food"]');if(b)b.click();return;}if(v!=="tips"&&v!=="surv")prevTab=v;if(v==="shops")setTimeout(renderShops,0);if(v==="group"){setTimeout(()=>{renderGroup();renderJourney();},0);if(GRP)gPoll();}if(v!=="map"&&journeyOn){journeyOn=false;document.body.classList.remove("journey");}[...document.body.classList].forEach(c=>{if(c.startsWith("tab-")&&c!=="tab-"+v)document.body.classList.remove(c);});document.body.classList.add("tab-"+v);
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));
   window.scrollTo(0,0);setTimeout(headSync,0);if(v==="tips")setTimeout(()=>{try{renderStorage();renderDiag();}catch(e){}},0); if(v==="map"){drawMap();if(mode==="street"&&ml)setTimeout(()=>ml.resize(),50);}
@@ -2477,6 +2482,13 @@ const NL_TOWNS={"Alkmaar":[52.632,4.748],"Almere":[52.371,5.222],"Amersfoort":[5
   "Den Bosch":[51.690,5.304],"Den Haag":[52.078,4.288],"Eindhoven":[51.441,5.470],"Emmen":[52.785,6.897],"Enschede":[52.221,6.893],"Groningen":[53.219,6.567],"Haarlem":[52.381,4.636],
   "Hoofddorp":[52.303,4.690],"Leeuwarden":[53.201,5.799],"Leiden":[52.160,4.497],"Maastricht":[50.851,5.691],"Nijmegen":[51.842,5.853],"Rotterdam":[51.922,4.479],"Tilburg":[51.556,5.091],
   "Utrecht":[52.090,5.121],"Zandvoort":[52.374,4.531],"Zwolle":[52.516,6.083]};
+// the 12 Dutch provinces [w,s,e,n]: saved one level less detailed (zoom 14) to keep them a sensible size
+const NL_PROV={"Drenthe":[6.11,52.61,7.10,53.20],"Flevoland":[5.12,52.25,6.03,52.87],"Friesland":[4.85,52.80,6.43,53.50],"Gelderland":[5.00,51.73,6.83,52.52],
+  "Groningen":[6.15,52.84,7.23,53.56],"Limburg":[5.55,50.75,6.23,51.78],"Noord-Brabant":[4.18,51.22,6.04,51.83],"Noord-Holland":[4.49,52.16,5.33,53.19],
+  "Overijssel":[5.78,52.07,7.07,52.86],"Utrecht":[4.79,51.95,5.63,52.31],"Zeeland":[3.35,51.20,4.30,51.85],"Zuid-Holland":[3.83,51.65,4.96,52.33]};
+const provMB=bb=>{const km2=(bb[2]-bb[0])*111.32*Math.cos((bb[1]+bb[3])/2*Math.PI/180)*(bb[3]-bb[1])*111.32;return Math.round(km2*0.009/10)*10||10;};
+function provOf(lat,lon){for(const k in NL_PROV){const b=NL_PROV[k];if(lon>=b[0]&&lon<=b[2]&&lat>=b[1]&&lat<=b[3])return k;}return null;}
+let provSure=null;
 const llBox=(p,dl)=>{dl=dl||0.036;const dn=dl/Math.cos(p[0]*Math.PI/180);return [p[1]-dn,p[0]-dl,p[1]+dn,p[0]+dl];};
 function areaPlaceName(lat,lon){if(pugliaOn()){const n=nearestTown();if(n)return n;}let best=null,bd=1e9;for(const k in NL_TOWNS){const d=hav([lat,lon],NL_TOWNS[k]);if(d<bd){bd=d;best=k;}}
   return bd<15?best:(typeof hereName==="function"&&hereName())||`${lat.toFixed(2)}, ${lon.toFixed(2)}`;}
@@ -2493,6 +2505,9 @@ function renderAreas(){
       :`<div class="small" style="padding:6px 0">No areas yet. Add your first one below 👇</div>`}
       ${ovs.map(ov=>`<div class="area-row"><span class="grow">${escH(ov.name)}<br><span class="small">${fmtMB(ov.bytes)} · the zoomed-out map, saved with your first area there</span></span><button data-del="${ov.id}" class="${confirmDel===ov.id?"sure":""}">${confirmDel===ov.id?"Delete?":"🗑"}</button></div>`).join("")}</div>
     <div class="add-row"><select class="np-select" id="areaTown" style="flex:1 1 100%">${!it&&home?`<option value="@home">🏠 Around home (${escH(home.name||"Home")})</option>`:""}${towns.map(n=>`<option ${n===(it?(PT[target]?target:"Lecce"):near)?"selected":""}>${n}</option>`).join("")}</select></div>
+    ${curCountry()==="nl"?`<div class="add-row" style="margin-top:10px"><select class="np-select" id="areaProv" style="flex:1 1 100%">${Object.keys(NL_PROV).map(k=>`<option value="${k}" ${k===(provSure||(me&&provOf(me.lat,me.lon))||(home&&provOf(home.lat,home.lon)))?"selected":""}>Province ${k} · about ${provMB(NL_PROV[k])} MB</option>`).join("")}</select></div>
+    <div class="add-row"><button class="btn ghost" id="dlProv">${provSure?`Tap again: download ${provSure} (Wi-Fi!)`:"⬇ Download whole province"}</button></div>
+    <div class="small">A whole province: every street, works offline, also for walking and cycling routes. Big, so use Wi-Fi.</div>`:""}
     <div class="add-row"><button class="btn primary" id="dlTown">⬇ Download town</button><button class="btn ghost" id="dlHere">📍 Around me</button><button class="btn ghost" id="dlView">▣ Save this view</button></div>
     <div id="areaProg" style="display:none"><div class="small" id="areaPhase"></div><div class="bar"><i id="areaBar"></i></div></div>
     <div class="small" id="areaMsg"></div>
@@ -2500,6 +2515,11 @@ function renderAreas(){
     <div class="small pug-only" style="margin-top:6px">💡 To save a whole city (map + places + explanations), use <b>Info → 📥 Offline cities</b>.</div>
     <div class="small" style="margin-top:6px">Map data © OpenStreetMap contributors, via Protomaps.</div>`;
   if(s.busy){document.getElementById("areaProg").style.display="block";}
+  const dp=box.querySelector("#dlProv");if(dp)dp.onclick=()=>{const k=box.querySelector("#areaProv").value;
+    if(provSure!==k){provSure=k;renderAreas();setTimeout(()=>{if(provSure===k){provSure=null;renderAreas();}},6000);return;}
+    provSure=null;const b=NL_PROV[k];pendingDl={id:"prov-"+slug(k),name:"Province "+k};mapBusy=true;setTimeout(bgSync,0);
+    document.getElementById("areaProg").style.display="block";document.getElementById("areaPhase").textContent="Starting…";areasMsg("");
+    window.AndroidMaps.download("prov-"+slug(k),"Province "+k,b[0],b[1],b[2],b[3],10,14);};
   box.querySelector("#dlTown").onclick=()=>{const n=box.querySelector("#areaTown").value;
     if(n==="@home"&&home)return startDownload("home-area","🏠 Around home",llBox([home.lat,home.lon],0.04));
     if(!it&&NL_TOWNS[n])return startDownload("town-"+slug(n),n,llBox(NL_TOWNS[n]));
@@ -2745,11 +2765,14 @@ async function computeRoute(force){
     if(NAVM==="car"){R={ok:false,reason:"carnet",meters:direct*1000};return;}   // the offline map has no one-way streets or turn rules: not good enough to drive by
     if(direct>8){R={ok:false,reason:"far",meters:direct*1000};return;}
     // 2) offline: route on the streets of the saved map areas
-    const m=0.004,w=Math.min(me.lon,t[1])-m*1.3,e=Math.max(me.lon,t[1])+m*1.3,s=Math.min(me.lat,t[0])-m,n=Math.max(me.lat,t[0])+m,z=15,N=1<<z;
-    const lx=lon=>Math.floor((lon+180)/360*N),ly=lat=>{const r=lat*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*N);};
-    const tiles=[];for(let x=lx(w);x<=lx(e);x++)for(let y=ly(n);y<=ly(s);y++)tiles.push([z,x,y]);
-    if(tiles.length>120){R={ok:false,reason:"big",meters:direct*1000};return;}
-    const lines=[];let have=0;for(const [zz,x,y] of tiles){const L=await roadTile(zz,x,y);if(L){have++;lines.push(...L);}}
+    const m=0.004,w=Math.min(me.lon,t[1])-m*1.3,e=Math.max(me.lon,t[1])+m*1.3,s=Math.min(me.lat,t[0])-m,n=Math.max(me.lat,t[0])+m;
+    // street detail (zoom 15) first; whole provinces are saved one level less detailed (zoom 14), so try that next
+    const lines=[];let have=0;
+    for(const z of [15,14]){const N=1<<z,lx=lon=>Math.floor((lon+180)/360*N),ly=lat=>{const r=lat*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*N);};
+      const tiles=[];for(let x=lx(w);x<=lx(e);x++)for(let y=ly(n);y<=ly(s);y++)tiles.push([z,x,y]);
+      if(tiles.length>120){if(z===15)continue;R={ok:false,reason:"big",meters:direct*1000};return;}
+      for(const [zz,x,y] of tiles){const L=await roadTile(zz,x,y);if(L){have++;lines.push(...L);}}
+      if(have)break;}
     if(!have||lines.length<2){R={ok:false,reason:"nomap",meters:direct*1000};return;}
     const g=buildGraph(lines,me.lat),K=g.K,C=g.C,toM=(lat,lon)=>[lon*K*C,lat*K];
     const [a,da]=nearestNode(g,toM(me.lat,me.lon)),[b,db]=nearestNode(g,toM(t[0],t[1]));
@@ -3955,7 +3978,7 @@ try{SET_COUNTRY=localStorage.getItem("pt-country")||"auto";SET_MODE=localStorage
 function countryAt(lat,lon){for(const k in COUNTRY_BOX){const b=COUNTRY_BOX[k];if(lat>=b[0]&&lat<=b[2]&&lon>=b[1]&&lon<=b[3])return k;}return "xx";}
 /* Puglia-only parts (day trips, Puglia towns, Italian strikes, the simple Puglia map…) only show in Italy */
 function pugliaOn(){return curCountry()==="it";}
-function mapLang(){return {nl:"nl",it:"it"}[curCountry()]||"en";}
+function mapLang(){return (typeof INFO_LANG!=="undefined"&&INFO_LANG)||"en";}   // map names in the language you picked in the app
 function curCountry(){if(SET_COUNTRY!=="auto")return SET_COUNTRY;return me?countryAt(me.lat,me.lon):LAST_C;}
 /* Home mode = near where you live (set in ⚙️ or with "This is my home"), in any country. Without a home set, the Netherlands counts as home. */
 var LAST_MODE="travel";try{LAST_MODE=localStorage.getItem("pt-lastmode")||"travel";}catch(e){}
@@ -3980,7 +4003,7 @@ function applyCountry(){
   if(!pugliaOn()&&mode!=="street"&&HAS_MAPS())setTimeout(()=>setMode("street"),0);
   if(ml&&ml.__lang&&ml.__lang!==mapLang())rebuildMap();
   if(key===appliedKey)return;appliedKey=key;try{renderStatic();}catch(e){}
-  if(m==="home"){renderNL();if(document.body.classList.contains("tab-trips"))showTab("dest");}
+  if(m==="home"){renderNL();}
   try{planNotifs();}catch(e){}
   try{renderShops();}catch(e){}
   try{renderSet();}catch(e){}
@@ -3989,7 +4012,7 @@ function countrySet(){return `<div class="dest" style="margin-top:14px">Country 
   <div class="seg">${[["auto","Auto"],["it","🇮🇹 Italy"],["nl","🇳🇱 NL"],["xx","Neutral"]].map(([k,l])=>`<button data-cset="${k}" class="${SET_COUNTRY===k?"on":""}">${l}</button>`).join("")}</div>
   <div class="dest" style="margin-top:14px">Mode</div>
   <div class="seg">${[["auto","Auto"],["travel","🧳 Travel"],["home","🏠 Home"]].map(([k,l])=>`<button data-mset="${k}" class="${SET_MODE===k?"on":""}">${l}</button>`).join("")}</div>
-  <div class="dest" style="margin-top:14px">Language for place info</div>
+  <div class="dest" style="margin-top:14px">Language for map names and place info</div>
   <select class="np-select" id="infoLang">${INFO_LANGS.map(([k,l])=>`<option value="${k}" ${INFO_LANG===k?"selected":""}>${l}</option>`).join("")}</select>
   <div class="small" style="margin-top:4px">Explanations about sights come from Wikipedia in this language. If a place only has a local article, it's translated automatically and saved, so it also works offline later.</div>
   <div class="dest" style="margin-top:14px">Where you live</div>
@@ -4324,7 +4347,7 @@ document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest
   const d=e.target.closest&&e.target.closest("[data-diet]");if(d){const k=d.dataset.diet;DIET=DIET.includes(k)?DIET.filter(x=>x!==k):[...DIET,k];
     try{localStorage.setItem("pt-diet",JSON.stringify(DIET));}catch(x){}renderDiet();return;}
   const g=e.target.closest&&e.target.closest("[data-dlang]");if(g){DIET_LANGSEL=null;renderDiet();}});
-document.addEventListener("change",e=>{if(e.target&&e.target.id==="infoLang"){INFO_LANG=e.target.value;try{localStorage.setItem("pt-infolang",INFO_LANG);}catch(x){}toast("Place info will now be in "+e.target.selectedOptions[0].textContent);return;}if(e.target&&e.target.id==="dLangSel"){DIET_LANGSEL=e.target.value;renderDiet();}});
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="infoLang"){INFO_LANG=e.target.value;try{localStorage.setItem("pt-infolang",INFO_LANG);}catch(x){}try{if(ml&&ml.__lang!==mapLang())rebuildMap();}catch(x){}toast("Map names and place info will now be in "+e.target.selectedOptions[0].textContent);return;}if(e.target&&e.target.id==="dLangSel"){DIET_LANGSEL=e.target.value;renderDiet();}});
 setTimeout(renderDiet,0);
 
 /* ---------- FLIGHTS: import from a boarding-pass screenshot (barcode), or by flight number ---------- */
@@ -4738,7 +4761,11 @@ async function askLoc(id){const m=GRP&&GRP.members[id];if(!m)return;
 setInterval(()=>{if(!GROUPS.length||document.hidden||typing())return;const onGroup=document.body.classList.contains("tab-group")||document.body.classList.contains("tab-map");
   if(onGroup||Date.now()-gPolledAt>60e3){gPolledAt=Date.now();gPoll();}sendMyLoc(false);},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&GRP)gPoll();});
-window.onAppOpened=()=>{if(GRP)gPoll();};
+/* opened from the emergency-card widget: show the card */
+function openFromWidget(){let t="";try{t=window.AndroidTools&&window.AndroidTools.takeOpenTool?String(window.AndroidTools.takeOpenTool()||""):"";}catch(e){}
+  if(t)needSurv().then(()=>{try{openTool(t);}catch(e){}}).catch(()=>{});}
+setTimeout(openFromWidget,800);
+window.onAppOpened=()=>{if(GRP)gPoll();openFromWidget();};
 // voice notes from others play by themselves, one after the other
 let voiceQ=[],voicePlaying=false;
 function playNewVoices(){const nw=ALBUM.filter(a=>a.ty==="voice"&&!a.played&&a.from!==(GRP&&GRP.me.id)&&a.media);for(const a of nw)if(!voiceQ.includes(a.id))voiceQ.push(a.id);nextVoice();}
@@ -5847,7 +5874,7 @@ function suNext(){const P=suPages(),k=P[suI];if(k==="name"){const n=document.get
   if(k==="done")return suFinish();suI++;suRender(1);}
 function suApply(){try{
   if(SU.name)localStorage.setItem("pt-myname",SU.name);
-  INFO_LANG=SU.lang;localStorage.setItem("pt-infolang",SU.lang);
+  INFO_LANG=SU.lang;localStorage.setItem("pt-infolang",SU.lang);try{if(ml&&ml.__lang!==mapLang())rebuildMap();}catch(x){}
   THEME=SU.theme;localStorage.setItem("pt-theme",THEME);SKIN=SU.skin||"classic";localStorage.setItem("pt-skin",SKIN);localStorage.setItem("pt-skin-asked","1");applyTheme();
   DIET=[...SU.diet];localStorage.setItem("pt-diet",JSON.stringify(DIET));
   SET_MODE="auto";localStorage.setItem("pt-appmode","auto");

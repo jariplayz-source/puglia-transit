@@ -135,6 +135,21 @@ public class ToolsBridge {
         try { if (android.provider.Settings.Secure.getInt(c.getContentResolver(), "lock_screen_show_notifications", 1) == 0) return "lockoff"; } catch (Exception e) { }
         return "ok";
     }
+    /** The emergency card widget: save what it shows, redraw it; pinWidget asks to place it. */
+    @JavascriptInterface public String iceWidget(String name, String rowsJson) {
+        prefs(a).edit().putString("iceRows", rowsJson == null ? "[]" : rowsJson).putString("iceName", name == null ? "" : name).apply();
+        try { IceWidget.refresh(a); return "" + IceWidget.count(a); } catch (Exception e) { return "0"; }
+    }
+    @JavascriptInterface public boolean pinIceWidget() { return IceWidget.pin(a); }
+    /** Opened from a widget: which tool to show (once). */
+    @JavascriptInterface public String takeOpenTool() {
+        try { Intent i = a.getIntent(); if (i == null) return ""; String t = i.getStringExtra("tool"); if (t != null) i.removeExtra("tool"); return t == null ? "" : t; } catch (Exception e) { return ""; }
+    }
+    /** The emergency card as lock-screen picture (rows: [[label,value],…]); "" rows = back to the normal lock screen. */
+    @JavascriptInterface public String iceWallpaper(String name, String rowsJson) {
+        if (rowsJson == null || rowsJson.isEmpty()) return IceWallpaper.clear(a);
+        return IceWallpaper.set(a, name, rowsJson);
+    }
     /** Opens this phone's settings for the emergency card notification. */
     @JavascriptInterface public void cardSettings() {
         a.runOnUiThread(new Runnable() { public void run() {

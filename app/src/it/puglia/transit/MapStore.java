@@ -63,9 +63,11 @@ public class MapStore {
             if (f.exists() && f.length() > 0) return readBytes(f);
             File c = new File(cache, z + "/" + x + "/" + y);
             if (c.exists() && c.length() > 0) return readBytes(c);
-            if (System.currentTimeMillis() < liveFailUntil) return null;
+            // a province saved at zoom 14: without internet, make the zoom-15 tile from it
+            if (z == 15 && !OfflineLink.up()) { byte[] o = fromParent(z, x, y); if (o != null) return o; }
+            if (System.currentTimeMillis() < liveFailUntil) return fromParent(z, x, y);
             Pmtiles p = liveArchive();
-            if (p == null) return null;
+            if (p == null) return fromParent(z, x, y);
             byte[] data = p.getTile(z, x, y);
             if (data == null || data.length == 0) { liveEmpty++; return new byte[0]; }   // never cache empty answers
             liveOk++;
@@ -80,8 +82,13 @@ public class MapStore {
             if (e instanceof java.net.UnknownHostException) lastError = "no internet";
             liveFailUntil = System.currentTimeMillis() + 20000;   // offline: don't keep trying for a bit
             synchronized (this) { live = null; buildUrl = null; }  // the online map build may have changed: find it again
-            return null;
+            return fromParent(z, x, y);
         }
+    }
+    private byte[] fromParent(int z, int x, int y) {
+        if (z != 15) return null;
+        try { File f = tileFile(14, x >> 1, y >> 1); if (!f.exists() || f.length() == 0) return null; return MvtZoom.child(readBytes(f), x & 1, y & 1); }
+        catch (Exception e) { return null; }
     }
 
     /** Forget the online map build and the temporary tile cache (fixes a blank street map). */

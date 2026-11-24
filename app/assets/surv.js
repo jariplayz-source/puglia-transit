@@ -623,17 +623,35 @@ const TL_RUN={
   tlEvery(T,1000,()=>{if(!typing())draw();});},
 
  card(el,T){let C={};try{C=JSON.parse(localStorage.getItem("pt-card")||"{}");}catch(e){}
-  const F=[["name","Name",""],["born","Date of birth","e.g. 12 March 1995"],["blood","Blood type","e.g. A+"],["allergies","Allergies","Medicines, food, insects…"],["conditions","Medical conditions","e.g. asthma, diabetes"],["meds","Medicines I take",""],["ice1","Emergency contact 1","Name and phone number"],["ice2","Emergency contact 2",""],["notes","Other notes","e.g. organ donor, language"]];
+  const F=CARD_F;
   const text=()=>F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`${f[1]}: ${C[f[0]]}`).join("\n");
   const view=()=>{const has=F.some(f=>C[f[0]]);
     el.innerHTML=has?`<div class="tl-ice"><div class="tl-ice-h"><span>${tlIcon("card",22)}</span><div><small>Emergency information</small><b>${svEsc(C.name||"")}</b></div></div>${F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>`<div class="tl-ice-r"><small>${f[1]}</small><b>${svEsc(C[f[0]])}</b></div>`).join("")}</div>
-      <label class="tl-switch"><span>Show on the lock screen</span><input type="checkbox" id="tlLock" ${C.lock?"checked":""}><i></i></label><div id="tlLockWhy"></div>
+      <label class="tl-switch"><span>Lock screen picture<small>The whole card, always readable without tapping</small></span><input type="checkbox" id="tlWall" ${C.wall?"checked":""}><i></i></label><div id="tlWallWhy"></div>
+      <div class="tl-row"><button class="tl-act ghost" id="tlWidget">➕ Add as widget</button></div><div id="tlWidgetWhy"></div>
+      <label class="tl-switch"><span>Lock screen notification<small>Also as a notification you can unfold</small></span><input type="checkbox" id="tlLock" ${C.lock?"checked":""}><i></i></label><div id="tlLockWhy"></div>
       <div class="tl-row"><button class="tl-act ghost" id="tlEdit">Edit</button></div>
       <p class="sv-note">Stays on this phone only. On the lock screen anyone can read it: that's the point, so a rescuer can see it without unlocking.</p>`:
       `<div class="tl-face"><div class="tl-read"><span class="tl-num sm">Not filled in yet</span><span class="tl-cap">In an emergency, rescuers can read your allergies, medicines and who to call, even from the lock screen.</span></div></div><div class="tl-row"><button class="tl-act" id="tlEdit">Fill in my card</button></div>`;
     el.querySelector("#tlEdit").onclick=()=>{tap();edit();};const lk=el.querySelector("#tlLock");
     if(lk)lk.onchange=e=>{tap();C.lock=e.target.checked;localStorage.setItem("pt-card",JSON.stringify(C));if(C.lock&&lockSt()==="perm")tlTry(t=>{try{window.AndroidNotify.askPermission();}catch(e){}});post();};
-    post();};
+    const wl=el.querySelector("#tlWall");
+    if(wl)wl.onchange=e=>{tap();C.wall=e.target.checked;localStorage.setItem("pt-card",JSON.stringify(C));wall(true);};
+    const wg=el.querySelector("#tlWidget");if(wg)wg.onclick=()=>{tap();let ok=false;tlTry(t=>{ok=!!t.pinIceWidget();});
+      const w=el.querySelector("#tlWidgetWhy");if(w)w.innerHTML=`<div class="tl-why ok"><span>${ok?"Your phone asks where to put it: choose Add.":"Add it yourself: touch and hold your home screen → Widgets → Out & Back → Emergency card."} On phones with lock screen widgets (e.g. Pixel with Android 16, swipe left on the lock screen) you can add it there too.</span></div>`;};
+    post();wall(false);widget();};
+  /* keep the widget showing the latest card */
+  const widget=()=>{const rows=F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>[f[1],C[f[0]]]),key=JSON.stringify([C.name||"",rows]);
+    if(localStorage.getItem("pt-card-widget")===key)return;tlTry(t=>{if(t.iceWidget){t.iceWidget(C.name||"",JSON.stringify(rows));localStorage.setItem("pt-card-widget",key);}});};
+  /* the card as the lock-screen picture: everything visible at once. Only redrawn when the card changes. */
+  const wall=(force)=>{const w=el.querySelector("#tlWallWhy"),rows=F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>[f[1],C[f[0]]]),key=JSON.stringify([C.name||"",rows]);
+    let st="";
+    if(!C.wall){if(force||localStorage.getItem("pt-card-wall")){tlTry(t=>{st=String(t.iceWallpaper("","")||"");});localStorage.removeItem("pt-card-wall");if(force&&st==="ok")toast("Lock screen back to your normal picture");}if(w)w.innerHTML="";return;}
+    if(!force&&localStorage.getItem("pt-card-wall")===key){if(w)w.innerHTML=`<div class="tl-why ok"><span>✓ Your card is your lock screen picture. Edit the card and it updates.</span></div>`;return;}
+    tlTry(t=>{st=String(t.iceWallpaper(C.name||"",JSON.stringify(rows))||"");});
+    if(st==="ok"){localStorage.setItem("pt-card-wall",key);if(force)toast("✓ Lock your phone to see it");}
+    if(w)w.innerHTML=st==="ok"?`<div class="tl-why ok"><span>✓ Your card is your lock screen picture. Edit the card and it updates. Switch this off to get your normal lock screen picture back.</span></div>`
+      :`<div class="tl-why"><span>${st==="old"?"This needs Android 7 or newer.":st?"Couldn't set the lock screen picture ("+svEsc(st)+").":"Works in the Android app."}</span></div>`;};
   /* put the card on the lock screen and say plainly when the phone is hiding it */
   const lockSt=()=>{let r="";tlTry(t=>{r=String(t.lockCard("🆘 Emergency info"+(C.name?": "+C.name:""),C.lock?text():"")||"");});return r;};
   const post=()=>{const w=el.querySelector("#tlLockWhy");const st=lockSt();if(!w)return;if(!C.lock||!st||st==="off"){w.innerHTML="";return;}
@@ -777,3 +795,8 @@ document.addEventListener("click",e=>{const t=e.target.closest?e.target:null;if(
   const rm=t.closest("[data-svrm]");if(rm){svRemove(rm.dataset.svrm);return;}
   if(t.closest("#svCopy")&&typeof me!=="undefined"&&me){const s=me.lat.toFixed(5)+", "+me.lon.toFixed(5);copyText(s);t.closest("#svCopy").textContent="Copied";}
 });
+
+/* the emergency card fields, and keeping the home/lock-screen widget up to date (also when the card tool isn't opened) */
+const CARD_F=[["name","Name",""],["born","Date of birth","e.g. 12 March 1995"],["blood","Blood type","e.g. A+"],["allergies","Allergies","Medicines, food, insects…"],["conditions","Medical conditions","e.g. asthma, diabetes"],["meds","Medicines I take",""],["ice1","Emergency contact 1","Name and phone number"],["ice2","Emergency contact 2",""],["notes","Other notes","e.g. organ donor, language"]];
+(function(){try{const C=JSON.parse(localStorage.getItem("pt-card")||"{}"),rows=CARD_F.filter(f=>C[f[0]]&&f[0]!=="name").map(f=>[f[1],C[f[0]]]),key=JSON.stringify([C.name||"",rows]);
+  if(localStorage.getItem("pt-card-widget")!==key&&window.AndroidTools&&window.AndroidTools.iceWidget){window.AndroidTools.iceWidget(C.name||"",JSON.stringify(rows));localStorage.setItem("pt-card-widget",key);}}catch(e){}})();
