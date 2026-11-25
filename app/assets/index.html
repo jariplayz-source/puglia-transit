@@ -1856,9 +1856,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.33";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.33.1";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.33.1","The navigation bar is small again (it filled the whole screen after opening Wildlings). Wildlings only runs while you have it open in Games, and pauses completely in a car or train."],
  ["1.33","Driving: the map zooms in closer like Google Maps (further out at motorway speed) with a thicker route line, and no more 'take the exit and get straight back on' detours. Offline maps in Italy: every province and every province capital, not only Puglia. Games: the horse race is animated. New (test version): Wildlings on the real map, with stops, 8 gyms and an Elite Four in every province, trainers, evolutions, an intro, and battling or trading with your circle within 100 m."],
  ["1.32","Games for 2 to 8 players over Bluetooth or online, without getting stuck: Pesten, the drinking games on everyone's own phone, Faker, Werewolves and Shards, a card battle with your own champion. Full-screen games with animations. The Moon sits exactly right on the star map again."],
  ["1.31","Star map: line it up with the Moon or a bright star (🎯) for a spot-on sky, pinch to fit the camera, and a new look in every style with the Milky Way and a soft horizon."],
@@ -2426,7 +2427,10 @@ async function makeGameMap(container,center,zoom){
   style.layers=style.layers.filter(l=>!/^pois|poi/.test(l.id)||l.type!=="symbol");
   style.layers.push({id:"gm-pois",type:"circle",source:"protomaps","source-layer":"pois",paint:{"circle-radius":1,"circle-opacity":0}});   /* invisible: keeps the places readable for the game */
   return new maplibregl.Map({container,style,center:[center[1],center[0]],zoom:zoom||16.5,pitch:45,minZoom:12,maxZoom:19,attributionControl:{compact:true},dragRotate:true,touchPitch:false});}
-function gameGps(){if(!gpsOn)startGPS();}   /* the game needs your position; the app keeps location on the same way the map does */
+function gameGps(){if(!gpsOn){gameGps.mine=true;startGPS();}}   /* the game needs your position while it's open */
+// leaving the game: if the game was what switched location on, switch it off again
+function gameGpsOff(){if(!gameGps.mine||walking)return;gameGps.mine=false;gpsOn=false;try{document.getElementById("m-gps").classList.remove("on");}catch(e){}
+  if(window.AndroidGPS&&window.AndroidGPS.stop){try{window.AndroidGPS.stop();}catch(e){}}else if(geoWatch!=null&&navigator.geolocation){navigator.geolocation.clearWatch(geoWatch);geoWatch=null;}}
 var STREET_GO=null;   // where the street map should open (e.g. a group member far away), instead of your own position
 async function ensureStreet(){
   if(ml){ml.resize();updateStreet();return;} if(mlLoading)return; mlLoading=true;

@@ -365,7 +365,7 @@ function mtView(R){const St=R.S,me=R.mySlot(),op=1-me;if(!St||me<0)return;if(!re
   EL().querySelectorAll("[data-off]").forEach(b=>b.onclick=()=>{const m=all[+b.dataset.off];if(all.length<2){X.toast("Keep at least one Wildling");return;}X.tapv();TSEL=m.id;R.act([8,m.sp,m.lv,(m.xp>>16)&255,(m.xp>>8)&255,m.xp&255]);});
   const a=EL().querySelector("#wlAcc");if(a)a.onclick=()=>{X.tapv();const o=St.offer;R.act([9,o[0].sp,o[0].lv,o[1].sp,o[1].lv]);};}
 // a friend's invite can open a battle before the game itself was opened on this phone
-function ready(R){addCss();bCss();if(!S){load();if(S)migrate();}if(S)return true;X.shell("Wildlings","",false);X.onBack(()=>X.leaveAsk(R));
+function ready(R){if(driving()){X.shell("Wildlings","",false);X.onBack(()=>X.leaveAsk(R));EL().innerHTML=`<div class="wl" style="text-align:center;padding-top:40px"><div style="font-size:72px">🚗</div><p class="sv-note">Wildlings is paused while you're in a car or train. Battle or trade once you're walking.</p></div>`;return false;}addCss();bCss();if(!S){load();if(S)migrate();}if(S)return true;X.shell("Wildlings","",false);X.onBack(()=>X.leaveAsk(R));
   EL().innerHTML=`<div class="wl"><div class="wb-msg">You don't have any Wildlings yet. Open Games → Wildlings first and pick a partner, then battle or trade.</div></div>`;return false;}
 
 /* ================= Wildlings on the real map =================
@@ -537,7 +537,8 @@ function track(){const w=where();if(!w){note("📍 Waiting for your location…"
   if(LASTFIX){const dt=(Date.now()-LASTFIX.t)/1000;if(dt>=8){const d=dist(LASTFIX.ll,w);SPEEDY=d>100&&d/dt*3.6>30;if(!SPEEDY&&d>5&&d<300&&w[2]<50){WALKED+=d;if(WALKED>=1000){WALKED-=1000;questTick("walk");}}LASTFIX={ll:[w[0],w[1]],t:Date.now()};}}
   else LASTFIX={ll:[w[0],w[1]],t:Date.now()};
   if(!track.c||dist(track.c,w)>4){track.c=[w[0],w[1]];recenter(false);}
-  note(SPEEDY?"🚗 You're moving fast: Wildlings hide from cars and trains":w[2]>60?"📍 Your location is rough here":"");
+  if(driving())return drivingBlock();
+  note(w[2]>60?"📍 Your location is rough here":"");
   place("me",w,()=>{const e=document.createElement("div");e.className="wm-me";return e;},null);}
 function place(id,ll,make,onTap){let m=MK[id];if(!m){const el=make();if(onTap)el.addEventListener("click",e=>{e.stopPropagation();onTap();});m=MK[id]=new maplibregl.Marker({element:el,anchor:id==="me"?"center":"bottom"}).setLngLat([ll[1],ll[0]]).addTo(GM);m._keep=true;return m;}
   m.setLngLat([ll[1],ll[0]]);m._keep=true;return m;}
@@ -671,7 +672,7 @@ function gymList(){const w=where(),P=regNow();if(!P)return `<p class="sv-note">Y
     ${done||champs().length?`<p class="sv-note">Other provinces: ${Object.keys(S.pb).filter(k=>k!==P.id&&S.pb[k].length).map(k=>`${X.esc(((window.PT_PROV||[]).find(x=>x.id===k)||{n:k}).n)} ${S.pb[k].length}/8${S.champ[k]?" 🏆":""}`).join(", ")}</p>`:""}`;}
 
 /* ---------------- the intro, the partner reveal, evolving and new catches: the big moments get their own animation ---------------- */
-const ICSS=`.wi{display:flex;flex-direction:column;height:100%;min-height:calc(100vh - 90px)}
+const ICSS=`.wlin{display:flex;flex-direction:column;height:100%;min-height:calc(100vh - 90px)}
 .wi-st{position:relative;flex:1;min-height:330px;border-radius:22px;overflow:hidden;background:linear-gradient(#141a3a,#2b2860 60%,#4a3a7a);transition:background 1s}
 .wi-st.day{background:linear-gradient(#9fd6f5,#d9f0ff 55%,#9ed07a 55%,#7fbf5e)}.wi-st.map{background:#e9e4d8}
 .wi-star{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:witw 2.4s ease-in-out infinite}@keyframes witw{50%{opacity:.2}}
@@ -738,7 +739,7 @@ function intro(){iCss();X.shell("Wildlings","",false);X.onBack(()=>X.hub());let 
     {st:"day",html:`<img class="wi-pop" src="${art(IDX("Cardiwing"))}" style="left:10%;top:38%;width:110px;height:110px" alt=""><span class="wi-ico" style="left:44%;top:30%">⚔️</span><img class="wi-pop" src="${art(IDX("Heronquak"))}" style="right:10%;top:38%;width:110px;height:110px;transform:scaleX(-1);animation-delay:.3s" alt="">`,t:"People from your <b>circle</b> show up on the map too. Within <b>100 m</b> you can battle them or trade. Right next to each other, Bluetooth works without internet. Wildlings that grow strong enough will <b>evolve</b>."},
     {st:"",html:stars(40)+`<span class="wi-ico" style="left:50%;top:36%;margin-left:-28px">🚸</span>`,t:"One more thing: <b>look where you're going</b>, never play while driving, and stick to places you'd normally go. Ready?"}];
   const draw=()=>{const s=S2[i],E=EL();
-    E.innerHTML=`<div class="wi"><div class="wi-st ${s.st}" id="wiSt">${s.html}</div><div class="wi-txt">${s.t}</div>
+    E.innerHTML=`<div class="wlin"><div class="wi-st ${s.st}" id="wiSt">${s.html}</div><div class="wi-txt">${s.t}</div>
       <div class="wi-dots">${S2.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</div>
       <div class="gm-row2">${i>0?`<button class="tl-act ghost" id="wiBack">Back</button>`:`<button class="tl-act ghost" id="wiSkip">Skip</button>`}<button class="tl-act" id="wiNext">${i===S2.length-1?"Choose a partner":"Next"}</button></div></div>`;
     E.querySelector("#wiNext").onclick=()=>{X.tapv();if(i<S2.length-1){i++;draw();}else pick();};
@@ -755,9 +756,24 @@ function pick(sel){iCss();X.shell("Choose a partner","",false);X.onBack(()=>intr
     S={v:3,party:[newMon(sp,5)],box:[],bag:{orb:10,sorb:0,berry:3,bigb:0,revive:1,calm:2},coins:100,dex:{seen:[],caught:[]},wins:0,started:Date.now()};caught(sp);migrate();persist();
     reveal(sp,`${spName(sp)}!`,`${spName(sp)} looks up at you and decides you're alright. Your adventure starts now.`,"Let's go",()=>{mapView();say([`${spName(sp)} joined you!`,"Wild Wildlings appear on the map around you. Walk close and tap one.","Blue stones are stops, towers are gyms. Good luck, trainer!"]);});};}
 
-function home(){addCss();bCss();if(!window.PT_PROV&&typeof loadScript=="function"&&!home.tried){home.tried=1;EL().innerHTML=`<p class="sv-note" style="text-align:center;margin-top:40px">Loading…</p>`;loadScript("provinces.js").catch(()=>{}).then(()=>home());return;}load();if(!S)return intro();migrate();mapView();}
+function home(){addCss();bCss();if(!window.PT_PROV&&typeof loadScript=="function"&&!home.tried){home.tried=1;EL().innerHTML=`<p class="sv-note" style="text-align:center;margin-top:40px">Loading…</p>`;loadScript("provinces.js").catch(()=>{}).then(()=>home());return;}load();watchDriving();if(driving()){VIEW="map";return drivingBlock();}if(!S)return intro();migrate();mapView();}
 
-window.MON={init(h){X=h;},home(){addCss();bCss();home();},stop(){if(VIEW==="enc")camOff();stopMap();BT=null;},
+// leaving Wildlings switches all of it off: no map, timers, camera, location or styles stay behind in the rest of the app
+/* ---------- never while driving: in a car or train the whole game pauses (no map, no Wildlings, no battles) ---------- */
+function driving(){try{if(typeof walking!=="undefined"&&walking&&typeof NAVM!=="undefined"&&NAVM==="car")return true;}catch(e){}
+  try{if(typeof NAV_KMH!=="undefined"&&NAV_KMH>25)return true;}catch(e){}return SPEEDY;}
+function drivingBlock(){if(VIEW==="block")return;try{camOff();}catch(e){}try{stopMap();}catch(e){}BT=null;E4=null;document.querySelectorAll(".wr").forEach(e=>e.remove());VIEW="block";
+  X.shell("Wildlings","",false);X.onBack(()=>{shutdown();X.hub();});
+  EL().innerHTML=`<div class="wl" style="text-align:center;padding-top:40px"><div style="font-size:72px">🚗</div><div class="gm-big">Paused while you're moving fast</div>
+    <p class="sv-note">Wildlings doesn't work in a car or train, also not as a passenger: it's not safe. It comes back by itself once you're walking again.</p><p class="sv-note" id="wlDrv"></p></div>`;
+  let calm=0;clearInterval(drivingBlock.t);drivingBlock.t=setInterval(()=>{if(VIEW!=="block"){clearInterval(drivingBlock.t);return;}
+    if(driving()){calm=0;}else calm++;const n=document.getElementById("wlDrv");if(n)n.textContent=calm?`Slowing down… ${Math.max(0,8-calm)}`:"";
+    if(calm>=8){clearInterval(drivingBlock.t);SPEEDY=false;mapView();}},2500);}
+function watchDriving(){clearInterval(watchDriving.t);watchDriving.t=setInterval(()=>{if(VIEW!=="off"&&VIEW!=="block"&&driving())drivingBlock();},3000);}
+function shutdown(){clearInterval(watchDriving.t);clearInterval(drivingBlock.t);VIEW="off";try{camOff();}catch(e){}try{stopMap();}catch(e){}BT=null;E4=null;ENC=null;
+  for(const id of ["wlCss","wbCss","wmCss","weCss","wiCss"]){const e=document.getElementById(id);if(e)e.remove();}
+  document.querySelectorAll(".wr").forEach(e=>e.remove());if(typeof gameGpsOff==="function")gameGpsOff();}
+window.MON={init(h){X=h;},home(){addCss();bCss();home();},stop(){shutdown();},
   MB_DEF,MT_DEF,mbView:R=>mbView(R),mtView:R=>{if(R.S!==MTS){MTS=R.S;TDONE=0;TSEL=null;}mtView(R);},
   _t:{gymsOf,regionAt,tapElite,eliteOf,E4:()=>E4,SP,movesOf,stats,resolve,fighter,eff,art,state:()=>S,setS:s=>{S=s;},BT:()=>BT,spawnsNear,wildOf,trainerOf,gymOf,waystones,POIS:()=>POIS,quests,questTick,trainerXp,storyNow,regen,migrate,encounter,mapView,tapStop,tapGym,tapFriend,startWild,startNpc,choose,dist}};
 })();
