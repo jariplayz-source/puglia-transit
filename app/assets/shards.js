@@ -42,15 +42,18 @@ const WIN=10,BFN=["The Shattered Bridge","Crystal Grove"];
 const DEF={min:2,max:2,aiDelay:750,
   init(pl,seed){const R=rngf(seed);return {names:pl.map(p=>p.name),n:2,R,phase:"pick",dom:[null,null],deck:[[],[]],hand:[[],[]],units:[],uid:1,energy:[0,0],extra:[0,0],turnNo:[0,0],
     pts:[0,0],ctrl:[-1,-1],turn:Math.floor(R()*2),abUsed:false,win:-1,log:[],ev:[],conqThisTurn:[false,false],fx:[],fxn:0};},
-  turn:S=>S.win>=0?-1:S.phase==="pick"?(S.dom[0]==null?0:S.dom[1]==null?1:-1):S.turn,
+  turn:S=>S.win>=0?-1:S.phase==="pick"?(S.dom[0]==null?0:S.dom[1]==null?1:-1):S.bt?S.bt.pr:S.turn,
   check(S,k,a){try{return legal(S,k,a);}catch(e){return false;}},
-  apply(S,k,a){if(!legal(S,k,a))return false;doAct(S,k,a);return true;},
+  apply(S,k,a){if(!legal(S,k,a))return false;doAct(S,k,a);tidy(S);return true;},
   ai(S,k){return aiMove(S,k);}};
 const U=(S,id)=>S.units.find(u=>u.id===id);
 const mightOf=u=>Math.max(0,u.m+u.tmp);
 const at=(S,loc,owner)=>S.units.filter(u=>u.loc===loc&&(owner==null||u.o===owner));   // loc: 0 = base, 1 and 2 = battlefields
 function legal(S,k,a){if(S.win>=0)return false;const t=a[0];
   if(S.phase==="pick")return t===5&&a[1]<4&&S.dom[k]==null;
+  if(S.bt){if(k!==S.bt.pr)return false;if(t===6)return true;   // pass
+    if(t===1){const hi=a[1];if(hi>=S.hand[k].length)return false;const c=C[IDS[S.hand[k][hi]]];if(c[3]!=="s"||c[4]>S.energy[k]+S.extra[k])return false;return targetOk(S,k,c[7],a[2]);}
+    return false;}
   if(k!==S.turn)return false;
   if(t===4)return true;   // end turn
   if(t===1){const hi=a[1];if(hi>=S.hand[k].length)return false;const c=C[IDS[S.hand[k][hi]]];if(c[4]>S.energy[k]+S.extra[k])return false;return targetOk(S,k,c[7],a[2]);}
@@ -80,7 +83,20 @@ function effect(S,k,eff,t,src){const nm=S.names[k],u=t?U(S,t):null;
     case "draw1":draw(S,k,1);break;case "draw2":draw(S,k,2);break;case "energy2":S.extra[k]+=2;break;
     case "rally":S.units.filter(x=>x.o===k).forEach(x=>{if(x.moved>=x.moves)x.moves=x.moved+1;});break;
     case "recall":if(u&&u.o===k)u.loc=0;break;}}
+// a battle waits for reactions: the defender, then the attacker, may cast spells; when both pass, it's fought
+function spellOk(S,k,i){const c=C[IDS[S.hand[k][i]]];if(c[3]!=="s"||c[4]>S.energy[k]+S.extra[k])return false;const need=TARGET[c[7]];if(!need||need==="field")return true;
+  if(targetOk(S,k,c[7],0))return true;return S.units.some(u=>targetOk(S,k,c[7],u.id));}
+const canReact=(S,k)=>S.hand[k].some((ci,i)=>spellOk(S,k,i));
+function btNext(S){for(let n=0;n<2&&S.bt;n++){S.bt.pr=1-S.bt.pr;if(canReact(S,S.bt.pr))return;S.bt.passes++;if(S.bt.passes>=2){btResolve(S);return;}}}
+function btResolve(S){const {d,att}=S.bt;S.bt=null;const mine=at(S,d,att),foes=at(S,d,1-att);
+  if(mine.length&&foes.length)fight(S,att,d);
+  else if(mine.length){const had=S.ctrl[d-1];conquer(S,att,d,mine[0]);if(had!==att)fx(S,{k:"con",c:mine[0].c,o:att,d});}
+  else say(S,"The attack fizzled out");}
 function doAct(S,k,a){const t=a[0],nm=S.names[k];
+  if(S.bt){if(t===6){say(S,`${nm} passes`);S.bt.passes++;if(S.bt.passes>=2)btResolve(S);else btNext(S);return;}
+    const hi=a[1],ci=S.hand[k][hi],c=C[IDS[ci]];S.hand[k].splice(hi,1);spend(S,k,c[4]);say(S,`${nm} reacts with ${c[1]}`);
+    const tu=a[2]?U(S,a[2]):null;effect(S,k,c[7],a[2]);fx(S,{k:"spl",c:ci,o:k,tc:tu?tu.c:-1,tid:tu?tu.id:-1,kill:!!(tu&&!S.units.includes(tu)),fd:TARGET[c[7]]==="field"?a[2]:0});
+    S.bt.passes=0;if(!at(S,S.bt.d,S.bt.att).length||!at(S,S.bt.d,1-S.bt.att).length){btResolve(S);return;}btNext(S);return;}
   if(t===5){S.dom[k]="ETGS"[a[1]];say(S,`${nm} picks ${DOM[S.dom[k]][0]}`);
     if(S.dom[0]&&S.dom[1]){for(const p of [0,1]){S.deck[p]=deckFor(S.dom[p],S.R);draw(S,p,4);}draw(S,1-S.turn,1);S.phase="play";startTurn(S);}return;}
   if(t===4){endTurn(S);return;}
@@ -92,7 +108,7 @@ function doAct(S,k,a){const t=a[0],nm=S.names[k];
   if(t===3){const ch=CHAMP[S.dom[k]];spend(S,k,ch.ac);S.abUsed=true;say(S,`${nm} uses ${ch.ab}`);const u=U(S,a[1]);
     if(S.dom[k]==="E"&&u)damage(S,u,1);if(S.dom[k]==="T")draw(S,k,1);if(S.dom[k]==="G"&&u)u.m+=1;if(S.dom[k]==="S"&&u)u.moves=u.moved+1;return;}
   if(t===2){const u=U(S,a[1]),d=a[2];u.loc=d;u.moved++;if(d===0){say(S,`${nm} pulls ${C[IDS[u.c]][1]} back to base`);return;}
-    const foes=at(S,d,1-k);if(foes.length)fight(S,k,d);else{const had=S.ctrl[d-1];conquer(S,k,d,u);if(had!==k)fx(S,{k:"con",c:u.c,o:k,d});}}}
+    const foes=at(S,d,1-k);if(foes.length){S.bt={d,att:k,pr:k,passes:0};say(S,`⚔ ${nm} attacks ${BFN[d-1]}: ${S.names[1-k]} may respond`);btNext(S);}else{const had=S.ctrl[d-1];conquer(S,k,d,u);if(had!==k)fx(S,{k:"con",c:u.c,o:k,d});}}}
 // all your units at the battlefield against all of theirs; damage goes to guards first, then the weakest
 function fight(S,k,d){const mine=at(S,d,k),foes=at(S,d,1-k),sum=l=>l.reduce((s,u)=>s+mightOf(u)-(u.dmg||0),0);let my=sum(mine),their=sum(foes);
   say(S,`⚔ Battle at ${BFN[d-1]}: ${my} against ${their}`);
@@ -106,6 +122,8 @@ function fight(S,k,d){const mine=at(S,d,k),foes=at(S,d,1-k),sum=l=>l.reduce((s,u
 function conquer(S,k,d,u){if(S.ctrl[d-1]===k)return;S.ctrl[d-1]=k;S.pts[k]++;say(S,`🏳 ${S.names[k]} conquers ${BFN[d-1]} (+1)`);S.flash=[d,k];
   for(const x of at(S,d,k)){if(x.fx==="conqDmg2"){const foes=S.units.filter(y=>y.o!==k).sort((a,b)=>mightOf(a)-mightOf(b));if(foes[0])damage(S,foes[0],2);}if(x.fx==="conqDraw")draw(S,k,1);}
   if(S.pts[k]>=WIN){S.win=k;say(S,`🏆 ${S.names[k]} wins!`);}}
+// a battlefield with none of its holder's units on it is held by nobody
+function tidy(S){for(const d of [1,2]){const h=S.ctrl[d-1];if(h>=0&&!at(S,d,h).length)S.ctrl[d-1]=-1;}}
 function startTurn(S){const k=S.turn;S.turnNo[k]++;S.energy[k]=Math.min(8,S.turnNo[k]+1);S.extra[k]=0;S.abUsed=false;
   for(const d of [1,2])if(S.ctrl[d-1]===k&&at(S,d,k).length){S.pts[k]++;say(S,`🏳 ${S.names[k]} holds ${BFN[d-1]} (+1)`);if(S.pts[k]>=WIN){S.win=k;say(S,`🏆 ${S.names[k]} wins!`);return;}}
   for(const d of [1,2])if(S.ctrl[d-1]===k&&!at(S,d,k).length&&at(S,d,1-k).length)S.ctrl[d-1]=-1;
@@ -114,7 +132,17 @@ function startTurn(S){const k=S.turn;S.turnNo[k]++;S.energy[k]=Math.min(8,S.turn
 function endTurn(S){for(const u of S.units){u.tmp=0;u.dmg=0;u.fresh=false;u.moved=0;u.moves=1;}S.turn=1-S.turn;startTurn(S);}
 
 /* ---------------- the computer player ---------------- */
-function aiMove(S,k){const a=aiPick(S,k);return legal(S,k,a)?a:[4];}   /* never get stuck on a move that isn't allowed */
+function aiMove(S,k){if(S.bt){const a=aiReact(S,k);return legal(S,k,a)?a:[6];}const a=aiPick(S,k);return legal(S,k,a)?a:[4];}
+function aiReact(S,k){const d=S.bt.d,foes=at(S,d,1-k),mine=at(S,d,k),sum=l=>l.reduce((x,u)=>x+mightOf(u)-(u.dmg||0),0);
+  if(sum(mine)>sum(foes)+1)return [6];   // winning anyway: keep the cards
+  const hand=S.hand[k].map((ci,i)=>({i,c:C[IDS[ci]]})).filter(h=>spellOk(S,k,h.i)).sort((a,b)=>b.c[4]-a.c[4]);
+  for(const h of hand){const e=h.c[7];let t=-1;
+    if(/^dmg[123]$/.test(e)){const n=+e.slice(3);const f=foes.filter(u=>mightOf(u)-(u.dmg||0)<=n).sort((a,b)=>mightOf(b)-mightOf(a))[0]||foes.sort((a,b)=>mightOf(b)-mightOf(a))[0];t=f?f.id:-1;}
+    else if(e==="toBase"||e==="bounce"||e==="bounce2"){const f=foes.slice().sort((a,b)=>mightOf(b)-mightOf(a)).find(u=>targetOk(S,k,e,u.id));t=f?f.id:-1;}
+    else if(e==="buff2"||e==="buff3"||e==="buff1draw"){const m=mine.sort((a,b)=>mightOf(b)-mightOf(a))[0];t=m?m.id:-1;}
+    else if(e==="dmgAt2"||e==="weakAt1")t=d;else if(e==="buffAll2"||e==="dmgAll1")t=0;else continue;
+    if(t>=0&&legal(S,k,[1,h.i,t]))return [1,h.i,t];}
+  return [6];}   /* never get stuck on a move that isn't allowed */
 function aiPick(S,k){if(S.phase==="pick")return [5,Math.floor(Math.random()*4)];
   const E=S.energy[k]+S.extra[k],hand=S.hand[k].map((ci,i)=>({ci,i,c:C[IDS[ci]]}));const foes=S.units.filter(u=>u.o!==k),mine=S.units.filter(u=>u.o===k);
   const pickTarget=eff=>{const need=TARGET[eff];if(!need)return 0;
@@ -178,6 +206,7 @@ const CSS=`.sh{display:flex;flex-direction:column;gap:6px;height:100%}
 .sd-acts{display:flex;gap:6px}.sd-acts .tl-act{min-height:46px;padding:8px}
 .sd-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sd-pick button{border:0;border-radius:18px;padding:12px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:150px;box-shadow:0 4px 12px rgba(0,0,0,.25);position:relative;overflow:hidden}
 .sd-pick b{font-size:17px;position:relative}.sd-pick img{position:absolute;right:-14px;top:-6px;width:110px;height:110px;object-fit:contain;opacity:.95}.sd-pick small{opacity:.92;font-size:12px;line-height:1.3;position:relative;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.sd-bf.clash{box-shadow:inset 0 0 0 3px #ff4d6d,0 0 18px rgba(255,77,109,.6);animation:shclash 1s infinite}@keyframes shclash{50%{box-shadow:inset 0 0 0 3px transparent,0 0 6px rgba(255,77,109,.2)}}
 .sd-flash{animation:shflash .9s}@keyframes shflash{30%{background:rgba(242,178,51,.45)}}
 .sd-ov{position:fixed;inset:0;z-index:300;background:rgba(10,8,20,.72);display:flex;align-items:flex-end;justify-content:center;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
 .sd-sheet{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:20px;padding:14px 14px 12px;animation:sdup .25s ease-out}@keyframes sdup{from{transform:translateY(40px);opacity:0}}
@@ -206,11 +235,13 @@ const HELP=`<h3>How to play Shards</h3>
   <li><b>End turn</b> when you're done. Damage heals and units can move again next turn.</li></ol>
   <h4>Battlefields and points</h4><ul>
   <li>Move onto a battlefield nobody holds, or beat everyone there: you <b>conquer</b> it, <b>+1 point</b> 🟢.</li>
-  <li>Still holding it (with a unit there) at the start of your next turn: <b>+1 point</b> again.</li></ul>
+  <li>Still holding it (with a unit there) at the start of your next turn: <b>+1 point</b> again.</li>
+  <li>When none of your units are left on it, nobody holds it any more.</li></ul>
   <h4>Battles</h4><ul>
   <li>When you move onto a battlefield with enemies, everyone there fights at once: your <b>total might</b> against theirs.</li>
   <li>Each side deals damage equal to its total. Damage goes to <b>Guard 🛡</b> units first, then the weakest. A unit with as much damage as its might is destroyed.</li>
-  <li>If both sides have units left, the attackers go back to base.</li></ul>
+  <li>If both sides have units left, the attackers go back to base.</li>
+  <li><b>Reacting:</b> a battle doesn't happen straight away. First the defender may cast spells (with energy left over from their own turn), then the attacker, back and forth. When both pass, they fight. Tip: keep some energy at the end of your turn to defend.</li></ul>
   <h4>Words on cards</h4><ul><li>${KW.swift}</li><li>${KW.guard}</li><li><b>Might</b> is both how hard a unit hits and how much damage it can take.</li></ul>
   <h4>Animations</h4><p>Short effects show what happened on the board: new units pop in, battlefields shake in a fight, destroyed units shatter. Switch them off with <b>✨ Animations</b>. Tap any unit on the board to read its card.</p>`;
 function overlay(html,wire){const o=document.createElement("div");o.className="sd-ov";o.innerHTML=`<div class="sd-sheet">${html}<div class="gm-row2" style="margin-top:10px"><button class="tl-act ghost" data-x>Close</button></div></div>`;
@@ -271,11 +302,11 @@ function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getEle
       <div class="sd-pick">${"ETGS".split("").map((d,i)=>{const a=artOf(CI(CHAMPU[d]));return `<button data-pk="${i}" style="background:linear-gradient(150deg,${dc(d)},#1c1c28)" ${mine?"disabled":""}><span style="position:absolute;right:8px;top:4px;font-size:54px;opacity:.95">${C[CHAMPU[d]][2]}</span><b>${DOM[d][2]} ${DOM[d][0]}</b><small>${CHAMP[d].n}<br>${DOM[d][3]}<br><i>Ability ${CHAMP[d].ab} (${CHAMP[d].ac}⚡): ${CHAMP[d].at}</i></small></button>`;}).join("")}</div>
       <p class="sv-note">Units move onto the two battlefields to conquer them (+1 point) and hold them (+1 point at the start of your turn). First to ${WIN} points wins. Tap “? How to play” for the full rules.</p>`;
     wireTools();EL.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>{X.tapv();R.act([5,+b.dataset.pk]);});playFx(R,S,me,EL,{});return;}
-  const mine=S.turn===me&&S.win<0&&!R.pending,E=S.energy[me]+S.extra[me];let sel=view.sel&&view.R===R?view.sel:null;
+  const act=S.win<0&&!R.pending&&DEF.turn(S)===me,mine=act&&!S.bt,react=act&&!!S.bt,E=S.energy[me]+S.extra[me];let sel=view.sel&&view.R===R?view.sel:null;
   const canMove=u=>mine&&u.o===me&&u.moved<u.moves&&(!u.fresh||u.swift);
   // a card can be played if you can pay for it and it has something to aim at
   const hasTarget=i=>{const c=C[IDS[S.hand[me][i]]],need=TARGET[c[7]];if(!need||need==="field")return true;if(need==="enemy"&&!S.units.some(u=>u.o!==me))return true;return S.units.some(u=>legal(S,me,[1,i,u.id]));};
-  const canPlay=i=>mine&&C[IDS[S.hand[me][i]]][4]<=E&&hasTarget(i);
+  const canPlay=i=>react?spellOk(S,me,i):mine&&C[IDS[S.hand[me][i]]][4]<=E&&hasTarget(i);
   let tgtU=new Set(),tgtF=new Set();
   if(sel&&sel.kind==="card"){const c=C[IDS[S.hand[me][sel.i]]];const need=TARGET[c[7]];if(need==="field"){tgtF.add(1);tgtF.add(2);}else if(need)S.units.forEach(u=>{if(legal(S,me,[1,sel.i,u.id]))tgtU.add(u.id);});}
   if(sel&&sel.kind==="ab"){S.units.forEach(u=>{if(legal(S,me,[3,u.id]))tgtU.add(u.id);});}
@@ -283,12 +314,14 @@ function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getEle
   const pts=k=>`<span class="sd-pts" style="--c:${dc(S.dom[k])}">${Array.from({length:WIN},(_,i)=>`<i class="${i<S.pts[k]?"on":""}"></i>`).join("")}<em>${S.pts[k]}/${WIN}</em></span>`;
   const ucls=u=>(sel&&sel.id===u.id?"sel ":"")+(tgtU.has(u.id)?"tgt ":"")+(u.o===me&&mine?(canMove(u)?"ready ":"tired "):"");
   const holder=d=>S.ctrl[d-1]<0?"nobody holds it":S.ctrl[d-1]===me?"🟢 you hold it":`🔴 ${X.esc(S.names[S.ctrl[d-1]])} holds it`;
-  const bf=d=>`<div class="sd-bf ${tgtF.has(d)?"tgt":""} ${S.flash&&S.flash[0]===d&&view.fl!==R.log.length?"sd-flash":""}" data-f="${d}"><h4>${BFN[d-1]}</h4><div class="who">${holder(d)}</div>
+  const bf=d=>`<div class="sd-bf ${tgtF.has(d)?"tgt":""} ${S.bt&&S.bt.d===d?"clash":""} ${S.flash&&S.flash[0]===d&&view.fl!==R.log.length?"sd-flash":""}" data-f="${d}"><h4>${BFN[d-1]}</h4><div class="who">${holder(d)}</div>
       <div class="sd-row them">${at(S,d,op).map(u=>unitHtml(u,ucls(u))).join("")}</div><div class="mid"></div><div class="sd-row">${at(S,d,me).map(u=>unitHtml(u,ucls(u))).join("")}</div></div>`;
   const ch=CHAMP[S.dom[me]];
   const playable=S.hand[me].filter((ci,i)=>canPlay(i)).length,movable=S.units.filter(canMove).length,abOk=!S.abUsed&&ch.ac<=E&&(ch.tg==null||S.units.some(u=>legal(S,me,[3,u.id])));
   let coach="";
-  if(S.win>=0)coach=S.win===me?"🏆 You win! Play again from the button below.":`${X.esc(S.names[S.win])} wins this one.`;
+  const bt=S.bt,btTxt=bt?(()=>{const a=at(S,bt.d,bt.att),f=at(S,bt.d,1-bt.att),sm=l=>l.reduce((x,u)=>x+mightOf(u),0);return `⚔ <b>Battle at ${BFN[bt.d-1]}</b>: ${bt.att===me?"you attack":X.esc(S.names[bt.att])+" attacks"} with ${sm(a)} might against ${sm(f)}.`;})():"";
+  if(bt&&S.win<0)coach=react?`${btTxt} <b>Respond</b> with a spell (the green ones) or <b>Pass</b>. When you both pass, they fight.`:`${btTxt} Waiting for <b>${X.esc(S.names[bt.pr])}</b> to respond…`;
+  else if(S.win>=0)coach=S.win===me?"🏆 You win! Play again from the button below.":`${X.esc(S.names[S.win])} wins this one.`;
   else if(!mine)coach=R.pending?"Sending your move…":`<b>${X.esc(S.names[S.turn])}</b> is playing. Watch the battlefields; tap any unit to see it up close.`;
   else if(sel&&sel.kind==="card"){const c=C[IDS[S.hand[me][sel.i]]];coach=TARGET[c[7]]==="field"?`<b>${X.esc(c[1])}</b>: tap a battlefield.`:`<b>${X.esc(c[1])}</b>: tap a unit with a dashed outline. Tap the card again to cancel.`;}
   else if(sel&&sel.kind==="unit")coach="Tap a battlefield to move there (or your base to pull back). Tap the unit again to cancel.";
@@ -303,8 +336,8 @@ function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getEle
     <div class="sd-me">${DOM[S.dom[me]][2]} <b>You</b> ${pts(me)}<span class="sd-en">⚡ ${E} energy · 🂠 ${S.deck[me].length} in deck</span></div>
     <div class="sd-coach">${coach}</div>
     <div class="sd-log" id="shLog">${X.esc(S.ev[S.ev.length-1]||"")}${S.ev.length?" · tap for history":""}</div>
-    <div class="sd-hand">${S.hand[me].map((ci,i)=>{const ok=canPlay(i);return cardHtml(ci,`${mine?(ok?"ok":"no"):""} ${sel&&sel.kind==="card"&&sel.i===i?"sel":""}`,`data-h="${i}"`);}).join("")}</div>
-    <div class="sd-acts">${S.win>=0?(R.host?`<button class="tl-act" id="shAgain">Play again</button>`:""):mine?`<button class="tl-act ghost" id="shAb" ${abOk?"":"disabled"}>${ch.ab} (${ch.ac}⚡)</button><button class="tl-act" id="shEnd">End turn</button>`:`<span class="sv-note" style="flex:1;text-align:center">${R.pending?"Sending…":X.esc(S.names[S.turn])+"'s turn…"}</span>`}</div></div>`;
+    <div class="sd-hand">${S.hand[me].map((ci,i)=>{const ok=canPlay(i);return cardHtml(ci,`${act?(ok?"ok":"no"):""} ${sel&&sel.kind==="card"&&sel.i===i?"sel":""}`,`data-h="${i}"`);}).join("")}</div>
+    <div class="sd-acts">${S.win>=0?(R.host?`<button class="tl-act" id="shAgain">Play again</button>`:""):react?`<button class="tl-act" id="shPass">Pass: let them fight</button>`:mine?`<button class="tl-act ghost" id="shAb" ${abOk?"":"disabled"}>${ch.ab} (${ch.ac}⚡)</button><button class="tl-act" id="shEnd">End turn</button>`:`<span class="sv-note" style="flex:1;text-align:center">${R.pending?"Sending…":X.esc(S.names[S.turn])+"'s turn…"}</span>`}</div></div>`;
   wireTools();
   if(S.flash)view.fl=R.log.length;
   const prev=view.pos&&view.R===R?view.pos:{};const now={};EL.querySelectorAll("[data-u]").forEach(e=>{now[e.dataset.u]=e.getBoundingClientRect();if(prev[e.dataset.u]){const p=prev[e.dataset.u],r=now[e.dataset.u];if(Math.abs(p.left-r.left)+Math.abs(p.top-r.top)>4)X.animateFrom(e,p,380);}});
@@ -316,20 +349,21 @@ function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getEle
   // a card: read it first, then play it
   EL.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{X.tapv();const i=+b.dataset.h,ci=S.hand[me][i],c=C[IDS[ci]];
     if(sel&&sel.kind==="card"&&sel.i===i){reselect(null);return;}
-    const need=TARGET[c[7]],afford=c[4]<=E,why=!mine?"It's not your turn.":!afford?`Needs ${c[4]} energy, you have ${E}.`:!hasTarget(i)?"There's nothing it can target right now.":"";
+    const need=TARGET[c[7]],afford=c[4]<=E,why=react&&c[3]!=="s"?"During a battle you can only cast spells.":!act?"It's not your turn.":!afford?`Needs ${c[4]} energy, you have ${E}.`:!(react?spellOk(S,me,i):hasTarget(i))?"There's nothing it can target right now.":"";
     const kws=[c[6].includes("swift")?KW.swift:"",c[6].includes("guard")?KW.guard:""].filter(Boolean);
     overlay(`<h3>${X.esc(c[1])}</h3><div class="sd-big">${cardHtml(ci,"c")}<div><p>${c[3]==="u"?`<b>Unit</b> with <b>${c[5]} might</b>. It arrives in your base.`:"<b>Spell</b>: happens once."}</p><p>${X.esc(cardText(c))||""}</p>${kws.map(k=>`<span class="sd-kw">${k}</span>`).join("")}
       <p class="sv-note">Costs ${c[4]}⚡ · ${DOM[c[0]][0]}</p>${why?`<p class="sv-note">${why}</p>`:""}</div></div><div class="gm-row2"><button class="tl-act" id="shPlay" ${why?"disabled":""}>${need&&!(need==="enemy"&&!S.units.some(u=>u.o!==me))?"Play: pick a target":"Play"}</button></div>`,
       (o,close)=>{const p=o.querySelector("#shPlay");if(p)p.onclick=()=>{X.tapv();close();if(!need||(need==="enemy"&&!S.units.some(u=>u.o!==me))){go([1,i,0]);return;}reselect({kind:"card",i});};
 });});
   EL.querySelectorAll("[data-u]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=+b.dataset.u;X.tapv();const u=U(S,id);if(!u)return;
-    if(mine&&sel&&sel.kind==="card"&&tgtU.has(id)){go([1,sel.i,id]);return;}if(mine&&sel&&sel.kind==="ab"&&tgtU.has(id)){go([3,id]);return;}
+    if(act&&sel&&sel.kind==="card"&&tgtU.has(id)){go([1,sel.i,id]);return;}if(mine&&sel&&sel.kind==="ab"&&tgtU.has(id)){go([3,id]);return;}
     if(u.o===me&&canMove(u)&&!(sel&&sel.id===id)){reselect({kind:"unit",id});return;}
     if(sel&&sel.id===id){reselect(null);return;}
     inspectUnit(S,u.c,u,me);});
-  EL.querySelectorAll("[data-f]").forEach(f=>f.onclick=()=>{if(!mine||!sel)return;const d=+f.dataset.f;
+  EL.querySelectorAll("[data-f]").forEach(f=>f.onclick=()=>{if(!act||!sel)return;const d=+f.dataset.f;
     if(sel.kind==="card"&&tgtF.has(d)){X.tapv();go([1,sel.i,d]);return;}if(sel.kind==="unit"&&tgtF.has(d)){X.tapv();go([2,sel.id,d]);}});
   const ab=EL.querySelector("#shAb");if(ab)ab.onclick=()=>{X.tapv();if(!ch.tg){go([3,0]);return;}reselect(sel&&sel.kind==="ab"?null:{kind:"ab"});};
+  const ps=EL.querySelector("#shPass");if(ps)ps.onclick=()=>{X.tapv();go([6]);};
   const en=EL.querySelector("#shEnd");if(en)en.onclick=()=>{X.tapv();if(playable||movable)overlay(`<h3>End your turn?</h3><p>You can still ${[playable?`play ${playable} card${playable>1?"s":""}`:"",movable?`move ${movable} unit${movable>1?"s":""}`:""].filter(Boolean).join(" and ")}.</p><div class="gm-row2"><button class="tl-act" id="shYes">End turn</button></div>`,(o,close)=>{o.querySelector("#shYes").onclick=()=>{close();go([4]);};});else go([4]);};
   const ag=EL.querySelector("#shAgain");if(ag)ag.onclick=()=>{X.tapv();R.restart([]);};}
 // leaving Shards: the 3D, camera and sensors switch off and the styles go
