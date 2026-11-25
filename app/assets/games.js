@@ -105,11 +105,11 @@ const AVC=["#e0533c","#2f7fd0","#2e9d5b","#c4602a","#8a4fc0","#c23f86","#178a8a"
 const avatar=(name,k)=>`<span class="av" style="background:${AVC[k%AVC.length]}">${esc((String(name||"?").replace(/^🤖\s*/,"")[0]||"?").toUpperCase())}</span>`;
 const RM=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){return false;}};
 // an element flies from one place on screen to another (used for cards)
-function fly(html,from,to,ms,delay){if(RM()||!from||!to)return;const d=document.createElement("div");d.className="gx-fly";d.innerHTML=html;document.body.appendChild(d);
+function fly(html,from,to,ms,delay){if(!from||!to)return;const d=document.createElement("div");d.className="gx-fly";d.innerHTML=html;document.body.appendChild(d);
   const w=to.width||from.width,h=to.height||from.height;d.style.left=to.left+"px";d.style.top=to.top+"px";d.style.width=w+"px";d.style.height=h+"px";
   const an=d.animate([{transform:`translate(${from.left-to.left}px,${from.top-to.top}px) scale(${from.width/w}) rotate(-8deg)`,opacity:.9},{transform:"translate(0,0) scale(1) rotate(0)",opacity:1}],{duration:ms||380,delay:delay||0,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"});
   an.onfinish=()=>d.remove();setTimeout(()=>d.remove(),(ms||380)+(delay||0)+200);}
-function animateFrom(el,from,ms,delay){if(RM()||!el||!from)return;const to=el.getBoundingClientRect();if(!to.width)return;
+function animateFrom(el,from,ms,delay){if(!el||!from)return;const to=el.getBoundingClientRect();if(!to.width)return;
   el.animate([{transform:`translate(${from.left+from.width/2-to.left-to.width/2}px,${from.top+from.height/2-to.top-to.height/2}px) scale(${Math.max(.35,from.width/to.width)}) rotate(-10deg)`,opacity:.6},{transform:"none",opacity:1}],{duration:ms||420,delay:delay||0,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"});}
 function confetti(){if(RM())return;const c=document.createElement("canvas");c.className="gx-confetti";document.body.appendChild(c);const W=c.width=innerWidth,H=c.height=innerHeight,g=c.getContext("2d");
   const P=Array.from({length:140},()=>({x:W/2+(Math.random()-.5)*80,y:H*.45,vx:(Math.random()-.5)*14,vy:-Math.random()*16-6,r:Math.random()*6.28,vr:(Math.random()-.5)*.4,c:AVC[Math.floor(Math.random()*AVC.length)],w:6+Math.random()*6}));
@@ -165,7 +165,7 @@ window.GAME_IN=function(G,env){
   if(env.k==="acc"&&ACCEPT_WAIT&&env.sid===ACCEPT_WAIT.sid&&env.from===ACCEPT_WAIT.peer){const w=ACCEPT_WAIT;ACCEPT_WAIT=null;w.onAcc(G,env);return;}
   if(env.k==="no"&&ACCEPT_WAIT&&env.sid===ACCEPT_WAIT.sid){ACCEPT_WAIT=null;toastG(`${env.name} can't play right now`);if(HUB_REDRAW)HUB_REDRAW();return;}
   NET.got(env);};
-const GNAME={pesten:"Pesten",mon:"a Wildlings battle",trade:"a Wildlings trade",race:"Horse race",kings:"Kingsen",hl:"Higher or lower",bus:"The bus",faker:"Faker",wolves:"Werewolves",tcg:"Shards"};
+const GNAME={pesten:"Pesten",mon:"a Wildlings battle",trade:"a Wildlings trade",mb:"a Wildlings battle",mt:"a Wildlings trade",race:"Horse race",kings:"Kingsen",hl:"Higher or lower",bus:"The bus",faker:"Faker",wolves:"Werewolves",tcg:"Shards"};
 
 /* A link the games use, whatever is underneath: {kind, role (0 starts), peerName, send(t,hex), on, close()} */
 function btLink(role,peerName){const L={kind:"bt",role,peerName,on:null,send:(t,d)=>GL.send(t,d),close(){GL.send(4,"");setTimeout(()=>GL.stop(),700);},status:()=>GL.seen&&Date.now()-GL.seen>12000?"⚠ Lost your friend: come closer":"📶 "+peerName};
@@ -185,7 +185,7 @@ const DRINK_NOTE=`<div class="gm-drink">🍺 Drinking games are for adults (18+)
 function hub(){stopAll();if(SHELL)SHELL.classList.remove("ww-night","ww");shell("Games","",false);onBack(()=>{try{closeTool();}catch(e){}});HUB_REDRAW=()=>{if(EL&&EL.querySelector("#gmHub"))hub();};
   const inv=INV();
   EL.innerHTML=`<div id="gmHub">${inv.map(x=>`<div class="gm-inv"><span>🎮</span><b>${esc(x.name)} invites you to ${esc(GNAME[x.game]||"play")}</b><button class="tl-act" data-acc="${esc(x.sid)}" style="flex:none;padding:10px 14px">Play</button><button class="tl-act ghost" data-dec="${esc(x.sid)}" style="flex:none;padding:10px 12px">✕</button></div>`).join("")}
-    <div class="gm-grid"><button class="gm-card wide" data-g="mon"><span>🌿</span><div><b>Wildlings</b><br><small>Catch, raise and battle your own creatures. Some show up along your real routes. Battle and trade over Bluetooth or online.</small></div></button></div>
+    <div class="gm-grid"><button class="gm-card wide" data-g="mon"><span>🌿</span><div><b>Wildlings</b> <small style="background:#e0531f;color:#fff;border-radius:6px;padding:1px 6px;font-weight:700">TEST</small><br><small>Walk around the real map to catch creatures, spin stops for supplies and beat the Wardens at landmarks for 8 badges. Battle and trade with your circle within 100 m.</small></div></button></div>
     <div class="gm-grid" style="margin-top:10px"><button class="gm-card wide" data-g="tcg" style="background:linear-gradient(135deg,#3a2a7a,#14182c)"><span>💎</span><div><b>Shards</b><br><small>A card battle: pick a champion, send units to the battlefields, first to 10 points wins. Against the phone or a friend.</small></div></button></div>
     <div class="tl-sec">Party games</div>
     <div class="gm-grid"><button class="gm-card" data-g="wolves"><span>🐺</span><b>Werewolves</b><small>Secret roles, a night and a day. 5–8 players</small></button><button class="gm-card" data-g="faker"><span>🤫</span><b>Faker</b><small>Everyone gets a task, except one. Who's faking? 3–8 players</small></button></div>
@@ -205,9 +205,10 @@ function acceptInv(sid){const x=INV().find(i=>i.sid===sid);save("pt-ginv",INV().
   const G=(typeof gGroups==="function"?gGroups():[]).find(g=>g.id===x.g);if(!G){toastG("That circle isn't on this phone anymore");return hub();}
   if(typeof isOffline==="function"&&isOffline()){toastG("📴 You're offline: online games need internet");return hub();}
   gPublish({ty:"game",k:"acc",sid,to:x.from},null,G).catch(()=>toastG("⚠ Couldn't answer: check your internet"));
+  if(x.game==="mb"||x.game==="mt")return withMon(()=>withRoom(()=>joinRoomNet(x.game,G,sid,x.from)));
   if(RG[x.game])return withRoom(()=>joinRoomNet(x.game,G,sid,x.from));
-  LINK=netLink(G,sid,x.from,x.name,1);
-  if(x.game==="mon"||x.game==="trade")withMon(()=>MON.netStart(LINK,x.game));}
+  if(x.game==="mon"||x.game==="trade"){toastG("That invite is from an older version of the app: ask them to update");return hub();}
+  LINK=netLink(G,sid,x.from,x.name,1);}
 
 /* Choose how to play with a friend. onLink(link) is called once both phones are connected. */
 const GAME_IDX=["pesten","mon","trade"];
@@ -325,22 +326,17 @@ const RACE_DEF={min:2,max:8,
   turn:S=>-1};
 function raceView(R){dgCss();const S=R.S,me=R.mySlot(),host=R.host;shell("Horse race",R.status(),false);onBack(()=>leaveAsk(R));
   const mine=S.bets[me]||{s:me%4,n:2},pend=!!R.pending;
-  const lane=s=>`<div class="rc-lane"><b style="color:${s===1||s===2?"#e25555":"var(--ink)"}">${SUIT[s]}</b>${Array.from({length:8},(_,k)=>`<div class="cell ${k===7?"fin":""}" data-cell="${s}-${k}">${Math.min(S.pos[s],7)===k?cardH(s*13):""}</div>`).join("")}</div>`;
-  let body="";
-  if(S.phase===0){body=`<div class="dg-big">Place your bet</div><p class="dg-rule">Pick a horse and how many sips. If it wins you hand out double; if not, you drink them.</p>
+  if(S.phase===0){raceView.key=null;EL.innerHTML=`<div class="dg-big">Place your bet</div><p class="dg-rule">Pick a horse and how many sips. If it wins you hand out double; if not, you drink them.</p>
       <div class="gm-suits">${SUIT.map((x,i)=>`<button data-bs="${i}" style="color:${i===1||i===2?"#c62828":"#111"};${mine.s===i&&S.bets[me]?"box-shadow:0 0 0 4px var(--tc)":""}">${x}</button>`).join("")}</div>
       <div class="gm-row2" style="justify-content:center;align-items:center"><button class="tl-act ghost" data-bn="-1" style="flex:0 0 60px">−</button><div class="dg-big" style="min-width:90px">${mine.n} 🍺</div><button class="tl-act ghost" data-bn="1" style="flex:0 0 60px">+</button></div>
       <div class="dg-res">${R.players.map((p,k)=>`${esc(p.name)}: ${S.bets[k]?`${SUIT[S.bets[k].s]} · ${S.bets[k].n} sips`:"<i>thinking…</i>"}`).join("<br>")}</div>
-      ${host?`<div class="gm-row2"><button class="tl-act" id="rcGo" ${S.bets.some(b=>b)?"":"disabled"}>Start the race</button></div>`:`<p class="sv-note" style="text-align:center">${pend?"Sending…":"The host starts the race."}</p>`}`;}
-  else{body=`<div class="rc-side"><span></span>${S.side.map((c,i)=>S.flip[i]?cardH(c,"flipin"):cardH(-1)).join("")}<span></span></div>
-      <div class="pt-table" style="flex:none;display:block;padding:12px 10px;min-height:0">${[0,1,2,3].map(lane).join("")}</div>
-      <div class="pt-msg">${S.phase===2?"🏆 ":""}${esc(S.msg)}</div>
-      ${S.phase===2?`<div class="dg-res">${R.players.map((p,k)=>{const b=S.bets[k];if(!b)return `${esc(p.name)}: no bet`;return b.s===S.win?`<b>${esc(p.name)}</b> hands out ${b.n*2} sips`:`${esc(p.name)} drinks ${b.n}`;}).join("<br>")}</div>`:`<div class="rc-bets">${R.players.map((p,k)=>S.bets[k]?`<span>${esc(p.name)} ${SUIT[S.bets[k].s]}</span>`:"").join(" · ")}</div>`}
-      ${host?`<div class="gm-row2">${S.phase===1?`<button class="tl-act" id="rcNext">Next card</button><button class="tl-act ghost" id="rcAuto">${AUTO?"⏸ Pause":"▶ Auto"}</button>`:`<button class="tl-act" id="rcAgain">New race</button>`}</div>`:""}`;}
-  const prevPos=raceView.pos;EL.innerHTML=DRINK_NOTE.replace("gm-drink","gm-drink small")+body;
-  if(S.phase>0&&prevPos&&raceView.R===R)[0,1,2,3].forEach(s=>{if(prevPos[s]!==S.pos[s]){const el=EL.querySelector(`[data-cell="${s}-${Math.min(S.pos[s],7)}"] .gc`),fr=raceView.rects&&raceView.rects[s];if(el&&fr)animateFrom(el,fr,520);}});
-  raceView.R=R;raceView.pos=S.pos.slice();raceView.rects=[0,1,2,3].map(s=>{const e=EL.querySelector(`[data-cell="${s}-${Math.min(S.pos[s],7)}"]`);return e&&e.getBoundingClientRect();});
-  if(S.phase===2&&raceView.done!==R.log.length){raceView.done=R.log.length;const b=S.bets[me];if(b&&b.s===S.win)confetti();clearInterval(AUTO);AUTO=0;}
+      ${host?`<div class="gm-row2"><button class="tl-act" id="rcGo" ${S.bets.some(b=>b)?"":"disabled"}>Start the race</button></div>`:`<p class="sv-note" style="text-align:center">${pend?"Sending…":"The host starts the race."}</p>`}${DRINK_NOTE}`;}
+  else{const key=R.log.findLastIndex?R.log.findLastIndex(e=>e[0]===255):0;
+    if(!EL.querySelector("#rcHost")||raceView.key!==key){EL.innerHTML=`<div id="rcHost"></div><div id="rcBelow"></div>`;raceView.key=key;}
+    rcBoard(EL.querySelector("#rcHost"),S,key).querySelector(".rcb-msg").textContent=(S.phase===2?"🏆 ":"")+S.msg;
+    EL.querySelector("#rcBelow").innerHTML=`${S.phase===2?`<div class="dg-res">${R.players.map((p,k)=>{const b=S.bets[k];if(!b)return `${esc(p.name)}: no bet`;return b.s===S.win?`<b>${esc(p.name)}</b> hands out ${b.n*2} sips`:`${esc(p.name)} drinks ${b.n}`;}).join("<br>")}</div>`:`<div class="gm-names" style="justify-content:center">${R.players.map((p,k)=>S.bets[k]?`<span>${esc(p.name)} ${SUIT[S.bets[k].s]} ${S.bets[k].n}🍺</span>`:"").join("")}</div>`}
+      ${host?`<div class="gm-row2">${S.phase===1?`<button class="tl-act" id="rcNext">Next card</button><button class="tl-act ghost" id="rcAuto">${AUTO?"⏸ Pause":"▶ Auto"}</button>`:`<button class="tl-act" id="rcAgain">New race</button>`}</div>`:""}`;
+    if(S.phase===2&&raceView.done!==R.log.length){raceView.done=R.log.length;const b=S.bets[me];if(b&&b.s===S.win)setTimeout(confetti,800);clearInterval(AUTO);AUTO=0;}}
   EL.querySelectorAll("[data-bs]").forEach(b=>b.onclick=()=>{tapv();R.act([1,+b.dataset.bs,mine.n]);});
   EL.querySelectorAll("[data-bn]").forEach(b=>b.onclick=()=>{tapv();R.act([1,mine.s,Math.max(1,Math.min(20,mine.n+ +b.dataset.bn))]);});
   const go=EL.querySelector("#rcGo");if(go)go.onclick=()=>{tapv();R.act([2]);};
@@ -568,7 +564,9 @@ const RG={pesten:{def:PESTEN_DEF,title:"Pesten",view:(R)=>pestenView(R),opts:()=
   bus:{def:BUS_DEF,title:"The bus",view:R=>busView(R),opts:()=>[],local:()=>busSetup(),drink:true},
   faker:{def:FAKER_DEF,title:"Faker",view:R=>fakerView(R),opts:()=>[]},
   wolves:{def:WOLF_DEF,title:"Werewolves",view:R=>wolfView(R),opts:()=>[]},
-  tcg:{get def(){return window.SHARDS?SHARDS.def:{min:2,max:2};},title:"Shards",view:R=>SHARDS.view(R),opts:()=>[],ai:true}};
+  tcg:{get def(){return window.SHARDS?SHARDS.def:{min:2,max:2};},title:"Shards",view:R=>SHARDS.view(R),opts:()=>[],ai:true},
+  mb:{get def(){return window.MON?MON.MB_DEF:{min:2,max:2};},title:"Wildlings battle",view:R=>MON.mbView(R),opts:()=>[],back:()=>openMon()},
+  mt:{get def(){return window.MON?MON.MT_DEF:{min:2,max:2};},title:"Wildlings trade",view:R=>MON.mtView(R),opts:()=>[],back:()=>openMon()}};
 let ROOMR=null;
 function loadJs(name,f){const sc=document.createElement("script");sc.src=location.protocol==="file:"?name:name+"?v="+(typeof APP_VERSION!=="undefined"?APP_VERSION:"");sc.onload=f;sc.onerror=()=>toastG("Couldn't load part of the games");document.head.appendChild(sc);}
 // the multiplayer part (room.js) and the card battle (shards.js) load the first time they're needed
@@ -584,7 +582,7 @@ function roomCallbacks(key){const g=RG[key];
     onRoster:R=>{if(R!==ROOMR)return;if(!R.started)lobbyView(R,key);else safeView(R);},
     onLeft:p=>{if(p.host){toastG("The host left the game");leaveRoom();hub();}else toastG(`${p.name} left${g.ai?": the phone plays for them":""}`);}};}
 // how do you want to play?
-function roomMenu(key,extra){const g=RG[key];shell(g.title,"",false);onBack(()=>{leaveRoom();hub();});
+function roomMenu(key,extra){const g=RG[key];shell(g.title,"",false);onBack(()=>{leaveRoom();(g.back||hub)();});
   EL.innerHTML=`${g.drink?DRINK_NOTE:""}${extra||""}<div class="gm-how">
     ${g.ai?`<button data-m="solo"><b>🤖 Against the phone</b><small>1 to ${g.def.max-1} computer players</small></button>`:""}
     ${g.local?`<button data-m="local"><b>📱 One phone, pass it round</b><small>Everyone plays on this phone</small></button>`:""}
@@ -620,7 +618,7 @@ function joinCode(key){const g=RG[key];shell(g.title+": join","",false);onBack((
     withRoom(()=>{ROOMR=ROOMS.joinBt(Object.assign(roomCallbacks(key),{code:c,name:MYNAME()}));if(ROOMR.error){toastG("Bluetooth didn't start: "+ROOMR.error);ROOMR=null;return;}lobbyView(ROOMR,key);});};
   EL.querySelector("#gmGo").onclick=go;EL.querySelector("#gmCode").onkeydown=e=>{if(e.key==="Enter")go();};}
 function joinRoomNet(key,G,sid,hostId){ROOMR=ROOMS.joinNet(Object.assign(roomCallbacks(key),{G,sid,hostId}));lobbyView(ROOMR,key);}
-function lobbyView(R,key){const g=RG[key];shell(g.title,R.status(),false);onBack(()=>{leaveRoom();hub();});
+function lobbyView(R,key){const g=RG[key];shell(g.title,R.status(),false);onBack(()=>{leaveRoom();(g.back||hub)();});
   const me=R.mySlot(),n=R.players.length;
   EL.innerHTML=`${R.code&&R.host?`<div class="sv-note" style="text-align:center">Code for your friends</div><div class="gm-code">${R.code}</div><p class="sv-note" style="text-align:center">They choose ${g.title} → Join with a code.</p>`:""}
     ${!R.host?`<div class="gm-big">${me<0?"Joining…":"You're in!"}</div><p class="sv-note" style="text-align:center">${me<0?"Looking for the host's phone. Keep close.":"Waiting for the host to start."}</p>`:""}
@@ -694,6 +692,43 @@ function wirePlayers(id,redraw){const add=()=>{const i=EL.querySelector("#"+id+"
   EL.querySelector("#"+id+"Add").onclick=add;EL.querySelector("#"+id+"In").onkeydown=e=>{if(e.key==="Enter")add();};
   EL.querySelectorAll("#"+id+" [data-gprm]").forEach(b=>b.onclick=()=>{const P=store("pt-gplayers",[]);P.splice(+b.dataset.gprm,1);save("pt-gplayers",P);redraw();});}
 
+
+/* ---------------- the race track: one board for both the one-phone and the every-phone race. It stays on screen and
+   only changes what moved, so the horses gallop to their new place. ---------------- */
+const RC_CSS=`.rcb{margin:4px 0 8px}.rcb-side{display:grid;grid-template-columns:30px repeat(8,1fr);gap:3px;margin-bottom:6px;perspective:400px}
+.rcb-side .slot{display:flex;justify-content:center}.rcb-side .gc{width:30px;height:44px;font-size:11px;border-radius:5px}.rcb-side .gc i{font-size:13px}
+.rcb-track{border-radius:22px;padding:10px 8px;background:radial-gradient(ellipse at 50% 30%,#3b8f5d,#1f5a39 70%,#174a2e);box-shadow:inset 0 0 0 5px rgba(0,0,0,.18),inset 0 8px 30px rgba(0,0,0,.35)}
+.rcb-lane{display:grid;grid-template-columns:30px 1fr;align-items:center;margin:5px 0}.rcb-lane>b{font-size:22px;text-align:center;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.rcb-run{position:relative;height:54px;border-radius:10px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 calc(12.5% - 3px),transparent calc(12.5% - 3px) 12.5%)}
+.rcb-run::after{content:"";position:absolute;right:0;top:0;bottom:0;width:12.5%;border-radius:0 10px 10px 0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.35) 0 5px,rgba(0,0,0,.25) 5px 10px)}
+.rcb-h{position:absolute;top:5px;width:12.5%;display:flex;justify-content:center;transition:left .65s cubic-bezier(.3,1.35,.5,1);z-index:1}
+.rcb-h .gc{width:31px;height:44px;font-size:11px;border-radius:5px;box-shadow:0 3px 6px rgba(0,0,0,.4)}.rcb-h .gc i{font-size:14px}
+.rcb-h.hop .gc{animation:rchop .65s}@keyframes rchop{25%{transform:translateY(-14px) rotate(-8deg)}55%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-5px)}}
+.rcb-h.back .gc{animation:rcback .7s}@keyframes rcback{0%,100%{transform:none}20%,60%{transform:translateX(-5px) rotate(-6deg);box-shadow:0 0 0 3px #ff4d4d}40%,80%{transform:translateX(5px) rotate(6deg)}}
+.rcb-h.win .gc{animation:rcwin 1s infinite;box-shadow:0 0 0 3px #ffd34d,0 0 18px #ffd34d}@keyframes rcwin{50%{transform:scale(1.18)}}
+.rcb-draw{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 4px;perspective:500px}
+.rcb-draw .deck .gc,.rcb-draw .cur .gc{width:62px;height:88px;font-size:20px;border-radius:9px}.rcb-draw .cur .gc i{font-size:24px}
+.rcb-draw .cur .gc.deal{animation:rcdeal .5s cubic-bezier(.2,.8,.2,1)}@keyframes rcdeal{from{transform:translateX(-80px) rotateY(180deg) scale(.8);opacity:.4}to{transform:none;opacity:1}}
+.flipin{animation:flipin .5s cubic-bezier(.2,.8,.2,1)}@keyframes flipin{from{transform:rotateY(90deg) scale(.9)}to{transform:none}}
+.rcb-msg{text-align:center;font:600 15px system-ui;min-height:22px}`;
+function rcCss(){if(document.getElementById("rcCss"))return;const st=document.createElement("style");st.id="rcCss";st.textContent=RC_CSS;document.head.appendChild(st);}
+// pos: 4 horse positions (0..7+), side: 6 cards, flip: which side cards are turned, last: the card just drawn (or null), win: winning suit or -1
+function rcBoard(host,S,key){rcCss();let b=host.querySelector(".rcb");
+  if(!b||b.dataset.key!==String(key)){host.innerHTML=`<div class="rcb" data-key="${key}">
+      <div class="rcb-side"><span></span>${S.side.map((c,i)=>`<span class="slot" data-sd="${i}">${S.flip[i]?cardH(c):cardH(-1)}</span>`).join("")}<span></span><span></span></div>
+      <div class="rcb-track">${[0,1,2,3].map(s=>`<div class="rcb-lane"><b style="color:${s===1||s===2?"#ff6b6b":"#fff"}">${SUIT[s]}</b><div class="rcb-run"><span class="rcb-h" data-h="${s}" style="left:${Math.min(S.pos[s],7)*12.5}%">${cardH(s*13)}</span></div></div>`).join("")}</div>
+      <div class="rcb-draw"><span class="deck">${cardH(-1)}</span><span class="cur">${S.last!=null?cardH(S.last):`<span class="gc" style="opacity:.25;width:62px;height:88px"></span>`}</span></div><div class="rcb-msg"></div></div>`;
+    b=host.querySelector(".rcb");b._pos=S.pos.slice();b._flip=S.flip.slice();b._last=S.last;b._win=S.win;return b;}
+  // something changed: move horses, turn side cards, deal the new card
+  if(S.last!==b._last&&S.last!=null){const cur=b.querySelector(".cur");cur.innerHTML=cardH(S.last,"deal");}
+  [0,1,2,3].forEach(s=>{const h=b.querySelector(`[data-h="${s}"]`),was=b._pos[s],now=S.pos[s];if(was===now)return;
+    const go=()=>{h.style.left=Math.min(now,7)*12.5+"%";h.classList.remove("hop","back");void h.offsetWidth;h.classList.add(now>was?"hop":"back");};
+    // a horse that's sent back waits until its side card has turned
+    if(now<was)setTimeout(go,450);else setTimeout(go,180);});
+  S.flip.forEach((f,i)=>{if(f&&!b._flip[i]){const sl=b.querySelector(`[data-sd="${i}"]`);setTimeout(()=>{sl.innerHTML=cardH(S.side[i],"flipin");},300);}});
+  if(S.win>=0&&b._win<0)setTimeout(()=>{const h=b.querySelector(`[data-h="${S.win}"]`);if(h)h.classList.add("win");},700);
+  b._pos=S.pos.slice();b._flip=S.flip.slice();b._last=S.last;b._win=S.win;return b;}
+
 /* ================= HORSE RACE (paardenrace) ================= */
 function raceSetup(){const P=store("pt-gplayers",[]),bets=store("pt-rbets",{});
   EL.innerHTML=backRow()+`<div class="gm-title">🏇 Horse race</div>${DRINK_NOTE}${playersBox("rp")}
@@ -707,22 +742,21 @@ function raceSetup(){const P=store("pt-gplayers",[]),bets=store("pt-rbets",{});
   EL.querySelectorAll("[data-bs]").forEach(b=>b.onclick=()=>{const [i,k]=b.dataset.bs.split(":").map(Number),bb=B(),n=P[i];bb[n]=Object.assign({s:i%4,n:2},bb[n],{s:k});save("pt-rbets",bb);raceSetup();});
   EL.querySelectorAll("[data-bn]").forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.bn.split(":").map(Number),bb=B(),n=P[i],cur=Object.assign({s:i%4,n:2},bb[n]);cur.n=Math.max(1,Math.min(20,cur.n+d));bb[n]=cur;save("pt-rbets",bb);raceSetup();});
   EL.querySelector("#gmGo").onclick=()=>{tapv();const bb=B();raceRun(P.map((n,i)=>({n,...Object.assign({s:i%4,n2:2},bb[n]?{s:bb[n].s,amt:bb[n].n}:{amt:2})})));};}
-function raceRun(bets){const L=6,R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array(52).keys()].filter(c=>cR(c)!==1),R);
-  const side=deck.splice(0,L),pos=[0,0,0,0],flipped=Array(L).fill(false);let last=null,win=-1,msg="Tap “Next card” to start the race";
-  const step=()=>{if(win>=0)return;if(!deck.length){deck=shuffle([...Array(52).keys()].filter(c=>cR(c)!==1&&!side.includes(c)),R);}
-    const c=deck.pop();last=c;pos[cS(c)]++;msg=`${cName(c)}: the ${SUIT[cS(c)]} horse moves forward`;
-    if(pos[cS(c)]>L){win=cS(c);clearInterval(AUTO);AUTO=0;draw();return;}
-    for(let k=0;k<L;k++)if(!flipped[k]&&Math.min(...pos)>k+0){flipped[k]=true;const s=cS(side[k]);pos[s]=Math.max(0,pos[s]-1);msg+=` · side card ${cName(side[k])}: ${SUIT[s]} goes back!`;}
+function raceRun(bets){const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array(52).keys()].filter(c=>cR(c)!==1),R);
+  const S={side:deck.splice(0,6),pos:[0,0,0,0],flip:[0,0,0,0,0,0],last:null,win:-1},key=Date.now();let msg="Tap “Next card” to start the race";
+  const step=()=>{if(S.win>=0)return;if(!deck.length)deck=shuffle([...Array(52).keys()].filter(c=>cR(c)!==1&&!S.side.includes(c)),R);
+    const c=deck.pop();S.last=c;S.pos[cS(c)]++;msg=`${cName(c)}: the ${SUIT[cS(c)]} horse moves on`;
+    if(S.pos[cS(c)]>6){S.win=cS(c);clearInterval(AUTO);AUTO=0;}
+    else for(let k=0;k<6;k++)if(!S.flip[k]&&Math.min(...S.pos)>k){S.flip[k]=1;const s=cS(S.side[k]);S.pos[s]=Math.max(0,S.pos[s]-1);msg+=` · ${cName(S.side[k])} turns: ${SUIT[s]} goes back!`;}
     draw();};
-  const draw=()=>{const res=win>=0?bets.map(b=>b.s===win?`<b>${esc(b.n)}</b> hands out ${b.amt*2}`:`${esc(b.n)} drinks ${b.amt}`).join("<br>"):"";
-    EL.innerHTML=backRow()+`<div class="gm-title">🏇 Horse race</div>
-      <div class="gm-side"><span></span>${side.map((c,k)=>flipped[k]?cardH(c):cardH(-1)).join("")}<span></span><span></span></div>
-      <div class="gm-race">${[0,1,2,3].map(s=>`<div class="gm-lane">${Array.from({length:L+2},(_,k)=>`<div class="cell ${k===L+1?"fin":""}">${pos[s]===k||(k===L+1&&pos[s]>L)?cardH(s*13):""}</div>`).join("")}</div>`).join("")}</div>
-      <div class="gm-table" style="padding:10px">${cardH(last==null?-1:last,"mid")}</div>
-      <div class="gm-status ${win>=0?"over":""}">${win>=0?`🏆 The ${SUIT[win]} horse wins!`:esc(msg)}</div>${res?`<div class="gm-sub" style="text-align:left">${res}</div>`:""}
-      <div class="gm-row2">${win<0?`<button class="tl-act" id="gmNext">Next card</button><button class="tl-act ghost" id="gmAuto">${AUTO?"⏸ Pause":"▶ Auto"}</button>`:`<button class="tl-act" id="gmAgain">New race</button>`}</div>`;
-    wireBack();const n=EL.querySelector("#gmNext");if(n)n.onclick=()=>{tapv();step();};
-    const a=EL.querySelector("#gmAuto");if(a)a.onclick=()=>{tapv();if(AUTO){clearInterval(AUTO);AUTO=0;draw();}else{AUTO=setInterval(()=>{if(!EL.isConnected){clearInterval(AUTO);AUTO=0;return;}step();},1300);draw();}};
+  backRow();shell("Horse race","",false);EL.innerHTML=`<div id="rcHost"></div><div id="rcBelow"></div>`;
+  const draw=()=>{rcBoard(EL.querySelector("#rcHost"),S,key).querySelector(".rcb-msg").textContent=S.win>=0?`🏆 The ${SUIT[S.win]} horse wins!`:msg;
+    const res=S.win>=0?bets.map(b=>b.s===S.win?`<b>${esc(b.n)}</b> hands out ${b.amt*2}`:`${esc(b.n)} drinks ${b.amt}`).join("<br>"):"";
+    EL.querySelector("#rcBelow").innerHTML=`${res?`<div class="gm-sub" style="text-align:left;line-height:1.6">${res}</div>`:`<div class="gm-names" style="justify-content:center">${bets.map(b=>`<span>${esc(b.n)} ${SUIT[b.s]} ${b.amt}🍺</span>`).join("")}</div>`}
+      <div class="gm-row2">${S.win<0?`<button class="tl-act" id="gmNext">Next card</button><button class="tl-act ghost" id="gmAuto">${AUTO?"⏸ Pause":"▶ Auto"}</button>`:`<button class="tl-act" id="gmAgain">New race</button>`}</div>`;
+    if(S.win>=0&&!draw.c){draw.c=1;setTimeout(confetti,800);}
+    wireBack(()=>{clearInterval(AUTO);AUTO=0;});const n=EL.querySelector("#gmNext");if(n)n.onclick=()=>{tapv();step();};
+    const a=EL.querySelector("#gmAuto");if(a)a.onclick=()=>{tapv();if(AUTO){clearInterval(AUTO);AUTO=0;draw();}else{AUTO=setInterval(()=>{if(!EL.isConnected||!EL.querySelector("#rcHost")){clearInterval(AUTO);AUTO=0;return;}step();},1400);draw();}};
     const g=EL.querySelector("#gmAgain");if(g)g.onclick=()=>{tapv();raceSetup();};};
   draw();}
 
@@ -738,9 +772,9 @@ function kingsStart(){const P=store("pt-gplayers",[]);
   EL.innerHTML=backRow()+`<div class="gm-title">👑 Kingsen</div>${DRINK_NOTE}${playersBox("kp")}<div class="gm-row2"><button class="tl-act" id="gmGo">Start</button></div>
     <p class="sv-note">Draw a card on your turn and do what it says. Players are optional: with names the app shows whose turn it is.</p>`;
   wireBack();wirePlayers("kp",kingsStart);EL.querySelector("#gmGo").onclick=()=>{tapv();kingsRun(P);};}
-function kingsRun(P){const deck=shuffle([...Array(52).keys()],rng(Date.now()&0xffffffff));let cur=null,kings=0,turn=-1;
+function kingsRun(P){rcCss();const deck=shuffle([...Array(52).keys()],rng(Date.now()&0xffffffff));let cur=null,kings=0,turn=-1;
   const draw=()=>{const r=cur!=null?KRULES[cR(cur)]:null,who=P.length&&turn>=0?P[turn%P.length]:"";
-    EL.innerHTML=backRow()+`<div class="gm-title">👑 Kingsen</div><div class="gm-table">${cardH(cur==null?-1:cur,"big")}</div>
+    EL.innerHTML=backRow()+`<div class="gm-title">👑 Kingsen</div><div class="gm-table" style="perspective:500px">${cardH(cur==null?-1:cur,"big"+(cur!=null?" flipin":""))}</div>
       ${r?`<div class="gm-big">${r[0]}${cR(cur)===13?` (${kings}/4)`:""}</div><div class="gm-sub">${who?`<b>${esc(who)}</b>: `:""}${cR(cur)===13&&kings===4?"That's the 4th King: drink the king's cup! 👑":r[1]}</div>`:`<div class="gm-sub">${P.length?`${esc(P[0])} goes first.`:""} Tap to draw.</div>`}
       <div class="gm-row2">${deck.length?`<button class="tl-act" id="gmNext">Draw a card${P.length&&deck.length<52?` (${esc(P[(turn+1)%P.length])})`:""}</button>`:`<button class="tl-act" id="gmAgain">New game</button>`}</div>
       <div class="gm-log">${deck.length} cards left</div>
@@ -754,14 +788,14 @@ function hlStart(){const P=store("pt-gplayers",[]);
   EL.innerHTML=backRow()+`<div class="gm-title">↕️ Higher or lower</div>${DRINK_NOTE}${playersBox("hp")}<div class="gm-row2"><button class="tl-act" id="gmGo">Start</button></div>
     <p class="sv-note">Guess if the next card is higher or lower (Ace is low). Wrong, or the same card: drink as many sips as the cards in the row, and start a new row. After 3 right in a row you may pass the phone.</p>`;
   wireBack();wirePlayers("hp",hlStart);EL.querySelector("#gmGo").onclick=()=>{tapv();hlRun(P);};}
-function hlRun(P){const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array(52).keys()],R),row=[deck.pop()],who=0,msg="";
+function hlRun(P){rcCss();const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array(52).keys()],R),row=[deck.pop()],who=0,msg="";
   const next=g=>{if(!deck.length)deck=shuffle([...Array(52).keys()].filter(c=>!row.includes(c)),R);const prev=row[row.length-1],c=deck.pop();row.push(c);
     const ok=g>0?cR(c)>cR(prev):cR(c)<cR(prev);
     if(!ok){const n=row.length-1;msg=`❌ ${cName(c)}. ${P.length?esc(P[who%P.length])+" drinks":"Drink"} ${n} sip${n>1?"s":""}`;if(navigator.vibrate)try{navigator.vibrate(120);}catch(e){}row=[c];}
     else msg=`✅ ${cName(c)}: right! ${row.length-1} in a row`;draw();};
   const draw=()=>{const name=P.length?P[who%P.length]:"";
     EL.innerHTML=backRow()+`<div class="gm-title">↕️ Higher or lower</div>${name?`<div class="gm-sub"><b>${esc(name)}</b>'s turn</div>`:""}
-      <div class="gm-table">${cardH(row[row.length-1],"big")}</div><div class="gm-status over" style="text-align:center">${msg||"Higher or lower?"}</div>
+      <div class="gm-table" style="perspective:500px">${cardH(row[row.length-1],"big"+(row.length>1||msg?" flipin":""))}</div><div class="gm-status over" style="text-align:center">${msg||"Higher or lower?"}</div>
       <div class="gm-row2"><button class="tl-act" data-hl="1">▲ Higher</button><button class="tl-act" data-hl="-1">▼ Lower</button></div>
       ${P.length>1&&row.length>=4?`<div class="gm-row2"><button class="tl-act ghost" id="gmPass">Pass to ${esc(P[(who+1)%P.length])}</button></div>`:""}
       <div class="gm-hand">${row.slice(0,-1).map(c=>cardH(c)).join("")}</div>`;
@@ -774,7 +808,7 @@ function busSetup(){const P=store("pt-gplayers",[]);
   EL.innerHTML=backRow()+`<div class="gm-title">🚌 The bus</div>${DRINK_NOTE}${playersBox("bp")}<div class="gm-row2"><button class="tl-act" id="gmGo" ${P.length>=2?"":"disabled"}>Start (2 or more players)</button></div>
     <p class="sv-note">1. Everyone answers 4 questions about their own cards: red or black, higher or lower, inside or outside, which suit. Wrong costs 1, 2, 3 or 4 sips.<br>2. The pyramid: cards are turned; if you hold the same number you lay it down and hand out sips.<br>3. Whoever has the most cards left takes the bus: guess higher or lower along 7 cards. Wrong? Drink and start again.</p>`;
   wireBack();wirePlayers("bp",busSetup);EL.querySelector("#gmGo").onclick=()=>{if(P.length<2)return;tapv();busRun(P);};}
-function busRun(P){const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array(52).keys()],R);const hands=P.map(()=>[]);
+function busRun(P){rcCss();const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array(52).keys()],R);const hands=P.map(()=>[]);
   let round=0,pl=0,phase=1,msg="",reveal=null;
   const Q=[["Red or black?",[["red","🟥 Red"],["black","⬛ Black"]]],["Higher or lower than your first card?",[["hi","▲ Higher"],["lo","▼ Lower"],["eq","= Same"]]],
     ["Inside or outside your first two?",[["in","↔ Inside"],["out","⇹ Outside"],["eq","= Same"]]],["Which suit?",SUIT.map((s,i)=>[String(i),s])]];
@@ -789,16 +823,16 @@ function busRun(P){const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array
   const draw=()=>{let h="";
     if(phase===1){const q=Q[round];
       h=`<div class="gm-sub">Round ${round+1} of 4 · <b>${esc(P[pl])}</b></div><div class="gm-big">${q[0]}</div>
-        <div class="gm-hand">${hands[pl].map(c=>cardH(c,"mid")).join("")}${reveal!=null?cardH(reveal,"mid"):""}</div>
+        <div class="gm-hand">${hands[pl].map(c=>cardH(c,"mid")).join("")}${reveal!=null?cardH(reveal,"mid flipin"):""}</div>
         <div class="gm-status over" style="text-align:center">${msg}</div>
         ${reveal==null?`<div class="gm-row2" style="flex-wrap:wrap">${q[1].map(([k,l])=>`<button class="tl-act" data-a="${k}" style="${round===3&&(k==="1"||k==="2")?"color:#ffd0d0":""}">${l}</button>`).join("")}</div>`:`<div class="gm-row2"><button class="tl-act" id="gmOn">${pl+1<P.length?`Next: ${esc(P[pl+1])}`:round<3?"Next round":"On to the pyramid"}</button></div>`}`;}
     else if(phase===2){const rows=[[0,1,2,3],[4,5,6],[7,8],[9]].reverse();
-      h=`<div class="gm-big">The pyramid</div><div class="gm-pyr">${rows.map(r=>`<div>${r.map(i=>cardH(i<pi?pyr[i]:-1,"mid")).join("")}</div>`).join("")}</div>
+      h=`<div class="gm-big">The pyramid</div><div class="gm-pyr">${rows.map(r=>`<div>${r.map(i=>cardH(i<pi?pyr[i]:-1,"mid"+(i===pi-1?" flipin":""))).join("")}</div>`).join("")}</div>
         <div class="gm-status over" style="text-align:center">${msg||"Turn the cards one by one. Row 1 = 1 sip, top = 4 sips."}</div>
         <div class="gm-row2">${pi<10?`<button class="tl-act" id="gmFlip">Turn a card (${pRow(pi)} sip${pRow(pi)>1?"s":""})</button>`:`<button class="tl-act" id="gmBus">Who takes the bus?</button>`}</div>
         <details class="gm-drink"><summary>Cards in hand</summary>${P.map((n,i)=>`<div><b>${esc(n)}</b> ${hands[i].map(cName).join(" ")||"none"}</div>`).join("")}</details>`;}
     else{h=`<div class="gm-big">🚌 ${esc(P[rider])} takes the bus</div><div class="gm-sub">${bi>=bus.length-1?"":"Higher or lower than the last card?"}</div>
-        <div class="gm-hand">${bus.map((c,i)=>cardH(i<=bi?c:-1,"mid")).join("")}</div><div class="gm-status over" style="text-align:center">${msg}</div>
+        <div class="gm-hand">${bus.map((c,i)=>cardH(i<=bi?c:-1,"mid"+(i===bi&&bi>0?" flipin":""))).join("")}</div><div class="gm-status over" style="text-align:center">${msg}</div>
         <div class="gm-row2">${bi<bus.length-1?`<button class="tl-act" data-b="1">▲ Higher</button><button class="tl-act" data-b="-1">▼ Lower</button>`:`<button class="tl-act" id="gmAgain">New game</button>`}</div>`;}
     EL.innerHTML=backRow()+`<div class="gm-title">🚌 The bus</div>`+h;wireBack();
     EL.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{tapv();const c=deck.pop(),ok=judge(round,b.dataset.a,c,hands[pl]);reveal=c;msg=ok?"✅ Right!":`❌ ${esc(P[pl])} drinks ${round+1}`;draw();});
@@ -819,7 +853,9 @@ function busRun(P){const R=rng(Date.now()&0xffffffff);let deck=shuffle([...Array
 
 /* ================= Wildlings lives in mon.js ================= */
 function withMon(f){if(window.MON)return f();const sc=document.createElement("script");sc.src=location.protocol==="file:"?"mon.js":"mon.js?v="+(typeof APP_VERSION!=="undefined"?APP_VERSION:"");
-  sc.onload=()=>{try{MON.init({EL:()=>EL,back:backRow,wireBack,friendMenu,stopAll,hub,esc,tapv,rng,shuffle,h2,bytes,store,save,toast:toastG,setLink:l=>{LINK=l;},getLink:()=>LINK,MYNAME});f();}catch(e){EL.innerHTML=`<p class="sv-note">Wildlings couldn't start: ${esc(e.message)}</p>`;}};
+  sc.onload=()=>{try{MON.init({EL:()=>EL,SHELL:()=>SHELL,shell,onBack,leaveAsk,leaveRoom,confetti,stopAll,hub,esc,tapv,rng,shuffle,store,save,toast:toastG,MYNAME,
+    roomMenu:k=>withRoom(()=>roomMenu(k)),
+    inviteRoom:(k,G,to)=>{if(typeof isOffline==="function"&&isOffline()){toastG("📴 You're offline: use Bluetooth from Team → Battle a friend");return openMon();}withRoom(()=>{ROOMR=ROOMS.host(Object.assign(roomCallbacks(k),{mode:"net",name:G.me.name||MYNAME(),G,to}));lobbyView(ROOMR,k);});}});f();}catch(e){EL.innerHTML=`<p class="sv-note">Wildlings couldn't start: ${esc(e.message)}</p>`;}};
   sc.onerror=()=>{EL.innerHTML=backRow()+`<p class="sv-note">Wildlings couldn't load.</p>`;wireBack();};document.head.appendChild(sc);}
 function openMon(){withMon(()=>MON.home());}
 

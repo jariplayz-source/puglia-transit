@@ -1856,9 +1856,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.32";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.33";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.33","Driving: the map zooms in closer like Google Maps (further out at motorway speed) with a thicker route line, and no more 'take the exit and get straight back on' detours. Offline maps in Italy: every province and every province capital, not only Puglia. Games: the horse race is animated. New (test version): Wildlings on the real map, with stops, 8 gyms and an Elite Four in every province, trainers, evolutions, an intro, and battling or trading with your circle within 100 m."],
  ["1.32","Games for 2 to 8 players over Bluetooth or online, without getting stuck: Pesten, the drinking games on everyone's own phone, Faker, Werewolves and Shards, a card battle with your own champion. Full-screen games with animations. The Moon sits exactly right on the star map again."],
  ["1.31","Star map: line it up with the Moon or a bright star (🎯) for a spot-on sky, pinch to fit the camera, and a new look in every style with the Milky Way and a soft horizon."],
  ["1.30","Star map in Tools: point your phone at the sky and see stars, constellations, planets and the Moon, over your camera if you like. Shift the time, search with an arrow that shows the way, and a guide to finding your way by the stars."],
@@ -2232,7 +2233,7 @@ function wildStep(lat,lon,acc){try{if(acc>80||localStorage.getItem("pt-wfoff")==
     W.f.push({ts:now,ll:[+lat.toFixed(4),+lon.toFixed(4)],night:h>=21||h<6,fast:kmh>35,town:(typeof placeOf==="function"?String(placeOf([lat,lon])||""):"").replace(/^in /,"").slice(0,30),k:Math.floor(Math.random()*1e6)});
     if(now-(W.toast||0)>2*3600e3){W.toast=now;setTimeout(()=>toast("🌿 A Wildling is hiding along your route: Group → Games → Wildlings"),800);}}
   localStorage.setItem("pt-wfind",JSON.stringify(W));}catch(e){}}
-window.onNativeLocation=(lat,lon,acc,b)=>{saveLastLL(lat,lon,acc);wildStep(lat,lon,acc||50);gpsBearing=(b!=null&&b>=0)?b:null;onLocation(lat,lon,acc);if(walking)walkUpdate();lastWarn();};
+window.onNativeLocation=(lat,lon,acc,b)=>{navSpeed(lat,lon,acc);saveLastLL(lat,lon,acc);gpsBearing=(b!=null&&b>=0)?b:null;onLocation(lat,lon,acc);if(walking)walkUpdate();lastWarn();};
 window.onNativeHeading=deg=>{if(TL_HEAD)TL_HEAD(deg);heading=deg;updatePanel();if(mode==="street"){updateStreetHeading();headingTick();}if(walking)walkUpdate();};
 function startGPS(){
   gpsOn=true;document.getElementById("m-gps").classList.add("on");updatePanel();
@@ -2409,6 +2410,23 @@ function checkBaseMap(){
     const r=d.querySelector("#baseRetry");if(r)r.onclick=()=>{baseFixAt=0;checkBaseMap();};}
 }
 if(window.AndroidMaps&&window.AndroidMaps.resetLive){try{if(localStorage.getItem("pt-tilefix")!=="1"){window.AndroidMaps.resetLive();localStorage.setItem("pt-tilefix","1");}}catch(e){}}
+/* A second map for games (Wildlings): the same tiles and offline world map as the street map, without the app's own pins.
+   Returns the map, or throws if this phone can't draw maps. */
+async function makeGameMap(container,center,zoom){
+  if(!window.maplibregl||!window.PT_STYLE){if(!document.querySelector('link[href="map/maplibre-gl.css"]')){const l=document.createElement("link");l.rel="stylesheet";l.href="map/maplibre-gl.css";document.head.appendChild(l);}
+    if(!window.maplibregl)await loadScript("map/maplibre-gl.js");if(!window.PT_STYLE)await loadScript("map/style.js");if(!window.PT_STYLE_DARK)try{await loadScript("map/style-dark.js");}catch(e){}}
+  if(typeof PT_COAST==="undefined")try{await loadScript("map/coast.js");}catch(e){}if(!window.PT_WORLD)try{await loadScript("map/world.js");}catch(e){}
+  if(!maplibregl.__pt){maplibregl.__pt=true;window.__ptProto=true;maplibregl.addProtocol("pt",async(params,ac)=>{
+    const r=await fetch(params.url.replace("pt://","https://tiles.local/").replace(/\?r=\d+$/,""),{signal:ac.signal});const buf=await r.arrayBuffer();
+    if(params.type==="json")return {data:buf.byteLength?JSON.parse(new TextDecoder().decode(buf)):{}};return {data:buf};});}
+  const lang=mapLang(),style=JSON.parse(JSON.stringify(DK()&&window.PT_STYLE_DARK?PT_STYLE_DARK:PT_STYLE).split('"name:it"').join('"name:'+lang+'"'));
+  if(typeof PT_COAST!=="undefined"){style.sources.coast={type:"geojson",data:PT_COAST};style.layers.splice(1,0,{id:"coast-land",type:"fill",source:"coast",paint:{"fill-color":DK()?"#1f1f1f":"#f2efe9"}});}
+  try{worldLayers(style,lang);}catch(e){}
+  // the game draws its own markers: hide the map's shop and sight icons, keep street names
+  style.layers=style.layers.filter(l=>!/^pois|poi/.test(l.id)||l.type!=="symbol");
+  style.layers.push({id:"gm-pois",type:"circle",source:"protomaps","source-layer":"pois",paint:{"circle-radius":1,"circle-opacity":0}});   /* invisible: keeps the places readable for the game */
+  return new maplibregl.Map({container,style,center:[center[1],center[0]],zoom:zoom||16.5,pitch:45,minZoom:12,maxZoom:19,attributionControl:{compact:true},dragRotate:true,touchPitch:false});}
+function gameGps(){if(!gpsOn)startGPS();}   /* the game needs your position; the app keeps location on the same way the map does */
 var STREET_GO=null;   // where the street map should open (e.g. a group member far away), instead of your own position
 async function ensureStreet(){
   if(ml){ml.resize();updateStreet();return;} if(mlLoading)return; mlLoading=true;
@@ -2449,8 +2467,8 @@ async function ensureStreet(){
     ml.addSource("acc",{type:"geojson",data:EMPTY});
     ml.addLayer({id:"acc",type:"fill",source:"acc",paint:{"fill-color":"#2f7cf6","fill-opacity":0.12}});
     ml.addSource("route",{type:"geojson",data:EMPTY});
-    ml.addLayer({id:"route-case",type:"line",source:"route",layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":DK()?"#0f1317":"#ffffff","line-width":9}});
-    ml.addLayer({id:"route",type:"line",source:"route",layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":DK()?"#5ec4f5":"#0b72a8","line-width":5.5}});
+    ml.addLayer({id:"route-case",type:"line",source:"route",layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":DK()?"#0f1317":"#ffffff","line-width":["interpolate",["exponential",1.6],["zoom"],10,5,14,8,16,12,18,20]}});
+    ml.addLayer({id:"route",type:"line",source:"route",layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":DK()?"#5ec4f5":"#0b72a8","line-width":["interpolate",["exponential",1.6],["zoom"],10,3,14,5.5,16,8.5,18,14]}});
     ml.addSource("straight",{type:"geojson",data:EMPTY});
     ml.addLayer({id:"straight",type:"line",source:"straight",paint:{"line-color":DK()?"#5ec4f5":"#0b72a8","line-width":2.5,"line-dasharray":[2,1.5],"line-opacity":0.8}});
     ml.addSource("trip-line",{type:"geojson",data:EMPTY});
@@ -2567,6 +2585,14 @@ const NL_PROV={"Drenthe":[6.11,52.61,7.10,53.20],"Flevoland":[5.12,52.25,6.03,52
 const provMB=bb=>{const km2=(bb[2]-bb[0])*111.32*Math.cos((bb[1]+bb[3])/2*Math.PI/180)*(bb[3]-bb[1])*111.32;return Math.round(km2*0.009/10)*10||10;};
 function provOf(lat,lon){for(const k in NL_PROV){const b=NL_PROV[k];if(lon>=b[0]&&lon<=b[2]&&lat>=b[1]&&lat<=b[3])return k;}return null;}
 let provSure=null;
+/* provinces you can download whole: the Netherlands built in, Italy (every province) from provinces.js, loaded the first time it's needed */
+function provTable(){const c=curCountry();if(c==="nl")return NL_PROV;if(c!=="it")return null;
+  if(!window.PT_PROV){if(!provTable.ld){provTable.ld=1;loadScript("provinces.js").then(()=>renderAreas()).catch(()=>{});}return null;}
+  const o={};PT_PROV.filter(p=>p.c==="it").sort((a,b)=>a.n.localeCompare(b.n)).forEach(p=>o[p.n]=p.b);return o;}
+function inRingLL(x,y,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const a=r[i],b=r[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c;}return c;}
+function provAtLL(lat,lon){if(curCountry()==="it"&&window.PT_PROV){const p=PT_PROV.find(p=>p.c==="it"&&p.p.some(r=>inRingLL(lon,lat,r)));return p?p.n:null;}return provOf(lat,lon);}
+// in Italy, besides the Puglia towns: the capital of every province
+function itCapitals(){const o={};if(window.PT_PROV)for(const p of PT_PROV)if(p.c==="it"&&p.e[2])o[p.e[2]]=[p.e[0],p.e[1]];return o;}
 const llBox=(p,dl)=>{dl=dl||0.036;const dn=dl/Math.cos(p[0]*Math.PI/180);return [p[1]-dn,p[0]-dl,p[1]+dn,p[0]+dl];};
 function areaPlaceName(lat,lon){if(pugliaOn()){const n=nearestTown();if(n)return n;}let best=null,bd=1e9;for(const k in NL_TOWNS){const d=hav([lat,lon],NL_TOWNS[k]);if(d<bd){bd=d;best=k;}}
   return bd<15?best:(typeof hereName==="function"&&hereName())||`${lat.toFixed(2)}, ${lon.toFixed(2)}`;}
@@ -2574,7 +2600,7 @@ function renderAreas(){
   const box=document.getElementById("areasBox");if(!box||!HAS_MAPS())return;
   let s={areas:[],used:0,busy:false};try{s=JSON.parse(window.AndroidMaps.summary());}catch(e){}
   const mine=s.areas.filter(a=>!String(a.id).startsWith("overview")), ovs=s.areas.filter(a=>String(a.id).startsWith("overview"));
-  const it=pugliaOn(),towns=it?Object.keys(PT).filter(n=>!MINOR.has(n)&&!/Airport/.test(n)).sort():Object.keys(NL_TOWNS);
+  const it=pugliaOn(),CAPS=it?itCapitals():{},towns=it?[...new Set(Object.keys(PT).filter(n=>!MINOR.has(n)&&!/Airport/.test(n)).concat(Object.keys(CAPS)))].sort():Object.keys(NL_TOWNS),PTAB=provTable();
   const home=typeof NLHOME!=="undefined"&&NLHOME?NLHOME:null,near=me?areaPlaceName(me.lat,me.lon):null;
   box.innerHTML=`<div class="trip-h"><div class="dest">📥 My map areas</div><span class="badge">${fmtMB(s.used)} used</span></div>
     <div class="small">Saved areas stay on your phone until you delete them, and work offline. Downloading needs internet (Wi-Fi is best).</div>
@@ -2583,7 +2609,7 @@ function renderAreas(){
       :`<div class="small" style="padding:6px 0">No areas yet. Add your first one below 👇</div>`}
       ${ovs.map(ov=>`<div class="area-row"><span class="grow">${escH(ov.name)}<br><span class="small">${fmtMB(ov.bytes)} · the zoomed-out map, saved with your first area there</span></span><button data-del="${ov.id}" class="${confirmDel===ov.id?"sure":""}">${confirmDel===ov.id?"Delete?":"🗑"}</button></div>`).join("")}</div>
     <div class="add-row"><select class="np-select" id="areaTown" style="flex:1 1 100%">${!it&&home?`<option value="@home">🏠 Around home (${escH(home.name||"Home")})</option>`:""}${towns.map(n=>`<option ${n===(it?(PT[target]?target:"Lecce"):near)?"selected":""}>${n}</option>`).join("")}</select></div>
-    ${curCountry()==="nl"?`<div class="add-row" style="margin-top:10px"><select class="np-select" id="areaProv" style="flex:1 1 100%">${Object.keys(NL_PROV).map(k=>`<option value="${k}" ${k===(provSure||(me&&provOf(me.lat,me.lon))||(home&&provOf(home.lat,home.lon)))?"selected":""}>Province ${k} · about ${provMB(NL_PROV[k])} MB</option>`).join("")}</select></div>
+    ${PTAB?`<div class="add-row" style="margin-top:10px"><select class="np-select" id="areaProv" style="flex:1 1 100%">${Object.keys(PTAB).map(k=>`<option value="${k}" ${k===(provSure||(me&&provAtLL(me.lat,me.lon))||(!it&&home&&provOf(home.lat,home.lon)))?"selected":""}>Province ${k} · about ${provMB(PTAB[k])} MB</option>`).join("")}</select></div>
     <div class="add-row"><button class="btn ghost" id="dlProv">${provSure?`Tap again: download ${provSure} (Wi-Fi!)`:"⬇ Download whole province"}</button></div>
     <div class="small">A whole province: every street, works offline, also for walking and cycling routes. Big, so use Wi-Fi.</div>`:""}
     <div class="add-row"><button class="btn primary" id="dlTown">⬇ Download town</button><button class="btn ghost" id="dlHere">📍 Around me</button><button class="btn ghost" id="dlView">▣ Save this view</button></div>
@@ -2595,12 +2621,13 @@ function renderAreas(){
   if(s.busy){document.getElementById("areaProg").style.display="block";}
   const dp=box.querySelector("#dlProv");if(dp)dp.onclick=()=>{const k=box.querySelector("#areaProv").value;
     if(provSure!==k){provSure=k;renderAreas();setTimeout(()=>{if(provSure===k){provSure=null;renderAreas();}},6000);return;}
-    provSure=null;const b=NL_PROV[k];pendingDl={id:"prov-"+slug(k),name:"Province "+k};mapBusy=true;setTimeout(bgSync,0);
+    provSure=null;const b=PTAB[k];pendingDl={id:"prov-"+slug(k),name:"Province "+k};mapBusy=true;setTimeout(bgSync,0);
     document.getElementById("areaProg").style.display="block";document.getElementById("areaPhase").textContent="Starting…";areasMsg("");
     window.AndroidMaps.download("prov-"+slug(k),"Province "+k,b[0],b[1],b[2],b[3],10,14);};
   box.querySelector("#dlTown").onclick=()=>{const n=box.querySelector("#areaTown").value;
     if(n==="@home"&&home)return startDownload("home-area","🏠 Around home",llBox([home.lat,home.lon],0.04));
     if(!it&&NL_TOWNS[n])return startDownload("town-"+slug(n),n,llBox(NL_TOWNS[n]));
+    if(it&&!PT[n]&&CAPS[n])return startDownload("town-"+slug(n),n,llBox(CAPS[n]));
     startDownload("town-"+slug(n),n,townBox(n));};
   box.querySelector("#dlHere").onclick=()=>{if(!me){if(!gpsOn)startGPS();areasMsg("📍 Finding your position… tap again in a moment.");return;}
     const n=areaPlaceName(me.lat,me.lon);const dl=0.018,dn=dl/Math.cos(me.lat*Math.PI/180);
@@ -2818,14 +2845,24 @@ function osrmText(s){
 function finishRoute(r){ // cumulative distances + maneuver distances
   const c=r.coords,cum=[0];for(let k=1;k<c.length;k++)cum.push(cum[k-1]+mDist(c[k-1],c[k]));r.cum=cum;return r;}
 async function onlineRoute(a,b){
-  const url=`https://routing.openstreetmap.de/${NI().url}/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
-  const j=JSON.parse(await netGet(url,NAVM==="car"?15000:9000));
+  // while driving: tell the router which way you're going, so it doesn't snap you onto the other side of the motorway and send you off and back on
+  const brg=NAVM==="car"&&gpsBearing!=null&&NAV_KMH>12?`&bearings=${Math.round(gpsBearing)%360},50;&radiuses=60;unlimited`:"";
+  const url=`https://routing.openstreetmap.de/${NI().url}/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true${brg}`;
+  let j;try{j=JSON.parse(await netGet(url,NAVM==="car"?15000:9000));if(brg&&(!j.routes||!j.routes.length))throw new Error("x");}
+  catch(e){if(!brg)throw e;j=JSON.parse(await netGet(url.replace(brg,""),15000));}   // no road that way within 60 m: ask without the direction
   if(!j.routes||!j.routes.length)throw new Error("no route");
-  const R=j.routes[0],coords=R.geometry.coordinates,man=[];
+  const R=j.routes[0],coords=R.geometry.coordinates,man=[],steps=[];
   for(const leg of R.legs)for(const s of leg.steps){const loc=s.maneuver.location;let bi=0,bd=1e9;
-    for(let k=0;k<coords.length;k++){const d=Math.abs(coords[k][0]-loc[0])+Math.abs(coords[k][1]-loc[1]);if(d<bd){bd=d;bi=k;}}
-    if(s.maneuver.type!=="arrive")man.push({i:s.maneuver.type==="depart"?-1:bi,text:osrmText(s)});}
-  return finishRoute({ok:true,src:"online",coords:[[a[1],a[0]],...coords,[b[1],b[0]]].filter((p,k,arr)=>k===0||mDist(arr[k-1],p)>0.5),meters:R.distance,sec:R.duration,mode:NAVM,man:man.map(m=>({...m,i:m.i+1}))});
+    for(let k=0;k<coords.length;k++){const d=Math.abs(coords[k][0]-loc[0])+Math.abs(coords[k][1]-loc[1]);if(d<bd){bd=d;bi=k;}}steps.push({s,bi});}
+  // the open router sometimes takes you off the motorway through a service area or along the slip roads and straight back on:
+  // keep driving on the motorway there (no "take the exit"), and don't count it as leaving the route
+  const road=x=>String((x&&(x.ref||x.name))||"").split(";")[0].trim().toLowerCase(),detours=[],skip=new Set();
+  for(let i=1;i<steps.length;i++){const t=steps[i].s.maneuver.type;if(t!=="off ramp")continue;
+    const from=road(steps[i-1].s);if(!from)continue;let d=0;
+    for(let k=i;k<steps.length&&d<4000;k++){d+=steps[k].s.distance||0;const tk=steps[k].s.maneuver.type;
+      if(k>i&&(tk==="on ramp"||tk==="merge"||tk==="fork"||tk==="continue"||tk==="new name")&&road(steps[k].s)===from){for(let q=i;q<k;q++)skip.add(q);if(tk==="merge"||tk==="on ramp")skip.add(k);detours.push([steps[i].bi,steps[k].bi]);break;}}}
+  steps.forEach(({s,bi},i)=>{if(s.maneuver.type!=="arrive"&&!skip.has(i))man.push({i:s.maneuver.type==="depart"?-1:bi,text:osrmText(s)});});
+  return finishRoute({ok:true,src:"online",coords:[[a[1],a[0]],...coords,[b[1],b[0]]].filter((p,k,arr)=>k===0||mDist(arr[k-1],p)>0.5),meters:R.distance,sec:R.duration,mode:NAVM,man:man.map(m=>({...m,i:m.i+1})),detours:detours.map(([x,y])=>[x+1,y+1])});
 }
 async function computeRoute(force){
   const t=T_LL(target);
@@ -2888,6 +2925,10 @@ function snapRoute(){
 }
 const routeLeftM=()=>{const s=snapRoute();return s?s.remain+Math.min(s.off,60):(route&&route.meters)||0;};
 let lastReroute=0;
+/* driving speed from the last fixes (smoothed), so the map can zoom out a bit on the motorway like Google Maps does */
+let NAV_KMH=0,NAV_LAST=null;
+function navSpeed(lat,lon,acc){const t=Date.now();if(NAV_LAST&&acc<60){const dt=(t-NAV_LAST[2])/1000;if(dt>=1){const v=hav([NAV_LAST[0],NAV_LAST[1]],[lat,lon])/dt*3600;if(v<250)NAV_KMH=NAV_KMH*0.6+v*0.4;NAV_LAST=[lat,lon,t];}}else NAV_LAST=[lat,lon,t];}
+function carZoom(){const v=NAV_KMH;return v<35?17.8:v<60?17.3:v<90?16.8:16.3;}
 /* ---------- HOW YOU TRAVEL: walk, bike or drive (like Google Maps). Routes from the open OSRM servers of FOSSGIS (routing.openstreetmap.de). ---------- */
 const NAV_INFO={foot:{ic:"🚶",go:"Walk",ing:"walking",url:"routed-foot/route/v1/foot",far:15,kmh:4.8,arrive:20,off:25,zoom:18,pitch:50,say:[40]},
   bike:{ic:"🚲",go:"Bike",ing:"cycling",url:"routed-bike/route/v1/driving",far:80,kmh:15,arrive:25,off:30,zoom:17,pitch:50,say:[150,40]},
@@ -2906,7 +2947,9 @@ function navVoiceTick(n){if(!n||!route||!route.ok)return;const key=n.text,S=NI()
   for(const th of S){if(n.dist<=th&&!navSaid[key][th]){navSaid[key][th]=1;for(const t2 of S)if(t2>th)navSaid[key][t2]=1;
     navSay(n.arrive?(n.dist<60?"You have arrived":`In ${spokenM(n.dist)}, you arrive`):th===S[S.length-1]?n.text:`In ${spokenM(n.dist)}, ${n.text.charAt(0).toLowerCase()+n.text.slice(1)}`);break;}}}
 const spokenM=m=>m>=950?(m/1000).toFixed(1).replace(".0","")+" kilometres":(Math.round(m/50)*50||Math.round(m/10)*10)+" metres";
-function offRoute(){if(!route||!route.ok||!me)return false;const s=snapRoute();if(s)return s.off>(walking?NI().off:Math.max(35,NI().off));const K=111320,C=Math.cos(me.lat*Math.PI/180),p=[me.lon*K*C,me.lat*K];
+function offRoute(){if(!route||!route.ok||!me)return false;const s=snapRoute();
+  if(s&&route.detours&&route.detours.some(([x,y])=>s.k>=x-3&&s.k<=y+3)&&s.off<300)return false;   // passing a detour the router made: staying on the motorway is fine
+  if(s){if(s.off>(walking?NI().off:Math.max(35,NI().off))){const fx=me.lat+","+me.lon;if(offRoute.fx!==fx){offRoute.fx=fx;offRoute.n=(offRoute.n||0)+1;}return offRoute.n>=(NAVM==="car"?2:1);}offRoute.n=0;return false;}const K=111320,C=Math.cos(me.lat*Math.PI/180),p=[me.lon*K*C,me.lat*K];
   let best=1e9;for(let k=0;k+1<route.coords.length;k++){const a=[route.coords[k][0]*K*C,route.coords[k][1]*K],b=[route.coords[k+1][0]*K*C,route.coords[k+1][1]*K];
     const dx=b[0]-a[0],dy=b[1]-a[1],L2=dx*dx+dy*dy;let t=L2?((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L2:0;t=Math.max(0,Math.min(1,t));best=Math.min(best,Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy));}
   return best>(walking?25:35);}
@@ -3752,7 +3795,7 @@ function walkUpdate(force){
   if(follow&&me&&(force||Date.now()-lastEase>300)){
     lastEase=Date.now();
     const hd=gpsBearing!=null?gpsBearing:(heading!=null?heading:(ml?ml.getBearing():0));
-    if(ml)ml.easeTo({center:[me.lon,me.lat],zoom:NAVM==="foot"?Math.max(ml.getZoom(),18):NI().zoom,pitch:NI().pitch,bearing:hd,padding:{top:Math.round(ml.getContainer().clientHeight*0.38),bottom:0,left:0,right:0},duration:force?800:350});
+    if(ml)ml.easeTo({center:[me.lon,me.lat],zoom:NAVM==="foot"?Math.max(ml.getZoom(),18):NAVM==="car"?carZoom():NI().zoom,pitch:NAVM==="car"?(NAV_KMH>80?58:62):NI().pitch,bearing:hd,padding:{top:Math.round(ml.getContainer().clientHeight*0.38),bottom:0,left:0,right:0},duration:force?800:350});
     else{const [x,y]=proj(me.lat,me.lon);vb=[x-3,y-2.6,6,5.3];drawMap();}
   }
 }
