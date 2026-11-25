@@ -105,7 +105,8 @@ function doAct(S,k,a){const t=a[0],nm=S.names[k];
       say(S,`${nm} plays ${c[1]}`);if(c[7]&&TARGET[c[7]]!==undefined||["draw1"].includes(c[7]))effect(S,k,c[7],a[2],u);}
     else{say(S,`${nm} casts ${c[1]}`);const tu=a[2]?U(S,a[2]):null;effect(S,k,c[7],a[2]);fx(S,{k:"spl",c:ci,o:k,tc:tu?tu.c:-1,tid:tu?tu.id:-1,kill:!!(tu&&!S.units.includes(tu)),fd:TARGET[c[7]]==="field"?a[2]:0});}
     return;}
-  if(t===3){const ch=CHAMP[S.dom[k]];spend(S,k,ch.ac);S.abUsed=true;say(S,`${nm} uses ${ch.ab}`);const u=U(S,a[1]);
+  if(t===3){const ch=CHAMP[S.dom[k]];spend(S,k,ch.ac);S.abUsed=true;const u=U(S,a[1]),un=u?C[IDS[u.c]][1]:"";
+    say(S,`${nm} uses ${ch.ab}: `+({E:`1 damage to ${un}`,T:"draws a card",G:`${un} gets +1 might for good`,S:`${un} may move again this turn`})[S.dom[k]]);
     if(S.dom[k]==="E"&&u)damage(S,u,1);if(S.dom[k]==="T")draw(S,k,1);if(S.dom[k]==="G"&&u)u.m+=1;if(S.dom[k]==="S"&&u)u.moves=u.moved+1;return;}
   if(t===2){const u=U(S,a[1]),d=a[2];u.loc=d;u.moved++;if(d===0){say(S,`${nm} pulls ${C[IDS[u.c]][1]} back to base`);return;}
     const foes=at(S,d,1-k);if(foes.length){S.bt={d,att:k,pr:k,passes:0};say(S,`⚔ ${nm} attacks ${BFN[d-1]}: ${S.names[1-k]} may respond`);btNext(S);}else{const had=S.ctrl[d-1];conquer(S,k,d,u);if(had!==k)fx(S,{k:"con",c:u.c,o:k,d});}}}
@@ -207,6 +208,7 @@ const CSS=`.sh{display:flex;flex-direction:column;gap:6px;height:100%}
 .sd-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sd-pick button{border:0;border-radius:18px;padding:12px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:150px;box-shadow:0 4px 12px rgba(0,0,0,.25);position:relative;overflow:hidden}
 .sd-pick b{font-size:17px;position:relative}.sd-pick img{position:absolute;right:-14px;top:-6px;width:110px;height:110px;object-fit:contain;opacity:.95}.sd-pick small{opacity:.92;font-size:12px;line-height:1.3;position:relative;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .sd-bf.clash{box-shadow:inset 0 0 0 3px #ff4d6d,0 0 18px rgba(255,77,109,.6);animation:shclash 1s infinite}@keyframes shclash{50%{box-shadow:inset 0 0 0 3px transparent,0 0 6px rgba(255,77,109,.2)}}
+.sd-champ{border:0;background:none;color:inherit;font:inherit;padding:0;display:inline-flex;gap:4px;align-items:center}
 .sd-flash{animation:shflash .9s}@keyframes shflash{30%{background:rgba(242,178,51,.45)}}
 .sd-ov{position:fixed;inset:0;z-index:300;background:rgba(10,8,20,.72);display:flex;align-items:flex-end;justify-content:center;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
 .sd-sheet{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:20px;padding:14px 14px 12px;animation:sdup .25s ease-out}@keyframes sdup{from{transform:translateY(40px);opacity:0}}
@@ -231,8 +233,9 @@ const HELP=`<h3>How to play Shards</h3>
   <li><b>Play cards</b> from your hand: tap a card to read it, then <i>Play</i>. The number in the gold circle is what it costs. Cards you can play glow green.
     <br>• <b>Units</b> (they have might, the number bottom-right) arrive in <b>your base</b>, at the bottom.<br>• <b>Spells</b> do something once and are gone.</li>
   <li><b>Move units</b>: tap one of your units (ready ones pulse green), then tap a battlefield. Each unit moves once per turn. A unit you just played has to wait a turn, unless it's <b>Swift »</b>.</li>
-  <li><b>Champion ability</b>: the button next to End turn. Once per turn, costs energy.</li>
+  <li><b>Champion ability</b>: the button next to End turn. Once per turn, costs energy. Tap a player's name (ⓘ) to read their champion.</li>
   <li><b>End turn</b> when you're done. Damage heals and units can move again next turn.</li></ol>
+  <h4>Champions and their abilities</h4><ul>${"ETGS".split("").map(d=>`<li>${DOM[d][2]} <b>${CHAMP[d].n}</b>: <i>${CHAMP[d].ab}</i> (${CHAMP[d].ac}⚡): ${CHAMP[d].at}</li>`).join("")}</ul>
   <h4>Battlefields and points</h4><ul>
   <li>Move onto a battlefield nobody holds, or beat everyone there: you <b>conquer</b> it, <b>+1 point</b> 🟢.</li>
   <li>Still holding it (with a unit there) at the start of your next turn: <b>+1 point</b> again.</li>
@@ -325,19 +328,19 @@ function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getEle
   else if(!mine)coach=R.pending?"Sending your move…":`<b>${X.esc(S.names[S.turn])}</b> is playing. Watch the battlefields; tap any unit to see it up close.`;
   else if(sel&&sel.kind==="card"){const c=C[IDS[S.hand[me][sel.i]]];coach=TARGET[c[7]]==="field"?`<b>${X.esc(c[1])}</b>: tap a battlefield.`:`<b>${X.esc(c[1])}</b>: tap a unit with a dashed outline. Tap the card again to cancel.`;}
   else if(sel&&sel.kind==="unit")coach="Tap a battlefield to move there (or your base to pull back). Tap the unit again to cancel.";
-  else if(sel&&sel.kind==="ab")coach=`<b>${ch.ab}</b>: tap a unit with a dashed outline.`;
-  else{const st=[];if(playable)st.push(`play a card (<b>${playable}</b> glow${playable>1?"":"s"} green)`);if(movable)st.push(`move a ready unit (<b>${movable}</b> pulse${movable>1?"":"s"}) to a battlefield`);if(abOk)st.push(`use <b>${ch.ab}</b>`);
+  else if(sel&&sel.kind==="ab")coach=`<b>${ch.ab}</b>: ${ch.at} Tap a unit with a dashed outline.`;
+  else{const st=[];if(playable)st.push(`play a card (<b>${playable}</b> glow${playable>1?"":"s"} green)`);if(movable)st.push(`move a ready unit (<b>${movable}</b> pulse${movable>1?"":"s"}) to a battlefield`);if(abOk)st.push(`use <b>${ch.ab}</b> (${ch.at.replace(/\.$/,"").toLowerCase()})`);
     coach=st.length?`<b>Your turn</b> · ⚡${E}: ${st.join(", ")}. Then <b>End turn</b>.`:`<b>Your turn</b> · nothing left you can do: tap <b>End turn</b>.`;}
   EL.innerHTML=`<div class="sh">${tools}
-    <div class="sd-top">${DOM[S.dom[op]][2]} <b>${X.esc(S.names[op])}</b> ${pts(op)}<span class="sd-en">🂠 ${S.hand[op].length} · ⚡${S.energy[op]}</span></div>
+    <div class="sd-top"><button class="sd-champ" data-ch="${op}">${DOM[S.dom[op]][2]} <b>${X.esc(S.names[op])}</b> ⓘ</button> ${pts(op)}<span class="sd-en">🂠 ${S.hand[op].length} · ⚡${S.energy[op]}</span></div>
     <div class="sd-base" style="min-height:44px;opacity:.9">${at(S,0,op).map(u=>unitHtml(u,ucls(u))).join("")||`<small style="opacity:.6;align-self:center">their base</small>`}</div>
     <div class="sd-bfs">${bf(1)}${bf(2)}</div>
     <div class="sd-base ${tgtF.has(0)?"tgt":""}" data-f="0">${at(S,0,me).map(u=>unitHtml(u,ucls(u))).join("")||`<small style="opacity:.6;align-self:center">your base: units you play arrive here</small>`}</div>
-    <div class="sd-me">${DOM[S.dom[me]][2]} <b>You</b> ${pts(me)}<span class="sd-en">⚡ ${E} energy · 🂠 ${S.deck[me].length} in deck</span></div>
+    <div class="sd-me"><button class="sd-champ" data-ch="${me}">${DOM[S.dom[me]][2]} <b>You</b> ⓘ</button> ${pts(me)}<span class="sd-en">⚡ ${E} energy · 🂠 ${S.deck[me].length} in deck</span></div>
     <div class="sd-coach">${coach}</div>
     <div class="sd-log" id="shLog">${X.esc(S.ev[S.ev.length-1]||"")}${S.ev.length?" · tap for history":""}</div>
     <div class="sd-hand">${S.hand[me].map((ci,i)=>{const ok=canPlay(i);return cardHtml(ci,`${act?(ok?"ok":"no"):""} ${sel&&sel.kind==="card"&&sel.i===i?"sel":""}`,`data-h="${i}"`);}).join("")}</div>
-    <div class="sd-acts">${S.win>=0?(R.host?`<button class="tl-act" id="shAgain">Play again</button>`:""):react?`<button class="tl-act" id="shPass">Pass: let them fight</button>`:mine?`<button class="tl-act ghost" id="shAb" ${abOk?"":"disabled"}>${ch.ab} (${ch.ac}⚡)</button><button class="tl-act" id="shEnd">End turn</button>`:`<span class="sv-note" style="flex:1;text-align:center">${R.pending?"Sending…":X.esc(S.names[S.turn])+"'s turn…"}</span>`}</div></div>`;
+    <div class="sd-acts">${S.win>=0?(R.host?`<button class="tl-act" id="shAgain">Play again</button>`:""):react?`<button class="tl-act" id="shPass">Pass: let them fight</button>`:mine?`<button class="tl-act ghost" id="shAb" ${abOk?"":"disabled"} style="line-height:1.15">${ch.ab} · ${ch.ac}⚡<br><small style="font-weight:500;font-size:11px;opacity:.85">${ch.at}</small></button><button class="tl-act" id="shEnd">End turn</button>`:`<span class="sv-note" style="flex:1;text-align:center">${R.pending?"Sending…":X.esc(S.names[S.turn])+"'s turn…"}</span>`}</div></div>`;
   wireTools();
   if(S.flash)view.fl=R.log.length;
   const prev=view.pos&&view.R===R?view.pos:{};const now={};EL.querySelectorAll("[data-u]").forEach(e=>{now[e.dataset.u]=e.getBoundingClientRect();if(prev[e.dataset.u]){const p=prev[e.dataset.u],r=now[e.dataset.u];if(Math.abs(p.left-r.left)+Math.abs(p.top-r.top)>4)X.animateFrom(e,p,380);}});
@@ -345,6 +348,9 @@ function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getEle
   if(S.win>=0&&view.won!==R.log.length){view.won=R.log.length;if(S.win===me)X.confetti();}
   playFx(R,S,me,EL,prev);
   const go=a=>{view.sel=null;closeOverlays();R.act(a);};const reselect=s=>{view.sel=s;view(R);};
+  EL.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>{X.tapv();const k=+b.dataset.ch,d=S.dom[k],c=CHAMP[d];
+    overlay(`<h3>${DOM[d][2]} ${X.esc(c.n)}</h3><p>${k===me?"Your":X.esc(S.names[k])+"'s"} champion · ${DOM[d][0]}: ${DOM[d][3]}</p>
+      <h4>Ability: ${c.ab}</h4><p><b>${c.at}</b></p><p class="sv-note">Costs ${c.ac}⚡, once per turn, on your own turn. Use it with the ${c.ab} button next to End turn${c.tg?", then tap the unit":""}.</p>`);});
   EL.querySelector("#shLog").onclick=()=>overlay(`<h3>What happened</h3><ul>${S.ev.slice().reverse().map(t=>`<li>${X.esc(t)}</li>`).join("")}</ul>`);
   // a card: read it first, then play it
   EL.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{X.tapv();const i=+b.dataset.h,ci=S.hand[me][i],c=C[IDS[ci]];

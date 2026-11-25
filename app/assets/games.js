@@ -165,7 +165,7 @@ window.GAME_IN=function(G,env){
   if(env.k==="acc"&&ACCEPT_WAIT&&env.sid===ACCEPT_WAIT.sid&&env.from===ACCEPT_WAIT.peer){const w=ACCEPT_WAIT;ACCEPT_WAIT=null;w.onAcc(G,env);return;}
   if(env.k==="no"&&ACCEPT_WAIT&&env.sid===ACCEPT_WAIT.sid){ACCEPT_WAIT=null;toastG(`${env.name} can't play right now`);if(HUB_REDRAW)HUB_REDRAW();return;}
   NET.got(env);};
-const GNAME={pesten:"Pesten",mon:"a Wildlings battle",trade:"a Wildlings trade",mb:"a Wildlings battle",mt:"a Wildlings trade",race:"Horse race",kings:"Kingsen",hl:"Higher or lower",bus:"The bus",faker:"Faker",wolves:"Werewolves",tcg:"Shards"};
+const GNAME={pesten:"Pesten",mon:"a Wildlings battle",trade:"a Wildlings trade",rpg:"a Questbook adventure",mb:"a Wildlings battle",mt:"a Wildlings trade",race:"Horse race",kings:"Kingsen",hl:"Higher or lower",bus:"The bus",faker:"Faker",wolves:"Werewolves",tcg:"Shards"};
 
 /* A link the games use, whatever is underneath: {kind, role (0 starts), peerName, send(t,hex), on, close()} */
 function btLink(role,peerName){const L={kind:"bt",role,peerName,on:null,send:(t,d)=>GL.send(t,d),close(){GL.send(4,"");setTimeout(()=>GL.stop(),700);},status:()=>GL.seen&&Date.now()-GL.seen>12000?"⚠ Lost your friend: come closer":"📶 "+peerName};
@@ -176,7 +176,7 @@ function netLink(G,sid,peer,peerName,role){const s=NET.start(G,sid,peer,peerName
 
 /* ---------------- hub ---------------- */
 let EL=null,T=null,LINK=null;
-function stopAll(){try{if(window.SHARDS&&SHARDS.stop)SHARDS.stop();}catch(e){}leaveRoom();clearInterval(pestenView.t);clearInterval(lobbyView.t);if(LINK){try{LINK.close();}catch(e){}LINK=null;}GL.stop();NET.stop();ACCEPT_WAIT=null;clearInterval(AUTO);AUTO=0;try{window.MON&&MON.stop();}catch(e){}}
+function stopAll(){try{if(window.SHARDS&&SHARDS.stop)SHARDS.stop();if(window.RPG&&RPG.stop)RPG.stop();}catch(e){}leaveRoom();clearInterval(pestenView.t);clearInterval(lobbyView.t);if(LINK){try{LINK.close();}catch(e){}LINK=null;}GL.stop();NET.stop();ACCEPT_WAIT=null;clearInterval(AUTO);AUTO=0;try{window.MON&&MON.stop();}catch(e){}}
 let AUTO=0;
 // older screens: the header's back button goes to the games list; extra (a connection note) shows in the header
 const backRow=(extra)=>{shell("Games","",false);if(extra){const d=document.createElement("div");d.innerHTML=extra;setStatus(d.textContent);}return "";};
@@ -186,6 +186,7 @@ function hub(){stopAll();if(SHELL)SHELL.classList.remove("ww-night","ww");shell(
   const inv=INV();
   EL.innerHTML=`<div id="gmHub">${inv.map(x=>`<div class="gm-inv"><span>🎮</span><b>${esc(x.name)} invites you to ${esc(GNAME[x.game]||"play")}</b><button class="tl-act" data-acc="${esc(x.sid)}" style="flex:none;padding:10px 14px">Play</button><button class="tl-act ghost" data-dec="${esc(x.sid)}" style="flex:none;padding:10px 12px">✕</button></div>`).join("")}
     <div class="gm-grid"><button class="gm-card wide" data-g="mon"><span>🌿</span><div><b>Wildlings</b> <small style="background:#e0531f;color:#fff;border-radius:6px;padding:1px 6px;font-weight:700">TEST</small><br><small>Walk around the real map to catch creatures, spin stops for supplies and beat the Wardens at landmarks for 8 badges. Battle and trade with your circle within 100 m.</small></div></button></div>
+    <div class="gm-grid" style="margin-top:10px"><button class="gm-card wide" data-g="rpg" style="background:linear-gradient(135deg,#6b3f1e,#1d1430)"><span>🎲</span><div><b>Questbook</b><br><small>A story adventure with dice: the phone is the game master. Choose, roll the d20, help each other and fight together. Alone or 2 to 4 heroes, each on their own phone.</small></div></button></div>
     <div class="gm-grid" style="margin-top:10px"><button class="gm-card wide" data-g="tcg" style="background:linear-gradient(135deg,#3a2a7a,#14182c)"><span>💎</span><div><b>Shards</b><br><small>A card battle: pick a champion, send units to the battlefields, first to 10 points wins. Against the phone or a friend.</small></div></button></div>
     <div class="tl-sec">Party games</div>
     <div class="gm-grid"><button class="gm-card" data-g="wolves"><span>🐺</span><b>Werewolves</b><small>Secret roles, a night and a day. 5–8 players</small></button><button class="gm-card" data-g="faker"><span>🤫</span><b>Faker</b><small>Everyone gets a task, except one. Who's faking? 3–8 players</small></button></div>
@@ -197,7 +198,7 @@ function hub(){stopAll();if(SHELL)SHELL.classList.remove("ww-night","ww");shell(
       <button class="gm-card" data-g="hl"><span>↕️</span><b>Higher or lower</b><small>Drinking game: guess the next card</small></button>
       <button class="gm-card" data-g="bus"><span>🚌</span><b>The bus</b><small>Drinking game: 4 questions, the pyramid, then someone rides the bus</small></button>
     </div><p class="sv-note">Everything works without internet. Bluetooth reaches about 10 to 20 metres and needs no pairing: one phone shows a code, the other types it in.</p></div>`;
-  EL.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{tapv();const g=b.dataset.g;({mon:openMon,pesten:pestenMenu,race:()=>roomMenu("race"),kings:()=>roomMenu("kings"),hl:()=>roomMenu("hl"),bus:()=>roomMenu("bus"),tcg:()=>withRoom(()=>roomMenu("tcg",`<p class="sv-note">Pick one of four champions, each with its own deck of 30 cards. Play units and spells with your energy, move units onto the two battlefields: conquer one for a point, and hold it for another point at the start of each of your turns. First to 10 points wins.</p>`)),wolves:()=>roomMenu("wolves",`<p class="sv-note">Everyone on their own phone, sitting together. The phone is the narrator: no game master needed.</p>`),faker:()=>roomMenu("faker",`<p class="sv-note">Everyone plays on their own phone. Sit together (or video call), because the tasks are done for real.</p>`)})[g]();});
+  EL.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{tapv();const g=b.dataset.g;({mon:openMon,pesten:pestenMenu,race:()=>roomMenu("race"),kings:()=>roomMenu("kings"),hl:()=>roomMenu("hl"),bus:()=>roomMenu("bus"),rpg:()=>withRoom(()=>roomMenu("rpg",`<p class="sv-note">The phone is the game master and tells the story. Each of you picks a hero, chooses what to do, and rolls a d20 to see if it works. Everyone on their own phone, or alone with computer heroes.</p>`)),tcg:()=>withRoom(()=>roomMenu("tcg",`<p class="sv-note">Pick one of four champions, each with its own deck of 30 cards. Play units and spells with your energy, move units onto the two battlefields: conquer one for a point, and hold it for another point at the start of each of your turns. First to 10 points wins.</p>`)),wolves:()=>roomMenu("wolves",`<p class="sv-note">Everyone on their own phone, sitting together. The phone is the narrator: no game master needed.</p>`),faker:()=>roomMenu("faker",`<p class="sv-note">Everyone plays on their own phone. Sit together (or video call), because the tasks are done for real.</p>`)})[g]();});
   EL.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{tapv();acceptInv(b.dataset.acc);});
   EL.querySelectorAll("[data-dec]").forEach(b=>b.onclick=()=>{const x=INV().find(i=>i.sid===b.dataset.dec);save("pt-ginv",INV().filter(i=>i.sid!==b.dataset.dec));
     if(x){const G=(typeof gGroups==="function"?gGroups():[]).find(g=>g.id===x.g);if(G)gPublish({ty:"game",k:"no",sid:x.sid,to:x.from},null,G).catch(()=>{});}hub();});}
@@ -565,12 +566,15 @@ const RG={pesten:{def:PESTEN_DEF,title:"Pesten",view:(R)=>pestenView(R),opts:()=
   faker:{def:FAKER_DEF,title:"Faker",view:R=>fakerView(R),opts:()=>[]},
   wolves:{def:WOLF_DEF,title:"Werewolves",view:R=>wolfView(R),opts:()=>[]},
   tcg:{get def(){return window.SHARDS?SHARDS.def:{min:2,max:2};},title:"Shards",view:R=>SHARDS.view(R),opts:()=>[],ai:true},
+  rpg:{get def(){return window.RPG?RPG.def:{min:1,max:4};},title:"Questbook",view:R=>RPG.view(R),opts:()=>[],ai:true,soloMin:0,soloLabel:["🧙 Play now","Alone or with up to 3 computer heroes"]},
   mb:{get def(){return window.MON?MON.MB_DEF:{min:2,max:2};},title:"Wildlings battle",view:R=>MON.mbView(R),opts:()=>[],back:()=>openMon()},
   mt:{get def(){return window.MON?MON.MT_DEF:{min:2,max:2};},title:"Wildlings trade",view:R=>MON.mtView(R),opts:()=>[],back:()=>openMon()}};
 let ROOMR=null;
 function loadJs(name,f){const sc=document.createElement("script");sc.src=location.protocol==="file:"?name:name+"?v="+(typeof APP_VERSION!=="undefined"?APP_VERSION:"");sc.onload=f;sc.onerror=()=>toastG("Couldn't load part of the games");document.head.appendChild(sc);}
 // the multiplayer part (room.js) and the card battle (shards.js) load the first time they're needed
-function withRoom(f){const go=()=>{if(window.SHARDS)return f();window.__rng=rng;window.__shuffle=shuffle;loadJs("shards.js",()=>{SHARDS.init({EL:()=>EL,shell,onBack,leaveAsk,tapv,esc,toast:toastG,animateFrom,confetti});f();});};
+function withRoom(f){const H={EL:()=>EL,shell,onBack,leaveAsk,tapv,esc,toast:toastG,animateFrom,confetti};
+  const rpg=()=>{if(window.RPG)return f();loadJs("rpg.js",()=>{RPG.init(H);f();});};
+  const go=()=>{if(window.SHARDS)return rpg();window.__rng=rng;window.__shuffle=shuffle;loadJs("shards.js",()=>{SHARDS.init(H);rpg();});};
   if(window.ROOMS)return go();loadJs("room.js",go);}
 function leaveRoom(){if(ROOMR){try{ROOMS.close(ROOMR);}catch(e){}ROOMR=null;}}
 const AI_NAMES=["🤖 Robin","🤖 Sam","🤖 Kim","🤖 Alex","🤖 Noor","🤖 Max","🤖 Lou"];
@@ -584,7 +588,7 @@ function roomCallbacks(key){const g=RG[key];
 // how do you want to play?
 function roomMenu(key,extra){const g=RG[key];shell(g.title,"",false);onBack(()=>{leaveRoom();(g.back||hub)();});
   EL.innerHTML=`${g.drink?DRINK_NOTE:""}${extra||""}<div class="gm-how">
-    ${g.ai?`<button data-m="solo"><b>🤖 Against the phone</b><small>1 to ${g.def.max-1} computer players</small></button>`:""}
+    ${g.ai?`<button data-m="solo"><b>${g.soloLabel?g.soloLabel[0]:"🤖 Against the phone"}</b><small>${g.soloLabel?g.soloLabel[1]:`1 to ${g.def.max-1} computer players`}</small></button>`:""}
     ${g.local?`<button data-m="local"><b>📱 One phone, pass it round</b><small>Everyone plays on this phone</small></button>`:""}
     <button data-m="bt"><b>📶 Host over Bluetooth</b><small>Friends next to you join with a code. No internet needed.</small></button>
     <button data-m="net"><b>🌐 Host online with your circle</b><small>Invite one or more people from your circles, wherever they are</small></button>
@@ -598,10 +602,10 @@ function roomMenu(key,extra){const g=RG[key];shell(g.title,"",false);onBack(()=>
       EL.querySelector("#gmWhy").innerHTML=`<div class="tl-why"><span>${window.AndroidTools?"Bluetooth is off or not allowed yet. Switch Bluetooth on (and allow “Nearby devices” if asked), then try again.":"Bluetooth games work in the Android app."}</span></div>`;return;}
     if(m==="bt")withRoom(()=>{ROOMR=ROOMS.host(Object.assign(roomCallbacks(key),{mode:"bt",name:MYNAME()}));if(ROOMR.error){toastG("Bluetooth didn't start: "+ROOMR.error);ROOMR=null;return;}lobbyView(ROOMR,key);});
     if(m==="join")joinCode(key);});}
-function soloSetup(key){const g=RG[key];let n=Math.min(3,g.def.max-1);const draw=()=>{shell(g.title,"",false);onBack(()=>roomMenu(key));
-  EL.innerHTML=`<div class="gm-big">Against ${n} computer player${n>1?"s":""}</div><div class="gm-row2" style="justify-content:center"><button class="tl-act ghost" id="gmM" style="flex:0 0 70px">−</button><button class="tl-act ghost" id="gmP" style="flex:0 0 70px">+</button></div>
+function soloSetup(key){const g=RG[key],lo=g.soloMin!=null?g.soloMin:1;let n=g.soloMin===0?0:Math.min(3,g.def.max-1);const draw=()=>{shell(g.title,"",false);onBack(()=>roomMenu(key));
+  EL.innerHTML=`<div class="gm-big">${key==="rpg"?(n?`You and ${n} computer hero${n>1?"es":""}`:"Just you"):`Against ${n} computer player${n>1?"s":""}`}</div><div class="gm-row2" style="justify-content:center"><button class="tl-act ghost" id="gmM" style="flex:0 0 70px">−</button><button class="tl-act ghost" id="gmP" style="flex:0 0 70px">+</button></div>
     <div class="gm-row2"><button class="tl-act" id="gmGo">Start</button></div>`;
-  EL.querySelector("#gmM").onclick=()=>{n=Math.max(1,n-1);draw();};EL.querySelector("#gmP").onclick=()=>{n=Math.min(g.def.max-1,n+1);draw();};
+  EL.querySelector("#gmM").onclick=()=>{n=Math.max(lo,n-1);draw();};EL.querySelector("#gmP").onclick=()=>{n=Math.min(g.def.max-1,n+1);draw();};
   EL.querySelector("#gmGo").onclick=()=>{tapv();withRoom(()=>{ROOMR=ROOMS.host(Object.assign(roomCallbacks(key),{mode:"solo",name:MYNAME(),ai:AI_NAMES.slice(0,n)}));ROOMR.restart(g.opts());});};};draw();}
 function netInvite(key){const g=RG[key],GS=(typeof gGroups==="function"?gGroups():[]);
   if(typeof isOffline==="function"&&isOffline()){toastG("📴 You're offline: online games need internet. Bluetooth works without.");return;}
