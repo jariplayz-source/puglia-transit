@@ -23,6 +23,29 @@ import java.io.FileWriter;
 /** Travel group: end-to-end encryption (AES-256-GCM) and the relay (ntfy.sh) that passes scrambled messages between phones. */
 public class GroupCore {
     static final String RELAY = "https://ntfy.sh/";
+    /** Your own relay on Cloudflare (no daily limit for a few people). ntfy.sh stays as the fallback, and as a second copy
+     *  while someone in the group still runs an older version that only knows ntfy.sh ("dual"). */
+    static final String RELAY2 = "https://outandback-relay.jariplayz.workers.dev/";
+    static String post(String topic, byte[] body, JSONObject headers, int timeout, boolean dual) throws Exception {
+        String r = null; Exception err = null;
+        try { r = http(headers != null ? "PUT" : "POST", RELAY2 + topic, body, headers, timeout); if (sCtx != null) prefs(sCtx).edit().putLong("r2ok", System.currentTimeMillis()).apply(); }
+        catch (Exception e) { err = e; if (sCtx != null) prefs(sCtx).edit().putLong("r2fail", System.currentTimeMillis()).apply(); }
+        if (r == null || dual) {
+            try { String r1 = http(headers != null ? "PUT" : "POST", RELAY + topic, body, headers, timeout); if (r == null) r = r1; }
+            catch (Exception e) { if (r == null) throw e; }
+        }
+        return r;
+    }
+    /** Is our own relay working? Then ntfy.sh's daily budget doesn't hold us back. */
+    static boolean relay2Ok(Context c) { SharedPreferences p = prefs(c); long ok = p.getLong("r2ok", 0); return ok > p.getLong("r2fail", 0) && System.currentTimeMillis() - ok < 6 * 3600000L; }
+    /** Messages can arrive twice (once through each relay): remember the last few we handled. */
+    static synchronized boolean seenBefore(SharedPreferences p, JSONObject env) {
+        String k = env.optString("from") + ":" + env.optLong("ts") + ":" + env.optString("ty"), all = p.getString("seenK", "");
+        if (("|" + all + "|").contains("|" + k + "|")) return true;
+        String nx = all.isEmpty() ? k : all + "|" + k;
+        String[] parts = nx.split("\\|"); if (parts.length > 300) { StringBuilder b = new StringBuilder(); for (int i = parts.length - 300; i < parts.length; i++) { if (b.length() > 0) b.append('|'); b.append(parts[i]); } nx = b.toString(); }
+        p.edit().putString("seenK", nx).apply(); return false;
+    }
     static final SecureRandom RND = new SecureRandom();
 
     static SharedPreferences prefs(Context c) { return c.getSharedPreferences("group", 0); }
@@ -52,7 +75,7 @@ public class GroupCore {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(10000); c.setReadTimeout(timeout);
         c.setRequestMethod(method);
-        c.setRequestProperty("User-Agent", "OutAndBack/1.35 (+https://github.com/jariplayz-source/puglia-transit)");
+        c.setRequestProperty("User-Agent", "OutAndBack/1.36 (+https://github.com/jariplayz-source/puglia-transit)");
         if (headers != null) { java.util.Iterator<String> it = headers.keys(); while (it.hasNext()) { String k = it.next(); c.setRequestProperty(k, headers.getString(k)); } }
         if (body != null) { c.setDoOutput(true); c.setFixedLengthStreamingMode(body.length); OutputStream os = c.getOutputStream(); os.write(body); os.close(); }
         int code = c.getResponseCode();
@@ -83,12 +106,13 @@ public class GroupCore {
     /** May we send now? Routine updates stop first, so SOS, check-ins and photos always have room left. */
     static boolean allow(Context c, int upTo) {
         init(c);
+        if (relay2Ok(c)) return true;
         if (System.currentTimeMillis() < prefs(c).getLong("limitedUntil", 0)) return false;
         return sentToday(c) < upTo;
     }
     static String relayStatus(Context c) {
         init(c);
-        try { JSONObject o = new JSONObject(); o.put("n", sentToday(c)); o.put("limit", DAY_LIMIT); o.put("limitedUntil", prefs(c).getLong("limitedUntil", 0)); o.put("reset", nextUtcMidnight()); return o.toString(); } catch (Exception e) { return "{}"; }
+        try { JSONObject o = new JSONObject(); o.put("n", sentToday(c)); o.put("limit", DAY_LIMIT); o.put("limitedUntil", prefs(c).getLong("limitedUntil", 0)); o.put("reset", nextUtcMidnight()); o.put("r2", relay2Ok(c)); return o.toString(); } catch (Exception e) { return "{}"; }
     }
 
     /** Battery level 0-100 (and +1000 when charging), or -1. */
@@ -163,11 +187,11 @@ public class GroupCore {
             if (onlyTopic != null && !onlyTopic.equals(g.optString("topic"))) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.35"); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
+                m.put("v", 1); m.put("ver", "1.36"); m.put("r2", 1); m.put("ty", "loc"); m.put("from", g.optString("me")); m.put("name", g.optString("name"));
                 m.put("ts", System.currentTimeMillis()); m.put("lat", Math.round(lat * 1e5) / 1e5); m.put("lon", Math.round(lon * 1e5) / 1e5); m.put("acc", Math.round(acc));
                 if (bat >= 0) { m.put("bat", bat % 1000); m.put("chg", bat >= 1000); }
                 if (spd >= 0) m.put("spd", Math.round(spd * 10) / 10.0);
-                http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
+                post(g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000, g.optBoolean("dual", true));
             } catch (Exception e) { }
         }
     }
@@ -233,9 +257,9 @@ public class GroupCore {
             if (push == null || !push.optBoolean(kind)) continue;
             try {
                 JSONObject m = new JSONObject();
-                m.put("v", 1); m.put("ver", "1.35"); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
+                m.put("v", 1); m.put("ver", "1.36"); m.put("r2", 1); m.put("ty", "event"); m.put("ev", ev); m.put("kind", kind); m.put("place", place);
                 m.put("from", g.optString("me")); m.put("name", g.optString("name")); m.put("ts", System.currentTimeMillis());
-                http("POST", RELAY + g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000);
+                post(g.getString("topic"), encrypt(g.getString("key"), m.toString().getBytes("UTF-8")).getBytes("UTF-8"), null, 20000, g.optBoolean("dual", true));
             } catch (Exception e) { }
         }
     }
@@ -331,9 +355,11 @@ public class GroupCore {
         String topic = g.optString("topic", null), key = g.optString("key", null), me = g.optString("me", "");
         if (topic == null || key == null) return;
         String gl = many && g.optString("gname").length() > 0 ? " (" + g.optString("gname") + ")" : "";
-        String since = p.getString("lastNote:" + topic, p.getString("lastNote", "6h"));
+        for (int src = 0; src < 2; src++) {   // our own relay first, then ntfy.sh (older phones in the group still use it)
+        String base = src == 0 ? RELAY2 : RELAY, lk = (src == 0 ? "lastNoteR:" : "lastNote:") + topic;
+        String since = src == 0 ? p.getString(lk, "6h") : p.getString(lk, p.getString("lastNote", "6h"));
         try {
-            String txt = http("GET", RELAY + topic + "/json?poll=1&since=" + since, null, null, 20000);
+            String txt = http("GET", base + topic + "/json?poll=1&since=" + since, null, null, 20000);
             String last = null;
             for (String line : txt.split("\n")) {
                 line = line.trim(); if (line.isEmpty()) continue;
@@ -343,6 +369,7 @@ public class GroupCore {
                 try {
                     JSONObject env = new JSONObject(new String(decrypt(key, o.optString("message")), "UTF-8"));
                     if (me.equals(env.optString("from"))) continue;
+                    if (seenBefore(p, env)) continue;
                     String ty = env.optString("ty"), name = env.optString("name", "Your group") + gl, cap = env.optString("cap", "");
                     String title = null, text = null;
                     if ("loc".equals(ty)) { placeAlert(ctx, p, env); continue; }
@@ -395,7 +422,8 @@ public class GroupCore {
                     if (title != null) AlarmReceiver.show(ctx, "grp:" + o.optString("id"), title, text, true);
                 } catch (Exception notOurs) { }
             }
-            if (last != null) p.edit().putString("lastNote:" + topic, last).apply();
+            if (last != null) p.edit().putString(lk, last).apply();
         } catch (Exception e) { }
+        }
     }
 }

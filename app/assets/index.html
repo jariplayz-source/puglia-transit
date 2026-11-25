@@ -1856,9 +1856,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.35";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.36";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.36","Questbook grows up: painted scenes and portraits, build your own hero (people, look, background, trait and stat points), a world that remembers your choices (reputation, shops, several endings) and heroes that carry over to the next game. You lead the story, computer heroes no longer choose for you. Shards and other games: phones that drift apart fix themselves, Bluetooth recovers from missed messages, no more jumpy screen or lost taps. Your circle now uses your own message relay: no more daily message limit (ntfy.sh stays as backup)."],
  ["1.35","New game: Questbook, a story adventure with dice. The phone is the game master: pick a hero, choose what to do and roll the d20, help each other and fight together. Alone, with computer heroes, or 2 to 4 friends each on their own phone. Shards: champion abilities are now explained (tap a champion's name)."],
  ["1.34.2","Shards: respond to a battle with spells before it's fought (the defender first, then back and forth until both pass). A battlefield with none of its holder's units on it is held by nobody."],
  ["1.34.1","Shards: animations when a unit is played (it jumps out of its card), in battles (charge, explosion, the loser shatters), for spells and when you conquer a battlefield; tap to skip, or switch them off. Clearer rules: a How to play guide, a help line that tells you what you can do, cards you can play glow, and every card can be read up close before you play it."],
@@ -4809,7 +4810,7 @@ function evText(env,name){const pl=env.place||"",home=env.kind==="home";
 function evShort(env){const pl=env.place||"",home=env.kind==="home";return env.ev==="battery"?"Battery low ("+pl+"%)":env.ev==="drive"?"Started driving":env.ev==="leave"?"Left "+(home?"home":pl):"Arrived "+(home?"home":"at "+pl);}
 const PUSH_DEF=g=>g.kind==="home"?{home:true,places:false,battery:true,drive:false}:{home:false,places:true,battery:true,drive:false};
 const gPush=g=>({...PUSH_DEF(g),...(g.push||{})});
-function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,push:gPush(g),nudgeOff:!!g.nudgeOff,since:g.lastId||"1h",mids:Object.keys(g.members),phones:Object.fromEntries(Object.entries(g.members).filter(([i,m])=>m.phone).map(([i,m])=>[i,m.phone]))})),notify:!!NOTIF.group,places:alertPlaces(),home:NLHOME?{lat:NLHOME.lat,lon:NLHOME.lon}:null,placeAlerts:!!NOTIF.places}));}catch(e){}}
+function gCfg(){if(!gNative())return;try{window.AndroidGroup.config(JSON.stringify({groups:GROUPS.map(g=>({topic:g.topic,key:g.key,me:g.me.id,name:g.me.name,gname:g.name,share:!!g.sharing,push:gPush(g),nudgeOff:!!g.nudgeOff,since:g.lastId||"1h",dual:gDual(g),mids:Object.keys(g.members),phones:Object.fromEntries(Object.entries(g.members).filter(([i,m])=>m.phone).map(([i,m])=>[i,m.phone]))})),notify:!!NOTIF.group,places:alertPlaces(),home:NLHOME?{lat:NLHOME.lat,lon:NLHOME.lon}:null,placeAlerts:!!NOTIF.places}));}catch(e){}}
 function placeOf(ll){for(const m of MYP)if(!m.pin&&hav(ll,[m.lat,m.lon])<0.15)return (m.home?"🏠 ":"")+m.name;const t=hereTownOf(ll[0],ll[1]);return t?"in "+t:"";}
 function moveOf(l){if(!l||l.spd==null||l.spd<0)return "";return l.spd>8?"🚆 On the move":l.spd>0.8?"🚶 Walking":"🧍 Still";}
 function batOf(b,chg){if(b==null||b<0)return "";return `${chg?"⚡":b<=20?"🪫":"🔋"} ${b}%`;}
@@ -4818,8 +4819,12 @@ function gDec(s,G=GRP){if(!s)return null;const t=window.AndroidGroup.decrypt(G.k
 function gPublish(env,full,G=GRP){return new Promise((res,rej)=>{
   const id="g"+(++netSeq),tm=setTimeout(()=>{delete netCbs[id];rej(new Error("no answer from the relay"));},120000);
   netCbs[id]=(ok,txt)=>{clearTimeout(tm);ok?res(txt):rej(new Error(txt||"failed"));};
-  const e={v:1,ver:APP_VERSION,from:G.me.id,name:G.me.name,ts:Date.now(),...env};
-  try{if(full)window.AndroidGroup.publish(id,G.topic,gEnc({...e,...full},G),gEnc(e,G));else window.AndroidGroup.publish(id,G.topic,gEnc(e,G),"");}catch(x){clearTimeout(tm);rej(x);}});}
+  const e={v:1,ver:APP_VERSION,r2:1,from:G.me.id,name:G.me.name,ts:Date.now(),...env},AG=window.AndroidGroup,dual=gDual(G);
+  const pub=(a,b)=>AG.publish2?AG.publish2(id,G.topic,a,b,dual):AG.publish(id,G.topic,a,b);
+  try{if(full)pub(gEnc({...e,...full},G),gEnc(e,G));else pub(gEnc(e,G),"");}catch(x){clearTimeout(tm);rej(x);}});}
+/* your own relay on Cloudflare; a second copy goes through ntfy.sh while someone in the circle (seen in the last 3 weeks) runs an app that doesn't know it yet */
+const RELAY2="https://outandback-relay.jariplayz.workers.dev/";
+function gDual(G){return Object.values(G.members||{}).some(m=>m&&!m.r2&&Date.now()-(m.seen||0)<21*864e5);}
 function inviteCode(G=GRP){return "PTG1-"+btoa(unescape(encodeURIComponent(JSON.stringify({n:G.name,k:G.key,t:G.topic,y:G.kind||"trip"})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 function readInvite(code){const m=/PTG1-([A-Za-z0-9_-]+)/.exec(code||"");if(!m)return null;try{let b=m[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const o=JSON.parse(decodeURIComponent(escape(atob(b))));return o.k&&o.t?o:null;}catch(e){return null;}}
 async function gStart(gname,myname,inv,kind){
@@ -4846,11 +4851,19 @@ async function gPoll(){
 async function gPollG(G){
   const act=G===GRP,A=act?ALBUM:albumOf(G),gl=GROUPS.length>1?` (${G.name})`:"";let fresh=0;
   try{
-    const txt=await netGet(`https://ntfy.sh/${G.topic}/json?poll=1&since=${G.lastId||"12h"}`,20000);
-    for(const line of txt.split("\n")){if(!line.trim())continue;let o;try{o=JSON.parse(line);}catch(e){continue;}
-      if(o.event!=="message")continue;G.lastId=o.id;
+    /* our own relay first, then ntfy.sh (phones in the group that haven't updated yet still send there) */
+    const lines=[];let fails=0,lastErr=null;
+    for(const [base,f] of [[RELAY2,"lastIdR"],["https://ntfy.sh/","lastId"]]){
+      try{const txt=await netGet(`${base}${G.topic}/json?poll=1&since=${G[f]||"12h"}`,20000);
+        for(const line of txt.split("\n")){if(!line.trim())continue;let o;try{o=JSON.parse(line);}catch(e){continue;}if(o.event!=="message")continue;G[f]=o.id;lines.push(o);}}
+      catch(e){fails++;lastErr=e;}}
+    if(fails===2)throw lastErr;
+    lines.sort((a,b)=>(a.time||0)-(b.time||0));
+    G.seenK=G.seenK||[];
+    for(const o of lines){
       const env=gDec(o.message,G);if(!env||env.from===G.me.id)continue;
-      const m=G.members[env.from]=G.members[env.from]||{name:env.name};m.name=env.name;m.seen=Math.max(m.seen||0,env.ts||0);if(env.ver)m.ver=env.ver;
+      const sk=`${env.from}:${env.ts}:${env.ty}`;if(G.seenK.includes(sk))continue;G.seenK.push(sk);if(G.seenK.length>300)G.seenK.splice(0,G.seenK.length-300);   // the same message can come through both relays
+      const m=G.members[env.from]=G.members[env.from]||{name:env.name};m.name=env.name;m.seen=Math.max(m.seen||0,env.ts||0);if(env.ver)m.ver=env.ver;if(env.r2)m.r2=1;
       if(env.ty==="event"){const t=evText(env,(env.name||"Someone")+gl);if(t&&Date.now()-(env.ts||0)<3*3600e3){m.ev={s:evShort(env),ic:t[0].split(" ")[0],ts:env.ts};if(!m.evSeen||m.evSeen<env.ts){m.evSeen=env.ts;toast(t[0]);}}continue;}
       if(env.ty==="locreq"){if(Date.now()-(env.ts||0)<30*60e3){if(G.sharing){sendMyLoc(true,G);toast(`📍 ${env.name}${gl} asked where you are: sent`);}else{LOCREQ={name:env.name+gl,ts:env.ts,g:G.id};toast(`📍 ${env.name} asks where you are`);}}continue;}
       if(env.ty==="loc"){const prevAt=m.last?placeOf([m.last.lat,m.last.lon]):null;m.last={lat:env.lat,lon:env.lon,acc:env.acc,ts:env.ts,bat:env.bat,chg:env.chg,spd:env.spd};
@@ -4924,7 +4937,8 @@ var OUTBOX=[];try{OUTBOX=JSON.parse(localStorage.getItem("pt-outbox"))||[];}catc
 const saveOutbox=()=>{try{localStorage.setItem("pt-outbox",JSON.stringify(OUTBOX));}catch(e){}};
 let SEND_ERR="";
 function relayInfo(){try{return JSON.parse(window.AndroidGroup.relayStatus())||{};}catch(e){return {};}}
-function relayLimited(){const r=relayInfo();return /429/.test(SEND_ERR)||(r.limitedUntil&&Date.now()<r.limitedUntil);}
+function relayLimited(){const r=relayInfo();if(r.r2)return false;   /* our own relay works: ntfy.sh's daily limit doesn't matter */
+  return /429/.test(SEND_ERR)||(r.limitedUntil&&Date.now()<r.limitedUntil);}
 /* why a message couldn't go out, in plain words */
 function failWhy(what){if(isOffline())return `📴 No internet: ${what} saved and sent automatically later.`;
   if(relayLimited()){const r=relayInfo();const t=r.limitedUntil||r.reset;return `⏳ The free message service's daily limit is reached: ${what} saved and sent${t?" after "+new Date(t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}):" later"}.`;}
@@ -5154,11 +5168,11 @@ function renderGroup(){
     <div class="small" style="margin-top:6px">Arrive/leave alerts work for your saved places (❤️ My places on the Map tab).</div>
     <div class="btns"><button class="btn primary" id="gInv">📤 Send invite</button><button class="btn ghost" id="gRef">${gBusy?"⏳ Updating…":"🔄 Update locations"}</button></div>
     <div class="small" style="margin-top:4px">${GRP.polled?`Updated ${hmI(new Date(GRP.polled).toISOString())} · `:""}updates by itself every 15 seconds while this screen is open.</div>
-    ${gNative()?(()=>{const r=relayInfo();if(r.n==null)return "";const lim=r.limitedUntil&&Date.now()<r.limitedUntil;
+    ${gNative()?(()=>{const r=relayInfo();if(r.n==null)return "";if(r.r2)return `<div class="small" style="margin-top:4px">📨 Messages go through your own relay: no daily limit.</div>`;const lim=r.limitedUntil&&Date.now()<r.limitedUntil;
       return `<div class="small" style="margin-top:4px${lim?";color:var(--warn)":""}">${lim?`⏳ Daily limit of the free message service reached. Locations pause until ${new Date(r.limitedUntil).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}; SOS and check-ins still try, and text messages work.`:`📨 ${r.n} of about ${r.limit} messages used today (free message service). Your location is sent when you move and every 45 min when you're still.`}</div>`;})():""}
     ${gErr?`<div class="live-err">Last check: ${gErr}</div>`:""}
     <details class="adv"><summary>Invite code & privacy ▸</summary><div class="code">${inviteCode()}</div>
-      <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. The free relay that passes them on (ntfy.sh) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Photos and voice notes wait on the relay for about 3 hours, other messages about 12 hours: phones that don't open the app in that time miss them.</div>
+      <div class="lock">🔒 Locations, photos, notes and voice notes are encrypted on your phone (AES-256) before they leave it. Your own relay that passes them on (on Cloudflare, with the free ntfy.sh as backup) only sees scrambled data and when something is sent. Anyone with this code can join and read, so only share it with people you trust. Messages and photos wait on your relay for 3 days (on the ntfy.sh backup only 3 to 12 hours): phones that don't open the app in that time miss them.</div>
       <div class="dest" style="margin-top:12px;font-size:15px">📱 Backup when there's no internet</div>
       <div class="small">Your phone number is shared (encrypted) with your groups. Without internet their app texts them your location as a normal SMS, which they can read even without internet.</div>
       <div class="np-row" style="margin-top:6px"><input id="myPhone" class="np-select" type="tel" placeholder="+39 …" value="${escH(MYPHONE)}"><button class="mini" id="myPhoneSave" style="margin:0;flex:none">Save</button></div>

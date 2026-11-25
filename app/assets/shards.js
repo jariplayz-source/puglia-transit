@@ -39,7 +39,7 @@ const rngf=window.__rng,shuffle=window.__shuffle;
 const WIN=10,BFN=["The Shattered Bridge","Crystal Grove"];
 
 /* ---------------- the rules ---------------- */
-const DEF={min:2,max:2,aiDelay:750,
+const DEF={min:2,max:2,aiDelay:750,sync:true,
   init(pl,seed){const R=rngf(seed);return {names:pl.map(p=>p.name),n:2,R,phase:"pick",dom:[null,null],deck:[[],[]],hand:[[],[]],units:[],uid:1,energy:[0,0],extra:[0,0],turnNo:[0,0],
     pts:[0,0],ctrl:[-1,-1],turn:Math.floor(R()*2),abUsed:false,win:-1,log:[],ev:[],conqThisTurn:[false,false],fx:[],fxn:0};},
   turn:S=>S.win>=0?-1:S.phase==="pick"?(S.dom[0]==null?0:S.dom[1]==null?1:-1):S.bt?S.bt.pr:S.turn,

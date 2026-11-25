@@ -98,7 +98,9 @@ function addCss(){if(document.getElementById("gmCss"))return;const s=document.cr
 let SHELL=null;
 function makeShell(el){el.innerHTML=`<div class="gx"><div class="gx-top"><button class="gx-back" id="gxBack" aria-label="Back">‹</button><div class="gx-title" id="gxTitle">Games</div><div class="gx-st" id="gxSt"></div></div><div class="gx-body" id="gxBody"></div></div>`;
   SHELL=el.querySelector(".gx");return SHELL.querySelector("#gxBody");}
-function shell(title,status,fit){SHELL.querySelector("#gxTitle").textContent=title||"Games";setStatus(status);EL.className="gx-body"+(fit?" fit":"");EL.scrollTop=0;return EL;}
+/* a game redraws its screen on every move: only jump back to the top when the screen itself changes */
+let SHELLT="";
+function shell(title,status,fit){const t=title||"Games",inRoom=(()=>{try{return !!ROOMR&&ROOMR.started;}catch(e){return false;}})(),same=t===SHELLT&&inRoom;SHELLT=t;SHELL.querySelector("#gxTitle").textContent=t;setStatus(status);EL.className="gx-body"+(fit?" fit":"");if(!same)EL.scrollTop=0;return EL;}
 function setStatus(t){const x=SHELL&&SHELL.querySelector("#gxSt");if(x)x.textContent=t||"";}
 function onBack(f){const b=SHELL&&SHELL.querySelector("#gxBack");if(b)b.onclick=()=>{tapv();f();};}
 const AVC=["#e0533c","#2f7fd0","#2e9d5b","#c4602a","#8a4fc0","#c23f86","#178a8a","#6b6f1f"];
@@ -566,7 +568,7 @@ const RG={pesten:{def:PESTEN_DEF,title:"Pesten",view:(R)=>pestenView(R),opts:()=
   faker:{def:FAKER_DEF,title:"Faker",view:R=>fakerView(R),opts:()=>[]},
   wolves:{def:WOLF_DEF,title:"Werewolves",view:R=>wolfView(R),opts:()=>[]},
   tcg:{get def(){return window.SHARDS?SHARDS.def:{min:2,max:2};},title:"Shards",view:R=>SHARDS.view(R),opts:()=>[],ai:true},
-  rpg:{get def(){return window.RPG?RPG.def:{min:1,max:4};},title:"Questbook",view:R=>RPG.view(R),opts:()=>[],ai:true,soloMin:0,soloLabel:["🧙 Play now","Alone or with up to 3 computer heroes"]},
+  rpg:{get def(){return window.RPG?RPG.def:{min:1,max:4};},title:"Questbook",view:R=>RPG.view(R),opts:()=>window.RPG&&RPG.opts?RPG.opts(ROOMR):[],ai:true,soloMin:0,soloLabel:["🧙 Play now","Alone or with up to 3 computer heroes"]},
   mb:{get def(){return window.MON?MON.MB_DEF:{min:2,max:2};},title:"Wildlings battle",view:R=>MON.mbView(R),opts:()=>[],back:()=>openMon()},
   mt:{get def(){return window.MON?MON.MT_DEF:{min:2,max:2};},title:"Wildlings trade",view:R=>MON.mtView(R),opts:()=>[],back:()=>openMon()}};
 let ROOMR=null;

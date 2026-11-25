@@ -26,6 +26,7 @@ final class GameLink {
     private static BluetoothLeScanner scn; private static ScanCallback scnCb;
     private static final List<JSONObject> inbox = new ArrayList<JSONObject>();
     private static final HashMap<String, String> last = new HashMap<String, String>();
+    private static final HashMap<String, Long> lastAt = new HashMap<String, Long>();
     private static String advHex = "";
 
     static boolean ready(Context c) { return OfflineLink.btAvailable(c); }
@@ -47,8 +48,10 @@ final class GameLink {
                         if (p == null || p.length < 10) return;
                         String h = toHex(p), from = h.substring(8, 12);
                         synchronized (GameLink.class) {
-                            if (h.equals(last.get(from))) return;   // the same packet again
-                            last.put(from, h);
+                            long now = System.currentTimeMillis();
+                            Long at = lastAt.get(from);
+                            if (h.equals(last.get(from)) && at != null && now - at < 1000) return;   // the same packet again (let it through once a second, in case the game missed it)
+                            last.put(from, h); lastAt.put(from, now);
                             JSONObject o = new JSONObject(); o.put("p", h); o.put("rssi", r.getRssi()); inbox.add(o);
                             while (inbox.size() > 50) inbox.remove(0);
                         }
@@ -72,7 +75,11 @@ final class GameLink {
             AdvertiseSettings s = new AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM).setConnectable(false).setTimeout(0).build();
             AdvertiseData d = new AdvertiseData.Builder().setIncludeDeviceName(false).setIncludeTxPowerLevel(false).addManufacturerData(OfflineLink.MANUF, hex(h)).build();
-            advCb = new AdvertiseCallback() { }; adv.startAdvertising(s, d, advCb); advHex = h;
+            final String want = h;
+            advCb = new AdvertiseCallback() {
+                @Override public void onStartFailure(int code) { synchronized (GameLink.class) { if (want.equals(advHex)) { advHex = ""; advCb = null; } } }   // try again with the next send
+            };
+            advHex = h; adv.startAdvertising(s, d, advCb);
             return "ok";
         } catch (Exception e) { return "error: " + e.getMessage(); }
     }
@@ -83,7 +90,7 @@ final class GameLink {
     static synchronized void stop() {
         stopScan();
         try { if (adv != null && advCb != null) adv.stopAdvertising(advCb); } catch (Exception e) { }
-        advCb = null; advHex = ""; inbox.clear(); last.clear();
+        advCb = null; advHex = ""; inbox.clear(); last.clear(); lastAt.clear();
     }
     @SuppressLint("MissingPermission")
     private static void stopScan() { try { if (scn != null && scnCb != null) scn.stopScan(scnCb); } catch (Exception e) { } scnCb = null; }

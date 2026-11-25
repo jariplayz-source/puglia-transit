@@ -29,15 +29,31 @@ Room.prototype._append=function(e){if(!this.host)return false;
 Room.prototype._after=function(){try{this.onUpdate(this);}catch(x){console.error(x);}this._ai();};
 // the host's phone plays for computer players and for anyone who left
 Room.prototype._ai=function(){if(!this.host||!this.S||this.closed)return;clearTimeout(this.aiT);const t=this.def.turn(this.S);if(t<0||t>=this.players.length||!this.players[t].ai)return;
-  this.aiT=setTimeout(()=>{if(this.closed||!this.S)return;const t2=this.def.turn(this.S);if(t2!==t)return;const a=this.def.ai(this.S,t);if(a)this._append([t,...a]);},this.def.aiDelay||900);};
+  this.aiT=setTimeout(()=>{if(this.closed||!this.S)return;const t2=this.def.turn(this.S);if(t2!==t)return;const a=this.def.ai(this.S,t);if(a)this._append([t,...a]);},typeof this.def.aiDelay==="function"?this.def.aiDelay(this.S,t):(this.def.aiDelay||900));};
 // your own move
 Room.prototype.act=function(a){const s=this.mySlot();if(s<0||!this.S)return false;
   if(this.host)return this._append([s,...a]);
   if(this.def.check&&!this.def.check(this.S,s,a))return false;
   this.qn=((this.qn||0)%250)+1;this.pending={q:this.qn,a,at:Date.now()};/* every move gets the next number, so the host never mistakes it for an old one */this.tr.propose(this.pending);this.onUpdate(this);return true;};
 Room.prototype.restart=function(opts){if(!this.host)return;const seed=(Math.random()*4294967295)>>>0;this._append([255,seed>>>24&255,seed>>>16&255,seed>>>8&255,seed&255,this.players.length,...(opts||[])]);};
+/* a fingerprint of the game, so phones can check they still agree (only games that ask for it: their state has no names in it
+   apart from the keys skipped here) */
+Room.prototype.hash=function(){if(!this.S||!this.def.sync)return -1;const s=JSON.stringify(this.S,(k,v)=>typeof v==="function"||k==="names"||k==="log"||k==="ev"||k==="fx"||k==="txt"?undefined:v);
+  let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(h,31)+s.charCodeAt(i))|0;return h&0xffff;};
+Room.prototype.have=function(){return this.syncing?this.slog.length:this.log.length;};
+/* a client whose copy has drifted from the host's: fetch the whole log again and rebuild quietly, then swap it in */
+Room.prototype.resync=function(to){if(this.host||this.syncing)return;this.syncing=true;this.slog=[];this.S2=null;this.syncTo=to;this.mism=0;};
+// does the host's fingerprint at log length L match ours? (twice wrong in a row = drifted)
+Room.prototype.checkHash=function(L,h){if(this.host||this.syncing||!this.def.sync||h<0||L!==this.log.length)return false;
+  if(this.hash()===h){this.mism=0;return false;}this.mism=(this.mism||0)+1;if(this.mism>=2){this.resync(L);return true;}return false;};
 // a client receives log entry i
-Room.prototype._got=function(i,e){this.lastHeard=Date.now();if(i!==this.log.length)return i>this.log.length;   // true = there's a gap
+Room.prototype._got=function(i,e){this.lastHeard=Date.now();
+  if(this.syncing){if(i!==this.slog.length)return i>this.slog.length;this.slog.push(e);
+    if(e[0]===255){const seed=((e[1]<<24)|(e[2]<<16)|(e[3]<<8)|e[4])>>>0,pl=[];for(let j=0;j<e[5];j++)pl.push(this.players[j]||{id:"----",name:"…"});this.S2=this.def.init(pl,seed,e.slice(6));}
+    else if(this.S2)this.def.apply(this.S2,e[0],e.slice(1));
+    if(this.slog.length>=this.syncTo){this.log=this.slog;this.S=this.S2;this.syncing=false;this.slog=null;this.S2=null;this.started=true;this.syncNames();this.pending=null;this._after();}
+    return false;}
+  if(i!==this.log.length)return i>this.log.length;   // true = there's a gap
   this.log.push(e);this._apply(e);if(this.pending&&e[0]===this.mySlot())this.pending=null;this._after();return false;};
 Room.prototype.status=function(){return this.tr?this.tr.status():"";};
 Room.prototype.leave=function(){if(this.closed)return;this.closed=true;clearTimeout(this.aiT);try{this.tr.close();}catch(e){}};
@@ -55,17 +71,19 @@ Room.prototype._left=function(id){const s=this.slotOf(id);if(s<0)return;const p=
 function BTTr(room,code){this.room=room;this.code=code;this.rh=(+code).toString(16).padStart(4,"0");this.peers={};this.rot=[];this.ri=0;this.timer=0;this.tx=0;this.lastSend="";this.hostSeen=0;}
 BTTr.prototype.start=function(){const st=String(TT(t=>t.gameListen(this.rh))||"no bluetooth");if(st!=="ok")return st;
   this.timer=setInterval(()=>this.tick(),150);this.tx=setInterval(()=>this.send(),220);return "ok";};
-BTTr.prototype.adv=function(bytes){const hx="4f42"+this.rh+this.room.me+bytes.map(h2).join("");if(hx===this.lastSend)return;this.lastSend=hx;TT(t=>t.gameSend(hx.slice(0,48)));};
+BTTr.prototype.adv=function(bytes){const hx="4f42"+this.rh+this.room.me+bytes.map(h2).join("");if(hx===this.lastSend&&Date.now()-this.sentAt<2000)return;this.lastSend=hx;this.sentAt=Date.now();TT(t=>t.gameSend(hx.slice(0,48)));
+  if(Date.now()-(this.listenAt||0)>240000){this.listenAt=Date.now();if(this.listenAt0)TT(t=>t.gameListen(this.rh));this.listenAt0=1;}};
 BTTr.prototype.send=function(){const R=this.room;
   if(!R.host){const s=R.mySlot();if(s<0){this.adv([5,...trimU8(R.myName,17)]);return;}
-    const p=R.pending;this.adv([3,R.log.length>>8,R.log.length&255,p?p.q:(this.lastQ||0),...(p?p.a:[]).slice(0,14)]);if(p)this.lastQ=p.q;return;}
+    const p=R.pending,hv=R.have();this.adv([3,hv>>8,hv&255,p?p.q:(this.lastQ||0),...(p?p.a:[]).slice(0,14)]);if(p)this.lastQ=p.q;return;}
   // host: build the next round of packets once the last one is through
   if(this.ri>=this.rot.length){this.rot=[];this.ri=0;const L=R.log.length,peers=Object.values(this.peers);
     if(!this.round||this.round%3===0)R.players.forEach((p,k)=>this.rot.push([2,R.players.length,k,parseInt(p.id.slice(0,2),16),parseInt(p.id.slice(2,4),16),(R.started?1:0)|(p.ai?2:0),...trimU8(p.name,12)]));
     this.round=(this.round||0)+1;
     const need=[...new Set(peers.filter(c=>c.slot>=0&&c.have<L).map(c=>c.have))].sort((a,b)=>a-b).slice(0,4);
-    for(const i of need)for(let k=i;k<Math.min(L,i+3);k++)this.rot.push([1,L>>8,L&255,k>>8,k&255,...R.log[k]]);
+    for(const i of need)for(let k=i;k<Math.min(L,i+(L-i>6?6:3));k++)this.rot.push([1,L>>8,L&255,k>>8,k&255,...R.log[k]]);
     if(L)this.rot.push([1,L>>8,L&255,(L-1)>>8,(L-1)&255,...R.log[L-1]]);
+    if(L&&R.def.sync){const h=R.hash();this.rot.push([6,L>>8,L&255,h>>8,h&255]);}
     for(const c of peers)if(c.ackLeft>0){c.ackLeft--;this.rot.push([4,parseInt(c.id.slice(0,2),16),parseInt(c.id.slice(2,4),16),c.q]);}
     if(!this.rot.length)this.rot.push([2,R.players.length,0,parseInt(R.me.slice(0,2),16),parseInt(R.me.slice(2,4),16),R.started?1:0,...trimU8(R.myName,12)]);}
   this.adv(this.rot[this.ri++]);};
@@ -74,19 +92,22 @@ BTTr.prototype.tick=function(){const R=this.room;let a=[];try{a=JSON.parse(TT(t=
     if(R.host){let c=this.peers[from];
       if(b[0]===5){if(!c&&!R.started&&R.players.length<R.def.max){R.players.push({id:from,name:fromU8(b.slice(1))||"Player"});c=this.peers[from]={id:from,slot:R.players.length-1,have:0,q:0,acked:0,pq:0,seen:Date.now()};R.onRoster(R);}continue;}
       if(!c)continue;c.seen=Date.now();
+      if(c.gone){c.gone=false;const pp=R.players[c.slot];if(pp&&pp.left){pp.ai=false;pp.left=false;this.roster();R.onRoster(R);}}   /* back again: they play their own seat again */
       if(b[0]===3){c.have=(b[1]<<8)|b[2];const q=b[3];if(q&&q!==c.pq){c.pq=q;c.q=q;c.ackLeft=6;R._append([c.slot,...b.slice(4)]);}}
       continue;}
     // client: only listen to the host (the first phone that sends a roster with seat 0)
     if(!this.hostId){if(b[0]===2&&b[2]===0)this.hostId=from;else continue;}
     if(from!==this.hostId)continue;this.hostSeen=Date.now();R.lastHeard=Date.now();
-    if(b[0]===2){const n=b[1],k=b[2],id=h2(b[3])+h2(b[4]);R.players.length=Math.max(n,0);R.players[k]={id,name:fromU8(b.slice(6))||"Player",ai:!!(b[5]&2)};
-      for(let i=0;i<n;i++)if(!R.players[i])R.players[i]={id:"----",name:"…"};R.syncNames();R.onRoster(R);}
+    if(b[0]===2){const n=b[1],k=b[2],id=h2(b[3])+h2(b[4]),before=JSON.stringify(R.players);R.players.length=Math.max(n,0);R.players[k]={id,name:fromU8(b.slice(6))||"Player",ai:!!(b[5]&2)};
+      for(let i=0;i<n;i++)if(!R.players[i])R.players[i]={id:"----",name:"…"};
+      if(JSON.stringify(R.players)!==before){R.syncNames();R.onRoster(R);}}   /* the roster repeats every second: only redraw when something changed */
     if(b[0]===1){const i=(b[3]<<8)|b[4];R._got(i,b.slice(5));}
+    if(b[0]===6)R.checkHash((b[1]<<8)|b[2],(b[3]<<8)|b[4]);
     if(b[0]===4){const id=h2(b[1])+h2(b[2]);if(id===R.me&&R.pending&&R.pending.q===b[3]){R.pending=null;R.onUpdate(R);}}}
   // the host notices a phone that went quiet for long
   if(R.host)for(const c of Object.values(this.peers))if(c.slot>=0&&!c.gone&&Date.now()-c.seen>45000){c.gone=true;R._left(c.id);}};
 BTTr.prototype.published=function(){this.ri=this.rot.length;};   // something new: start a fresh round right away
-BTTr.prototype.propose=function(){this.lastSend="";};
+BTTr.prototype.propose=function(){this.lastSend="";this.sentAt=0;};
 BTTr.prototype.roster=function(){this.ri=this.rot.length;};
 BTTr.prototype.status=function(){if(this.room.host){const n=Object.values(this.peers).filter(c=>!c.gone&&Date.now()-c.seen<12000).length;return `📶 Bluetooth · ${n} phone${n===1?"":"s"} connected`;}
   return !this.hostSeen?"📶 Looking for the host…":Date.now()-this.hostSeen>10000?"⚠ Lost the host's phone: come closer":"📶 Bluetooth";};
@@ -103,7 +124,7 @@ NetTr.prototype.tick=function(){if(document.hidden)return;if(typeof gPollGame===
     if(R.pending&&Date.now()-R.pending.at>8000){R.pending.at=Date.now();this.propose(R.pending);}
     /* quiet for a while: ask the host what we missed (after 12 s, then less and less often while it stays quiet) */
     const wait=Math.min(60000,12000*Math.pow(2,this.needs||0));
-    if(R.mySlot()>=0&&!R.over&&Date.now()-R.lastHeard>wait&&Date.now()-this.lastNeed>wait){this.lastNeed=Date.now();this.needs=(this.needs||0)+1;this.pub({k:"need",have:R.log.length});}}};
+    if(R.mySlot()>=0&&!R.over&&Date.now()-R.lastHeard>wait&&Date.now()-this.lastNeed>wait){this.lastNeed=Date.now();this.needs=(this.needs||0)+1;this.pub({k:"need",have:R.have()});}}};
 NetTr.prototype.reinvite=function(){const R=this.room,inn=new Set(R.players.map(p=>p.id));this.pub({k:"inv",g:R.game,to:(this.to||[]).filter(id=>!inn.has(id)),host:R.myName});};
 NetTr.prototype.got=function(env){const R=this.room;if(env.sid!==this.sid||R.closed)return;const from=env.from;
   if(R.host){
@@ -111,20 +132,21 @@ NetTr.prototype.got=function(env){const R=this.room;if(env.sid!==this.sid||R.clo
     if(R.slotOf(from)<0)return;
     if(env.k==="prop"){const s=R.slotOf(from),last=this.peers[from]||0;if(env.q===last){this.pub({k:"ack",to:from,q:env.q});return;}this.peers[from]=env.q;
       const ok=R._append([s,...(env.a||[])]);if(!ok)this.pub({k:"ack",to:from,q:env.q});return;}
-    if(env.k==="need"){const have=env.have|0;this.roster();this.pub({k:"log",i:have,e:R.log.slice(have,have+60)});return;}
+    if(env.k==="need"){const have=env.have|0;this.roster();this.pub({k:"log",i:have,e:R.log.slice(have,have+60),h:R.hash()});return;}
     if(env.k==="bye"){R._left(from);return;}
     return;}
   if(from!==this.hostId)return;   /* only the host's messages matter to a client */
   R.lastHeard=Date.now();this.needs=0;
-  const behind=()=>{if(typeof env.L==="number"&&env.L>R.log.length&&Date.now()-this.lastNeed>5000){this.lastNeed=Date.now();this.pub({k:"need",have:R.log.length});}};
+  const behind=()=>{if(typeof env.L==="number"&&(R.syncing||env.L>R.log.length)&&Date.now()-this.lastNeed>5000){this.lastNeed=Date.now();this.pub({k:"need",have:R.have()});}};
   if(env.k==="roster"){R.players=(env.pl||[]).map(([id,name,ai])=>({id,name,ai:!!ai}));R.syncNames();R.onRoster(R);behind();return;}
   if(env.k==="log"){let gap=false;(env.e||[]).forEach((e,k)=>{if(R._got((env.i|0)+k,e))gap=true;});
     if(env.by===R.me&&R.pending&&R.pending.q===env.q)R.pending=null;
-    if(gap&&Date.now()-this.lastNeed>5000){this.lastNeed=Date.now();this.pub({k:"need",have:R.log.length});}else behind();return;}
+    if(typeof env.h==="number"&&typeof env.L==="number"&&R.checkHash(env.L,env.h)){this.lastNeed=Date.now();this.pub({k:"need",have:0});return;}
+    if(gap&&Date.now()-this.lastNeed>5000){this.lastNeed=Date.now();this.pub({k:"need",have:R.have()});}else behind();return;}
   if(env.k==="ack"){if(env.to===R.me&&R.pending&&R.pending.q===env.q){R.pending=null;R.onUpdate(R);}behind();return;}
   if(env.k==="bye"&&from===this.hostId){R.onLeft({host:true,name:env.name});return;}};
 NetTr.prototype.published=function(i){const R=this.room,e=R.log[i],by=e[0]===255?null:(R.players[e[0]]||{}).id,i0=Math.max(0,i-2);
-  this.pub({k:"log",i:i0,e:R.log.slice(i0,i+1),by,q:by?this.peers[by]:undefined});};   /* the last few moves ride along, so one lost message doesn't stall anyone */
+  this.pub({k:"log",i:i0,e:R.log.slice(i0,i+1),by,q:by?this.peers[by]:undefined,h:R.hash()});};   /* the last few moves ride along, so one lost message doesn't stall anyone */
 NetTr.prototype.propose=function(p){this.pub({k:"prop",q:p.q,a:p.a});};
 NetTr.prototype.roster=function(){this.pub({k:"roster",pl:this.room.players.map(p=>[p.id,p.name,p.ai?1:0])});};
 NetTr.prototype.status=function(){const R=this.room;return R.host?`🌐 Online · moves take a few seconds`:Date.now()-R.lastHeard>40000?"⚠ Haven't heard from the host for a while":"🌐 Online · moves take a few seconds";};
