@@ -24,9 +24,12 @@ export default {
 
     // attachment download
     if (req.method === "GET" && p[0] === "file" && p[1]) {
-      const r = await env.DB.prepare("SELECT data, name FROM files WHERE id = ?").bind(p[1]).first();
-      if (!r) return err(404, "not found (files are kept 3 days)");
-      return new Response(r.data, { headers: { "Content-Type": "application/octet-stream", "Cache-Control": "private, max-age=86400", ...CORS } });
+      const rows = (await env.DB.prepare("SELECT data FROM files WHERE id = ? ORDER BY part").bind(p[1]).all()).results || [];
+      if (!rows.length) return err(404, "not found (files are kept 3 days)");
+      // D1 hands back a blob as a list of numbers; a file is stored in pieces (a D1 row holds at most 2 MB)
+      const parts = rows.map(r => r.data instanceof ArrayBuffer ? new Uint8Array(r.data) : Uint8Array.from(r.data)), bytes = new Uint8Array(parts.reduce((n, x) => n + x.length, 0));
+      let at = 0; for (const x of parts) { bytes.set(x, at); at += x.length; }
+      return new Response(bytes, { headers: { "Content-Type": "application/octet-stream", "Cache-Control": "private, max-age=86400", ...CORS } });
     }
 
     const topic = p[0];
@@ -61,7 +64,9 @@ export default {
         if (body.length > MAX_FILE) return err(413, "attachment too large");
         message = req.headers.get("Message") || req.headers.get("X-Message") || "";
         att = { name: fname.slice(0, 64), size: body.length };
-        await env.DB.prepare("INSERT INTO files (id, topic, time, name, data) VALUES (?, ?, ?, ?, ?)").bind(id, topic, time, att.name, body).run();
+        const PART = 1500000, st = [];
+        for (let i = 0, k = 0; i < body.length || k === 0; i += PART, k++) st.push(env.DB.prepare("INSERT INTO files (id, part, topic, time, name, data) VALUES (?, ?, ?, ?, ?, ?)").bind(id, k, topic, time, att.name, body.slice(i, i + PART)));
+        await env.DB.batch(st);
       } else {
         if (body.length > MAX_MSG) return err(413, "message too large");
         message = new TextDecoder().decode(body);
