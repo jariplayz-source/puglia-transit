@@ -176,7 +176,7 @@ function netLink(G,sid,peer,peerName,role){const s=NET.start(G,sid,peer,peerName
 
 /* ---------------- hub ---------------- */
 let EL=null,T=null,LINK=null;
-function stopAll(){leaveRoom();clearInterval(pestenView.t);clearInterval(lobbyView.t);if(LINK){try{LINK.close();}catch(e){}LINK=null;}GL.stop();NET.stop();ACCEPT_WAIT=null;clearInterval(AUTO);AUTO=0;try{window.MON&&MON.stop();}catch(e){}}
+function stopAll(){try{if(window.SHARDS&&SHARDS.stop)SHARDS.stop();}catch(e){}leaveRoom();clearInterval(pestenView.t);clearInterval(lobbyView.t);if(LINK){try{LINK.close();}catch(e){}LINK=null;}GL.stop();NET.stop();ACCEPT_WAIT=null;clearInterval(AUTO);AUTO=0;try{window.MON&&MON.stop();}catch(e){}}
 let AUTO=0;
 // older screens: the header's back button goes to the games list; extra (a connection note) shows in the header
 const backRow=(extra)=>{shell("Games","",false);if(extra){const d=document.createElement("div");d.innerHTML=extra;setStatus(d.textContent);}return "";};

@@ -7,29 +7,35 @@
    Keywords: swift (can move the turn it's played), guard (takes hits first). */
 const DOM={E:["Ember","#e0533c","🔥","Fast and fierce: burn and rush."],T:["Tide","#2f7fd0","🌊","Patient control: draw cards, push enemies back."],
   G:["Grove","#2e9d5b","🌿","Big, tough units that grow."],S:["Storm","#c49a1a","⚡","Swift units and sudden lightning."],N:["Neutral","#7a7f8c","◇",""]};
-const CHAMP={E:{n:"Kira, Ash Dancer",ab:"Spark",ac:1,at:"Deal 1 damage to a unit.",tg:"unit"},T:{n:"Maelis, Deep Oracle",ab:"Insight",ac:2,at:"Draw a card.",tg:null},
-  G:{n:"Bramblemaw",ab:"Nurture",ac:1,at:"Give one of your units +1 might for good.",tg:"mine"},S:{n:"Zephra, Sky Runner",ab:"Gust",ac:1,at:"One of your units may move again this turn.",tg:"mine"}};
+const CHAMP={E:{n:"Kira, Ash Phoenix",ab:"Spark",ac:1,at:"Deal 1 damage to a unit.",tg:"unit"},T:{n:"Maelis, Tide Hydra",ab:"Insight",ac:2,at:"Draw a card.",tg:null},
+  G:{n:"Bramblemaw, Elder Mammoth",ab:"Nurture",ac:1,at:"Give one of your units +1 might for good.",tg:"mine"},S:{n:"Zephra, Crystal Storm",ab:"Gust",ac:1,at:"One of your units may move again this turn.",tg:"mine"}};
 // id: [domain, name, emoji, type, cost, might, keywords, effect, text]
 const C={
- e1:["E","Cinder Pup","🐕","u",1,2,"swift","",""],e2:["E","Ash Raider","🏹","u",2,3,"swift","",""],e3:["E","Flame Lancer","🔱","u",3,3,"","dmg1","When played: deal 1 damage to an enemy unit."],
- e4:["E","Blaze Brute","👹","u",4,5,"","",""],e5:["E","Kira, Ash Dancer","💃","u",5,5,"swift","conqDmg2","Champion. When she conquers: deal 2 damage to the weakest enemy unit."],
+ e1:["E","Cinder Hatchling","🐕","u",1,2,"swift","",""],e2:["E","Ash Raptor","🏹","u",2,3,"swift","",""],e3:["E","Ember Rex","🔱","u",3,3,"","dmg1","When played: deal 1 damage to an enemy unit."],
+ e4:["E","Blaze Wyrm","👹","u",4,5,"","",""],e5:["E","Kira, Ash Phoenix","💃","u",5,5,"swift","conqDmg2","Champion. When she conquers: deal 2 damage to the weakest enemy unit."],
  e6:["E","Firebolt","☄️","s",1,0,"","dmg2","Deal 2 damage to a unit."],e7:["E","Inferno","🌋","s",4,0,"","dmgAt2","Deal 2 damage to every enemy unit at one battlefield."],
  e8:["E","War Drums","🥁","s",2,0,"","buffAll2","Your units get +2 might this turn."],e9:["E","Smoke Screen","💨","s",1,0,"","toBase","Send an enemy unit back to its base."],
- t1:["T","Reef Sprite","🧚","u",1,1,"","draw1","When played: draw a card."],t2:["T","Shell Guard","🐚","u",2,3,"guard","",""],t3:["T","Tidecaller","🧜","u",3,3,"","bounce2","When played: return an enemy unit with 2 might or less to its owner's hand."],
- t4:["T","Deep Leviathan","🐋","u",6,7,"guard","",""],t5:["T","Maelis, Deep Oracle","🔮","u",5,4,"","upkeepDraw","Champion. At the start of your turn: draw a card."],
+ t1:["T","Reef Whelp","🧚","u",1,1,"","draw1","When played: draw a card."],t2:["T","Shellback","🐚","u",2,3,"guard","",""],t3:["T","Tidecaller Serpent","🧜","u",3,3,"","bounce2","When played: return an enemy unit with 2 might or less to its owner's hand."],
+ t4:["T","Deep Leviathan","🐋","u",6,7,"guard","",""],t5:["T","Maelis, Tide Hydra","🔮","u",5,4,"","upkeepDraw","Champion. At the start of your turn: draw a card."],
  t6:["T","Undertow","🌀","s",2,0,"","toBase","Send an enemy unit back to its base."],t7:["T","Foresight","📜","s",2,0,"","draw2","Draw 2 cards."],
- t8:["T","Riptide","🌊","s",3,0,"","bounce","Return a unit to its owner's hand."],t9:["T","Mist Wall","🌫️","u",3,4,"guard","",""],
- g1:["G","Seedling","🌱","u",1,2,"","",""],g2:["G","Moss Boar","🐗","u",2,3,"","",""],g3:["G","Vinecaller","🌿","u",3,2,"","buff2","When played: give a unit +2 might for good."],
- g4:["G","Old Grove Bear","🐻","u",4,6,"","",""],g5:["G","Bramblemaw","🌳","u",6,7,"guard","",""+"Champion. Guard."],
+ t8:["T","Riptide","🌊","s",3,0,"","bounce","Return a unit to its owner's hand."],t9:["T","Frost Warden","🌫️","u",3,4,"guard","",""],
+ g1:["G","Fernfin","🌱","u",1,2,"","",""],g2:["G","Moss Horn","🐗","u",2,3,"","",""],g3:["G","Vine Kitsune","🌿","u",3,2,"","buff2","When played: give a unit +2 might for good."],
+ g4:["G","Old Grove Titan","🐻","u",4,6,"","",""],g5:["G","Bramblemaw, Elder Mammoth","🌳","u",6,7,"guard","",""+"Champion. Guard."],
  g6:["G","Overgrowth","🍄","s",2,0,"","buff3","Give a unit +3 might for good."],g7:["G","Wild Growth","🌾","s",1,0,"","energy2","Get 2 extra energy this turn."],
- g8:["G","Thorn Hedge","🌵","u",2,4,"guard","",""],g9:["G","Ancient Stag","🦌","u",5,6,"swift","",""],
- s1:["S","Gale Kit","🦊","u",1,1,"swift","",""],s2:["S","Sky Scout","🕊️","u",2,2,"swift","draw1","Swift. When played: draw a card."],s3:["S","Thunder Hawk","🦅","u",3,3,"swift","",""],
- s4:["S","Storm Giant","🌩️","u",5,5,"swift","",""],s5:["S","Zephra, Sky Runner","🌪️","u",4,4,"swift","conqDraw","Champion. Swift. When she conquers: draw a card."],
+ g8:["G","Glade Guardian","🌵","u",2,4,"guard","",""],g9:["G","Ancient Stag","🦌","u",5,6,"swift","",""],
+ s1:["S","Gale Sabre","🦊","u",1,1,"swift","",""],s2:["S","Sky Scout","🕊️","u",2,2,"swift","draw1","Swift. When played: draw a card."],s3:["S","Thunder Griffin","🦅","u",3,3,"swift","",""],
+ s4:["S","Storm Wyvern","🌩️","u",5,5,"swift","",""],s5:["S","Zephra, Crystal Storm","🌪️","u",4,4,"swift","conqDraw","Champion. Swift. When she conquers: draw a card."],
  s6:["S","Lightning","⚡","s",2,0,"","dmg3","Deal 3 damage to a unit."],s7:["S","Tailwind","🍃","s",1,0,"","rally","Your units that already moved this turn may move again."],
  s8:["S","Chain Spark","✨","s",3,0,"","dmgAll1","Deal 1 damage to every enemy unit."],s9:["S","Static Field","🔌","s",2,0,"","weakAt1","Enemy units at one battlefield get −1 might this turn."],
- n1:["N","Wanderer","🧭","u",1,1,"","",""],n2:["N","Shardling","💎","u",2,2,"","",""],n3:["N","Watchtower Knight","🛡️","u",3,4,"guard","",""],
+ n1:["N","Mimic","🧭","u",1,1,"","",""],n2:["N","Shard Gargoyle","💎","u",2,2,"","",""],n3:["N","Night Watch","🛡️","u",3,4,"guard","",""],
  n4:["N","Rift Golem","🗿","u",4,4,"","",""],n5:["N","Bolster","💪","s",2,0,"","buff1draw","Give a unit +1 might for good and draw a card."],n6:["N","Recall","↩️","s",0,0,"","recall","Bring one of your units back to your base."]};
 const IDS=Object.keys(C),CI=id=>IDS.indexOf(id);
+// the 3D monster of every unit (Grab3D, CC0)
+const MODEL={e1:"baby-dragon",e2:"velociraptor",e3:"t-rex",e4:"dragon",e5:"phoenix",t1:"cartoon-dragon",t2:"stegosaurus",t3:"chinese-dragon",t4:"kraken",t5:"hydra",t9:"yeti",
+  g1:"spinosaurus",g2:"triceratops",g3:"kitsune-fox",g4:"brachiosaurus",g5:"mammoth",g8:"unicorn",g9:"spirit-stag",s1:"sabertooth-tiger",s2:"pterodactyl",s3:"griffin",s4:"wyvern",s5:"crystal-dragon",
+  n1:"mimic-chest",n2:"gargoyle",n3:"werewolf",n4:"stone-golem"};
+const CHAMPU={E:"e5",T:"t5",G:"g5",S:"s5"};
+const KW={swift:"Swift: can move to a battlefield the same turn you play it.",guard:"Guard: in a battle, enemy damage hits this unit first."};
 function deckFor(d,R){const own=IDS.filter(k=>C[k][0]===d),neu=IDS.filter(k=>C[k][0]==="N");const list=[];own.forEach(k=>{list.push(k,k);});neu.forEach(k=>{list.push(k,k);});
   return shuffle(list.map(CI),R);}
 const TARGET={dmg1:"enemy",dmg2:"unit",dmg3:"unit",toBase:"enemyField",bounce2:"enemySmall",bounce:"unit",buff2:"unit",buff3:"unit",buff1draw:"unit",recall:"mineField",dmgAt2:"field",weakAt1:"field"};
@@ -39,7 +45,7 @@ const WIN=10,BFN=["The Shattered Bridge","Crystal Grove"];
 /* ---------------- the rules ---------------- */
 const DEF={min:2,max:2,aiDelay:750,
   init(pl,seed){const R=rngf(seed);return {names:pl.map(p=>p.name),n:2,R,phase:"pick",dom:[null,null],deck:[[],[]],hand:[[],[]],units:[],uid:1,energy:[0,0],extra:[0,0],turnNo:[0,0],
-    pts:[0,0],ctrl:[-1,-1],turn:Math.floor(R()*2),abUsed:false,win:-1,log:[],ev:[],conqThisTurn:[false,false]};},
+    pts:[0,0],ctrl:[-1,-1],turn:Math.floor(R()*2),abUsed:false,win:-1,log:[],ev:[],conqThisTurn:[false,false],fx:[],fxn:0};},
   turn:S=>S.win>=0?-1:S.phase==="pick"?(S.dom[0]==null?0:S.dom[1]==null?1:-1):S.turn,
   check(S,k,a){try{return legal(S,k,a);}catch(e){return false;}},
   apply(S,k,a){if(!legal(S,k,a))return false;doAct(S,k,a);return true;},
@@ -63,7 +69,9 @@ function targetOk(S,k,eff,t){const need=TARGET[eff]||(eff==="dmg1x"?"unit":eff==
   if(need==="mine")return u.o===k;if(need==="mineField")return u.o===k&&u.loc>0;return true;}
 function spend(S,k,c){let x=c;const e=Math.min(S.extra[k],x);S.extra[k]-=e;x-=e;S.energy[k]-=x;}
 function draw(S,k,n){for(let i=0;i<n;i++){if(!S.deck[k].length)return;const c=S.deck[k].pop();if(S.hand[k].length<9)S.hand[k].push(c);}}
-function say(S,t){S.ev.push(t);if(S.ev.length>4)S.ev.shift();}
+function say(S,t){S.ev.push(t);if(S.ev.length>14)S.ev.shift();}
+// what happened, for the 3D scenes (part of the shared state, so every phone sees the same)
+function fx(S,e){S.fxn=(S.fxn||0)+1;e.n=S.fxn;(S.fx=S.fx||[]).push(e);if(S.fx.length>8)S.fx.shift();}
 function damage(S,u,n){u.dmg=(u.dmg||0)+n;if(u.dmg>=mightOf(u))die(S,u);}
 function die(S,u){S.units=S.units.filter(x=>x!==u);}
 function effect(S,k,eff,t,src){const nm=S.names[k],u=t?U(S,t):null;
@@ -81,20 +89,22 @@ function doAct(S,k,a){const t=a[0],nm=S.names[k];
     if(S.dom[0]&&S.dom[1]){for(const p of [0,1]){S.deck[p]=deckFor(S.dom[p],S.R);draw(S,p,4);}draw(S,1-S.turn,1);S.phase="play";startTurn(S);}return;}
   if(t===4){endTurn(S);return;}
   if(t===1){const hi=a[1],ci=S.hand[k][hi],c=C[IDS[ci]];S.hand[k].splice(hi,1);spend(S,k,c[4]);
-    if(c[3]==="u"){const u={id:S.uid++,c:ci,o:k,m:c[5],tmp:0,dmg:0,loc:0,swift:c[6].includes("swift"),guard:c[6].includes("guard"),fresh:true,moved:0,moves:1,fx:c[7]};S.units.push(u);if(S.uid>250)S.uid=1;
+    if(c[3]==="u"){const u={id:S.uid++,c:ci,o:k,m:c[5],tmp:0,dmg:0,loc:0,swift:c[6].includes("swift"),guard:c[6].includes("guard"),fresh:true,moved:0,moves:1,fx:c[7]};S.units.push(u);if(S.uid>250)S.uid=1;fx(S,{k:"sum",c:ci,o:k});
       say(S,`${nm} plays ${c[1]}`);if(c[7]&&TARGET[c[7]]!==undefined||["draw1"].includes(c[7]))effect(S,k,c[7],a[2],u);}
-    else{say(S,`${nm} casts ${c[1]}`);effect(S,k,c[7],a[2]);}
+    else{say(S,`${nm} casts ${c[1]}`);const tu=a[2]?U(S,a[2]):null;effect(S,k,c[7],a[2]);fx(S,{k:"spl",c:ci,o:k,tc:tu?tu.c:-1,kill:!!(tu&&!S.units.includes(tu))});}
     return;}
   if(t===3){const ch=CHAMP[S.dom[k]];spend(S,k,ch.ac);S.abUsed=true;say(S,`${nm} uses ${ch.ab}`);const u=U(S,a[1]);
     if(S.dom[k]==="E"&&u)damage(S,u,1);if(S.dom[k]==="T")draw(S,k,1);if(S.dom[k]==="G"&&u)u.m+=1;if(S.dom[k]==="S"&&u)u.moves=u.moved+1;return;}
   if(t===2){const u=U(S,a[1]),d=a[2];u.loc=d;u.moved++;if(d===0){say(S,`${nm} pulls ${C[IDS[u.c]][1]} back to base`);return;}
-    const foes=at(S,d,1-k);if(foes.length)fight(S,k,d);else conquer(S,k,d,u);}}
+    const foes=at(S,d,1-k);if(foes.length)fight(S,k,d);else{const had=S.ctrl[d-1];conquer(S,k,d,u);if(had!==k)fx(S,{k:"con",c:u.c,o:k,d});}}}
 // all your units at the battlefield against all of theirs; damage goes to guards first, then the weakest
 function fight(S,k,d){const mine=at(S,d,k),foes=at(S,d,1-k),sum=l=>l.reduce((s,u)=>s+mightOf(u)-(u.dmg||0),0);let my=sum(mine),their=sum(foes);
   say(S,`⚔ Battle at ${BFN[d-1]}: ${my} against ${their}`);
   const hit=(list,n)=>{const q=list.slice().sort((a,b)=>(b.guard-a.guard)||((mightOf(a)-(a.dmg||0))-(mightOf(b)-(b.dmg||0))));for(const u of q){if(n<=0)break;const hp=mightOf(u)-(u.dmg||0);const x=Math.min(n,hp);u.dmg=(u.dmg||0)+x;n-=x;if(u.dmg>=mightOf(u))die(S,u);}};
+  const best=l=>l.slice().sort((a,b)=>mightOf(b)-mightOf(a))[0];const bm=best(mine),bf=best(foes);
   hit(foes,my);hit(mine,their);
   const mineLeft=at(S,d,k),foesLeft=at(S,d,1-k);
+  fx(S,{k:"bat",o:k,d,mc:bm.c,fc:bf.c,my,their,nm:mine.length,nf:foes.length,ml:mineLeft.length,fl:foesLeft.length,bmDead:!S.units.includes(bm),bfDead:!S.units.includes(bf)});
   if(mineLeft.length&&!foesLeft.length)conquer(S,k,d,mineLeft[0]);
   else if(mineLeft.length&&foesLeft.length){mineLeft.forEach(u=>{if(u.moved)u.loc=0;});say(S,"Both sides hold: the attackers fall back");}}
 function conquer(S,k,d,u){if(S.ctrl[d-1]===k)return;S.ctrl[d-1]=k;S.pts[k]++;say(S,`🏳 ${S.names[k]} conquers ${BFN[d-1]} (+1)`);S.flash=[d,k];
@@ -136,79 +146,182 @@ function aiPick(S,k){if(S.phase==="pick")return [5,Math.floor(Math.random()*4)];
 /* ---------------- the board ---------------- */
 const CSS=`.sh{display:flex;flex-direction:column;gap:6px;height:100%}
 .sd-top,.sd-me{display:flex;align-items:center;gap:8px;font-size:13px}.sd-top b,.sd-me b{font-size:14px}
-.sd-pts{display:flex;gap:3px}.sd-pts i{width:12px;height:12px;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--line)}.sd-pts i.on{background:var(--c,#f2b233);box-shadow:0 0 6px var(--c,#f2b233)}
+.sd-pts{display:flex;gap:3px;align-items:center}.sd-pts i{width:11px;height:11px;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--line)}.sd-pts i.on{background:var(--c,#f2b233);box-shadow:0 0 6px var(--c,#f2b233)}
+.sd-pts em{font:800 12px system-ui;font-style:normal;margin-left:4px}
 .sd-en{margin-left:auto;font:700 13px system-ui;padding:3px 9px;border-radius:10px;background:var(--chip)}
+.sd-tools{display:flex;gap:6px;justify-content:flex-end}.sd-tools button{border:0;border-radius:12px;padding:5px 10px;font:800 12px system-ui;background:var(--chip);color:var(--ink)}.sd-tools button.on{background:#7c5cff;color:#fff}
 .sd-bfs{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;min-height:0}
 .sd-bf{border-radius:16px;padding:6px;display:flex;flex-direction:column;gap:4px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12),0 4px 14px rgba(0,0,0,.25);position:relative;min-height:0;overflow:hidden;color:#fff}
 .sd-bf[data-f="1"]{background:radial-gradient(ellipse at 50% 0%,#5a4a8a,#2a2246 70%)}.sd-bf[data-f="2"]{background:radial-gradient(ellipse at 50% 0%,#2f7a72,#16353a 70%)}
 .sd-bf .mid{border-top:1px dashed rgba(255,255,255,.25)}
-.sd-bf.tgt{box-shadow:inset 0 0 0 3px #f2b233;animation:shg 1s infinite}@keyframes shg{50%{box-shadow:inset 0 0 0 3px transparent}}
-.sd-bf h4{margin:0;font:700 11.5px system-ui;text-align:center;opacity:.8}.sd-bf .flag{position:absolute;top:4px;right:6px;font-size:13px}
-.sd-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:56px;align-content:flex-start}.sd-row.them{align-content:flex-end}
-.sd-base{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;min-height:60px;padding:4px;border-radius:14px;background:var(--chip)}
-.sd-u{width:50px;height:58px;border-radius:10px;border:0;padding:0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:24px;line-height:1;box-shadow:0 2px 5px rgba(0,0,0,.25)}
-.sd-u b{position:absolute;bottom:2px;right:4px;font:800 13px system-ui;text-shadow:0 1px 2px rgba(0,0,0,.6)}.sd-u .d{position:absolute;top:2px;left:3px;font:800 11px system-ui;color:#ffd0d0}
-.sd-u.g::after{content:"🛡";position:absolute;top:1px;right:2px;font-size:10px}.sd-u.s::before{content:"»";position:absolute;bottom:1px;left:4px;font:800 12px system-ui}
-.sd-u.sel{outline:3px solid #f2b233;transform:translateY(-3px)}.sd-u.tgt{outline:3px dashed #f2b233}.sd-u.tired{filter:saturate(.45) brightness(.85)}
-.sd-hand{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 2px;flex:none}
-.sd-c{flex:none;width:92px;height:128px;border-radius:12px;border:0;padding:6px;text-align:left;color:#fff;display:flex;flex-direction:column;gap:2px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.3);font:600 10.5px/1.25 system-ui}
-.sd-c .co{position:absolute;top:4px;right:5px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font:800 13px system-ui}
-.sd-c .em{font-size:28px;line-height:1.1}.sd-c .nm{font:800 11.5px system-ui}.sd-c .tx{opacity:.92}.sd-c .mt{position:absolute;bottom:5px;right:7px;font:800 16px system-ui}
-.sd-c.no{filter:saturate(.35) brightness(.8)}.sd-c.sel{transform:translateY(-8px);outline:3px solid #f2b233}
+.sd-bf.tgt,.sd-base.tgt{box-shadow:inset 0 0 0 3px #f2b233;animation:shg 1s infinite}@keyframes shg{50%{box-shadow:inset 0 0 0 3px transparent}}
+.sd-bf h4{margin:0;font:800 11.5px system-ui;text-align:center;opacity:.9}.sd-bf .who{font:600 10.5px system-ui;text-align:center;opacity:.8;margin-top:-2px}
+.sd-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:62px;align-content:flex-start}.sd-row.them{align-content:flex-end}
+.sd-base{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;min-height:66px;padding:4px;border-radius:14px;background:var(--chip)}
+.sd-u{width:52px;height:64px;border-radius:10px;border:0;padding:0;position:relative;overflow:hidden;color:#fff;box-shadow:0 2px 5px rgba(0,0,0,.3);background:#1c1c28}
+.sd-u img{position:absolute;inset:-4px -4px 6px;width:calc(100% + 8px);height:calc(100% + 2px);object-fit:contain}
+.sd-u .em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.sd-u b{position:absolute;bottom:1px;right:2px;min-width:20px;height:20px;border-radius:10px;background:rgba(0,0,0,.6);font:900 13px/20px system-ui;text-align:center}
+.sd-u .d{position:absolute;top:1px;left:2px;font:900 11px system-ui;color:#fff;background:#d33;border-radius:8px;padding:0 4px}
+.sd-u .k{position:absolute;bottom:2px;left:3px;font:800 11px system-ui;text-shadow:0 1px 2px #000}
+.sd-u.sel{outline:3px solid #f2b233;transform:translateY(-3px)}.sd-u.tgt{outline:3px dashed #f2b233}.sd-u.tired{filter:saturate(.4) brightness(.75)}
+.sd-u.ready{animation:shready 1.4s ease-in-out infinite}@keyframes shready{50%{box-shadow:0 0 0 3px #7cf29a,0 0 14px #7cf29a}}
+.sd-hand{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 2px;flex:none}
+.sd-c{flex:none;width:104px;height:150px;border-radius:12px;border:0;padding:0;text-align:left;color:#fff;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.35);font:600 9.5px/1.22 system-ui;overflow:hidden;background:#15131f}
+.sd-c .fr{position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 3px var(--dc)}
+.sd-c .nm{position:absolute;left:6px;right:24px;top:5px;font:800 10.5px/1.15 system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sd-c .co{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7c2,#f2b233 55%,#a5700a);color:#3a2600;display:flex;align-items:center;justify-content:center;font:900 12px system-ui}
+.sd-c .art{position:absolute;left:5px;right:5px;top:22px;height:62px;border-radius:7px;background:radial-gradient(circle at 50% 40%,var(--dc),#100e1a 80%);display:flex;align-items:center;justify-content:center;font-size:34px;overflow:hidden}
+.sd-c .art img{width:100%;height:100%;object-fit:contain}
+.sd-c .ty{position:absolute;left:6px;right:6px;top:86px;font:800 8.5px system-ui;letter-spacing:.3px;opacity:.85}
+.sd-c .tx{position:absolute;left:6px;right:6px;top:97px;bottom:4px;overflow:hidden;opacity:.95}
+.sd-c .mt{position:absolute;bottom:3px;right:3px;min-width:22px;height:22px;border-radius:11px;background:var(--dc);font:900 13px/22px system-ui;text-align:center;box-shadow:0 0 0 2px #15131f}
+.sd-c.no{filter:saturate(.3) brightness(.65)}.sd-c.ok{box-shadow:0 0 0 2px #7cf29a,0 0 14px rgba(124,242,154,.6)}.sd-c.sel{transform:translateY(-8px);outline:3px solid #f2b233}
 .sd-log{font-size:12px;color:var(--muted);text-align:center;min-height:16px}
+.sd-coach{font:600 12.5px/1.35 system-ui;padding:8px 10px;border-radius:12px;background:var(--chip);color:var(--ink)}.sd-coach b{color:var(--tc)}
 .sd-acts{display:flex;gap:6px}.sd-acts .tl-act{min-height:46px;padding:8px}
-.sd-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sd-pick button{border:0;border-radius:18px;padding:14px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:140px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-.sd-pick b{font-size:18px}.sd-pick .e{font-size:34px}.sd-pick small{opacity:.9;font-size:12.5px;line-height:1.3}
-.sd-flash{animation:shflash .9s}@keyframes shflash{30%{background:rgba(242,178,51,.45)}}`;
+.sd-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sd-pick button{border:0;border-radius:18px;padding:12px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:150px;box-shadow:0 4px 12px rgba(0,0,0,.25);position:relative;overflow:hidden}
+.sd-pick b{font-size:17px;position:relative}.sd-pick img{position:absolute;right:-14px;top:-6px;width:110px;height:110px;object-fit:contain;opacity:.95}.sd-pick small{opacity:.92;font-size:12px;line-height:1.3;position:relative;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.sd-flash{animation:shflash .9s}@keyframes shflash{30%{background:rgba(242,178,51,.45)}}
+.sd-ov{position:fixed;inset:0;z-index:300;background:rgba(10,8,20,.72);display:flex;align-items:flex-end;justify-content:center;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
+.sd-sheet{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:20px;padding:14px 14px 12px;animation:sdup .25s ease-out}@keyframes sdup{from{transform:translateY(40px);opacity:0}}
+.sd-sheet h3{margin:4px 0 8px;font:900 19px system-ui}.sd-sheet h4{margin:12px 0 4px;font:800 15px system-ui}.sd-sheet p,.sd-sheet li{font-size:14px;line-height:1.45;margin:4px 0}.sd-sheet ol,.sd-sheet ul{padding-left:20px;margin:4px 0}
+.sd-big{display:flex;gap:12px;align-items:flex-start}.sd-big .c{flex:none;width:150px;height:216px;font-size:11.5px}.sd-big .c .art{height:96px;font-size:48px}.sd-big .c .ty{top:122px;font-size:10px}.sd-big .c .tx{top:136px}.sd-big .c .nm{font-size:12.5px}
+.sd-kw{display:inline-block;margin:3px 4px 0 0;padding:3px 8px;border-radius:10px;background:var(--chip);font:600 12.5px system-ui}`;
 let X=null;
+const dc=d=>DOM[d][1];
+const artOf=ci=>{const id=IDS[ci],m=MODEL[id];return m&&window.SH_ART?window.SH_ART[m]:null;};
+function kwText(c){const k=[];if(c[6].includes("swift"))k.push("Swift");if(c[6].includes("guard"))k.push("Guard");return k.join(" · ");}
+function cardText(c){let t=c[8]||"";t=t.replace(/^Champion\. (Swift|Guard)\.?\s*/,"Champion. ").replace(/^Swift\. /,"");if(c[3]==="u"&&!t){t=c[6].includes("guard")?"Takes hits first in a battle.":c[6].includes("swift")?"Can move the turn you play it.":"";}return t;}
+function cardHtml(ci,cls,extra){const c=C[IDS[ci]],a=artOf(ci),kw=kwText(c);
+  return `<button class="sd-c ${cls||""}" ${extra||""} style="--dc:${dc(c[0])}"><span class="fr"></span><span class="nm">${X.esc(c[1])}</span><span class="co">${c[4]}</span>
+    <span class="art">${a?`<img src="${a}" alt="">`:c[2]}</span><span class="ty">${c[3]==="s"?"SPELL":"UNIT"}${kw?" · "+kw.toUpperCase():""} · ${DOM[c[0]][0].toUpperCase()}</span><span class="tx">${X.esc(cardText(c))}</span>${c[3]==="u"?`<span class="mt">${c[5]}</span>`:""}</button>`;}
+function unitHtml(u,cls){const c=C[IDS[u.c]],m=mightOf(u),a=artOf(u.c);
+  return `<button class="sd-u ${cls||""}" data-u="${u.id}" style="background:radial-gradient(circle at 50% 35%,${dc(c[0])},#15131f 78%)">${a?`<img src="${a}" alt="">`:`<span class="em">${c[2]}</span>`}${u.dmg?`<span class="d">−${u.dmg}</span>`:""}<span class="k">${u.guard?"🛡":""}${u.swift?"»":""}</span><b>${m}</b></button>`;}
+// the explanation: what the game is about and what you do on your turn
+const HELP=`<h3>How to play Shards</h3>
+  <p><b>Goal:</b> be the first to <b>${WIN} points</b>. You score by taking the two battlefields in the middle and keeping them.</p>
+  <h4>Your turn, step by step</h4><ol>
+  <li><b>Energy ⚡</b> refills at the start of your turn: 2 on your first turn, then one more each turn (up to 8).</li>
+  <li><b>Play cards</b> from your hand: tap a card to read it, then <i>Play</i>. The number in the gold circle is what it costs. Cards you can afford glow green.
+    <br>• <b>Units</b> (they have might, the number bottom-right) arrive in <b>your base</b>, at the bottom.<br>• <b>Spells</b> do something once and are gone.</li>
+  <li><b>Move units</b>: tap one of your units (ready ones pulse green), then tap a battlefield. Each unit moves once per turn. A unit you just played has to wait a turn, unless it's <b>Swift »</b>.</li>
+  <li><b>Champion ability</b>: the button next to End turn. Once per turn, costs energy.</li>
+  <li><b>End turn</b> when you're done. Damage heals and units can move again next turn.</li></ol>
+  <h4>Battlefields and points</h4><ul>
+  <li>Move onto a battlefield nobody holds, or beat everyone there: you <b>conquer</b> it, <b>+1 point</b> 🟢.</li>
+  <li>Still holding it (with a unit there) at the start of your next turn: <b>+1 point</b> again.</li></ul>
+  <h4>Battles</h4><ul>
+  <li>When you move onto a battlefield with enemies, everyone there fights at once: your <b>total might</b> against theirs.</li>
+  <li>Each side deals damage equal to its total. Damage goes to <b>Guard 🛡</b> units first, then the weakest. A unit with as much damage as its might is destroyed.</li>
+  <li>If both sides have units left, the attackers go back to base.</li></ul>
+  <h4>Words on cards</h4><ul><li>${KW.swift}</li><li>${KW.guard}</li><li><b>Might</b> is both how hard a unit hits and how much damage it can take.</li></ul>
+  <h4>3D and AR</h4><p>When a unit is played, a battle happens or a spell is cast, the monsters appear in 3D (tap to skip). Tap any unit on the board to see it up close. Switch on <b>AR</b> to put the monsters in your room through the camera: they stay where they are when you turn the phone, and they're lit like the room.</p>`;
+function overlay(html,wire){const o=document.createElement("div");o.className="sd-ov";o.innerHTML=`<div class="sd-sheet">${html}<div class="gm-row2" style="margin-top:10px"><button class="tl-act ghost" data-x>Close</button></div></div>`;
+  (document.querySelector(".gx")||document.body).appendChild(o);const close=()=>o.remove();o.onclick=e=>{if(e.target===o)close();};o.querySelector("[data-x]").onclick=close;if(wire)wire(o,close);return close;}
+function closeOverlays(){document.querySelectorAll(".sd-ov").forEach(o=>o.remove());}
+// 3D: loaded the first time it's needed, only while Shards is open
+let FXL=null;
+function fxReady(){if(window.SHFX)return Promise.resolve(true);if(FXL)return FXL;
+  FXL=new Promise(ok=>{const L=f=>new Promise(r=>{if(typeof loadScript==="function")loadScript(f).then(r,()=>r());else r();});
+    L("three3d.js").then(()=>window.THREE?L("shards-fx.js"):null).then(()=>ok(!!window.SHFX));});return FXL;}
+function fxInfo(S,e,me){const nm=k=>k===me?"You":S.names[k];const c=C[IDS[e.c]]||[];
+  if(e.k==="sum"){const m=MODEL[IDS[e.c]];if(!m)return null;return ["summon",{model:m,dom:c[0],name:c[1],owner:nm(e.o),might:c[5],kw:kwText(c),art:artOf(e.c)}];}
+  if(e.k==="spl"){return ["spell",{name:c[1],dom:c[0],owner:nm(e.o),text:cardText(c),model:e.tc>=0?MODEL[IDS[e.tc]]:null,kills:e.kill}];}
+  if(e.k==="con"){const m=MODEL[IDS[e.c]];if(!m)return null;return ["conquer",{model:m,dom:c[0],result:`${nm(e.o)} conquer${e.o===me?"":"s"} ${BFN[e.d-1]}!`,detail:"+1 point"}];}
+  if(e.k==="bat"){const a=C[IDS[e.mc]],b=C[IDS[e.fc]];if(!MODEL[IDS[e.mc]]||!MODEL[IDS[e.fc]])return null;
+    const leftIsMe=e.o===me||me<0,att={model:MODEL[IDS[e.mc]],dom:a[0],total:e.my},def={model:MODEL[IDS[e.fc]],dom:b[0],total:e.their};
+    const L=leftIsMe?att:def,R2=leftIsMe?def:att,attLoses=e.bmDead,defLoses=e.bfDead;
+    const won=e.ml&&!e.fl,held=e.ml&&e.fl;const res=won?`${nm(e.o)} conquer${e.o===me?"":"s"} ${BFN[e.d-1]}!`:held?"Both sides hold: the attackers fall back":`${nm(1-e.o)} hold${1-e.o===me?"":"s"} ${BFN[e.d-1]}`;
+    return ["battle",{place:BFN[e.d-1],left:L,right:R2,attackerLeft:leftIsMe,leftLoses:leftIsMe?attLoses:defLoses,rightLoses:leftIsMe?defLoses:attLoses,result:res,
+      detail:`${e.my} might (${e.nm} unit${e.nm>1?"s":""}) against ${e.their} (${e.nf})`}];}
+  return null;}
+function playFx(R,S,me){if(!S.fx)return;if(view.fxR!==R){view.fxR=R;view.fxSeen=S.fxn||0;return;}   // a game you join: don't replay what already happened
+  const fresh=S.fx.filter(e=>e.n>(view.fxSeen||0));view.fxSeen=S.fxn||0;if(!fresh.length||!fxOn())return;
+  fxReady().then(ok=>{if(!ok)return;for(const e of fresh){const x=fxInfo(S,e,me);if(x)SHFX.play(x[0],x[1]);}});}
+const fxOpt=()=>{try{return Object.assign({fx:true,ar:false},JSON.parse(localStorage.getItem("pt-shards-fx")||"{}"));}catch(e){return {fx:true,ar:false};}};
+const fxOn=()=>fxOpt().fx;
+function setOpt(k,v){const o=fxOpt();o[k]=v;try{localStorage.setItem("pt-shards-fx",JSON.stringify(o));}catch(e){}if(window.SHFX){if(k==="fx")SHFX.setFx(v);if(k==="ar")SHFX.setAR(v);SHFX.opt[k]=v;}}
+function inspectUnit(S,ci,u,me){const c=C[IDS[ci]],m=MODEL[IDS[ci]];
+  const html=`<b>${X.esc(c[1])}</b> · ${DOM[c[0]][0]}<br>${c[3]==="u"?`Might <b>${u?mightOf(u):c[5]}</b>${u&&u.dmg?` (damaged −${u.dmg})`:""} · costs ${c[4]}⚡`:`Spell · costs ${c[4]}⚡`}${u?` · ${u.o===me?"yours":"enemy"}${u.loc?` · at ${BFN[u.loc-1]}`:" · in base"}`:""}<br>${X.esc(cardText(c))}
+    <div>${c[6].includes("swift")?`<span class="kw">${KW.swift}</span>`:""}${c[6].includes("guard")?`<span class="kw">${KW.guard}</span>`:""}</div>`;
+  if(!m||!fxOn()){overlay(`<h3>${X.esc(c[1])}</h3><div class="sd-big">${cardHtml(ci,"c")}<div>${html}</div></div>`);return;}
+  fxReady().then(ok=>{if(ok)SHFX.inspect({model:m,dom:c[0],html});else overlay(`<h3>${X.esc(c[1])}</h3><div class="sd-big">${cardHtml(ci,"c")}<div>${html}</div></div>`);});}
 function view(R){const S=R.S,me=R.mySlot(),op=1-me,EL=X.EL();if(!document.getElementById("shCss")){const st=document.createElement("style");st.id="shCss";st.textContent=CSS;document.head.appendChild(st);}
-  X.shell("Shards",R.status(),true);X.onBack(()=>X.leaveAsk(R));
+  view.R=R;if(!window.SH_ART&&!view.artL&&typeof loadScript==="function"){view.artL=1;loadScript("shards-art.js").then(()=>{if(view.R&&view.R.S)view(view.R);}).catch(()=>{});}
+  X.shell("Shards",R.status(),true);X.onBack(()=>{closeOverlays();X.leaveAsk(R);});
+  try{if(!localStorage.getItem("pt-shards-help")){localStorage.setItem("pt-shards-help","1");setTimeout(()=>overlay(HELP),300);}}catch(e){}
+  const tools=`<div class="sd-tools"><button id="shHelp">? How to play</button><button id="sh3d" class="${fxOn()?"on":""}">3D</button><button id="shAR" class="${fxOpt().ar?"on":""}">AR</button></div>`;
+  const wireTools=()=>{EL.querySelector("#shHelp").onclick=()=>{X.tapv();overlay(HELP);};
+    EL.querySelector("#sh3d").onclick=()=>{X.tapv();setOpt("fx",!fxOn());view(R);};
+    EL.querySelector("#shAR").onclick=()=>{X.tapv();const on=!fxOpt().ar;setOpt("ar",on);if(on&&!fxOn())setOpt("fx",true);X.toast(on?"AR on: the monsters appear over your camera":"AR off");view(R);};};
   if(S.phase==="pick"){const mine=S.dom[me];
-    EL.innerHTML=`<div class="gm-big">Pick your champion</div>${mine?`<p class="sv-note" style="text-align:center">You picked ${DOM[mine][0]}. Waiting for ${X.esc(S.names[op])}…</p>`:""}
-      <div class="sd-pick">${"ETGS".split("").map((d,i)=>`<button data-pk="${i}" style="background:linear-gradient(150deg,${DOM[d][1]},#1c1c28)" ${mine?"disabled":""}><span class="e">${DOM[d][2]}</span><b>${DOM[d][0]}</b><small>${CHAMP[d].n}<br>${DOM[d][3]}<br><i>${CHAMP[d].ab} (${CHAMP[d].ac}⚡): ${CHAMP[d].at}</i></small></button>`).join("")}</div>
-      <p class="sv-note">Units move to the two battlefields to conquer them (+1 point) and hold them (+1 point at the start of your turn). First to ${WIN} points wins.</p>`;
-    EL.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>{X.tapv();R.act([5,+b.dataset.pk]);});return;}
+    EL.innerHTML=`${tools}<div class="gm-big">Pick your champion</div>${mine?`<p class="sv-note" style="text-align:center">You picked ${DOM[mine][0]}. Waiting for ${X.esc(S.names[op])}…</p>`:`<p class="sv-note" style="text-align:center">Your champion decides your deck: 9 cards of its domain (twice each) plus neutral cards.</p>`}
+      <div class="sd-pick">${"ETGS".split("").map((d,i)=>{const a=artOf(CI(CHAMPU[d]));return `<button data-pk="${i}" style="background:linear-gradient(150deg,${dc(d)},#1c1c28)" ${mine?"disabled":""}>${a?`<img src="${a}" alt="">`:""}<b>${DOM[d][2]} ${DOM[d][0]}</b><small>${CHAMP[d].n}<br>${DOM[d][3]}<br><i>Ability ${CHAMP[d].ab} (${CHAMP[d].ac}⚡): ${CHAMP[d].at}</i></small></button>`;}).join("")}</div>
+      <p class="sv-note">Units move onto the two battlefields to conquer them (+1 point) and hold them (+1 point at the start of your turn). First to ${WIN} points wins. Tap “? How to play” for the full rules.</p>`;
+    wireTools();EL.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>{X.tapv();R.act([5,+b.dataset.pk]);});playFx(R,S,me);return;}
   const mine=S.turn===me&&S.win<0&&!R.pending,E=S.energy[me]+S.extra[me];let sel=view.sel&&view.R===R?view.sel:null;
-  const uh=(u,cls)=>{const c=C[IDS[u.c]],m=mightOf(u);return `<button class="sd-u ${u.guard?"g":""} ${u.swift?"s":""} ${cls||""}" data-u="${u.id}" style="background:linear-gradient(150deg,${DOM[c[0]][1]},#1c1c28)">${c[2]}${u.dmg?`<span class="d">−${u.dmg}</span>`:""}<b>${m}</b></button>`;};
   const canMove=u=>mine&&u.o===me&&u.moved<u.moves&&(!u.fresh||u.swift);
-  // what can be targeted right now
+  // a card can be played if you can pay for it and it has something to aim at
+  const hasTarget=i=>{const c=C[IDS[S.hand[me][i]]],need=TARGET[c[7]];if(!need||need==="field")return true;if(need==="enemy"&&!S.units.some(u=>u.o!==me))return true;return S.units.some(u=>legal(S,me,[1,i,u.id]));};
+  const canPlay=i=>mine&&C[IDS[S.hand[me][i]]][4]<=E&&hasTarget(i);
   let tgtU=new Set(),tgtF=new Set();
   if(sel&&sel.kind==="card"){const c=C[IDS[S.hand[me][sel.i]]];const need=TARGET[c[7]];if(need==="field"){tgtF.add(1);tgtF.add(2);}else if(need)S.units.forEach(u=>{if(legal(S,me,[1,sel.i,u.id]))tgtU.add(u.id);});}
   if(sel&&sel.kind==="ab"){S.units.forEach(u=>{if(legal(S,me,[3,u.id]))tgtU.add(u.id);});}
   if(sel&&sel.kind==="unit"){const u=U(S,sel.id);if(u)[0,1,2].forEach(d=>{if(legal(S,me,[2,u.id,d]))tgtF.add(d);});}
-  const pts=k=>`<span class="sd-pts" style="--c:${DOM[S.dom[k]][1]}">${Array.from({length:WIN},(_,i)=>`<i class="${i<S.pts[k]?"on":""}"></i>`).join("")}</span>`;
-  const bf=d=>`<div class="sd-bf ${tgtF.has(d)?"tgt":""} ${S.flash&&S.flash[0]===d&&view.fl!==R.log.length?"sd-flash":""}" data-f="${d}"><h4>${BFN[d-1]}</h4>${S.ctrl[d-1]>=0?`<span class="flag">${S.ctrl[d-1]===me?"🟢":"🔴"}</span>`:""}
-      <div class="sd-row them">${at(S,d,op).map(u=>uh(u,tgtU.has(u.id)?"tgt":"")).join("")}</div><div class="mid"></div><div class="sd-row">${at(S,d,me).map(u=>uh(u,(sel&&sel.id===u.id?"sel ":"")+(tgtU.has(u.id)?"tgt ":"")+(canMove(u)?"":"tired"))).join("")}</div></div>`;
+  const pts=k=>`<span class="sd-pts" style="--c:${dc(S.dom[k])}">${Array.from({length:WIN},(_,i)=>`<i class="${i<S.pts[k]?"on":""}"></i>`).join("")}<em>${S.pts[k]}/${WIN}</em></span>`;
+  const ucls=u=>(sel&&sel.id===u.id?"sel ":"")+(tgtU.has(u.id)?"tgt ":"")+(u.o===me&&mine?(canMove(u)?"ready ":"tired "):"");
+  const holder=d=>S.ctrl[d-1]<0?"nobody holds it":S.ctrl[d-1]===me?"🟢 you hold it":`🔴 ${X.esc(S.names[S.ctrl[d-1]])} holds it`;
+  const bf=d=>`<div class="sd-bf ${tgtF.has(d)?"tgt":""} ${S.flash&&S.flash[0]===d&&view.fl!==R.log.length?"sd-flash":""}" data-f="${d}"><h4>${BFN[d-1]}</h4><div class="who">${holder(d)}</div>
+      <div class="sd-row them">${at(S,d,op).map(u=>unitHtml(u,ucls(u))).join("")}</div><div class="mid"></div><div class="sd-row">${at(S,d,me).map(u=>unitHtml(u,ucls(u))).join("")}</div></div>`;
   const ch=CHAMP[S.dom[me]];
-  EL.innerHTML=`<div class="sh">
+  const playable=S.hand[me].filter((ci,i)=>canPlay(i)).length,movable=S.units.filter(canMove).length,abOk=!S.abUsed&&ch.ac<=E&&(ch.tg==null||S.units.some(u=>legal(S,me,[3,u.id])));
+  let coach="";
+  if(S.win>=0)coach=S.win===me?"🏆 You win! Play again from the button below.":`${X.esc(S.names[S.win])} wins this one.`;
+  else if(!mine)coach=R.pending?"Sending your move…":`<b>${X.esc(S.names[S.turn])}</b> is playing. Watch the battlefields; tap any unit to see it up close.`;
+  else if(sel&&sel.kind==="card"){const c=C[IDS[S.hand[me][sel.i]]];coach=TARGET[c[7]]==="field"?`<b>${X.esc(c[1])}</b>: tap a battlefield.`:`<b>${X.esc(c[1])}</b>: tap a unit with a dashed outline. Tap the card again to cancel.`;}
+  else if(sel&&sel.kind==="unit")coach="Tap a battlefield to move there (or your base to pull back). Tap the unit again to cancel.";
+  else if(sel&&sel.kind==="ab")coach=`<b>${ch.ab}</b>: tap a unit with a dashed outline.`;
+  else{const st=[];if(playable)st.push(`play a card (<b>${playable}</b> glow${playable>1?"":"s"} green)`);if(movable)st.push(`move a ready unit (<b>${movable}</b> pulse${movable>1?"":"s"}) to a battlefield`);if(abOk)st.push(`use <b>${ch.ab}</b>`);
+    coach=st.length?`<b>Your turn</b> · ⚡${E}: ${st.join(", ")}. Then <b>End turn</b>.`:`<b>Your turn</b> · nothing left you can do: tap <b>End turn</b>.`;}
+  EL.innerHTML=`<div class="sh">${tools}
     <div class="sd-top">${DOM[S.dom[op]][2]} <b>${X.esc(S.names[op])}</b> ${pts(op)}<span class="sd-en">🂠 ${S.hand[op].length} · ⚡${S.energy[op]}</span></div>
-    <div class="sd-base" style="min-height:40px;opacity:.85">${at(S,0,op).map(u=>uh(u,tgtU.has(u.id)?"tgt":"")).join("")||`<small style="opacity:.6;align-self:center">their base</small>`}</div>
+    <div class="sd-base" style="min-height:44px;opacity:.9">${at(S,0,op).map(u=>unitHtml(u,ucls(u))).join("")||`<small style="opacity:.6;align-self:center">their base</small>`}</div>
     <div class="sd-bfs">${bf(1)}${bf(2)}</div>
-    <div class="sd-base ${tgtF.has(0)?"tgt":""}" data-f="0">${at(S,0,me).map(u=>uh(u,(sel&&sel.id===u.id?"sel ":"")+(tgtU.has(u.id)?"tgt ":"")+(canMove(u)?"":"tired"))).join("")||`<small style="opacity:.6;align-self:center">your base: units you play arrive here</small>`}</div>
-    <div class="sd-me">${DOM[S.dom[me]][2]} <b>You</b> ${pts(me)}<span class="sd-en">⚡ ${E} · 🂠 ${S.deck[me].length}</span></div>
-    <div class="sd-log">${S.win>=0?(S.win===me?"🏆 You win!":`${X.esc(S.names[S.win])} wins`):X.esc(S.ev[S.ev.length-1]||"")}</div>
-    <div class="sd-hand">${S.hand[me].map((ci,i)=>{const c=C[IDS[ci]],ok=mine&&c[4]<=E;return `<button class="sd-c ${ok?"":"no"} ${sel&&sel.kind==="card"&&sel.i===i?"sel":""}" data-h="${i}" style="background:linear-gradient(160deg,${DOM[c[0]][1]},#1c1c28)"><span class="co">${c[4]}</span><span class="em">${c[2]}</span><span class="nm">${c[1]}</span><span class="tx">${c[3]==="s"?"Spell. ":""}${c[6]?c[6].replace("swift","Swift").replace("guard","Guard")+". ":""}${c[8]&&!/^Champion\. (Swift|Guard)\.$/.test(c[8])?c[8]:""}</span>${c[3]==="u"?`<span class="mt">${c[5]}</span>`:""}</button>`;}).join("")}</div>
-    <div class="sd-acts">${S.win>=0?(R.host?`<button class="tl-act" id="shAgain">Play again</button>`:""):mine?`<button class="tl-act ghost" id="shAb" ${!S.abUsed&&ch.ac<=E?"":"disabled"}>${ch.ab} (${ch.ac}⚡)</button><button class="tl-act" id="shEnd">End turn</button>`:`<span class="sv-note" style="flex:1;text-align:center">${R.pending?"Sending…":X.esc(S.names[S.turn])+"'s turn…"}</span>`}</div></div>`;
+    <div class="sd-base ${tgtF.has(0)?"tgt":""}" data-f="0">${at(S,0,me).map(u=>unitHtml(u,ucls(u))).join("")||`<small style="opacity:.6;align-self:center">your base: units you play arrive here</small>`}</div>
+    <div class="sd-me">${DOM[S.dom[me]][2]} <b>You</b> ${pts(me)}<span class="sd-en">⚡ ${E} energy · 🂠 ${S.deck[me].length} in deck</span></div>
+    <div class="sd-coach">${coach}</div>
+    <div class="sd-log" id="shLog">${X.esc(S.ev[S.ev.length-1]||"")}${S.ev.length?" · tap for history":""}</div>
+    <div class="sd-hand">${S.hand[me].map((ci,i)=>{const ok=canPlay(i);return cardHtml(ci,`${mine?(ok?"ok":"no"):""} ${sel&&sel.kind==="card"&&sel.i===i?"sel":""}`,`data-h="${i}"`);}).join("")}</div>
+    <div class="sd-acts">${S.win>=0?(R.host?`<button class="tl-act" id="shAgain">Play again</button>`:""):mine?`<button class="tl-act ghost" id="shAb" ${abOk?"":"disabled"}>${ch.ab} (${ch.ac}⚡)</button><button class="tl-act" id="shEnd">End turn</button>`:`<span class="sv-note" style="flex:1;text-align:center">${R.pending?"Sending…":X.esc(S.names[S.turn])+"'s turn…"}</span>`}</div></div>`;
+  wireTools();
   if(S.flash)view.fl=R.log.length;
-  // animations: units that changed place
   const prev=view.pos&&view.R===R?view.pos:{};const now={};EL.querySelectorAll("[data-u]").forEach(e=>{now[e.dataset.u]=e.getBoundingClientRect();if(prev[e.dataset.u]){const p=prev[e.dataset.u],r=now[e.dataset.u];if(Math.abs(p.left-r.left)+Math.abs(p.top-r.top)>4)X.animateFrom(e,p,380);}});
   view.pos=now;view.R=R;
   if(S.win>=0&&view.won!==R.log.length){view.won=R.log.length;if(S.win===me)X.confetti();}
-  const hint=t=>{const l=EL.querySelector(".sd-log");if(l)l.textContent=t;};
-  if(sel&&sel.kind==="card")hint(TARGET[C[IDS[S.hand[me][sel.i]]][7]]?"Pick a target":"");
-  if(sel&&sel.kind==="unit")hint("Tap a battlefield (or your base) to move there");if(sel&&sel.kind==="ab")hint(`${ch.ab}: pick a unit`);
-  const go=a=>{view.sel=null;R.act(a);};const reselect=s=>{view.sel=s;view(R);};
-  EL.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{if(!mine)return;const i=+b.dataset.h,c=C[IDS[S.hand[me][i]]];if(c[4]>E){X.toast(`Needs ${c[4]} energy`);return;}X.tapv();
-    const need=TARGET[c[7]];if(!need||(need==="enemy"&&!S.units.some(u=>u.o!==me))){go([1,i,0]);return;}if(sel&&sel.kind==="card"&&sel.i===i){reselect(null);return;}reselect({kind:"card",i});});
-  EL.querySelectorAll("[data-u]").forEach(b=>b.onclick=e=>{e.stopPropagation();if(!mine)return;const id=+b.dataset.u;X.tapv();
-    if(sel&&sel.kind==="card"&&tgtU.has(id)){go([1,sel.i,id]);return;}if(sel&&sel.kind==="ab"&&tgtU.has(id)){go([3,id]);return;}
-    const u=U(S,id);if(u&&u.o===me&&canMove(u)){reselect(sel&&sel.id===id?null:{kind:"unit",id});return;}
-    const c=C[IDS[u.c]];X.toast(`${c[1]} · ${mightOf(u)} might${c[8]?" · "+c[8]:""}`);});
+  playFx(R,S,me);
+  const go=a=>{view.sel=null;closeOverlays();R.act(a);};const reselect=s=>{view.sel=s;view(R);};
+  EL.querySelector("#shLog").onclick=()=>overlay(`<h3>What happened</h3><ul>${S.ev.slice().reverse().map(t=>`<li>${X.esc(t)}</li>`).join("")}</ul>`);
+  // a card: read it first, then play it
+  EL.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{X.tapv();const i=+b.dataset.h,ci=S.hand[me][i],c=C[IDS[ci]];
+    if(sel&&sel.kind==="card"&&sel.i===i){reselect(null);return;}
+    const need=TARGET[c[7]],afford=c[4]<=E,why=!mine?"It's not your turn.":!afford?`Needs ${c[4]} energy, you have ${E}.`:!hasTarget(i)?"There's nothing it can target right now.":"";
+    const kws=[c[6].includes("swift")?KW.swift:"",c[6].includes("guard")?KW.guard:""].filter(Boolean);
+    overlay(`<h3>${X.esc(c[1])}</h3><div class="sd-big">${cardHtml(ci,"c")}<div><p>${c[3]==="u"?`<b>Unit</b> with <b>${c[5]} might</b>. It arrives in your base.`:"<b>Spell</b>: happens once."}</p><p>${X.esc(cardText(c))||""}</p>${kws.map(k=>`<span class="sd-kw">${k}</span>`).join("")}
+      <p class="sv-note">Costs ${c[4]}⚡ · ${DOM[c[0]][0]}</p>${why?`<p class="sv-note">${why}</p>`:""}</div></div><div class="gm-row2"><button class="tl-act" id="shPlay" ${why?"disabled":""}>${need&&!(need==="enemy"&&!S.units.some(u=>u.o!==me))?"Play: pick a target":"Play"}</button>${MODEL[IDS[ci]]?`<button class="tl-act ghost" id="sh3dv">View in 3D</button>`:""}</div>`,
+      (o,close)=>{const p=o.querySelector("#shPlay");if(p)p.onclick=()=>{X.tapv();close();if(!need||(need==="enemy"&&!S.units.some(u=>u.o!==me))){go([1,i,0]);return;}reselect({kind:"card",i});};
+        const v=o.querySelector("#sh3dv");if(v)v.onclick=()=>{close();inspectUnit(S,ci,null,me);};});});
+  EL.querySelectorAll("[data-u]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=+b.dataset.u;X.tapv();const u=U(S,id);if(!u)return;
+    if(mine&&sel&&sel.kind==="card"&&tgtU.has(id)){go([1,sel.i,id]);return;}if(mine&&sel&&sel.kind==="ab"&&tgtU.has(id)){go([3,id]);return;}
+    if(u.o===me&&canMove(u)&&!(sel&&sel.id===id)){reselect({kind:"unit",id});return;}
+    if(sel&&sel.id===id){reselect(null);return;}
+    inspectUnit(S,u.c,u,me);});
   EL.querySelectorAll("[data-f]").forEach(f=>f.onclick=()=>{if(!mine||!sel)return;const d=+f.dataset.f;
     if(sel.kind==="card"&&tgtF.has(d)){X.tapv();go([1,sel.i,d]);return;}if(sel.kind==="unit"&&tgtF.has(d)){X.tapv();go([2,sel.id,d]);}});
   const ab=EL.querySelector("#shAb");if(ab)ab.onclick=()=>{X.tapv();if(!ch.tg){go([3,0]);return;}reselect(sel&&sel.kind==="ab"?null:{kind:"ab"});};
-  const en=EL.querySelector("#shEnd");if(en)en.onclick=()=>{X.tapv();go([4]);};
+  const en=EL.querySelector("#shEnd");if(en)en.onclick=()=>{X.tapv();if(playable||movable)overlay(`<h3>End your turn?</h3><p>You can still ${[playable?`play ${playable} card${playable>1?"s":""}`:"",movable?`move ${movable} unit${movable>1?"s":""}`:""].filter(Boolean).join(" and ")}.</p><div class="gm-row2"><button class="tl-act" id="shYes">End turn</button></div>`,(o,close)=>{o.querySelector("#shYes").onclick=()=>{close();go([4]);};});else go([4]);};
   const ag=EL.querySelector("#shAgain");if(ag)ag.onclick=()=>{X.tapv();R.restart([]);};}
-
-window.SHARDS={def:DEF,view,init(h){X=h;},_t:{C,IDS,legal,doAct,aiMove,DEF}};
+// leaving Shards: the 3D, camera and sensors switch off and the styles go
+function stop(){closeOverlays();if(window.SHFX)SHFX.stop();view.R=null;view.fxR=null;const s=document.getElementById("shCss");if(s)s.remove();}
+window.SHARDS={def:DEF,view,stop,init(h){X=h;},_t:{C,IDS,legal,doAct,aiMove,DEF}};
 })();
