@@ -1856,9 +1856,10 @@ setInterval(lastWarn,30000);
 setInterval(()=>{if(hereTown&&!typing()){renderHere();const ts=document.getElementById("npTown");if(ts&&ts.value===hereTown)fillIfShown(hereTown);}},60000);
 
 /* ---------- VERSION & UPDATES ---------- */
-const APP_VERSION="1.31";const APP_TEST=false;            // bump on every release
+const APP_VERSION="1.32";const APP_TEST=false;            // bump on every release
 const WEB_URL="https://claude.ai/artifact/XztjMBaaJ33npm4tve5uRS";
 const WHATS_NEW=[
+ ["1.32","Games for 2 to 8 players over Bluetooth or online, without getting stuck: Pesten, the drinking games on everyone's own phone, Faker, Werewolves and Shards, a card battle with your own champion. Full-screen games with animations. The Moon sits exactly right on the star map again."],
  ["1.31","Star map: line it up with the Moon or a bright star (🎯) for a spot-on sky, pinch to fit the camera, and a new look in every style with the Milky Way and a soft horizon."],
  ["1.30","Star map in Tools: point your phone at the sky and see stars, constellations, planets and the Moon, over your camera if you like. Shift the time, search with an arrow that shows the way, and a guide to finding your way by the stars."],
  ["1.29","Driving: while you navigate by car, people in your circle within 1 km send their position every 30 seconds. The Puglia trip pins only show while you travel there, and overlapping pins hide until you zoom in."],
@@ -4811,7 +4812,8 @@ async function gPollG(G){
       if(env.ty==="nudge"){nuGot(G,env,m,gl);continue;}
       if(env.ty==="locfast"){if(env.to===G.me.id&&G.sharing&&Date.now()-(env.ts||0)<5*60e3){const u=Math.min(env.until||0,Date.now()+5*60e3);
         if(gNative()){try{window.AndroidGroup.fastShare(G.topic,u);}catch(e){}}else{FAST={G,until:u};}}continue;}
-      if(env.ty==="game"){if(env.to===G.me.id&&Date.now()-(env.ts||0)<15*60e3){if(window.GAME_IN){try{GAME_IN(G,env);}catch(e){}}
+      if(env.ty==="game"){const forMe=env.to===G.me.id||(Array.isArray(env.to)&&env.to.includes(G.me.id))||(env.sid&&!env.to&&window.ROOM_IN);
+        if(forMe&&Date.now()-(env.ts||0)<15*60e3){if(window.GAME_IN){try{GAME_IN(G,env);}catch(e){}}
         else if(env.k==="inv"){try{const a=(JSON.parse(localStorage.getItem("pt-ginv")||"[]")||[]).filter(x=>Date.now()-x.ts<15*60e3&&x.sid!==env.sid);a.push({g:G.id,from:env.from,name:env.name,game:env.g,sid:env.sid,ts:env.ts||Date.now()});localStorage.setItem("pt-ginv",JSON.stringify(a.slice(-5)));}catch(e){}
           toast(`🎮 ${env.name}${gl} invites you to play: Group tab → Games`);}}continue;}
       if(env.phone)m.phone=env.phone;

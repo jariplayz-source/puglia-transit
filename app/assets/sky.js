@@ -184,7 +184,7 @@ function run(el,T){
     const Tc=(jd(t)-2451545)/36525,Ea=helio("earth",Tc),P={};
     for(const k of ["mercury","venus","mars","jupiter","saturn","uranus","neptune"]){const h=helio(k,Tc),q=eq([h[0]-Ea[0],h[1]-Ea[1],h[2]-Ea[2]]);P[k]={k,ra:q.ra,dec:q.dec,v:E(q.ra,q.dec),dist:q.dist};}
     const sq=eq([-Ea[0],-Ea[1],-Ea[2]]);P.sun={k:"sun",ra:sq.ra,dec:sq.dec,v:E(sq.ra,sq.dec),dist:sq.dist};
-    const mq=moonEq(t);let mv=enu(mq.ra,mq.dec,lst,sl,cl);   // the Moon is already worked out for today's equinox{const aa=altaz(mv),par=Math.asin(1/mq.er),alt=aa.alt-Math.asin(Math.sin(par)*Math.cos(aa.alt*R))/R;const a=aa.az*R,h=alt*R;mv=refract([Math.cos(h)*Math.sin(a),Math.cos(h)*Math.cos(a),Math.sin(h)]);}
+    const mq=moonEq(t);let mv=enu(mq.ra,mq.dec,lst,sl,cl);/* the Moon is already worked out for today's equinox */{const aa=altaz(mv),par=Math.asin(1/mq.er),alt=aa.alt-Math.asin(Math.sin(par)*Math.cos(aa.alt*R))/R;const a=aa.az*R,h=alt*R;mv=refract([Math.cos(h)*Math.sin(a),Math.cos(h)*Math.cos(a),Math.sin(h)]);}
     const el2=((mq.lon-mq.sunLon)%360+360)%360;P.moon={k:"moon",ra:mq.ra,dec:mq.dec,v:mv,dist:mq.er*6371,phase:el2,illum:(1-Math.cos(el2*R))/2};
     return cache={key,t,lst,S,byId,Lines,Cons,P,E};}
   /* projection */
